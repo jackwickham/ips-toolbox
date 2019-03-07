@@ -10,6 +10,7 @@
 
 
 namespace IPS\toolbox\Proxy\Generator;
+use function _;
 
 
 use IPS\Application;

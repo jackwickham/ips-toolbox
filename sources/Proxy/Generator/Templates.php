@@ -10,6 +10,10 @@
 
 
 namespace IPS\toolbox\Proxy\Generator;
+use function random_int;
+use function md5;
+use function time;
+use function rand;
 
 use Exception;
 use IPS\Data\Store;
@@ -125,14 +129,14 @@ class _Templates extends GeneratorAbstract
 
                 if ( !empty( $template[ 'params' ] ) ) {
 
-                    $rand = \trim( $template[ 'method' ] ) . \random_int( 1, 20000 ) . random_int( 1, 30000 ) . md5( time() + rand( 1, 10000 ) );
+                    $rand = \trim( $template[ 'method' ] ) . random_int( 1, 20000 ) . random_int( 1, 30000 ) . md5( time() + rand( 1, 10000 ) );
                     $fun = 'function ' . $rand . '( ' . $template[ 'params' ] . ' ) {}';
 
-                    $continue = true;
+                    $continue = \true;
 
                     if ( !function_exists( 'function ' . $rand ) ) {
-                        if ( eval( $fun ) === false ) {
-                            $continue = false;
+                        if ( eval( $fun ) === \false ) {
+                            $continue = \false;
                         }
                     }
 

@@ -11,6 +11,7 @@
  */
 
 namespace IPS\toolbox\Generator;
+use function array_diff;
 
 \IPS\toolbox\Application::loadAutoLoader();
 
@@ -43,7 +44,7 @@ class _DTClassGenerator extends ClassGenerator
         $cg = new static( $classReflection->getName() );
 
         $cg->setSourceContent( $cg->getSourceContent() );
-        $cg->setSourceDirty( false );
+        $cg->setSourceDirty( \false );
 
         if ( $classReflection->getDocComment() !== '' ) {
             $cg->setDocBlock( DocBlockGenerator::fromReflection( $classReflection->getDocBlock() ) );

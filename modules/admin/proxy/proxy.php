@@ -111,7 +111,7 @@ class _proxy extends Controller
             }
         }, function ()
         {
-            if ( defined( 'BYPASSPROXYDT' ) && BYPASSPROXYDT === true ) {
+            if ( defined( '\BYPASSPROXYDT' ) && \BYPASSPROXYDT === \true ) {
                 \IPS\tooblox\Application::loadAutoLoader();
                 $fs = new Filesystem();
                 $fs->mirror( \IPS\ROOT_PATH . '/dtProxy2', \IPS\ROOT_PATH . '/dtProxy' );

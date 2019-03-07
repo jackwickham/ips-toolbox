@@ -10,7 +10,7 @@
  * @version     -storm_version-
  */
 
-namespace IPS\toolbox\DevCenter\extensions\dtproxy\ProxyHelpers;
+namespace IPS\toolbox\extensions\toolbox\ProxyHelpers;
 
 use IPS\Application;
 use IPS\toolbox\DevCenter\Dev;

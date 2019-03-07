@@ -132,7 +132,7 @@ class _Proxyclass extends Singleton
     public function __construct( bool $console = \false )
     {
         $this->console = $console;
-        if ( defined( 'BYPASSPROXYDT' ) && BYPASSPROXYDT === true ) {
+        if ( defined( '\BYPASSPROXYDT' ) && \BYPASSPROXYDT === \true ) {
             $this->save = 'dtProxy2';
         }
         \IPS\toolbox\Application::loadAutoLoader();

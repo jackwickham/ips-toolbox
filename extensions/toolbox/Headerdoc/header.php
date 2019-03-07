@@ -10,7 +10,7 @@
  * @version     -storm_version-
  */
 
-namespace IPS\toolbox\extensions\toolbox\DevCenter\Headerdoc;
+namespace IPS\toolbox\extensions\toolbox\Headerdoc;
 
 use function defined;
 use function header;

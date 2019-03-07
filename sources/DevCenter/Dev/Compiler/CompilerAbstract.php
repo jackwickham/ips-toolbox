@@ -92,7 +92,7 @@ abstract class _CompilerAbstract
         if ( $this->type === 'template' ) {
             $this->proxy = \true;
         }
-        $this->_writeFile( $file, $content, $dir, false );
+        $this->_writeFile( $file, $content, $dir, \false );
     }
 
 

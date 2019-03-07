@@ -10,6 +10,13 @@
 
 
 namespace IPS\toolbox\Build;
+use function header;
+use function mb_substr;
+use function ksort;
+use function defined;
+use function array_merge;
+use function implode;
+use function sleep;
 
 if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -72,11 +79,11 @@ class _Cons extends Singleton
         foreach ( $constants as $key => $value ) {
             $tab = mb_ucfirst( mb_substr( $key, 0, 1 ) );
 
-            if ( in_array( $key, static::$devTools, true ) ) {
+            if ( in_array( $key, static::$devTools, \true ) ) {
                 $tab = 'DevTools';
             }
 
-            if ( in_array( $key, static::$importantIPS, true ) ) {
+            if ( in_array( $key, static::$importantIPS, \true ) ) {
                 $tab = 'Important';
             }
 
@@ -85,7 +92,7 @@ class _Cons extends Singleton
                 'name'        => $key,
                 'label'       => $key,
                 'default'     => $value[ 'current' ],
-                'description' => $value[ 'description' ] ?? null,
+                'description' => $value[ 'description' ] ?? \null,
                 'tab'         => $tab,
 
             ];
@@ -114,7 +121,7 @@ class _Cons extends Singleton
     protected function buildConstants()
     {
 
-        if ( $this->constants === null ) {
+        if ( $this->constants === \null ) {
             $cons = IPS::defaultConstants();
             $first = [];
             $constants = [];
@@ -131,7 +138,7 @@ class _Cons extends Singleton
                     'type'    => gettype( constant( '\\IPS\\' . $key ) ),
                 ];
 
-                if ( in_array( $key, static::$importantIPS, true ) ) {
+                if ( in_array( $key, static::$importantIPS, \true ) ) {
                     $first[ $key ] = $data;
                 }
                 else {
@@ -143,22 +150,22 @@ class _Cons extends Singleton
             $toolbox = [
                 'BYPASSPROXYDT' => [
                     'name'        => 'BYPASSPROXYDT',
-                    'default'     => false,
-                    'current'     => defined( 'BYPASSPROXYDT' ) ? BYPASSPROXYDT : null,
+                    'default'     => \false,
+                    'current'     => defined( '\BYPASSPROXYDT' ) ? \BYPASSPROXYDT : \null,
                     'description' => 'This is a very special use case, if defined, will create dtproxy2 and copy the contents of dtproxy2 to dtproxy when building proxy files.',
                     'type'        => 'boolean',
                 ],
                 'DTBUILD'       => [
                     'name'        => 'DTBUILD',
-                    'default'     => false,
-                    'current'     => defined( 'DTBUILD' ) ? DTBUILD : null,
+                    'default'     => \false,
+                    'current'     => defined( '\DTBUILD' ) ? \DTBUILD : \null,
                     'description' => 'This enables special app build features for toolbox, use with caution.',
                     'type'        => 'boolean',
                 ],
                 'DTPROFILER'    => [
                     'name'        => 'DTPROFILER',
-                    'default'     => false,
-                    'current'     => defined( 'DTPROFILER' ) ? DTPROFILER : null,
+                    'default'     => \false,
+                    'current'     => defined( '\DTPROFILER' ) ? \DTPROFILER : \null,
                     'description' => 'this will enable/disable extra features for the profiler.',
                     'type'        => 'boolean',
                 ],
@@ -188,7 +195,7 @@ class _Cons extends Singleton
                     $check = (string)$data;
                     break;
             }
-            if ( ( defined( '\\IPS\\' . $key ) && $check !== $check2 ) || in_array( $key, static::$devTools, true ) ) {
+            if ( ( defined( '\\IPS\\' . $key ) && $check !== $check2 ) || in_array( $key, static::$devTools, \true ) ) {
 
                 $dataType = "'" . $data . "'";
 
@@ -210,8 +217,9 @@ class _Cons extends Singleton
 {$toWrite}
 EOF;
         if ( \IPS\NO_WRITES !== \true ) {
-
             \file_put_contents( \IPS\ROOT_PATH . '/constants.php', $fileData );
+            \opcache_reset();
+            sleep( 2 );
         }
     }
 }

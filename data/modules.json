@@ -1,0 +1,38 @@
+{
+    "admin": {
+        "build": {
+            "default_controller": "",
+            "protected": 0
+        },
+        "settings": {
+            "default_controller": "",
+            "protected": 0
+        },
+        "devfolder": {
+            "default_controller": "",
+            "protected": 0
+        },
+        "code": {
+            "default_controller": "",
+            "protected": 0
+        },
+        "content": {
+            "default_controller": "",
+            "protected": 0
+        },
+        "devcenter": {
+            "default_controller": "",
+            "protected": 0
+        },
+        "proxy": {
+            "default_controller": "",
+            "protected": false
+        }
+    },
+    "front": {
+        "bt": {
+            "default_controller": "",
+            "protected": 0
+        }
+    }
+}

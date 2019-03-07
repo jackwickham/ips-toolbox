@@ -1,0 +1,16 @@
+;( function($, _, undefined){
+    "use strict";
+    ips.createModule('{module}', function(){
+        // Functions that become public methods
+        var respond = function (elem, options, e) {};
+
+        // Register this module as a widget to enable the data API and
+        // jQuery plugin functionality
+        ips.ui.registerWidget( '{widgetname}', {module} );
+
+        // Expose public methods
+        return {
+            respond: respond
+        };
+    });
+}(jQuery, _));

@@ -1,0 +1,8 @@
+<?php
+
+namespace IPS\{app}\modules\{location}\{module};
+
+class _{controller} extends \IPS\Content\Controller
+{
+    public static $contentModel = \{node_model}::class;
+}

@@ -1,0 +1,35 @@
+<ips:template parameters="array $keys, $type"/>
+<div data-ipsdtcodetoggle data-ipsdtcodetoggle-id="{$type}" class="ipsClearfix ipsClear acpWidgetToolbar dtcode_header">
+    <h1 class="dtcode_h1">{lang="{$type}" sprintf="\count($keys)"} <i class="fa fa-angle-down"></i></h1>
+    <h2>{lang="{$type}_desc"}</h2>
+</div>
+<table class="ipsTable ipsTable_responsive ipsTable_zebra dtcode_files ipsHide" id="tab_{$type}">
+    <thead>
+    <tr class="ipsAreaBackground">
+        <th>File</th>
+        <th>Key</th>
+        <th>Line</th>
+    </tr>
+    </thead>
+    <tbody data-role="tableRows">
+    {{foreach $keys as $key }}
+    <tr class="ipsClearfix">
+        <td class="ipsTable_wrap dtcode_file_name">
+            {{if \IPS\DEV_WHOOPS_EDITOR && $key['path'] !== null}}
+            <a href="{$key['path']|raw}">
+                {{endif}}
+                {$key['file']}
+                {{if \IPS\DEV_WHOOPS_EDITOR && $key['path'] !== null}}
+            </a>
+            {{endif}}
+        </td>
+        <td class="ipsTable_wrap dtcode_file_key">
+            {$key['key']}
+        </td>
+        <td class="ipsTable_icon dtcode_file_line">
+            {$key['line']}
+        </td>
+    </tr>
+    {{endforeach}}
+    </tbody>
+</table>

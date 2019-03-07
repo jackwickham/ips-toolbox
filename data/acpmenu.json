@@ -1,0 +1,46 @@
+{
+  "settings": {
+    "settings": {
+      "tab": "devtools",
+      "controller": "settings",
+      "do": "",
+      "restriction": "settings_manage"
+    },
+    "cons": {
+      "tab": "devtools",
+      "controller": "cons",
+      "do": "",
+      "restriction": "cons_manage"
+    }
+  },
+  "devfolder": {
+    "applications": {
+      "tab": "devtools",
+      "controller": "applications",
+      "do": "",
+      "restriction": "apps_manage"
+    },
+    "plugins": {
+      "tab": "devtools",
+      "controller": "plugins",
+      "do": "",
+      "restriction": "plugins_manage"
+    }
+  },
+  "code": {
+    "analyzer": {
+      "tab": "devtools",
+      "controller": "analyzer",
+      "do": "",
+      "restriction": "view_manage"
+    }
+  },
+  "content": {
+    "content": {
+      "tab": "devtools",
+      "controller": "generator",
+      "do": "",
+      "restriction": "view_manage"
+    }
+  }
+}

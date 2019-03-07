@@ -1,0 +1,286 @@
+.dtProfilerPlaceHolder,
+.dtProfilerBar {
+    width: 100%;
+    min-height: 40px;
+    font-size:14px;
+}
+
+.dtProfilerBar {
+    position:fixed;
+    z-index:1500;
+    bottom: 0;
+    background: #18171B;
+}
+
+.dtProfilerPlaceHolder
+{
+    position:absolute;
+}
+
+.dtProfilerTime {
+    background: #33cc33;
+}
+
+.dtProfilermemory {
+    background: #00aaff;
+}
+
+.dtProfilerfiles {
+    background: #ff751a;
+}
+
+.dtProfilerTemplates{
+    background:   #00cccc;
+}
+
+.dtProfilerCSS {
+    background:  #1a8cff;
+}
+
+.dtProfilerjs {
+    background:   #4d4dff;
+}
+
+.dtProfilerjsvars {
+    background:   #c44dff;
+}
+
+.dtProfilerQueryLog {
+    background:  #00b300;
+}
+
+.dtProfilerCacheLog {
+    background:  #cc9900;
+}
+
+.dtProfilerlogs {
+    background: #990033;
+}
+
+.dtProfilerenvironment{
+    background: #ff8000;
+}
+
+.dtProfilerdebug {
+    background: #99ccff;
+}
+
+.dtProfilerexecutions {
+    background: #478f79;
+}
+
+.dtProfileFirst {
+    float: left;
+    padding: 12px 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.dtProfilerBar_database a {
+    word-wrap: break-word;
+}
+
+
+.dtProfilerBar_cache,
+.dtProfilerBar_database,
+.dtProfilerBar_templates,
+.dtProfilerBar_generic,
+.dtProfilerBar_search {
+    max-height: 400px;
+    position: absolute;
+    /*bottom: 40px;*/
+    background: #18171B;
+    min-width: 250px;
+}
+
+.dtProfilerBar_search {
+    height:400px;
+}
+
+.dtProfilerBar_cache,
+.dtProfilerBar_database,
+.dtProfilerBar_templates,
+.dtProfilerBar_generic,
+.dtProfilerBar_search_ul{
+    overflow-x: auto;
+}
+
+.dtProfilerBar_search_ul {
+    max-height:350px;
+}
+
+.dtProfilerBar_cache li,
+.dtProfilerBar_database li,
+.dtProfilerBar_templates li {
+    text-align: left;
+    padding-right:20px;
+}
+
+#elProfilefiles_list a,
+.dtProfilerBar_cache a,
+.dtProfilerBar_templates a {
+    display: block;
+    padding: 5px 10px;
+}
+
+.dtProfilerBar_search_ul a,
+#elProfilelogs_list a,
+#elProfilefiles_list a,
+.dtProfilerBar_cache a,
+.dtProfilerBar_templates a,
+.dtProfilerBar_generic a,
+.dtProfilerBar,
+.dtProfilerBar_database span.lit {
+    color: #ffff1a;
+}
+
+.dtProfilerBar li,
+.dtProfilerBar_database span.pln,
+.dtProfilerBar_database span.kwd,
+.dtProfilerBar_database h3,
+.dtProfilerBar_database,
+.dtProfilerBar_database a,
+.dtProfilerInfoBar a {
+    color:#fff;
+}
+
+.dtProfilerBar_database {
+    /*background: white;*/
+}
+
+#elProfiledebug_list h4,
+#elProfiledebug_list .sf-dump {
+    margin:0;
+    margin-bottom:5px;
+}
+
+#elProfiledebug_list li,
+.dtProfilerBar_database li {
+    border-bottom: 1px solid #fff;
+}
+
+.dtProfilerBar_generic .ipsColumn_wide{
+    padding: 7px 0 0 7px !important;
+}
+
+.dtProfilerInfoBar div {
+    padding:10px 5px;
+    float:left;
+}
+
+.dtProfilerMaxWidth {
+    width:100%;
+}
+
+#elProfileLogs_list > li {
+    border-bottom:solid 1px #fff;
+}
+
+/* Flash class and keyframe animation */
+.dtprofilerFlash{
+    background:#ff0000;
+    -webkit-animation: dtprofilerFlash linear 2s infinite;
+    animation: dtprofilerFlash linear 2s infinite;
+}
+
+@-webkit-keyframes dtprofilerFlash {
+    0% { opacity: 1; }
+    50% { opacity: .1; }
+    100% { opacity: 1; }
+}
+
+@keyframes dtprofilerFlash {
+    0% { opacity: 1; }
+    50% { opacity: .1; }
+    100% { opacity: 1; }
+}
+
+.dtProfilerClear span {
+    display:block;
+    cursor:pointer;
+    text-align: center;
+    font-weight: bold;
+    color: #fff;
+    background: #ff0000;
+    padding:10px 0;
+}
+
+.dtprofilerEnabled {
+    color: #00ff00;
+    padding-left:10px;
+}
+
+
+
+.dttProfilerInfoGit div,
+.dtProfilerInfoBarPanel a {
+    font-size:14px;
+    display:inline-block;
+    margin-right:5px;
+    padding:2px 10px;
+    border-bottom-left-radius: 25% 100%;
+    border-bottom-right-radius: 25% 100%;
+    border-top-left-radius: 25% 100%;
+    border-top-right-radius: 25% 100%;
+}
+
+.dtProfilerInfoBarPanel a {
+    background:#fff;
+    color: #000;
+}
+
+.dttProfilerInfoGit div:not(.lds-facebook) {
+    background:  #1a8cff;
+    color: #fff;
+    cursor: default;
+}
+
+.dttProfilerInfoGitLoading {
+    height:22px;
+    width:100px;
+}
+
+.dtProfilerSearch {
+    padding:10px;
+    color:#fff;
+}
+
+.dtProfilerSearch > span {
+    width:250px;
+    display:block;
+    float:right;
+}
+
+.dtProfilerSearch input {
+    width:200px!important;
+}
+
+.dtProfilerNumber {
+    color:#cc33ff !important;
+}
+
+.dtProfilerBool {
+    color:#ff9933;
+}
+
+.dtProfilerString {
+    color:#ff5500;
+}
+.dtprofilerDisabled {
+    color:#FF0000;
+    padding-left:10px;
+}
+
+.dtProfileExtra {
+    color:#fff !important;
+}
+
+.dtProfilerSearch .ipsColumn_fluid {
+    word-wrap: normal;
+    word-break: break-word;
+}
+
+.dtProfilerBar_search_ul > li,
+#elProfilelogs_list > li {
+    border-bottom: #fff 1px solid;
+}

@@ -1,0 +1,114 @@
+<ips:template parameters="$time, $memory, $files, $templates, $database, $cache, $logs, $extra, $info, $environment, $debug, $executions"/>
+<div id="dtProfilerBarContainer" class="dtProfilerBar">
+    <ul class="ipsList_reset dtProfilerBar_list ipsClearfix" data-ipsdtprofiler data-ipsdtprofilerdebug data-url="{url='app=toolbox&module=bt&controller=bt' base='front'}">
+        {{if $time }}
+        <li id="elProfileTimeLog" title="total time" class="isParent dtProfileFirst dtProfilerTime" data-ipstooltip>
+            <i class="fa fa-server"></i> {$time['total']}ms <i class="fa fa-angle-up dtprofilearrow"></i>
+        </li>
+        <ul id="elProfileTimeLog_list" class="ipsList_reset ipsHide dtProfilerBar_cache">
+            <li>
+                <a>
+                    Complete Execution: {$time['total']}ms
+                </a>
+            </li>
+            <li>
+                <a>
+                    Framework Execution: {$time['framework']}ms
+                </a>
+            </li>
+            <li>
+                <a>
+                    Profiler Execution: {$time['profiler']}ms
+                </a>
+            </li>
+        </ul>
+        {{endif}}
+
+        {{if $executions }}
+        {$executions|raw}
+        {{endif}}
+
+        {{if $memory }}
+        {$memory|raw}
+        {{endif}}
+
+        {{if $files }}
+        {$files|raw}
+        {{endif}}
+
+        {{if $database }}
+        {$database|raw}
+        {{endif}}
+
+        {{if $cache }}
+        {$cache|raw}
+        {{endif}}
+
+        {{if $environment }}
+        {$environment|raw}
+        {{endif}}
+
+        {{if $templates }}
+        {$templates|raw}
+        {{endif}}
+
+        {{if $logs }}
+        {$logs|raw}
+        {{endif}}
+
+        {{if $debug }}
+        {$debug|raw}
+        {{endif}}
+
+        {{if $extra }}
+        {$extra|raw}
+        {{endif}}
+    </ul>
+    {{if $info }}
+    <div class="dtProfilerInfoBar">
+        {{foreach $info['other'] as $key => $inf }}
+        <div>{$key} : {$inf|raw}</div>
+        {{endforeach}}
+        <div class="dtProfilerInfoBarPanel">
+            <a id="elProfileSystem" href="#elProfileSystem_menu" title="System" class=" " data-ipstooltip data-ipsmenu>
+                System <i class="fa fa-angle-up"></i>
+            </a>
+            <ul id="elProfileSystem_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+                {{foreach $info['server'] as $key => $val }}
+                <li class="ipsMenu_item">
+                    {$val|raw}
+                </li>
+                {{endforeach}}
+            </ul>
+            <a id="elProfileAppsPlugins" href="#elProfileAppsPlugins_menu" title="Apps & Plugins" class=" " data-ipstooltip data-ipsmenu>
+                3rd Party Apps & Plugins<i class="fa fa-angle-up"></i>
+            </a>
+            <ul id="elProfileAppsPlugins_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+                {{foreach $info['apps']['app'] as $key => $val }}
+                <li class="ipsMenu_item">
+                    <a href="{$val['url']}" title="{$val['title']}" data-ipstooltip>
+                        {$key|raw}
+                        {{if $val['status'] }}
+                        <i class="fa fa-check-square-o dtprofilerEnabled fa-pull-right"></i>
+                        {{else}}
+                        <i class="fa fa-square-o dtprofilerDisabled fa-pull-right"></i>
+                        {{endif}}
+                    </a>
+                </li>
+                {{endforeach}}
+                <li class="ipsMenu_item">
+                    <a href="{$info['apps']['disable']}">Disable All</a>
+                </li>
+            </ul>
+            <a href="{$info['cache']}">Clear Caches</a>
+        </div>
+        {{if settings.dtprofiler_git_data || settings.dtprofiler_show_changes}}
+        <div id="el_dtProfileGit" class="dttProfilerInfoGit ipsClearfix" data-ipsdtprofilergit data-ipsdtprofilergit-url="{$info['git_url']}">
+            <div class="dttProfilerInfoGitLoading ipsLoading ipsLoading_tiny"></div>
+        </div>
+        {{endif}}
+    </div>
+    {{endif}}
+</div>
+<div class="dtProfilerPlaceHolder">
+</div>

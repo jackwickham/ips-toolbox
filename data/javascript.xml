@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<javascript app="toolbox">
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.debug.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050"><![CDATA[;(function ($, _, undefined) {
+    "use strict";
+    ips.createModule('ips.dtprofiler.debug', function () {
+        var respond = function (elem, options, e) {
+            var el = $(elem);
+            if (!el.data('_debugObj')) {
+                var d = _debugObj(el);
+                d.init(el.data('url'), el);
+                el.data('_debugObj', d);
+            }
+            $('body').bind('beforeunload', function () {
+                var obj = el.data('_debugObj');
+                obj.abort();
+            });
+        };
+        ips.ui.registerWidget('dtprofilerdebug', ips.dtprofiler.debug);
+        return {
+            respond: respond
+        };
+    });
+    var _debugObj = function () {
+        var ajax = null;
+        var current = null;
+        var aurl;
+        var el;
+        var init = function (url, elem) {
+            aurl = url + '&do=debug';
+            el = elem;
+            ajax = ips.getAjax();
+            _debug();
+        };
+        var abort = function () {
+            current.abort();
+        };
+        var _debug = function () {
+            current = ajax({
+                type: "POST",
+                data: 'last=' + $('#elProfiledebug', el).attr('data-last'),
+                url: aurl,
+                dataType: "json",
+                bypassRedirect: true,
+                success: function (data) {
+                    var countEl = el.find('#elProfiledebug').find('.dtprofilerCount');
+
+                    if (!data.hasOwnProperty('error')) {
+                        $('#elProfiledebug_list', el).append(data.items);
+                        var count = Number(countEl.attr('data-count'));
+                        count = Number(data.count) + count;
+                        countEl.html(count).attr('data-count', count);
+                        countEl.parent().addClass('dtprofilerFlash');
+                        $('#elProfiledebug', el).attr('data-last', data.last);
+                        if ($('#elProfiledebug', el).hasClass('ipsHide')) {
+                            $('#elProfiledebug', el).removeClass('ipsHide');
+                        }
+                        countEl.parent().addClass('dtprofilerFlash');
+                    }
+                },
+                complete: function (data) {
+                    _debug();
+                },
+                error: function (data) {
+                }
+            });
+        };
+
+        return {
+            init: init,
+            abort: abort
+        }
+    }
+}(jQuery, _));
+]]></file>
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofiler.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050"><![CDATA[;(function ($, _, undefined) {
+    "use strict";
+    ips.createModule('ips.dtprofiler.dtprofiler', function () {
+        // Functions that become public methods
+        let dialogId = null,
+            respond = function (elements) {
+
+                let elem = $(elements);
+                if( !elem.data('_respond') ){
+                let h = elem.parent().outerHeight();
+                $('.dtProfilerPlaceHolder').css('height', h);
+                $(window).on('resize', function () {
+                    let h = elem.parent().outerHeight();
+                    $('.dtProfilerPlaceHolder').css('height', h);
+                });
+
+                // $(document).on('hideDialog', function () {
+                //     dialogId = null;
+                // });
+                //
+                // $(document).on('openDialog', function (e, data) {
+                //     if (dialogId !== null) {
+                //         $(document).trigger('closeDialog', {dialogID: dialogId});
+                //     }
+                //     dialogId = data.elemID + '_dialog';
+                //
+                // });
+
+                $(document).on('click', function (e) {
+                    let el = $(e.target);
+                    let parent = el.parents('div#dtProfilerBarContainer');
+                    if (parent.length === 0) {
+                        elem.find('ul.isOpen').removeClass('isOpen').slideUp().parent().find('i.dtprofilearrow').removeClass('fa-rotate-180');
+                    }
+                });
+
+                elem.find('li.dtProfilerClear').on('click', function(e){
+                    let el = $(this);
+                    let parent = el.parent('ul');
+                    let parentId = parent.attr('id');
+                    let pid = parentId.substr(0, parentId.length - 5);
+
+                    $('#'+pid).find('.dtprofilerCount').html(0).attr('data-count', 0);
+
+                    parent.find('li').not('.dtProfilerClear').each(function(){
+                        $(this).remove();
+                    });
+
+                    parent.removeClass('isOpen').slideUp().parent().find('i.dtprofilearrow').removeClass('fa-rotate-180');
+                });
+
+                elem.find('> li.isParent').on('click', function () {
+                    closeDialog();
+                    let el = $(this);
+                    if (el.is('i')) {
+                        el = el.parent('li');
+                    }
+
+                    el.removeClass('dtprofilerFlash');
+                    let bottom = el.parents('div').outerHeight(),
+                        id = el.attr('id') + '_list',
+                        child = $('#' + id), left = el.position().left;
+
+                    if (!child.hasClass('isOpen')) {
+                        if (child.hasClass('dtProfilerMaxWidth')) {
+                            left = 0;
+                        }
+                        else {
+                            child.show();
+                            let cWidth = child.outerWidth();
+                            let cPos = left + cWidth;
+                            child.hide();
+                            let windowWidth = $(window).width();
+                            if (cPos > windowWidth) {
+                                left = left - (cPos - windowWidth);
+                            }
+                        }
+                        elem.find('ul.isOpen').removeClass('isOpen').slideUp().parent().find('i.dtprofilearrow').removeClass('fa-rotate-180');
+                        child.css('left', left).css('bottom', bottom);
+                        child.addClass('isOpen').slideDown();
+                        el.find('i.dtprofilearrow').addClass('fa-rotate-180');
+                    }
+                    else {
+                        child.removeClass('isOpen');
+                        child.slideUp();
+                        el.find('i.dtprofilearrow').removeClass('fa-rotate-180');
+                    }
+                });
+                elem.data('_respond', 1);
+                }
+            },
+            closeDialog = function () {
+                if (dialogId !== null) {
+                    $(document).trigger('closeDialog', {dialogID: dialogId});
+                }
+            };
+
+        // Register this module as a widget to enable the data API and
+        // jQuery plugin functionality
+        ips.ui.registerWidget('dtprofiler', ips.dtprofiler.dtprofiler);
+
+        // Expose public methods
+        return {
+            respond: respond
+        };
+    });
+}(jQuery, _));
+]]></file>
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofilergit.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050">;( function($, _, undefined){&#13;
+    &quot;use strict&quot;;&#13;
+    ips.createModule('ips.dtprofiler.dtprofilergit', function(){&#13;
+        // Functions that become public methods&#13;
+        var respond = function (elem, options, e) {&#13;
+            var ajax = ips.getAjax();&#13;
+            var url = options.url;&#13;
+            elem = $(elem);&#13;
+            ajax({&#13;
+                type: &quot;GET&quot;,&#13;
+                url: url,&#13;
+                dataType: &quot;json&quot;,&#13;
+                bypassRedirect: true,&#13;
+                success: function (data) {&#13;
+                    if (data.hasOwnProperty('html')) {&#13;
+                        elem.html( data.html );&#13;
+                    }&#13;
+                },&#13;
+                complete: function (data) {&#13;
+                }&#13;
+            });&#13;
+        };&#13;
+&#13;
+        // Register this module as a widget to enable the data API and&#13;
+        // jQuery plugin functionality&#13;
+        ips.ui.registerWidget( 'dtprofilergit', ips.dtprofiler.dtprofilergit, ['url'] );&#13;
+&#13;
+        // Expose public methods&#13;
+        return {&#13;
+            respond: respond&#13;
+        };&#13;
+    });&#13;
+}(jQuery, _));&#13;
+</file>
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.search.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050"><![CDATA[;( function($, _, undefined){
+    "use strict";
+    ips.createModule('ips.dtprofiler.search', function(){
+        // Functions that become public methods
+        var respond = function (elem, options, e) {
+            let search = JSON.parse(options.sdata),
+                key = options.key;
+            $('#search'+key, elem).on('keyup', function(e){
+                var lookup = $(this).val(),
+                id = 'elProfile'+key+'_list';
+                $('#'+id).find('li').remove();
+
+                $.each(search, function (index, data) {
+                    let name = index;
+
+                    if (name.indexOf(lookup) != -1) {
+                        let lis= $('<li>'),
+                            a = $('<a>'),
+                            s = $('<span>'),
+                            n = data.name;
+
+                        if( data.hasOwnProperty('extra') ){
+                            n = n+ '<span class="dtProfileExtra">'+data.extra+'</span>';
+                        }
+                        if( data.hasOwnProperty('url')) {
+                            a.attr('href', data.url).html(n);
+                            if( data.hasOwnProperty('dialog') ){
+                                a.attr('data-ipsdialog', 1);
+                            }
+                            lis.html(a).addClass('ipsPad_half dtProfilerSearch');
+                        }
+                        else{
+                            a = n;
+                        }
+                        lis.html(a).addClass('ipsPad_half dtProfilerSearch');
+                        $(elem).next().append(lis);
+                        if( data.hasOwnProperty('dialog') ) {
+                            $(document).trigger('contentChange', [$(elem).next()]);
+                        }
+                    }
+                });
+            })
+        };
+
+        // Register this module as a widget to enable the data API and
+        // jQuery plugin functionality
+        ips.ui.registerWidget( 'dtpsearch', ips.dtprofiler.search, ['sdata','key'] );
+
+        // Expose public methods
+        return {
+            respond: respond
+        };
+    });
+}(jQuery, _));
+]]></file>
+ <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/query" javascript_name="ips.query.query.js" javascript_type="controller" javascript_version="10000" javascript_position="1000100"><![CDATA[;( function($, _, undefined){
+    "use strict";
+    ips.controller.register('ips.admin.dtdevplus.query', {
+        initialize: function () {
+            this.on('change', '[id="elSelect_js_dtdevplus_ext_table"]', this._getFields);
+        },
+        _getFields: function(e){
+            console.debug('yes');
+            var url = ips.getSetting('dtdevplus_table_url');
+            var ajax = ips.getAjax();
+            ajax( {
+                url: url+"&do=dtgetFields&table="+$(e.target).val(),
+                type: "GET",
+                success:function(data){
+                    if( data.error == 0 ) {
+                        $('#elSelect_js_dtdevplus_ext_field').replaceWith(data.html);
+                    }
+                }
+            } );
+        }
+    });
+}(jQuery, _));]]></file>
+ <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/toggles" javascript_name="ips.dwlabs.toggles.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050">;(function ($, _, undefined) {&#13;
+    &quot;use strict&quot;;&#13;
+    ips.createModule('ips.dtcode.toggles', function () {&#13;
+        var respond = function (elem, options, e) {&#13;
+            $(elem).click(&#13;
+                function (e) {&#13;
+                    e.preventDefault();&#13;
+                    var el = $('#tab_' + options.id);&#13;
+                    if (el.data('isOpen') == 1) {&#13;
+                        $(this).find('i:first').removeClass('fa-rotate-180');&#13;
+                        el.slideUp().removeData('isOpen');&#13;
+                    }&#13;
+                    else {&#13;
+                        $(this).find('i:first').addClass('fa-rotate-180');&#13;
+                        el.slideDown().data('isOpen', 1);&#13;
+                    }&#13;
+&#13;
+                });&#13;
+        };&#13;
+        ips&#13;
+            .ui&#13;
+            .registerWidget('dtcodetoggle', ips.dtcode.toggles, ['id']);&#13;
+        return {&#13;
+            respond: respond&#13;
+        };&#13;
+    });&#13;
+}(jQuery, _));&#13;
+</file>
+</javascript>

@@ -1,0 +1,18 @@
+<ips:template parameters="$list, $dialog=false"/>
+<li class="ipsPad_half dtProfilerSearch">
+{{if \is_array( $list) }}
+    {{if isset( $list['url']) && $list['url']}}
+    <a href="{$list['url']}"{{if $dialog === true}} data-ipsDialog{{endif}}>
+    {{endif}}
+    {$list['name']|raw}
+    {{if isset( $list['extra'] ) }}
+    <span class="dtProfileExtra">{$list['extra']|raw}</span>
+    {{endif}}
+    {{if isset( $list['url']) && $list['url']}}
+    </a>
+    {{endif}}
+{{else}}
+    {$list|raw}
+</li>
+{{endif}}
+

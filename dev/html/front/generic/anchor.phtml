@@ -1,0 +1,8 @@
+<ips:template parameters="$name, $url, $dialog=false"/>
+{{if $url}}
+<a href="{$url}" {{if $dialog}}data-ipsDialog{{endif}}>
+{{endif}}
+    {$name|raw}
+{{if $url}}
+</a>
+{{endif}}

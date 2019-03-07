@@ -1,0 +1,9 @@
+<ips:template parameters="array $menus"/>
+<ul id="dtDevBar" class="ipsList_inline ipsType_light ">
+    {{if isset( $menus['roots'] ) }}
+    {{$foo = $menus['roots']; ksort( $foo );}}
+    {{foreach $menus['roots'] as $menu }}
+    {template="li" group="devBar" app="toolbox" params="$menu, $menus"}
+    {{endforeach}}
+    {{endif}}
+</ul>

@@ -1,0 +1,735 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<theme name="Default" author_name="Invision Power Services, Inc" author_url="https://www.invisioncommunity.com">
+    <template template_group="bar" template_name="bar"
+              template_data="$time, $memory, $files, $templates, $database, $cache, $logs, $extra, $info, $environment, $debug, $executions"
+              template_location="front" template_app="toolbox"><![CDATA[<div id="dtProfilerBarContainer" class="dtProfilerBar">
+    <ul class="ipsList_reset dtProfilerBar_list ipsClearfix" data-ipsdtprofiler data-ipsdtprofilerdebug data-url="{url='app=dtprofiler&module=bt&controller=bt' base='front'}">
+        {{if $time }}
+        <li id="elProfileTimeLog" title="total time" class="isParent dtProfileFirst dtProfilerTime" data-ipstooltip>
+            <i class="fa fa-server"></i> {$time['total']}ms  <i class="fa fa-angle-up dtprofilearrow"></i>
+        </li>
+        <ul id="elProfileTimeLog_list" class="ipsList_reset ipsHide dtProfilerBar_cache">
+            <li>
+                <a>
+                    Complete Execution: {$time['total']}ms
+                </a>
+            </li>
+            <li>
+                <a>
+                    Framework Execution: {$time['framework']}ms
+                </a>
+            </li>
+            <li>
+                <a>
+                    Profiler Execution: {$time['profiler']}ms
+                </a>
+            </li>
+        </ul>
+        {{endif}}
+
+        {{if $executions }}
+        {$executions|raw}
+        {{endif}}
+
+        {{if $memory }}
+        {$memory|raw}
+        {{endif}}
+
+        {{if $files }}
+        {$files|raw}
+        {{endif}}
+
+        {{if $database }}
+        {$database|raw}
+        {{endif}}
+
+        {{if $cache }}
+        {$cache|raw}
+        {{endif}}
+
+        {{if $environment }}
+        {$environment|raw}
+        {{endif}}
+
+        {{if $templates }}
+        {$templates|raw}
+        {{endif}}
+
+        {{if $logs }}
+        {$logs|raw}
+        {{endif}}
+
+        {{if $debug }}
+        {$debug|raw}
+        {{endif}}
+
+        {{if $extra }}
+        {$extra|raw}
+        {{endif}}
+    </ul>
+    {{if $info }}
+    <div class="dtProfilerInfoBar">
+        {{foreach $info['other'] as $key => $inf }}
+            <div>{$key} : {$inf|raw}</div>
+        {{endforeach}}
+        <div class="dtProfilerInfoBarPanel">
+            <a id="elProfileSystem"  href="#elProfileSystem_menu" title="System" class=" " data-ipstooltip data-ipsmenu>
+                System  <i class="fa fa-angle-up"></i>
+            </a>
+            <ul id="elProfileSystem_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+                {{foreach $info['server'] as $key => $val }}
+                <li class="ipsMenu_item">
+                    {$val|raw}
+                </li>
+                {{endforeach}}
+            </ul>
+            <a id="elProfileAppsPlugins"  href="#elProfileAppsPlugins_menu" title="Apps & Plugins" class=" " data-ipstooltip data-ipsmenu>
+                3rd Party Apps & Plugins<i class="fa fa-angle-up"></i>
+            </a>
+            <ul id="elProfileAppsPlugins_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+                {{foreach $info['apps']['app'] as $key => $val }}
+                <li class="ipsMenu_item">
+                    <a href="{$val['url']}" title="{$val['title']}" data-ipstooltip>
+                        {$key|raw}
+                        {{if $val['status'] }}
+                        <i class="fa fa-check-square-o dtprofilerEnabled fa-pull-right"></i>
+                        {{else}}
+                        <i class="fa fa-square-o dtprofilerDisabled fa-pull-right"></i>
+                        {{endif}}
+                    </a>
+                </li>
+                {{endforeach}}
+                <li class="ipsMenu_item">
+                    <a href="{$info['apps']['disable']}">Disable All</a>
+                </li>
+            </ul>
+            <a href="{$info['cache']}">Clear Caches</a>
+        </div>
+        {{if settings.dtprofiler_git_data || settings.dtprofiler_show_changes}}
+        <div id="el_dtProfileGit" class="dttProfilerInfoGit ipsClearfix" data-ipsdtprofilergit data-ipsdtprofilergit-url="{$info['git_url']}">
+            <div class="dttProfilerInfoGitLoading ipsLoading ipsLoading_tiny"></div>
+        </div>
+        {{endif}}
+    </div>
+    {{endif}}
+</div>
+<div class="dtProfilerPlaceHolder">
+</div>
+]]></template>
+    <template template_group="bar" template_name="git" template_data="$info=null" template_location="front"
+              template_app="toolbox"><![CDATA[    <div title="Application" data-ipsTooltip>{$info['app']}</div>
+    <div title="Application Version" data-ipsTooltip>{$info['version']}</div>
+    <div title="Commit: {$info['fid']}" data-ipstooltip>
+        <a id="elProfileGitMessage" href="#elProfileGitMessage_menu" data-ipsmenu>
+            {$info['id']} <i class="fa fa-angle-up"></i>
+        </a>
+    </div>
+    <ul id="elProfileGitMessage_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+        <li class="">
+            <div class="ipsPad_half">
+                <h4>Message:</h4>
+                        {$info['msg']|raw}
+            </div>
+        </li>
+    </ul>
+    <div>
+        {{if !empty( $info['branches'] ) }}
+        <a id="elProfileGitBranches"  href="#elProfileGitBranches_menu" title="Branches" data-ipstooltip data-ipsmenu>
+        {{endif}}
+            {$info['branch']}
+            {{if !empty( $info['branches'] ) }}
+            <i class="fa fa-angle-up"></i>
+        </a>
+        {{endif}}
+        </div>
+    {{if !empty( $info['branches'] ) }}
+    <ul id="elProfileGitBranches_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+        {{foreach $info['branches'] as $val }}
+        <li class="ipsMenu_item">
+            <a>{$val['name']|raw}</a>
+        </li>
+        {{endforeach}}
+    </ul>
+    {{endif}}
+    {{if !empty( $info['changes'] ) }}
+    <div>
+        <a id="elProfileGitBranchesChanges"  href="#elProfileGitBranchesChanges_menu" title="Apps with changes" data-ipstooltip data-ipsmenu>
+            Apps W/Changes <i class="fa fa-angle-up"></i>
+        </a>
+    </div>
+    <ul id="elProfileGitBranchesChanges_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+        {{foreach $info['changes'] as $val }}
+        <li class="ipsMenu_item">
+            <a>
+                {$val['name']|raw}
+            </a>
+        </li>
+        {{endforeach}}
+    </ul>
+    {{endif}}
+]]></template>
+    <template template_group="caching" template_name="caching" template_data="$lists, $count" template_location="front"
+              template_app="toolbox"><![CDATA[<li id="elProfileCacheLog" title="Cache Log" class="isParent dtProfileFirst dtProfilerCacheLog" data-ipstooltip>
+    <i class="fa fa-usd"></i> Cache Log ({$count}) <i class="fa fa-angle-up dtprofilearrow"></i>
+</li>
+<ul id="elProfileCacheLog_list" class="ipsList_reset ipsHide dtProfilerBar_cache">
+    {{foreach $lists as $list }}
+    <li>
+        <a href="{$list['url']}" data-ipsdialog>
+            {{if $list['type'] }}
+            Type: {$list['type']}<br>
+            {{endif}}
+            {$list['name']}
+        </a>
+    </li>
+    {{endforeach}}
+</ul>
+]]></template>
+    <template template_group="database" template_name="database" template_data="$lists, $count"
+              template_location="front" template_app="toolbox"><![CDATA[<li id="elProfileQueryLog" title="Query Log" class="isParent dtProfileFirst dtProfilerQueryLog" data-ipstooltip>
+    <i class="fa fa-database"></i> Query Log ({$count}) <i class="fa fa-angle-up dtprofilearrow"></i>
+</li>
+<ul id="elProfileQueryLog_list" class="ipsList_reset ipsHide dtProfilerBar_database dtProfilerMaxWidth">
+    {{foreach $lists as $list }}
+    <li>
+        <div class="ipsPad">
+        <a href="{$list['url']}" data-ipsdialog>
+            {{if $list['server'] }}
+            Server: {$list['server']}<br>
+            {{endif}}
+            {{if $list['time'] !== null}}Execution Time: {$list['time']}ms<br>{{endif}}
+            {{if $list['mem'] !== null}}Memory: {$list['mem']}<br>{{endif}}
+            <code class="prettyprint lang-sql">{$list['query']|raw}</code>
+        </a>
+        </div>
+    </li>
+    {{endforeach}}
+</ul>
+]]></template>
+    <template template_group="devBar" template_name="devBar" template_data="array $menus" template_location="admin"
+              template_app="toolbox"><![CDATA[<ul id="dtDevBar" class="ipsList_inline ipsType_light ">
+    {{if isset( $menus['roots'] ) }}
+    {{$foo = $menus['roots']; ksort( $foo );}}
+    {{foreach $menus['roots'] as $menu }}
+    {template="li" group="devBar" app="toolbox" params="$menu, $menus"}
+    {{endforeach}}
+    {{endif}}
+</ul>
+]]></template>
+    <template template_group="devBar" template_name="li" template_data="$menu, $menus" template_location="admin"
+              template_app="toolbox"><![CDATA[<li>
+    <a href="{$menu['url']}_menu" id="{$menu['url']}" data-ipsMenu>{lang="$menu['name']"}</a>
+    {{if isset( $menus[ $menu['id'] ] ) }}
+    <ul id="{$menu['url']}_menu" class="ipsMenu ipsHide  ipsClearfix">
+        {{foreach $menus[ $menu['id'] ] as $m }}
+        <li class="ipsMenu_item">
+            <a href="{$m['url']}">{lang="$m['name']"}</a>
+        </li>
+        {{endforeach}}
+    </ul>
+    {{endif}}
+</li>]]></template>
+    <template template_group="dtdpmenu" template_name="menu"
+              template_data="array $menus, $dev, $app, $controller='sources'" template_location="admin"
+              template_app="toolbox"><![CDATA[<ul id="adminMenu_button_menu" class="ipsMenu ipsMenu_normal ipsHide">
+    {{foreach $menus as $menu }}
+    <li class="ipsMenu_item">
+        <a href="{url='app=toolbox&module=devcenter&controller=sources&appKey={$app}&do={$menu}'}" {{if !\in_array( $menu, ['memory', 'debug', 'form']) }}data-ipsdialog data-ipsdialog-forceReload="true" data-ipsdialog-remoteSubmit="true" data-ipsdialog-title="{lang='dtdevplus_menu_title_{$menu}'}"{{endif}}>
+        {lang="dtdevplus_menu_title_{$menu}"}
+        </a>
+    </li>
+    {{endforeach}}
+</ul>
+
+<ul id="adminMenuDev_button_menu" class="ipsMenu ipsMenu_normal ipsHide">
+    {{foreach $dev as $menu }}
+    <li class="ipsMenu_item">
+        <a href="{url='app=toolbox&module=devcenter&controller=dev&appKey={$app}&do={$menu}'}" data-ipsdialog data-ipsdialog-forceReload="true" data-ipsdialog-remoteSubmit="true" data-ipsdialog-title="{lang='dtdevplus_menu_title_{$menu}'}">
+            {lang="dtdevplus_menu_title_{$menu}"}
+        </a>
+    </li>
+    {{endforeach}}
+</ul>
+]]></template>
+    <template template_group="dtpsearch" template_name="button"
+              template_data="$name, $key, $title, $lists, $search, $count=null, $icon='random', $max=true, $hide=false, $last=null, $dialog=false"
+              template_location="front" template_app="toolbox"><![CDATA[<li id="elProfile{$key}" {{if $title}}title="{$title}" data-ipstooltip{{endif}} class="isParent dtProfileFirst dtProfiler{$key} {{if $hide}}ipsHide{{endif}}" {{if $last }}data-last="{$last}"{{endif}}>
+    <i class="fa fa-{$icon}"></i> {$name} {{if $count !== null}}{{if $name}}({{endif}}<span class="dtprofilerCount" data-\count="{$count}">{$count}</span>{{if $name}}){{endif}} <i class="fa fa-angle-up dtprofilearrow"></i>{{endif}}
+</li>
+{{if $count }}
+
+<ul id="elProfile{$key}_list" class="ipsList_reset ipsHide dtProfilerBar_search {{if $max}}dtProfilerMaxWidth{{endif}}">
+    <div class="dtProfilerSearch ipsClearfix" data-ipsdtpsearch data-ipsdtpsearch-sdata="{$search}" data-ipsdtpsearch-key="{$key}">
+        <span>
+            Search: <input id="search{$key}" type="text" name="dtprofilerSearch" placeholder="Search...">
+        </span>
+    </div>
+    {{if \is_array($lists) && \count($lists) }}
+    <ul class="ipsList_reset dtProfilerBar_search_ul">
+    {{foreach $lists as $list }}
+    {template="li" group="generic" location="front" app="dtprofiler" params="$list,$dialog"}
+    {{endforeach}}
+    </ul>
+    {{endif}}
+
+</ul>
+{{endif}}
+]]></template>
+    <template template_group="dtpsearch" template_name="keyvalue" template_data="$key,$value" template_location="front"
+              template_app="toolbox"><![CDATA[<div class="ipsColumns">
+    <div class="ipsColumn ipsColumn_wide">{$key|raw}</div>
+    <div class="ipsColumn ipsColumn_fluid">
+        {{if \is_array($value) }}
+            {{foreach $value as $k => $v}}
+                {template="keyvalue" group="dtpsearch" location="front" app="dtprofiler" params="$k,$v"}
+            {{endforeach}}
+        {{else}}
+            {expression="(new \IPS\tooblox\Profiler\Dumper)->type($value)" raw="true"}
+        {{endif}}
+    </div>
+</div>
+]]></template>
+    <template template_group="error" template_name="error" template_data="" template_location="admin"
+              template_app="toolbox"><![CDATA[<div class="ipsAreaBackground_negative dtcode_error ipsPad">
+    {lang="dtcode_error"}
+</div>]]></template>
+    <template template_group="generic" template_name="anchor" template_data="$name, $url, $dialog=false"
+              template_location="front" template_app="toolbox"><![CDATA[{{if $url}}
+<a href="{$url}" {{if $dialog}}data-ipsDialog{{endif}}>
+{{endif}}
+    {$name|raw}
+{{if $url}}
+</a>
+{{endif}}
+]]></template>
+    <template template_group="generic" template_name="button"
+              template_data="$name, $key, $title, $lists, $count=null, $icon='random', $max=true, $hide=false, $last=null, $clear=false"
+              template_location="front" template_app="toolbox"><![CDATA[<li id="elProfile{$key}" {{if $title}}title="{$title}" data-ipstooltip{{endif}} class="isParent dtProfileFirst dtProfiler{$key} {{if $hide}}ipsHide{{endif}}" {{if $last }}data-last="{$last}"{{endif}}>
+    <i class="fa fa-{$icon}"></i> {$name} {{if $count !== null}}{{if $name}}({{endif}}<span class="dtprofilerCount" data-\count="{$count}">{$count}</span>{{if $name}}){{endif}} <i class="fa fa-angle-up dtprofilearrow"></i>{{endif}}
+</li>
+{{if $clear || $count }}
+<ul id="elProfile{$key}_list" class="ipsList_reset ipsHide dtProfilerBar_generic {{if $max}}dtProfilerMaxWidth{{endif}}">
+    {{if $clear }}
+    <li class="dtProfilerClear">
+        <span>Clear</span>
+    </li>
+    {{endif}}
+    {{if \is_array($lists) && \count($lists) }}
+    {{foreach $lists as $list }}
+    {template="li" group="generic" location="front" app="dtprofiler" params="$list"}
+    {{endforeach}}
+    {{endif}}
+</ul>
+{{endif}}
+]]></template>
+    <template template_group="generic" template_name="genericVal" template_data="$data, $key" template_location="front"
+              template_app="toolbox"><![CDATA[<span class="dtProfiler{$key}">{{if $key === 'String'}}"{{endif}}{$data|raw}{{if $key === 'String'}}"{{endif}}</span>
+]]></template>
+    <template template_group="generic" template_name="keyvalue" template_data="$data, $name=null"
+              template_location="front" template_app="toolbox"><![CDATA[{{if $name }}
+<h4>{$name}</h4>
+{{endif}}
+{{foreach $data as $key => $value }}
+<div class="ipsColumns">
+    <div class="ipsColumn ipsColumn_wide">{$key|raw}</div>
+    <div class="ipsColumn ipsColumn_fluid">
+        {{if \is_array($value) }}
+        {template="keyvalue" group="generic" location="front" app="dtprofiler" params="$value"}
+        {{else}}
+        {expression="(new \IPS\tooblox\Profiler\Dumper)->add($value)" raw="true"}
+        {{endif}}
+    </div>
+</div>
+{{endforeach}}
+]]></template>
+    <template template_group="generic" template_name="li" template_data="$list, $dialog=false" template_location="front"
+              template_app="toolbox"><![CDATA[<li class="ipsPad_half dtProfilerSearch">
+{{if \is_array( $list) }}
+    {{if isset( $list['url']) && $list['url']}}
+    <a href="{$list['url']}"{{if $dialog === true}} data-ipsDialog{{endif}}>
+    {{endif}}
+    {$list['name']|raw}
+    {{if isset( $list['extra'] ) }}
+    <span class="dtProfileExtra">{$list['extra']|raw}</span>
+    {{endif}}
+    {{if isset( $list['url']) && $list['url']}}
+    </a>
+    {{endif}}
+{{else}}
+    {$list|raw}
+</li>
+{{endif}}
+
+]]></template>
+    <template template_group="generic" template_name="plain" template_data="$data, $name=null, $class=null"
+              template_location="front" template_app="toolbox"><![CDATA[{{if $name }}
+<h4>{$name}</h4>
+{{endif}}
+<div {{if $class }}class="{$class}"{{endif}}>
+    {$data|raw}
+</div>
+]]></template>
+    <template template_group="generic" template_name="string" template_data="$data, $name=null"
+              template_location="front" template_app="toolbox"><![CDATA[{{if $name }}
+<h4>{$name}</h4>
+{{endif}}
+    <div class="ipsColumns">
+        <div class="ipsColumn ipsColumn_fluid">
+            {expression="(new \IPS\tooblox\Profiler\Dumper)->add($data)" raw="true"}
+        </div>
+    </div>
+]]></template>
+    <template template_group="results" template_name="files" template_data="array $keys, $type"
+              template_location="admin" template_app="toolbox"><![CDATA[<div data-ipsdtcodetoggle data-ipsdtcodetoggle-id="{$type}" class="ipsClearfix ipsClear acpWidgetToolbar dtcode_header">
+    <h1 class="dtcode_h1">{lang="{$type}" sprintf="\count($keys)"} <i class="fa fa-angle-down"></i></h1>
+    <h2>{lang="{$type}_desc"}</h2>
+</div>
+<table class="ipsTable ipsTable_responsive ipsTable_zebra dtcode_files ipsHide" id="tab_{$type}">
+    <thead>
+    <tr class="ipsAreaBackground">
+        <th>File</th>
+        <th>Key</th>
+        <th>Line</th>
+    </tr>
+    </thead>
+    <tbody data-role="tableRows">
+    {{foreach $keys as $key }}
+    <tr class="ipsClearfix">
+        <td class="ipsTable_wrap dtcode_file_name">
+            {{if \IPS\DEV_WHOOPS_EDITOR && $key['path'] !== null}}
+            <a href="{$key['path']|raw}">
+                {{endif}}
+                {$key['file']}
+                {{if \IPS\DEV_WHOOPS_EDITOR && $key['path'] !== null}}
+            </a>
+            {{endif}}
+        </td>
+        <td class="ipsTable_wrap dtcode_file_key">
+            {$key['key']}
+        </td>
+        <td class="ipsTable_icon dtcode_file_line">
+            {$key['line']}
+        </td>
+    </tr>
+    {{endforeach}}
+    </tbody>
+</table>]]></template>
+    <template template_group="results" template_name="lists" template_data="array $keys, $type"
+              template_location="admin" template_app="toolbox"><![CDATA[<div data-ipsdtcodetoggle data-ipsdtcodetoggle-id="{$type}" class="ipsClearfix ipsClear acpWidgetToolbar dtcode_header">
+    <h1 class="dtcode_h1">{lang="{$type}" sprintf="\count($keys)"} <i class="fa fa-angle-down"></i></h1>
+    <h2>{lang="{$type}_desc"}</h2>
+</div>
+<table class="ipsTable ipsTable_responsive ipsTable_zebra dtcode_lists ipsHide" id="tab_{$type}">
+    <tbody data-role="tableRows">
+    {{foreach $keys as $key }}
+    <tr class="ipsClearfix">
+        <td class="ipsTable_wrap ">
+            {$key}
+        </td>
+    </tr>
+    {{endforeach}}
+    </tbody>
+</table>]]></template>
+    <css css_location="admin" css_app="toolbox" css_attributes="" css_path="." css_name="devbar.css"><![CDATA[#dtDevBar {
+    font-size: 14px;
+    padding: 10px 5px;
+    width: 75%;
+}
+
+#dtDevBar > li > a {
+    color: #fff;
+}
+]]></css>
+    <css css_location="admin" css_app="toolbox" css_attributes="" css_path="." css_name="dtcode.css">.dtcode_header {&#13;
+        margin-top: 15px;&#13;
+        cursor: pointer;&#13;
+        }
+    </css>
+    <css css_location="front" css_app="toolbox" css_attributes="" css_path="." css_name="profiler.css"><![CDATA[.dtProfilerPlaceHolder,
+.dtProfilerBar {
+    width: 100%;
+    min-height: 40px;
+    font-size:14px;
+}
+
+.dtProfilerBar {
+    position:fixed;
+    z-index:1500;
+    bottom: 0;
+    background: #18171B;
+}
+
+.dtProfilerPlaceHolder
+{
+    position:absolute;
+}
+
+.dtProfilerTime {
+    background: #33cc33;
+}
+
+.dtProfilermemory {
+    background: #00aaff;
+}
+
+.dtProfilerfiles {
+    background: #ff751a;
+}
+
+.dtProfilerTemplates{
+    background:   #00cccc;
+}
+
+.dtProfilerCSS {
+    background:  #1a8cff;
+}
+
+.dtProfilerjs {
+    background:   #4d4dff;
+}
+
+.dtProfilerjsvars {
+    background:   #c44dff;
+}
+
+.dtProfilerQueryLog {
+    background:  #00b300;
+}
+
+.dtProfilerCacheLog {
+    background:  #cc9900;
+}
+
+.dtProfilerlogs {
+    background: #990033;
+}
+
+.dtProfilerenvironment{
+    background: #ff8000;
+}
+
+.dtProfilerdebug {
+    background: #99ccff;
+}
+
+.dtProfilerexecutions {
+    background: #478f79;
+}
+
+.dtProfileFirst {
+    float: left;
+    padding: 12px 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.dtProfilerBar_database a {
+    word-wrap: break-word;
+}
+
+
+.dtProfilerBar_cache,
+.dtProfilerBar_database,
+.dtProfilerBar_templates,
+.dtProfilerBar_generic,
+.dtProfilerBar_search {
+    max-height: 400px;
+    position: absolute;
+    /*bottom: 40px;*/
+    background: #18171B;
+    min-width: 250px;
+}
+
+.dtProfilerBar_search {
+    height:400px;
+}
+
+.dtProfilerBar_cache,
+.dtProfilerBar_database,
+.dtProfilerBar_templates,
+.dtProfilerBar_generic,
+.dtProfilerBar_search_ul{
+    overflow-x: auto;
+}
+
+.dtProfilerBar_search_ul {
+    max-height:350px;
+}
+
+.dtProfilerBar_cache li,
+.dtProfilerBar_database li,
+.dtProfilerBar_templates li {
+    text-align: left;
+    padding-right:20px;
+}
+
+#elProfilefiles_list a,
+.dtProfilerBar_cache a,
+.dtProfilerBar_templates a {
+    display: block;
+    padding: 5px 10px;
+}
+
+.dtProfilerBar_search_ul a,
+#elProfilelogs_list a,
+#elProfilefiles_list a,
+.dtProfilerBar_cache a,
+.dtProfilerBar_templates a,
+.dtProfilerBar_generic a,
+.dtProfilerBar,
+.dtProfilerBar_database span.lit {
+    color: #ffff1a;
+}
+
+.dtProfilerBar li,
+.dtProfilerBar_database span.pln,
+.dtProfilerBar_database span.kwd,
+.dtProfilerBar_database h3,
+.dtProfilerBar_database,
+.dtProfilerBar_database a,
+.dtProfilerInfoBar a {
+    color:#fff;
+}
+
+.dtProfilerBar_database {
+    /*background: white;*/
+}
+
+#elProfiledebug_list h4,
+#elProfiledebug_list .sf-dump {
+    margin:0;
+    margin-bottom:5px;
+}
+
+#elProfiledebug_list li,
+.dtProfilerBar_database li {
+    border-bottom: 1px solid #fff;
+}
+
+.dtProfilerBar_generic .ipsColumn_wide{
+    padding: 7px 0 0 7px !important;
+}
+
+.dtProfilerInfoBar div {
+    padding:10px 5px;
+    float:left;
+}
+
+.dtProfilerMaxWidth {
+    width:100%;
+}
+
+#elProfileLogs_list > li {
+    border-bottom:solid 1px #fff;
+}
+
+/* Flash class and keyframe animation */
+.dtprofilerFlash{
+    background:#ff0000;
+    -webkit-animation: dtprofilerFlash linear 2s infinite;
+    animation: dtprofilerFlash linear 2s infinite;
+}
+
+@-webkit-keyframes dtprofilerFlash {
+    0% { opacity: 1; }
+    50% { opacity: .1; }
+    100% { opacity: 1; }
+}
+
+@keyframes dtprofilerFlash {
+    0% { opacity: 1; }
+    50% { opacity: .1; }
+    100% { opacity: 1; }
+}
+
+.dtProfilerClear span {
+    display:block;
+    cursor:pointer;
+    text-align: center;
+    font-weight: bold;
+    color: #fff;
+    background: #ff0000;
+    padding:10px 0;
+}
+
+.dtprofilerEnabled {
+    color: #00ff00;
+    padding-left:10px;
+}
+
+
+
+.dttProfilerInfoGit div,
+.dtProfilerInfoBarPanel a {
+    font-size:14px;
+    display:inline-block;
+    margin-right:5px;
+    padding:2px 10px;
+    border-bottom-left-radius: 25% 100%;
+    border-bottom-right-radius: 25% 100%;
+    border-top-left-radius: 25% 100%;
+    border-top-right-radius: 25% 100%;
+}
+
+.dtProfilerInfoBarPanel a {
+    background:#fff;
+    color: #000;
+}
+
+.dttProfilerInfoGit div:not(.lds-facebook) {
+    background:  #1a8cff;
+    color: #fff;
+    cursor: default;
+}
+
+.dttProfilerInfoGitLoading {
+    height:22px;
+    width:100px;
+}
+
+.dtProfilerSearch {
+    padding:10px;
+    color:#fff;
+}
+
+.dtProfilerSearch > span {
+    width:250px;
+    display:block;
+    float:right;
+}
+
+.dtProfilerSearch input {
+    width:200px!important;
+}
+
+.dtProfilerNumber {
+    color:#cc33ff !important;
+}
+
+.dtProfilerBool {
+    color:#ff9933;
+}
+
+.dtProfilerString {
+    color:#ff5500;
+}
+.dtprofilerDisabled {
+    color:#FF0000;
+    padding-left:10px;
+}
+
+.dtProfileExtra {
+    color:#fff !important;
+}
+
+.dtProfilerSearch .ipsColumn_fluid {
+    word-wrap: normal;
+    word-break: break-word;
+}
+
+.dtProfilerBar_search_ul > li,
+#elProfilelogs_list > li {
+    border-bottom: #fff 1px solid;
+}
+]]></css>
+</theme>

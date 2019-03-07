@@ -1,0 +1,3 @@
+Each app can be installed thru ACP->System->Site Features->Applications. click on "Install" and select which app you wish to install.
+
+NOTE: you will need to install dtbase.tar first, as it is required by the other apps as it contains class and data they require to operate normally.

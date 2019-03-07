@@ -1,0 +1,9 @@
+#dtDevBar {
+    font-size: 14px;
+    padding: 10px 5px;
+    width: 75%;
+}
+
+#dtDevBar > li > a {
+    color: #fff;
+}

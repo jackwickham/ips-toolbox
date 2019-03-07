@@ -1,0 +1,51 @@
+<?php
+
+namespace IPS\{app}\extensions\dtproxy\ProxyHelpers;
+
+/* To prevent PHP errors (extending class does not exist) revealing path */
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )
+{
+	header( ( isset( $_SERVER['SERVER_PROTOCOL'] ) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+	exit;
+}
+
+/**
+ * {class}
+ */
+class _{class}
+{
+
+    /**
+    * add property to \IPS\Data\Store DocComment
+    * @param array $classDoc
+    * example $classDoc[] = [ 'pt' => 'p', 'prop' => 'prop_name', 'type' => 'array'];
+    * pt: property type (choices: p (property), w (property-write), r (property-read))
+    * prop: property name
+    * type: the type of the property, can be whatever you want, examples: array, string, int, etc
+    */
+    public function store(&$classDoc){
+
+    }
+
+    /**
+    * add property to \IPS\Request proxy DocComment
+    * @param array $classDoc
+    * example $classDoc[] = [ 'pt' => 'p', 'prop' => 'prop_name', 'type' => 'array'];
+    * pt: property type (choices: p (property), w (property-write), r (property-read))
+    * prop: property name
+    * type: the type of the property, can be whatever you want, examples: array, string, int, etc
+    */
+    public function request(&$classDoc){
+
+    }
+
+    /**
+    * returns a list of classes available to run on classes
+    * @return array
+    * $heelpers[ class\to\look\for ][] = class\of\helper\class;
+    * @param $helpers
+    */
+    public function map(&$helpers)
+    {
+    }
+}

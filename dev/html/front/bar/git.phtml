@@ -1,0 +1,51 @@
+<ips:template parameters="$info=null"/>
+    <div title="Application" data-ipsTooltip>{$info['app']}</div>
+    <div title="Application Version" data-ipsTooltip>{$info['version']}</div>
+    <div title="Commit: {$info['fid']}" data-ipstooltip>
+        <a id="elProfileGitMessage" href="#elProfileGitMessage_menu" data-ipsmenu>
+            {$info['id']} <i class="fa fa-angle-up"></i>
+        </a>
+    </div>
+    <ul id="elProfileGitMessage_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+        <li class="">
+            <div class="ipsPad_half">
+                <h4>Message:</h4>
+                        {$info['msg']|raw}
+            </div>
+        </li>
+    </ul>
+    <div>
+        {{if !empty( $info['branches'] ) }}
+        <a id="elProfileGitBranches"  href="#elProfileGitBranches_menu" title="Branches" data-ipstooltip data-ipsmenu>
+        {{endif}}
+            {$info['branch']}
+            {{if !empty( $info['branches'] ) }}
+            <i class="fa fa-angle-up"></i>
+        </a>
+        {{endif}}
+        </div>
+    {{if !empty( $info['branches'] ) }}
+    <ul id="elProfileGitBranches_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+        {{foreach $info['branches'] as $val }}
+        <li class="ipsMenu_item">
+            <a>{$val['name']|raw}</a>
+        </li>
+        {{endforeach}}
+    </ul>
+    {{endif}}
+    {{if !empty( $info['changes'] ) }}
+    <div>
+        <a id="elProfileGitBranchesChanges"  href="#elProfileGitBranchesChanges_menu" title="Apps with changes" data-ipstooltip data-ipsmenu>
+            Apps W/Changes <i class="fa fa-angle-up"></i>
+        </a>
+    </div>
+    <ul id="elProfileGitBranchesChanges_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+        {{foreach $info['changes'] as $val }}
+        <li class="ipsMenu_item">
+            <a>
+                {$val['name']|raw}
+            </a>
+        </li>
+        {{endforeach}}
+    </ul>
+    {{endif}}

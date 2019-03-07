@@ -1,0 +1,7 @@
+<ips:template parameters="$data, $name=null, $class=null"/>
+{{if $name }}
+<h4>{$name}</h4>
+{{endif}}
+<div {{if $class }}class="{$class}"{{endif}}>
+    {$data|raw}
+</div>

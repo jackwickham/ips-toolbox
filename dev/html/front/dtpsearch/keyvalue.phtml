@@ -1,0 +1,13 @@
+<ips:template parameters="$key,$value"/>
+<div class="ipsColumns">
+    <div class="ipsColumn ipsColumn_wide">{$key|raw}</div>
+    <div class="ipsColumn ipsColumn_fluid">
+        {{if \is_array($value) }}
+        {{foreach $value as $k => $v}}
+        {template="keyvalue" group="dtpsearch" location="front" app="toolbox" params="$k,$v"}
+        {{endforeach}}
+        {{else}}
+        {expression="(new \IPS\toolbox\Profiler\Profiler\Dumper)->type($value)" raw="true"}
+        {{endif}}
+    </div>
+</div>

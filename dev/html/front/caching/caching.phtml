@@ -1,0 +1,16 @@
+<ips:template parameters="$lists, $count"/>
+<li id="elProfileCacheLog" title="Cache Log" class="isParent dtProfileFirst dtProfilerCacheLog" data-ipstooltip>
+    <i class="fa fa-usd"></i> Cache Log ({$count}) <i class="fa fa-angle-up dtprofilearrow"></i>
+</li>
+<ul id="elProfileCacheLog_list" class="ipsList_reset ipsHide dtProfilerBar_cache">
+    {{foreach $lists as $list }}
+    <li>
+        <a href="{$list['url']}" data-ipsdialog>
+            {{if $list['type'] }}
+            Type: {$list['type']}<br>
+            {{endif}}
+            {$list['name']}
+        </a>
+    </li>
+    {{endforeach}}
+</ul>

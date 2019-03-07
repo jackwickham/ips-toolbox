@@ -1,0 +1,20 @@
+<ips:template parameters="array $menus, $dev, $app, $controller='sources'"/>
+<ul id="adminMenu_button_menu" class="ipsMenu ipsMenu_normal ipsHide">
+    {{foreach $menus as $menu }}
+    <li class="ipsMenu_item">
+        <a href="{url='app=toolbox&module=devcenter&controller=sources&appKey={$app}&do={$menu}'}" {{if !\in_array( $menu, ['memory', 'debug', 'form']) }}data-ipsdialog data-ipsdialog-forceReload="true" data-ipsdialog-remoteSubmit="true" data-ipsdialog-title="{lang='dtdevplus_menu_title_{$menu}'}"{{endif}}>
+        {lang="dtdevplus_menu_title_{$menu}"}
+        </a>
+    </li>
+    {{endforeach}}
+</ul>
+
+<ul id="adminMenuDev_button_menu" class="ipsMenu ipsMenu_normal ipsHide">
+    {{foreach $dev as $menu }}
+    <li class="ipsMenu_item">
+        <a href="{url='app=toolbox&module=devcenter&controller=dev&appKey={$app}&do={$menu}'}" data-ipsdialog data-ipsdialog-forceReload="true" data-ipsdialog-remoteSubmit="true" data-ipsdialog-title="{lang='dtdevplus_menu_title_{$menu}'}">
+            {lang="dtdevplus_menu_title_{$menu}"}
+        </a>
+    </li>
+    {{endforeach}}
+</ul>

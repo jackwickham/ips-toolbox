@@ -1,0 +1,13 @@
+<ips:template parameters="$menu, $menus"/>
+<li>
+    <a href="{$menu['url']}_menu" id="{$menu['url']}" data-ipsMenu>{lang="$menu['name']"}</a>
+    {{if isset( $menus[ $menu['id'] ] ) }}
+    <ul id="{$menu['url']}_menu" class="ipsMenu ipsHide  ipsClearfix">
+        {{foreach $menus[ $menu['id'] ] as $m }}
+        <li class="ipsMenu_item">
+            <a href="{$m['url']}">{lang="$m['name']"}</a>
+        </li>
+        {{endforeach}}
+    </ul>
+    {{endif}}
+</li>

@@ -1,0 +1,16 @@
+<ips:template parameters="array $keys, $type"/>
+<div data-ipsdtcodetoggle data-ipsdtcodetoggle-id="{$type}" class="ipsClearfix ipsClear acpWidgetToolbar dtcode_header">
+    <h1 class="dtcode_h1">{lang="{$type}" sprintf="\count($keys)"} <i class="fa fa-angle-down"></i></h1>
+    <h2>{lang="{$type}_desc"}</h2>
+</div>
+<table class="ipsTable ipsTable_responsive ipsTable_zebra dtcode_lists ipsHide" id="tab_{$type}">
+    <tbody data-role="tableRows">
+    {{foreach $keys as $key }}
+    <tr class="ipsClearfix">
+        <td class="ipsTable_wrap ">
+            {$key}
+        </td>
+    </tr>
+    {{endforeach}}
+    </tbody>
+</table>

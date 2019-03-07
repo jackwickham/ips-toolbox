@@ -1,0 +1,181 @@
+{
+  "toolbox_generator": {
+    "name": "toolbox_generator",
+    "columns": {
+      "generator_id": {
+        "allow_null": false,
+        "auto_increment": true,
+        "binary": false,
+        "comment": "ID Number",
+        "decimals": null,
+        "default": null,
+        "length": 20,
+        "name": "generator_id",
+        "type": "BIGINT",
+        "unsigned": true,
+        "values": [],
+        "zerofill": false
+      },
+      "generator_gid": {
+        "allow_null": true,
+        "auto_increment": false,
+        "binary": false,
+        "comment": "",
+        "decimals": null,
+        "default": null,
+        "length": 20,
+        "name": "generator_gid",
+        "type": "BIGINT",
+        "unsigned": true,
+        "values": [],
+        "zerofill": false
+      },
+      "generator_type": {
+        "allow_null": true,
+        "auto_increment": false,
+        "binary": false,
+        "comment": "",
+        "decimals": null,
+        "default": null,
+        "length": 255,
+        "name": "generator_type",
+        "type": "VARCHAR",
+        "unsigned": false,
+        "values": [],
+        "zerofill": false
+      }
+    },
+    "indexes": {
+      "PRIMARY": {
+        "type": "primary",
+        "name": "PRIMARY",
+        "length": [
+          null
+        ],
+        "columns": [
+          "generator_id"
+        ]
+      }
+    },
+    "collation": "utf8mb4_unicode_ci",
+    "engine": "InnoDB",
+    "comment": ""
+  },
+  "toolbox_debug": {
+    "name": "toolbox_debug",
+    "columns": {
+      "debug_id": {
+        "allow_null": false,
+        "auto_increment": true,
+        "binary": false,
+        "comment": "ID Number",
+        "decimals": null,
+        "default": null,
+        "length": 20,
+        "name": "debug_id",
+        "type": "BIGINT",
+        "unsigned": false,
+        "values": [],
+        "zerofill": false
+      },
+      "debug_key": {
+        "name": "debug_key",
+        "type": "VARCHAR",
+        "length": 255,
+        "decimals": null,
+        "values": null,
+        "allow_null": true,
+        "default": null,
+        "comment": "",
+        "unsigned": false,
+        "zerofill": false,
+        "auto_increment": false,
+        "binary": false
+      },
+      "debug_log": {
+        "name": "debug_log",
+        "type": "TEXT",
+        "length": null,
+        "decimals": null,
+        "values": null,
+        "allow_null": true,
+        "default": null,
+        "comment": "",
+        "unsigned": false,
+        "zerofill": false,
+        "auto_increment": false,
+        "binary": false
+      },
+      "debug_type": {
+        "name": "debug_type",
+        "type": "VARCHAR",
+        "length": 255,
+        "decimals": null,
+        "values": null,
+        "allow_null": true,
+        "default": null,
+        "comment": "",
+        "unsigned": false,
+        "zerofill": false,
+        "auto_increment": false,
+        "binary": false
+      },
+      "debug_time": {
+        "name": "debug_time",
+        "type": "INT",
+        "length": 11,
+        "decimals": null,
+        "values": null,
+        "allow_null": true,
+        "default": null,
+        "comment": "",
+        "unsigned": true,
+        "zerofill": false,
+        "auto_increment": false,
+        "binary": false
+      },
+      "debug_ajax": {
+        "name": "debug_ajax",
+        "type": "TINYINT",
+        "length": 1,
+        "decimals": null,
+        "values": null,
+        "allow_null": false,
+        "default": "0",
+        "comment": "",
+        "unsigned": true,
+        "zerofill": false,
+        "auto_increment": false,
+        "binary": false
+      },
+      "debug_viewed": {
+        "name": "debug_viewed",
+        "type": "TINYINT",
+        "length": 1,
+        "decimals": null,
+        "values": null,
+        "allow_null": false,
+        "default": "0",
+        "comment": "",
+        "unsigned": true,
+        "zerofill": false,
+        "auto_increment": false,
+        "binary": false
+      }
+    },
+    "indexes": {
+      "PRIMARY": {
+        "type": "primary",
+        "name": "PRIMARY",
+        "length": [
+          null
+        ],
+        "columns": [
+          "debug_id"
+        ]
+      }
+    },
+    "collation": "utf8mb4_unicode_ci",
+    "engine": "InnoDB"
+  }
+}

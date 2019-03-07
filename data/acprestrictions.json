@@ -1,0 +1,25 @@
+{
+    "build": {
+        "build": {
+            "build_manage": "build_manage"
+        }
+    },
+    "settings": {
+        "settings": {
+            "settings_manage": "settings_manage"
+        },
+        "cons": {
+            "cons_manage": "cons_manage"
+        }
+    },
+    "devcenter": {
+        "sources": {
+            "sources_manage": "sources_manage"
+        }
+    },
+    "proxy": {
+        "proxy": {
+            "proxy_manage": "proxy_manage"
+        }
+    }
+}

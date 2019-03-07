@@ -1,0 +1,23 @@
+<ips:template parameters="$name, $key, $title, $lists, $search, $count=null, $icon='random', $max=true, $hide=false, $last=null, $dialog=false"/>
+<li id="elProfile{$key}" {{if $title}}title="{$title}" data-ipstooltip{{endif}} class="isParent dtProfileFirst dtProfiler{$key} {{if $hide}}ipsHide{{endif}}" {{if $last }}data-last="{$last}" {{endif}}>
+    <i class="fa fa-{$icon}"></i> {$name} {{if $count !== null}}{{if $name}}({{endif}}<span class="dtprofilerCount" data-\count="{$count}">{$count}</span>{{if $name}}){{endif}}
+    <i class="fa fa-angle-up dtprofilearrow"></i>{{endif}}
+</li>
+{{if $count }}
+
+<ul id="elProfile{$key}_list" class="ipsList_reset ipsHide dtProfilerBar_search {{if $max}}dtProfilerMaxWidth{{endif}}">
+    <div class="dtProfilerSearch ipsClearfix" data-ipsdtpsearch data-ipsdtpsearch-sdata="{$search}" data-ipsdtpsearch-key="{$key}">
+        <span>
+            Search: <input id="search{$key}" type="text" name="dtprofilerSearch" placeholder="Search...">
+        </span>
+    </div>
+    {{if \is_array($lists) && \count($lists) }}
+    <ul class="ipsList_reset dtProfilerBar_search_ul">
+        {{foreach $lists as $list }}
+        {template="li" group="generic" location="front" app="toolbox" params="$list,$dialog"}
+        {{endforeach}}
+    </ul>
+    {{endif}}
+
+</ul>
+{{endif}}

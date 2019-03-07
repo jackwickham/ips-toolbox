@@ -1,0 +1,20 @@
+<ips:template parameters="$lists, $count"/>
+<li id="elProfileQueryLog" title="Query Log" class="isParent dtProfileFirst dtProfilerQueryLog" data-ipstooltip>
+    <i class="fa fa-database"></i> Query Log ({$count}) <i class="fa fa-angle-up dtprofilearrow"></i>
+</li>
+<ul id="elProfileQueryLog_list" class="ipsList_reset ipsHide dtProfilerBar_database dtProfilerMaxWidth">
+    {{foreach $lists as $list }}
+    <li>
+        <div class="ipsPad">
+        <a href="{$list['url']}" data-ipsdialog>
+            {{if $list['server'] }}
+            Server: {$list['server']}<br>
+            {{endif}}
+            {{if $list['time'] !== null}}Execution Time: {$list['time']}ms<br>{{endif}}
+            {{if $list['mem'] !== null}}Memory: {$list['mem']}<br>{{endif}}
+            <code class="prettyprint lang-sql">{$list['query']|raw}</code>
+        </a>
+        </div>
+    </li>
+    {{endforeach}}
+</ul>

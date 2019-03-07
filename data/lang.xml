@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language>
+ <app key="toolbox" version="10000">
+  <word key="__app_toolbox" js="0">Dev Toolbox</word>
+  <word key="menutab__devtools" js="0">Dev Toolbox</word>
+  <word key="menutab__devtools_icon" js="0">wrench</word>
+  <word key="toolbox_apps_built" js="0">Apps built</word>
+  <word key="menu__toolbox_settings" js="0">Dev Toolbox</word>
+  <word key="menu__toolbox_settings_settings" js="0">Settings</word>
+  <word key="ext__menu" js="0">Add menus to the DevBar</word>
+  <word key="ext__settings" js="0">Settings for the other apps to add to the settings in dt base (so we aren't using if appIsenable checks, which makes the code ugly)</word>
+  <word key="ext__Headerdoc" js="0">adds the &quot;Headerdoc&quot; extension to your app to gain features such as class commenting, adding blank index.html's to all the folders in your app or skiping files or entire directories in the build process. the name is misleading :P</word>
+  <word key="ext__SourcesForm" js="0">this is experimental atm, nothing to see here.</word>
+  <word key="ext__ProxyHelpers" js="0">add &quot;properties&quot; to the Data\Store or Request class thru here.</word>
+  <word key="dtdevfolder_apps_select" js="0">Select Application</word>
+  <word key="dtdevfolder_app" js="0">Application</word>
+  <word key="dtdevfolder_app_desc" js="0">Select which application to generate the Dev Folder for.</word>
+  <word key="dtdevfolder_type" js="0">Type</word>
+  <word key="dtdevfolder_type_desc" js="0">Choose everything to recreate the entire Dev Folder, or select which part of the Dev folder you wish to recreate.</word>
+  <word key="dtdevfolder_type_lang" js="0">Language</word>
+  <word key="dtdevfolder_type_js" js="0">Javascript</word>
+  <word key="dtdevfolder_type_template" js="0">Templates</word>
+  <word key="dtdevfolder_type_email" js="0">Email Templates</word>
+  <word key="dtdevfolder_type_all" js="0">Everything</word>
+  <word key="dtdevfolder_type_select" js="0">Select Type</word>
+  <word key="dtdevfolder_return_javascript" js="0">Javascript Files Generated</word>
+  <word key="dtdevfolder_return_templates" js="0">Template Files Generated</word>
+  <word key="dtdevfolder_return_email" js="0">Email Template Files Generated</word>
+  <word key="dtdevfolder_return_lang" js="0">Language Strings Generated</word>
+  <word key="dtdevfolder_queue_title" js="0">Generating Dev Files</word>
+  <word key="dtdevfolder_total_done" js="0">Processing %s of %s</word>
+  <word key="dtdevfolder_completed" js="0">Dev folder generated for %s</word>
+  <word key="menu__dtdevfolder_devplus" js="0">Dev Folder Generator</word>
+  <word key="menu__dtdevfolder_devplus_devplus" js="0">Applications</word>
+  <word key="dtdevfolder_title" js="0">Application Dev Folder Generator</word>
+  <word key="dtdevfolder_plugins_title" js="0">Plugins Dev Folder Generator</word>
+  <word key="dtdevfolder_plugin_upload" js="0">Plugin XML</word>
+  <word key="dtdevfolder_plugins_done" js="0">The Dev Folder for %s has been generated!</word>
+  <word key="menu__dtdevfolder_view_plugins" js="0">Plugins</word>
+  <word key="dtdevplus_ext_use_default" js="0">Use Default</word>
+  <word key="dtdevplus_ext_use_default_desc" js="0">Will ignore all other settings on the page and build and IPS/App extensions skeleton!</word>
+  <word key="menu__toolbox_devfolder" js="0">DevFolder Creator</word>
+  <word key="menu__toolbox_devfolder_applications" js="0">Applications</word>
+  <word key="menu__toolbox_devfolder_plugins" js="0">Plugins</word>
+  <word key="menu__toolbox_code" js="0">Code Analyzer</word>
+  <word key="menu__dtcode_view" js="0">Code Analyzer</word>
+  <word key="menu__toolbox_code_analyzer" js="0">Analyzer</word>
+  <word key="dtcode_app" js="0">Applications</word>
+  <word key="dtcode_app_desc" js="0">Choose which app you wish to analyze.</word>
+  <word key="dtcode_queue_complete" js="0"><![CDATA[Step: %s<br> complete: %s out of %s]]></word>
+  <word key="dtcode_langs_php" js="0">Unused language strings: lang.php (%s)</word>
+  <word key="dtcode_langs_php_desc" js="0">Language strings that are defined but do not appear to be in use. Lang.php</word>
+  <word key="dtcode_jslangs_php" js="0">Unused language strings: jslang.php (%s)</word>
+  <word key="dtcode_jslangs_php_desc" js="0">Language strings that are defined but do not appear to be in use. jslang.php</word>
+  <word key="dtcode_langs_verify" js="0">Missing Lang Definitions (%s)</word>
+  <word key="dtcode_langs_verify_desc" js="0">Language strings that are in use, but are not defined in the language files</word>
+  <word key="dtcode_settings_check" js="0">Unused Settings (%s)</word>
+  <word key="dtcode_settings_check_desc" js="0">Settings that are defined but do not appear to be in use.</word>
+  <word key="dtcode_settings_verify" js="0">Missing Setting Definitions (%s)</word>
+  <word key="dtcode_settings_verify_desc" js="0">Settings in use but do not appear not to have been created in the dev center for the application.</word>
+  <word key="dtcode_results" js="0">Results</word>
+  <word key="dtcode_results_app" js="0">Results for %s</word>
+  <word key="dtcode_no_autoload" js="0">no autoload.php found in this location, try again.</word>
+  <word key="dtcode_path" js="0">Vendor Path</word>
+  <word key="dtcode_path_desc" js="0">Path to composer's vendor folder, this app requires symfony/finder min. version 4.0 to be installed to function.</word>
+  <word key="dtcode_error" js="0">This application requires symfony/finder, please use composer to install it and then point to the directory that contains the autoload.php for composer. to install &quot;composer require symfony/finder&quot; (any version above 4.0 should suffice)</word>
+  <word key="dtcode_missing_class" js="0">Symfony/Finder is missing, please install with composer.</word>
+  <word key="__app_dtcontent" js="0">Dev Toolbox: Content Generator</word>
+  <word key="menu__toolbox_content" js="0">Content Generator</word>
+  <word key="menu__toolbox_content_content" js="0">Generator</word>
+  <word key="dtcontent_type" js="0">Content Type</word>
+  <word key="dtcontent_limit" js="0">Limit</word>
+  <word key="dtcontent_passwords" js="0">Random Passwords</word>
+  <word key="dtcontent_passwords_desc" js="0">if enabled, passwords will be randomize, otherwise username is used.</word>
+  <word key="dtcontent_group" js="0">Group</word>
+  <word key="dtcontent_group_desc" js="0">Select the group you wish to make the members for.</word>
+  <word key="dtcontent_club" js="0">Randomly join available clubs</word>
+  <word key="dtcontent_progress" js="0">%s out of %s</word>
+  <word key="dtcontent_completed" js="0">%s creation completed</word>
+  <word key="dtcontent_rangeStart" js="0">Start Date</word>
+  <word key="dtcontent_rangeStart_desc" js="0">The earliest date to generate content for</word>
+  <word key="dtcontent_rangeEnd" js="0">End Date</word>
+  <word key="dtcontent_rangeEnd_desc" js="0">The latest date to generate content for</word>
+  <word key="toolbox_tab" js="0">General</word>
+  <word key="toolbox_debug_templates" js="0">Debug Templates</word>
+  <word key="toolbox_debug_templates_desc" js="0">Writes templates to disk allowing template error messages to be tracked. this will not work correctly if the IPS\DEBUG_TEMPLATES is set to true in the constants.php</word>
+  <word key="dtdevplus_select" js="0">Action</word>
+  <word key="dtdevplus_table" js="0">Table</word>
+  <word key="dtdevplus_add_column" js="0">Column</word>
+  <word key="dtdevplus_length" js="0">Length</word>
+  <word key="dtdevplus_decimals" js="0">Decimals</word>
+  <word key="dtdevplus_default" js="0">Default</word>
+  <word key="dtdevplus_comment" js="0">Comment</word>
+  <word key="dtdevplus_allow_null" js="0">Allow Null</word>
+  <word key="dtdevplus_sunsigned" js="0">Unsigned</word>
+  <word key="dtdevplus_zerofill" js="0">ZeroFill</word>
+  <word key="dtdevplus_auto_increment" js="0">Auto-Increment</word>
+  <word key="dtdevplus_binary" js="0">Binary</word>
+  <word key="dtdevplus_unsigned" js="0">Value</word>
+  <word key="dtdevplus_values" js="0">Values</word>
+  <word key="dtdevplus_columns" js="0">Table Column</word>
+  <word key="dtdevplus_code" js="0">Query Box</word>
+  <word key="dtdevplus_content_item_class" js="0">Item Class</word>
+  <word key="dtdevplus_traits" js="0">Traits</word>
+  <word key="dtdevplus_subnode_class" js="0">Subnode Class</word>
+  <word key="dtdevplus_traitName" js="0">Trait Name</word>
+  <word key="dtdevplus_interfaceName" js="0">Interface Name</word>
+  <word key="dtdevplus_created" js="0">Created %s Class: %s has been created successfully!</word>
+  <word key="dtdevplus_type" js="0">Class Type</word>
+  <word key="dtdevplus_type_desc" js="0">Class type, Class for a regular class. Node for a \IPS\Node\Model class. Content Item for a \IPS\Content\Item class. Content Item Comment Class for a \IPS\Content\Comment class.</word>
+  <word key="dtdevplus_namespace" js="0">Namespace</word>
+  <word key="dtdevplus_namespace_desc" js="0">Namespace for the class, leave blank if not a subclass. Class: \IPS\myapp, SubClass: \IPS\myapp\ParentClass</word>
+  <word key="dtdevplus_className" js="0">Class Name</word>
+  <word key="dtdevplus_className_desc" js="0">do not include the underscore( _ ). This will also be the file's name.</word>
+  <word key="dtdevplus_extends" js="0">Extends</word>
+  <word key="dtdevplus_extends_desc" js="0">Does this class extend another class? if yes, please use the FQN here.</word>
+  <word key="dtdevplus_implements" js="0">Implements</word>
+  <word key="dtdevplus_implements_desc" js="0">will this class implement any interface classes? Use the FQN.</word>
+  <word key="dtdevplus_dev_class" js="0">Sources</word>
+  <word key="dtdevplus_dev_folder" js="0">Dev Folder</word>
+  <word key="dtdevplus_dev_lang" js="0">Languages</word>
+  <word key="dtdevplus_class_type" js="0">Class Type</word>
+  <word key="dtdevplus_class_type_desc" js="0">Class type, Class for a regular class. Node for a \IPS\Node\Model class. Content Item for a \IPS\Content\Item class. Content Item Comment Class for a \IPS\Content\Comment class.</word>
+  <word key="dtdevplus_class_namespace" js="0">Namespace</word>
+  <word key="dtdevplus_class_namespace_desc" js="0">Namespace for the class, leave blank if not a subclass. Class: \IPS\myapp, SubClass: \IPS\myapp\ParentClass</word>
+  <word key="dtdevplus_class_className" js="0">Class Name</word>
+  <word key="dtdevplus_class_className_desc" js="0">do not include the underscore( _ ). This will also be the file's name.</word>
+  <word key="dtdevplus_class_extends" js="0">Extends</word>
+  <word key="dtdevplus_class_extends_desc" js="0">Does this class extend another class? if yes, please use the FQN here.</word>
+  <word key="dtdevplus_class_implements" js="0">Additional Interfaces</word>
+  <word key="dtdevplus_class_implements_desc" js="0">Needing to implement interface files not listed? Use the FQN.</word>
+  <word key="dtdevplus_classes_class_no_exist" js="0">This class already exist in this namespace.</word>
+  <word key="dtdevplus_classes_extended_class_no_exist" js="0">The extended class does not exist!</word>
+  <word key="dtdevplus_class_created" js="0">Created %s Class: %s has been created successfully!</word>
+  <word key="dtdevplus_class_db_error" js="0">Created %s Class: %s has been created successfully! however the some of the scaffolding couldn't be created, please check manually!</word>
+  <word key="dtdevplus_classes_no_blank" js="0">Can't be blank!</word>
+  <word key="dtdevplus_class_item_node_class" js="0">Node Class</word>
+  <word key="dtdevplus_class_item_node_class_desc" js="0">Enter the node class for Item class you are about to create.</word>
+  <word key="dtdevplus_class_node_item_missing" js="0">Node Class doesn't exists.</word>
+  <word key="dtdevplus_class_database" js="0">Table Name</word>
+  <word key="dtdevplus_class_database_desc" js="0">Defined the name of the Table,If left blank, will create the table with the class name.</word>
+  <word key="dtdevplus_class_prefix" js="0">Prefix</word>
+  <word key="dtdevplus_class_prefix_desc" js="0">Define the prefix for the Table, leave blank if you don't want to use a prefix. prefix will have _ (underscore) appended to the end.</word>
+  <word key="dtdevplus_class_content_item_class" js="0">Item Class</word>
+  <word key="dtdevplus_class_content_item_class_desc" js="0">if the node has an item class, you can define it here. leave blank if the node will not use an item class</word>
+  <word key="dtdevplus_class_traits" js="0">Additional Traits</word>
+  <word key="dtdevplus_class_traits_desc" js="0">If you need to use addition traits not listed? use the FQN here</word>
+  <word key="dtdevplus_class_subnode_class" js="0">Subnode Class</word>
+  <word key="dtdevplus_class_subnode_class_desc" js="0">If the node uses a sub-node, define it here.</word>
+  <word key="dtdevplus_class_traitName" js="0">Trait Name</word>
+  <word key="dtdevplus_class_interfaceName" js="0">Interface Name</word>
+  <word key="dtdevplus_classes_implemented_no_interface" js="0">One of your implemented interface classes does not exist!</word>
+  <word key="dtdevplus_classes_type_no_selection" js="0">Please select a type!</word>
+  <word key="dtdevplus_class_exists" js="0">This class exists already in this namespace!</word>
+  <word key="dtdevplus_class_reserved" js="0">The name appears to be a PHP reserved keyword, please change it and try again!</word>
+  <word key="dtdevplus_class_trait_exists" js="0">This trait exists in this namespace!</word>
+  <word key="dtdevplus_class_interface_exists" js="0">This interface exists in this namespace!</word>
+  <word key="dtdevplus_class_no_blank" js="0">Can not be blank!</word>
+  <word key="dtdevplus_class_extended_class_no_exist" js="0">Can't extend with this class, as it doesn't exist!</word>
+  <word key="dtdevplus_class_implemented_no_interface" js="0">%s interface doesn't exist, please check and try again!</word>
+  <word key="dtdevplus_class_no_trait" js="0">%s trait doesn't exist, please check and try again!</word>
+  <word key="dtdevplus_class_type_no_selection" js="0">You must select a class type!</word>
+  <word key="dtdevplus_class_comment_class" js="0">Comment Class</word>
+  <word key="dtdevplus_class_review_class" js="0">Review Class</word>
+  <word key="dtdevplus_class_interface_implements_node" js="0">IPS Interfaces</word>
+  <word key="dtdevplus_class_interface_implements_node_desc" js="0">Check which interfaces to implement for your class.</word>
+  <word key="dtdevplus_class_interface_implements_item" js="0">IPS Interfaces</word>
+  <word key="dtdevplus_class_interface_implements_item_desc" js="0">Check which interfaces to implement for your class.</word>
+  <word key="dtdevplus_class_ips_traits_node" js="0">IPS Traits</word>
+  <word key="dtdevplus_class_ips_traits_node_desc" js="0">Check which traits to use for you class.</word>
+  <word key="dtdevplus_class_ips_traits_item" js="0">IPS Traits</word>
+  <word key="dtdevplus_class_ips_traits_item_desc" js="0">Check which traits to use for you class.</word>
+  <word key="dtdevplus_class_scaffolding_create" js="0">Create Scaffolding?</word>
+  <word key="dtdevplus_class_scaffolding_create_desc" js="0">If enabled, will create database/modules/controllers and lang strings (where applicable)</word>
+  <word key="dtdevplus_dev_type" js="0">Type</word>
+  <word key="dtdevplus_dev_type_desc" js="0">Select the type of file you want to create.</word>
+  <word key="dtdevplus_dev_html_group" js="0">Group</word>
+  <word key="dtdevplus_dev_js_group" js="0">Group</word>
+  <word key="dtdevplus_dev_html_group_desc" js="0">Select the group the file is to be added too.</word>
+  <word key="dtdevplus_dev_group_manual" js="0">Add Group</word>
+  <word key="dtdevplus_dev_group_manual_desc" js="0">If you want to add a new group.</word>
+  <word key="dtdevplus_dev_group_manual_folder" js="0">Group Folder</word>
+  <word key="dtdevplus_dev_group_manual_location" js="0">Group Location</word>
+  <word key="dtdevplus_dev_group_manual_location_desc" js="0">Location for the group.</word>
+  <word key="dtdevplus_dev_filename" js="0">Filename</word>
+  <word key="dtdevplus_dev_filename_desc" js="0">the filename.</word>
+  <word key="dtdevplus_dev_arguments" js="0">Template Parameters</word>
+  <word key="dtdevplus_dev_arguments_desc" js="0">Parameters for the template, do not include the $ as apart of it.</word>
+  <word key="dtdevplus_dev_widgetname" js="0">Widget Name</word>
+  <word key="dtdevplus_dev_widgetname_desc" js="0">this is the part that is used with the data-ips portion of it.&quot;</word>
+  <word key="dtdevplus_lang__val" js="0">Language Value</word>
+  <word key="dtdevplus_lang__key" js="0">Language Key</word>
+  <word key="dtdevplus_lang__no_js" js="0">File</word>
+  <word key="dtdevplus_ext_class" js="0">Class Name</word>
+  <word key="dtdevplus_ext_table" js="0">Table </word>
+  <word key="dtdevplus_ext_field" js="0">Field</word>
+  <word key="dtdevplus_ext_field_desc" js="0">Please select the field that contains the file/image location.</word>
+  <word key="dtdevplus_ext_table_desc" js="0">Select the table that contains the information for the filestorage file/img</word>
+  <word key="dtdevplus_ext_title_FileStorage_header" js="0">Create FileStorage Extension</word>
+  <word key="dtdevplus_ext_title_ContentRouter_header" js="0">Create ContentRouter Extension</word>
+  <word key="dtdevplus_ext_module" js="0">Module</word>
+  <word key="dtdevplus_ext_classRouter" js="0">Router Classes</word>
+  <word key="dtdevplus_ext_classRouter_desc" js="0">Only provide the class name, no need to provide the full FQN.</word>
+  <word key="dtdevplus_ext_title_CreateMenu_header" js="0">Create CreateMenu Extension</word>
+  <word key="dtdevplus_ext_key" js="0">Item Key</word>
+  <word key="dtdevplus_ext_key_desc" js="0">language key for the item</word>
+  <word key="dtdevplus_ext_link" js="0">Query String</word>
+  <word key="dtdevplus_ext_link_desc" js="0">Query string for URL::Internal.</word>
+  <word key="dtdevplus_ext_seo" js="0">Furl Template</word>
+  <word key="dtdevplus_ext_seo_desc" js="0">Add a furl key here, or leave blank</word>
+  <word key="dtdevplus_ext_seoTitle" js="0">SEO Title</word>
+  <word key="dtdevplus_ext_seoTitle_desc" js="0">if the furl template has a Title component.</word>
+  <word key="dtdevplus_skip_files" js="0">Files Skip</word>
+  <word key="dtdevplus_skip_files_desc" js="0">This is a global setting for DT Dev Center Plus, if your app uses the headerdoc extension and you want a global list of files to skip, add them here.</word>
+  <word key="dtdevplus_skip_dirs" js="0">Directory Skip</word>
+  <word key="dtdevplus_skip_dirs_desc" js="0">This is a global setting for DT Dev Center Plus, if your app uses the headerdoc extension and you want a global list of directories to skip, add them here.</word>
+  <word key="dtdevplus_tab" js="0">Dev Center Plus</word>
+  <word key="dtdevplus_class_interface_implements_comment" js="0">IPS Interfaces</word>
+  <word key="dtdevplus_dev_group_manual_js" js="0">Add Group</word>
+  <word key="dtdevplus_dev_group_manual_js_desc" js="0">If you want to add a new group.</word>
+  <word key="dtdevplus_class_useImports" js="0">Use Imports</word>
+  <word key="dtdevplus_class_useImports_desc" js="0">Will use imports instead of FQN for generated classes and there extends/traits/interfaces.</word>
+  <word key="dtdevplus_class_abstract" js="0">Abstract Class</word>
+  <word key="dtdevplus_class_abstract_desc" js="0">Make the class abstract.</word>
+  <word key="dtdevplus_class_final" js="0">Final Class</word>
+  <word key="dtdevplus_class_final_desc" js="0">Make the class final.</word>
+  <word key="dtdevplus_table_name" js="0">Table Name</word>
+  <word key="dtdevplus_schema_imports" js="0">Table Imports</word>
+  <word key="dtdevplus_class_scaffolding_type" js="0">Scaffolding types</word>
+  <word key="dtdevplus_class_scaffolding_type_desc" js="0"><![CDATA[Select which Scaffolding types to create. Database: creates the defined database for this class if it doesn't exist. Module, creates the module and controller for this class.(node's will have an admin module & controller created, Item's will have a front module & controller created.]]></word>
+  <word key="dtdevplus_menu_title_standard" js="0">Standard Class</word>
+  <word key="dtdevplus_menu_title_cinterface" js="0">Interface</word>
+  <word key="dtdevplus_menu_title_ctraits" js="0">Traits</word>
+  <word key="dtdevplus_menu_title_singleton" js="0">Singleton</word>
+  <word key="dtdevplus_menu_title_ar" js="0">ActiveRecord</word>
+  <word key="dtdevplus_menu_title_node" js="0">Node</word>
+  <word key="dtdevplus_menu_title_item" js="0">Item</word>
+  <word key="dtdevplus_menu_title_comment" js="0">Item's Comment</word>
+  <word key="dtdevplus_menu_title_review" js="0">Item's Review</word>
+  <word key="dtdevplus_menu_title_debug" js="0">Profiler Debug</word>
+  <word key="dtdevplus_menu_title_memory" js="0">Profiler Memory</word>
+  <word key="dtdevplus_menu_title_form" js="0">Form</word>
+  <word key="dtdevplus_class_general_tab" js="0">General</word>
+  <word key="dtdevplus_class_interfaces_tab" js="0">Interfaces</word>
+  <word key="dtdevplus_class_traits_tab" js="0">Traits</word>
+  <word key="dtdevplus_class_subnode" js="0">Parent Node?</word>
+  <word key="dtdevplus_class_subnode_desc" js="0">Will this node has a subnode?</word>
+  <word key="dtdevplus_class_parentnode_class" js="0">Parent Node</word>
+  <word key="dtdevplus_class_parentnode_class_desc" js="0">Is this a subnode, if yes, enter parent node's FQN here, otherwise leave blank</word>
+  <word key="dtdevplus_class_item_class" js="0">Item Class</word>
+  <word key="dtdevplus_class_item_class_desc" js="0">If this node has an item class, enter item's FQN here, otherwise leave blank.</word>
+  <word key="dtdevplus_sources" js="0">Create Sources</word>
+  <word key="dtdevplus_devcenter" js="0">Developer Center</word>
+  <word key="dtdevplus_dev_git_hooks" js="0">Git HOOKS</word>
+  <word key="dtdevplus_menu_title_template" js="0">Template</word>
+  <word key="dtdevplus_menu_title_widget" js="0">JS Widget</word>
+  <word key="dtdevplus_menu_title_module" js="0">JS Module</word>
+  <word key="dtdevplus_menu_title_controller" js="0">JS Controller</word>
+  <word key="dtdevplus_dev" js="0">Create Asset</word>
+  <word key="dtdevplus_dev_templateName" js="0">Templates</word>
+  <word key="dtdevplus_dev_templateName_desc" js="0">Place a name of the templates you are wanting to create.</word>
+  <word key="dtdevplus_menu_title_jstemplate" js="0">JS Tempaltes</word>
+  <word key="dtdevplus_menu_title_jsmixin" js="0">JS Mixin</word>
+  <word key="dtdevplus_dev__group" js="0">Group</word>
+  <word key="dtdevplus_dev_mixin" js="0">Controller</word>
+  <word key="menu__toolbox_settings_cons" js="0">Change Constants</word>
+  <word key="dtprofiler_enabled_templates" js="0">Templates</word>
+  <word key="dtprofiler_enabled_js" js="0">JS</word>
+  <word key="dtprofiler_enabled_jsvars" js="0">JSVars</word>
+  <word key="dtprofiler_enabled_css" js="0">CSS</word>
+  <word key="dtprofiler_enabled_execution" js="0">Execution</word>
+  <word key="dtprofiler_enabled_files" js="0">Files</word>
+  <word key="dtprofiler_enabled_memory" js="0">Memory</word>
+  <word key="dtprofiler_profiler_tabs_header" js="0">Profiler Tabs</word>
+  <word key="dtprofiler_enabled_logs" js="0">Logs</word>
+  <word key="dtprofiler_logs_amount" js="0">Logs to Show</word>
+  <word key="dtprofiler_logs_amount_desc" js="0">The number of logs to pull from the database.</word>
+  <word key="dtprofiler_enabled_enivro" js="0">Environment</word>
+  <word key="dtprofiler_can_use" js="0">Show To</word>
+  <word key="dtprofiler_can_use_desc" js="0">The members who can see this when in_dev is set to false (useful for live sites)</word>
+  <word key="dtprofiler_devplus_tab" js="0">Dev Center Plus</word>
+  <word key="dtprofiler_tab" js="0">Profiler</word>
+  <word key="dtprofiler_enabled_executions" js="0">Execution Times</word>
+  <word key="dtprofiler_show_changes" js="0">Show Changes</word>
+  <word key="dtprofiler_show_changes_desc" js="0">Show any changes to files from any apps awaiting to be committed.</word>
+  <word key="dtprofiler_git_data" js="0">Git Data</word>
+  <word key="dtprofiler_git_data_desc" js="0"><![CDATA[Show basic data from git. must have git installed (gitkraken/sourcetree will not suffice, must have <a href="https://git-scm.com/downloads">Git</a> installed.)]]></word>
+  <word key="dtprofiler_show_admin" js="0">Disable In ACP</word>
+  <word key="dtprofiler_show_admin_desc" js="0">Disable the profiler in the ACP.</word>
+  <word key="dtprofiler_enabled_memory_summary" js="0">Memory Drawer</word>
+  <word key="dtprofiler_enabled_memory_summary_desc" js="0">Show the memory breakdown drawer. (shows a breakdown of memory usage.)</word>
+  <word key="menu__dtproxy_proxy" js="0">Proxy Class Generator</word>
+  <word key="menu__dtproxy_proxy_proxy" js="0">Generator</word>
+  <word key="dtproxy_proxyclass_button" js="0">Start</word>
+  <word key="dtproxy_sidebar" js="0">Generates proxy classes for IPS/IPS Apps/3rd party apps, This is used for IDE's, so useful features such as autocomplete and hinting can be used, since IPS's framework is unique.</word>
+  <word key="dtproxy_proxyclass_title" js="0">Proxy Classes</word>
+  <word key="dtproxy_done" js="0">Proxy Classes have been Generated</word>
+  <word key="dtproxy_do_props" js="0">Proxy Properties</word>
+  <word key="dtproxy_do_props_desc" js="0">Adds @property/-read/-write to proxy classes, from the helper files/extensions/db tables.</word>
+  <word key="dtproxy_do_constants" js="0">Proxy Constants</word>
+  <word key="dtproxy_do_constants_desc" js="0">The constants in IPS are defined in array, that get added dynamically in the bootstrapping of the framework, this makes it so most IDE's can not see them, this will build a proxy to them, so they wont appear as undefined in your code.</word>
+  <word key="dtproxy_do_props_doc" js="0">Proxy Property DocBlock</word>
+  <word key="dtproxy_do_props_doc_desc" js="0">Will create docblocks from the column definition for proxy props if enabled.</word>
+  <word key="dtproxy_progress" js="0">Processing %s of %s</word>
+  <word key="dtproxy_do_proxies" js="0">PHP-Toolbox Metadata</word>
+  <word key="dtproxy_do_proxies_desc" js="0"><![CDATA[if you have the <a target="_blank" href="https://plugins.jetbrains.com/plugin/8133-php-toolbox">PHP-Toolbox</a> plugin installed, this will generated appropriate files to be able to use for various methods.]]></word>
+  <word key="dtproxy_progress_extra" js="0">Step Complete: %s, processing %s of %s</word>
+  <word key="dtproxy_tab" js="0">Proxy Class Generator</word>
+  <word key="ext__hookHelpers" js="0">renames _HOOK_CLASS_ to _HOOK_CLASS_app_hook_hookclassname</word>
+ </app>
+</language>

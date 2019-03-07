@@ -11,6 +11,8 @@
  */
 
 namespace IPS\toolbox\modules\admin\settings;
+use function array_shift;
+use function print_r;
 
 \IPS\toolbox\Application::loadAutoLoader();
 

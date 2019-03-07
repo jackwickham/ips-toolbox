@@ -11,6 +11,7 @@
  */
 
 namespace IPS\toolbox\DevCenter\Dev\Compiler;
+use function implode;
 
 class _Javascript extends CompilerAbstract
 {
@@ -20,10 +21,10 @@ class _Javascript extends CompilerAbstract
     public function content(): string
     {
 
-        $module = null;
-        $fname = null;
-        $tsn = null;
-        $replace = true;
+        $module = \null;
+        $fname = \null;
+        $tsn = \null;
+        $replace = \true;
         $data = $this->_getFile( $this->type );
         if ( $this->type === 'widget' ) {
             $module = 'ips.ui.' . $this->app . '.' . $this->filename;
@@ -44,7 +45,7 @@ class _Javascript extends CompilerAbstract
                 $store[] = $this->_replace( '{tsn}', $tsn, $content );
             }
 
-            $replace = false;
+            $replace = \false;
             $data = implode( "\n", $store );
         }
         else if ( $this->type === 'jsmixin' ) {
@@ -52,7 +53,7 @@ class _Javascript extends CompilerAbstract
             $fname = 'ips.' . $module;
         }
 
-        if ( $fname === null ) {
+        if ( $fname === \null ) {
             $fname = $module;
         }
 
@@ -68,7 +69,7 @@ class _Javascript extends CompilerAbstract
         }
         $this->location .= '/' . $type;
 
-        if ( $replace === true ) {
+        if ( $replace === \true ) {
             $find = [ '{module}', '{widgetname}', '{tsn}', '{controller}' ];
             $replace = [ $module, $this->widgetname, $tsn, $this->mixin ];
             return $this->_replace( $find, $replace, $data );

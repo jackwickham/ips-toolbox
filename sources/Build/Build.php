@@ -11,6 +11,7 @@
  */
 
 namespace IPS\toolbox;
+use function explode;
 
 use Exception;
 use IPS\Application;

@@ -1,6 +1,6 @@
 <?php
 
-namespace IPS\{app}\extensions\dtproxy\SpecialHooks;
+namespace IPS\{app}\extensions\toolbox\SpecialHooks;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )

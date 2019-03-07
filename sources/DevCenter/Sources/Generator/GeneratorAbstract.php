@@ -11,6 +11,7 @@
  */
 
 namespace IPS\toolbox\DevCenter\Sources\Generator;
+use function ltrim;
 
 use Exception;
 use InvalidArgumentException;

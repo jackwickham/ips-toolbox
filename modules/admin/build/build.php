@@ -11,6 +11,7 @@
  */
 
 namespace IPS\toolbox\modules\admin\build;
+use function explode;
 
 use Exception;
 use IPS\Application;

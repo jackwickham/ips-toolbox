@@ -1,6 +1,6 @@
 <?php
 
-namespace IPS\{app}\extensions\toolbox\DevCenter\Headerdoc;
+namespace IPS\{app}\extensions\toolbox\Headerdoc;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )

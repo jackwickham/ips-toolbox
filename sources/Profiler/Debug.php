@@ -10,6 +10,8 @@
 
 
 namespace IPS\toolbox\Profiler;
+use function class_exists;
+use function method_exists;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -36,7 +38,7 @@ class _Debug
 
     public static function __callStatic( $method, $args )
     {
-        if ( defined( 'DTPROFILER' ) && DTPROFILER && class_exists( \IPS\tooblox\Profiler\Debug::class ) ) {
+        if ( defined( '\DTPROFILER' ) && \DTPROFILER && class_exists( \IPS\tooblox\Profiler\Debug::class ) ) {
             $class = \IPS\tooblox\Profiler\Debug::class;
             if ( method_exists( $class, $method ) ) {
                 $class::{$method}( ...$args );

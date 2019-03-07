@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <javascript app="toolbox">
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.debug.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050"><![CDATA[;(function ($, _, undefined) {
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.debug.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050"><![CDATA[;(function ($, _, undefined) {
     "use strict";
     ips.createModule('ips.dtprofiler.debug', function () {
         var respond = function (elem, options, e) {
@@ -72,7 +72,7 @@
     }
 }(jQuery, _));
 ]]></file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofiler.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050"><![CDATA[;(function ($, _, undefined) {
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofiler.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050"><![CDATA[;(function ($, _, undefined) {
     "use strict";
     ips.createModule('ips.dtprofiler.dtprofiler', function () {
         // Functions that become public methods
@@ -180,7 +180,7 @@
     });
 }(jQuery, _));
 ]]></file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofilergit.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050">;( function($, _, undefined){&#13;
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofilergit.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050">;( function($, _, undefined){&#13;
     &quot;use strict&quot;;&#13;
     ips.createModule('ips.dtprofiler.dtprofilergit', function(){&#13;
         // Functions that become public methods&#13;
@@ -214,7 +214,7 @@
     });&#13;
 }(jQuery, _));&#13;
 </file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.search.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050"><![CDATA[;( function($, _, undefined){
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.search.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050"><![CDATA[;( function($, _, undefined){
     "use strict";
     ips.createModule('ips.dtprofiler.search', function(){
         // Functions that become public methods
@@ -269,7 +269,7 @@
     });
 }(jQuery, _));
 ]]></file>
- <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/query" javascript_name="ips.query.query.js" javascript_type="controller" javascript_version="10000" javascript_position="1000100"><![CDATA[;( function($, _, undefined){
+ <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/query" javascript_name="ips.query.query.js" javascript_type="controller" javascript_version="10001" javascript_position="1000100"><![CDATA[;( function($, _, undefined){
     "use strict";
     ips.controller.register('ips.admin.dtdevplus.query', {
         initialize: function () {
@@ -291,7 +291,7 @@
         }
     });
 }(jQuery, _));]]></file>
- <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/toggles" javascript_name="ips.dwlabs.toggles.js" javascript_type="controller" javascript_version="10000" javascript_position="1000050">;(function ($, _, undefined) {&#13;
+ <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/toggles" javascript_name="ips.dwlabs.toggles.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050">;(function ($, _, undefined) {&#13;
     &quot;use strict&quot;;&#13;
     ips.createModule('ips.dtcode.toggles', function () {&#13;
         var respond = function (elem, options, e) {&#13;

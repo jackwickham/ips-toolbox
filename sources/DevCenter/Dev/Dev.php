@@ -11,6 +11,8 @@
  */
 
 namespace IPS\toolbox\DevCenter;
+use function is_file;
+use function preg_match;
 
 \IPS\toolbox\Application::loadAutoLoader();
 
@@ -128,8 +130,8 @@ class _Dev extends Singleton
     public function validateFilename( $data )
     {
 
-        $location = null;
-        $group = null;
+        $location = \null;
+        $group = \null;
         if ( Request::i()->dtdevplus_dev_group_manual_checkbox === 0 ) {
             $locationGroup = Request::i()->dtdevplus_dev__group;
             [ $location, $group ] = explode( ':', $locationGroup );
@@ -262,7 +264,7 @@ class _Dev extends Singleton
         if ( $this->type === 'jstemplate' ) {
             try {
                 $this->_getGroups( 'js', 'templates' );
-                $groupManual = false;
+                $groupManual = \false;
             } catch ( \Exception $e ) {
             }
         }

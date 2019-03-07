@@ -10,7 +10,7 @@
  * @version     -storm_version-
  */
 
-namespace IPS\toolbox\extensions\dtproxy\ProxyHelpers;
+namespace IPS\toolbox\extensions\toolbox\ProxyHelpers;
 
 use function defined;
 use function header;

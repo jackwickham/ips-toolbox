@@ -2,6 +2,7 @@
 
 
 namespace IPS\toolbox\modules\admin\settings;
+use function header;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 

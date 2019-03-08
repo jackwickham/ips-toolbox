@@ -2,9 +2,9 @@
 
 namespace IPS\toolbox;
 
-use IPS\dtproxy\Proxyclass;
 use IPS\toolbox\Generator\DTClassGenerator;
 use IPS\toolbox\Generator\DTFileGenerator;
+use IPS\toolbox\Proxy\Proxyclass;
 use function count;
 use function is_array;
 use function is_file;
@@ -31,12 +31,12 @@ class _GitHooks
 
     public function writeSpecialHooks()
     {
-        if ( property_exists( \IPS\IPS::class, 'beenPatched' ) && \IPS\IPS::$beenPatched && \IPS\Application::appIsEnabled( 'dtproxy' ) ) {
+        if ( property_exists( \IPS\IPS::class, 'beenPatched' ) && \IPS\IPS::$beenPatched ) {
             $apps = $this->apps;
             $ipsApps = \IPS\Application::$ipsApps;
             /** @var \IPS\Application $app */
             foreach ( $apps as $app ) {
-                if ( !\in_array( $app->directory, $ipsApps, \true ) && empty( $app->extensions( 'dtproxy', 'SpecialHooks' ) ) === \false ) {
+                if ( !\in_array( $app->directory, $ipsApps, \true ) && empty( $app->extensions( 'toolbox', 'SpecialHooks' ) ) === \false ) {
                     $hooks = \IPS\ROOT_PATH . '/applications/' . $app->directory . '/data/hooks.json';
                     if ( is_file( $hooks ) ) {
                         $hooks = json_decode( \file_get_contents( $hooks ), \true );

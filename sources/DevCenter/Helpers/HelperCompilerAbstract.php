@@ -11,8 +11,8 @@
 
 namespace IPS\toolbox\DevCenter\Helpers;
 
-use IPS\dtproxy\Helpers\HelpersAbstract;
 use IPS\toolbox\DevCenter\Dev;
+use IPS\toolbox\Proxy\Helpers\HelpersAbstract;
 use function header;
 use function mb_strtolower;
 
@@ -24,7 +24,7 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 /**
  * HelperTemplate Class
  *
- * @mixin \IPS\toolbox\DevCenter\Helpers\HelperTemplate
+ * @mixin  IPS\toolbox\Proxy\Helpers\HelpersAbstract;
  */
 class _HelperCompilerAbstract implements HelpersAbstract
 {

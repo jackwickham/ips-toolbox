@@ -11,10 +11,6 @@
  */
 
 namespace IPS\toolbox\DevCenter;
-use function is_file;
-use function preg_match;
-
-\IPS\toolbox\Application::loadAutoLoader();
 
 use Exception;
 use InvalidArgumentException;
@@ -35,7 +31,11 @@ use function explode;
 use function header;
 use function in_array;
 use function is_array;
+use function is_file;
 use function mb_ucfirst;
+use function preg_match;
+
+\IPS\toolbox\Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -76,7 +76,7 @@ class _Dev extends Singleton
      * @throws InvalidArgumentException
      * @throws \OutOfRangeException
      */
-    public function __construct( Application $application )
+    public function __construct( Application $application = null )
     {
         $this->application = $application;
         $this->app = $this->application->directory;

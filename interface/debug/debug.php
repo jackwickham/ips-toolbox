@@ -19,7 +19,7 @@ while ( \true ) {
 
     if ( count( $query ) ) {
 
-        $iterators = new \IPS\Patterns\ActiveRecordIterator( $query, \IPS\tooblox\Profiler\Debug::class );
+        $iterators = new \IPS\Patterns\ActiveRecordIterator( $query, \IPS\tooblox\Profiler\Profiler\Debug::class );
 
         foreach ( $iterators as $obj ) {
             if ( $obj->type === 'exception' || $obj->type === 'array' ) {

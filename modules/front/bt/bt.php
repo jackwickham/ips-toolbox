@@ -11,7 +11,6 @@ use IPS\DateTime;
 use IPS\Db;
 use IPS\Dispatcher\Controller;
 use IPS\dtprofiler\Profiler;
-use IPS\dtprofiler\Profiler\Debug;
 use IPS\Log;
 use IPS\Member;
 use IPS\Output;
@@ -19,6 +18,7 @@ use IPS\Patterns\ActiveRecordIterator;
 use IPS\Plugin;
 use IPS\Request;
 use IPS\Theme;
+use IPS\toolbox\Profiler\Profiler\Debug;
 use Symfony\Component\Filesystem\Filesystem;
 use function count;
 use function defined;
@@ -38,7 +38,7 @@ use function time;
 \IPS\toolbox\Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
@@ -128,7 +128,7 @@ class _bt extends Controller
                 Output::i()->json( [ 'error' => 1 ] );
             }
 
-            $query = Db::i()->select( '*', 'dtprofiler_debug', [
+            $query = Db::i()->select( '*', 'toolbox_debug', [
                 'debug_ajax = ? AND debug_id > ? AND debug_viewed=?',
                 1,
                 $since,
@@ -153,7 +153,7 @@ class _bt extends Controller
                     $return[ 'count' ] = $count;
                     $lists = '';
                     foreach ( $list as $l ) {
-                        $lists .= Theme::i()->getTemplate( 'generic', 'dtprofiler', 'front' )->li( $l );
+                        $lists .= Theme::i()->getTemplate( 'generic', 'toolbox', 'front' )->li( $l );
                     }
                     $return[ 'last' ] = $last;
                     $return[ 'items' ] = $lists;

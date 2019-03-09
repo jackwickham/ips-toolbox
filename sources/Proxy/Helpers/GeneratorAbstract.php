@@ -23,19 +23,19 @@ class _GeneratorAbstract implements HelpersAbstract
      */
     public function process( $class, &$classDoc, &$classExtends, &$body )
     {
-        $el = Sources::i()->elements();
-        foreach ( $el as $val ) {
-            if ( isset( $val[ 'name' ] ) ) {
-                if ( isset( $val[ 'class' ] ) && 'stack' === mb_strtolower( $val[ 'class' ] ) ) {
-                    $classDoc[] = [ 'pt' => 'p', 'prop' => $val[ 'name' ], 'type' => 'array' ];
-                    $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtdevplus_class_' . $val[ 'name' ], 'type' => 'array' ];
-                }
-                else {
-                    $classDoc[] = [ 'pt' => 'p', 'prop' => $val[ 'name' ], 'type' => 'string' ];
-                    $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtdevplus_class_' . $val[ 'name' ], 'type' => 'string' ];
-                }
-            }
-        }
+//        $el = Sources::i()->elements();
+//        foreach ( $el as $val ) {
+//            if ( isset( $val[ 'name' ] ) ) {
+//                if ( isset( $val[ 'class' ] ) && 'stack' === mb_strtolower( $val[ 'class' ] ) ) {
+//                    $classDoc[] = [ 'pt' => 'p', 'prop' => $val[ 'name' ], 'type' => 'array' ];
+//                    $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtdevplus_class_' . $val[ 'name' ], 'type' => 'array' ];
+//                }
+//                else {
+//                    $classDoc[] = [ 'pt' => 'p', 'prop' => $val[ 'name' ], 'type' => 'string' ];
+//                    $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtdevplus_class_' . $val[ 'name' ], 'type' => 'string' ];
+//                }
+//            }
+//        }
 
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'app', 'type' => 'string' ];
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'classname', 'type' => 'string' ];

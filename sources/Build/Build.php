@@ -118,8 +118,9 @@ class _Build extends Singleton
                 $path = \IPS\ROOT_PATH . '/' . $application->directory . '/' . $short . '/';
 
                 try {
-                    $application->build();
                     $application->assignNewVersion( $long, $short );
+                    $application->build();
+                    $application->save();
                     if ( !is_dir( $path ) ) {
                         if ( !mkdir( $path, \IPS\IPS_FOLDER_PERMISSION, \true ) && !is_dir( $path ) ) {
                             throw new RuntimeException( sprintf( 'Directory "%s" was not created', $path ) );

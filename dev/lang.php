@@ -259,7 +259,7 @@ $lang = [
     'dtdevplus_dev'                                  => 'Create Asset',
     'dtdevplus_dev_templateName'                     => 'Templates',
     'dtdevplus_dev_templateName_desc'                => 'Place a name of the templates you are wanting to create.',
-    'dtdevplus_menu_title_jstemplate'                => 'JS Tempaltes',
+    'dtdevplus_menu_title_jstemplate'                => 'JS Template',
     'dtdevplus_menu_title_jsmixin'                   => 'JS Mixin',
     'dtdevplus_dev__group'                           => 'Group',
     'dtdevplus_dev_mixin'                            => 'Controller',
@@ -307,4 +307,7 @@ $lang = [
     'dtproxy_progress_extra'                         => 'Step Complete: %s, processing %s of %s',
     'dtproxy_tab'                                    => 'Proxy Class Generator',
     'ext__hookHelpers'                               => 'renames _HOOK_CLASS_ to _HOOK_CLASS_app_hook_hookclassname',
+    'ext__SpecialHooks'                              => 'with the patched init.php, this will create a specialized hook class in proxy classes and allow hooks to behave like actual extended classes. you can also use the githooks section to remove this when you push to a git repo, and this will be automatically removed when the application gets built (as long as toolbox is installed and enabled).',
+    'ext__constants'                                 => 'Allows you to add constants for your app to the change constants section in settings. as well as adding new constants to the "important" tab.',
+    'dtdeveplus_table_name'                          => 'Table',
 ];

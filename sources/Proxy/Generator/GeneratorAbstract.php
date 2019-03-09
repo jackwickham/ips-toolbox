@@ -20,6 +20,8 @@ use Zend\Code\Generator\MethodGenerator;
 use function header;
 use function implode;
 
+\IPS\toolbox\Application::loadAutoLoader();
+
 if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
@@ -41,9 +43,14 @@ class _GeneratorAbstract extends Singleton
 
     protected $save;
 
+    /**
+     * @var Cache
+     */
+    protected $cache;
+
     public function __construct()
     {
-        \IPS\toolbox\Application::loadAutoLoader();
+        $this->cache = Cache::i();
         $this->save = \IPS\ROOT_PATH . '/' . Proxyclass::i()->save;
     }
 

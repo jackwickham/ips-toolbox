@@ -8,6 +8,7 @@ use IPS\Http\Url;
 use IPS\Output;
 use IPS\Request;
 use IPS\toolbox\DevCenter\Sources;
+use IPS\toolbox\Proxy\Generator\Cache;
 use function defined;
 use function header;
 
@@ -220,4 +221,62 @@ class _sources extends \IPS\Dispatcher\Controller
         $this->doOutput( $config, 'review', 'Review Class' );
     }
 
+    protected function findClass()
+    {
+        $classes = Cache::i()->getClasses();
+
+        if ( empty( $classes ) !== true ) {
+            $input = ltrim( Request::i()->input, '\\' );
+
+            $root = preg_quote( $input, '#' );
+            $foo = preg_grep( '#^' . $root . '#i', $classes );
+            $return = [];
+            foreach ( $foo as $f ) {
+                $return[] = [
+                    'value' => '\\' . $f,
+                    'html'  => '\\' . $f,
+                ];
+            }
+            Output::i()->json( $return );
+        }
+    }
+
+    protected function findClass2()
+    {
+        $classes = Cache::i()->getClasses();
+
+        if ( empty( $classes ) !== true ) {
+            $input = 'IPS\\' . Request::i()->appKey . '\\' . ltrim( Request::i()->input, '\\' );
+
+            $root = preg_quote( $input, '#' );
+            $foo = preg_grep( '#^' . $root . '#i', $classes );
+            $return = [];
+            foreach ( $foo as $f ) {
+                $return[] = [
+                    'value' => str_replace( 'IPS\\' . Request::i()->appKey . '\\', '', $f ),
+                    'html'  => '\\' . $f,
+                ];
+            }
+            Output::i()->json( $return );
+        }
+    }
+
+    protected function findNamespace()
+    {
+        $ns = Cache::i()->getNamespaces();
+
+        if ( empty( $ns ) !== true ) {
+            $input = 'IPS\\' . Request::i()->appKey . '\\' . ltrim( Request::i()->input, '\\' );
+            $root = preg_quote( $input, '#' );
+            $foo = preg_grep( '#^' . $root . '#i', $ns );
+            $return = [];
+            foreach ( $foo as $f ) {
+                $return[] = [
+                    'value' => str_replace( 'IPS\\' . Request::i()->appKey . '\\', '', $f ),
+                    'html'  => '\\' . $f,
+                ];
+            }
+            Output::i()->json( $return );
+        }
+    }
 }

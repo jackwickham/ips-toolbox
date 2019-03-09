@@ -70,16 +70,18 @@ class _Dev extends Singleton
 
     protected $elements;
 
+
     /**
-     * _Sources constructor.
+     * _Dev constructor.
      *
-     * @throws InvalidArgumentException
-     * @throws \OutOfRangeException
+     * @param Application|null $application
      */
     public function __construct( Application $application = null )
     {
-        $this->application = $application;
-        $this->app = $this->application->directory;
+        if( $application instanceof Application ) {
+            $this->application = $application;
+            $this->app = $this->application->directory;
+        }
     }
 
     /**
@@ -231,7 +233,7 @@ class _Dev extends Singleton
                 }
             }
         }
-
+        $this->ksortRecursive( $controllers );
         $this->elements[] = [
             'name'    => 'mixin',
             'class'   => 'select',
@@ -239,6 +241,18 @@ class _Dev extends Singleton
                 'options' => $controllers,
             ],
         ];
+    }
+
+    protected function ksortRecursive( &$array, $sort_flags = SORT_REGULAR )
+    {
+        if ( !is_array( $array ) ) {
+            return false;
+        }
+        ksort( $array, $sort_flags );
+        foreach ( $array as &$arr ) {
+            $this->ksortRecursive( $arr, $sort_flags );
+        }
+        return true;
     }
 
     protected function elGroup()

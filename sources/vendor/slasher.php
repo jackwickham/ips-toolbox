@@ -383,9 +383,9 @@ class Slasher
      * @param bool  $suppressMessages
      * @throws Exception
      */
-    public function __construct(array $args, bool $suppressMessages = false)
+    public function __construct(array $args, bool $suppressMessages = null)
     {
-        $this->suppressMessages = $suppressMessages;
+        $this->suppressMessages = $suppressMessages ?? null;
         $all = false;
         $makeUse = false;
         $file = null;

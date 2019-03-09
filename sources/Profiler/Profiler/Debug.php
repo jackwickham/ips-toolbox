@@ -51,7 +51,7 @@ class _Debug extends ActiveRecord
     /**
      * @brief    [ActiveRecord] Database table
      */
-    public static $databaseTable = 'dtprofiler_debug';
+    public static $databaseTable = 'toolbox_debug';
 
     /**
      * @brief   Bitwise keys

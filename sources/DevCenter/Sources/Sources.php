@@ -89,7 +89,7 @@ class _Sources
      *
      * @param Application $application
      */
-    public function __construct( Application $application )
+    public function __construct( Application $application = null )
     {
         $this->application = $application;
     }
@@ -412,10 +412,20 @@ class _Sources
 
         $elements = [
             'name'    => 'namespace',
-            'options' => [
-                'placeholder' => 'Namespace',
-            ],
             'prefix'  => "IPS\\{$this->application->directory}\\",
+            'options' => [
+                'placeholder'  => 'Namespace',
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findNamespace&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
+                ],
+            ],
         ];
 
         if ( in_array( $this->type, $tabs ) ) {
@@ -474,6 +484,18 @@ class _Sources
     {
         $this->elements[] = [
             'name'       => 'extends',
+            'options'    => [
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
+                ],
+            ],
             'validation' => [ $this, 'extendsCheck' ],
         ];
     }
@@ -553,22 +575,58 @@ class _Sources
             'name'    => 'subnode',
             'class'   => 'yn',
             'options' => [
-                'togglesOn'  => [
+                'togglesOn'    => [
                     'subnode_class',
                 ],
-                'togglesOff' => [
+                'togglesOff'   => [
                     'parentnode_class',
+                ],
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
                 ],
             ],
         ];
 
         $this->elements[] = [
-            'name' => 'parentnode_class',
+            'name'    => 'parentnode_class',
+            'prefix'  => '\\IPS\\' . $this->application->directory . '\\',
+            'options' => [
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
+                ],
+            ],
         ];
 
         $this->elements[] = [
             'name'     => 'subnode_class',
+            'prefix'   => '\\IPS\\' . $this->application->directory . '\\',
             'required' => \true,
+            'options'  => [
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
+                ],
+            ],
         ];
 
     }
@@ -579,8 +637,20 @@ class _Sources
     protected function elItemClass()
     {
         $this->elements[] = [
-            'name'   => 'item_class',
-            'prefix' => "IPS\\{$this->application->directory}\\",
+            'name'    => 'item_class',
+            'prefix'  => "IPS\\{$this->application->directory}\\",
+            'options' => [
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
+                ],
+            ],
         ];
     }
 
@@ -722,8 +792,20 @@ class _Sources
     protected function elItemNodeClass()
     {
         $this->elements[] = [
-            'name'   => 'item_node_class',
-            'prefix' => "IPS\\{$this->application->directory}\\",
+            'name'    => 'item_node_class',
+            'prefix'  => "IPS\\{$this->application->directory}\\",
+            'options' => [
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
+                ],
+            ],
         ];
     }
 
@@ -733,8 +815,20 @@ class _Sources
     protected function elItemCommentClass()
     {
         $this->elements[] = [
-            'name'   => 'comment_class',
-            'prefix' => "IPS\\{$this->application->directory}\\",
+            'name'    => 'comment_class',
+            'prefix'  => "IPS\\{$this->application->directory}\\",
+            'options' => [
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
+                ],
+            ],
         ];
     }
 
@@ -744,8 +838,20 @@ class _Sources
     protected function elItemReviewClass()
     {
         $this->elements[] = [
-            'name'   => 'review_class',
-            'prefix' => "IPS\\{$this->application->directory}\\",
+            'name'    => 'review_class',
+            'prefix'  => "IPS\\{$this->application->directory}\\",
+            'options' => [
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
+                ],
+            ],
         ];
     }
 
@@ -780,8 +886,20 @@ class _Sources
     protected function elContentItemClass()
     {
         $this->elements[] = [
-            'name'   => 'content_item_class',
-            'prefix' => "IPS\\{$this->application->directory}\\",
+            'name'    => 'content_item_class',
+            'prefix'  => "IPS\\{$this->application->directory}\\",
+            'options' => [
+                'autocomplete' => [
+                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
+                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
+                    'minimized'            => \false,
+                    'commaTrigger'         => \false,
+                    'unique'               => \true,
+                    'minAjaxLength'        => 3,
+                    'disallowedCharacters' => [],
+                    'maxItems'             => 1,
+                ],
+            ],
         ];
     }
 }

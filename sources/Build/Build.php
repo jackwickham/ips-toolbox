@@ -11,7 +11,6 @@
  */
 
 namespace IPS\toolbox;
-use function explode;
 
 use Exception;
 use IPS\Application;
@@ -30,6 +29,7 @@ use Slasher\Slasher;
 use ZipArchive;
 use function chmod;
 use function copy;
+use function explode;
 use function implode;
 use function is_dir;
 use function is_file;
@@ -93,7 +93,6 @@ class _Build extends Singleton
             $application->version = $short;
             $application->save();
             unset( Store::i()->applications );
-            $type = \false;
             $slasherPath = \IPS\ROOT_PATH . '/applications/toolbox/sources/vendor/slasher.php';
             require_once $slasherPath;
 
@@ -119,10 +118,9 @@ class _Build extends Singleton
                 $path = \IPS\ROOT_PATH . '/' . $application->directory . '/' . $short . '/';
 
                 try {
+                    $application->assignNewVersion( $long, $short );
                     $application->build();
-                    if ( !$type ) {
-                        $application->assignNewVersion( $long, $short );
-                    }
+                    $application->save();
                     if ( !is_dir( $path ) ) {
                         if ( !mkdir( $path, \IPS\IPS_FOLDER_PERMISSION, \true ) && !is_dir( $path ) ) {
                             throw new RuntimeException( sprintf( 'Directory "%s" was not created', $path ) );

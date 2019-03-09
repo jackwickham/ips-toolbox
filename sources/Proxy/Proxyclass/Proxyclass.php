@@ -129,9 +129,9 @@ class _Proxyclass extends Singleton
      *
      * @param bool $console
      */
-    public function __construct( bool $console = \false )
+    public function __construct( bool $console = \null )
     {
-        $this->console = $console;
+        $this->console = $console ?? false;
         if ( defined( '\BYPASSPROXYDT' ) && \BYPASSPROXYDT === \true ) {
             $this->save = 'dtProxy2';
         }
@@ -431,44 +431,6 @@ class _Proxyclass extends Singleton
     }
 
     /**
-     * adds a # for percents (10%)
-     *
-     * @param $total
-     * @param $done
-     */
-    public function bump( $total, $done )
-    {
-        $old = $total;
-        $total /= 10;
-
-        if ( $done % $total === 0 ) {
-            if ( static::$fe === \null ) {
-                static::$fe = \fopen( 'php://stdout', 'wb' );
-            }
-            \fwrite( static::$fe, '#' );
-        }
-
-        if ( $old === $done ) {
-            $this->console( \PHP_EOL . 'File Processing Done!' );
-        }
-    }
-
-    /**
-     * prints to console
-     *
-     * @param $msg
-     */
-    public function console( $msg )
-    {
-        if ( $this->console ) {
-            if ( static::$fe === \null ) {
-                static::$fe = \fopen( 'php://stdout', 'wb' );
-            }
-            \fwrite( static::$fe, $msg . \PHP_EOL );
-        }
-    }
-
-    /**
      * this will iterator over directorys to find a list of php files to process, used in both the MR and CLI.
      *
      * @param null $dir
@@ -549,6 +511,21 @@ class _Proxyclass extends Singleton
             return $finder->count();
         } catch ( Exception $e ) {
             return 0;
+        }
+    }
+
+    /**
+     * prints to console
+     *
+     * @param $msg
+     */
+    public function console( $msg )
+    {
+        if ( $this->console ) {
+            if ( static::$fe === \null ) {
+                static::$fe = \fopen( 'php://stdout', 'wb' );
+            }
+            \fwrite( static::$fe, $msg . \PHP_EOL );
         }
     }
 
@@ -637,6 +614,29 @@ class _Proxyclass extends Singleton
             'test.php',
 
         ];
+    }
+
+    /**
+     * adds a # for percents (10%)
+     *
+     * @param $total
+     * @param $done
+     */
+    public function bump( $total, $done )
+    {
+        $old = $total;
+        $total /= 10;
+
+        if ( $done % $total === 0 ) {
+            if ( static::$fe === \null ) {
+                static::$fe = \fopen( 'php://stdout', 'wb' );
+            }
+            \fwrite( static::$fe, '#' );
+        }
+
+        if ( $old === $done ) {
+            $this->console( \PHP_EOL . 'File Processing Done!' );
+        }
     }
 
     /**

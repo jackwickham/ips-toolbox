@@ -10,29 +10,30 @@
 
 
 namespace IPS\toolbox\Build;
-use function header;
-use function mb_substr;
-use function ksort;
-use function defined;
-use function array_merge;
-use function implode;
-use function sleep;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
-    exit;
-}
-
+use IPS\Application;
 use IPS\IPS;
 use IPS\Member;
 use IPS\Output;
 use IPS\Patterns\Singleton;
 use IPS\Request;
 use IPS\toolbox\Forms;
+use function array_merge;
 use function constant;
+use function defined;
 use function gettype;
+use function header;
+use function implode;
 use function in_array;
+use function ksort;
+use function mb_substr;
 use function mb_ucfirst;
+use function sleep;
+
+if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+    exit;
+}
 
 /**
  * Cons Class
@@ -48,43 +49,26 @@ class _Cons extends Singleton
      * @var static
      */
     protected static $instance;
-    protected static $devTools = [
-        'DTBUILD',
-        'DTPROFILER',
-        'BYPASSPROXYDT',
-    ];
-    protected static $importantIPS = [
-        'BYPASS_ACP_IP_CHECK',
-        'IN_DEV',
-        'IN_DEV_STRICT_MODE',
-        'USE_DEVELOPMENT_BUILDS',
-        'DEV_WHOOPS_EDITOR',
-        'DEV_DEBUG_JS',
-        'QUERY_LOG',
-        'COOKIE_PREFIX',
-        'CP_DIRECTORY',
-        'DEV_USE_WHOOPS',
-        'DEV_HIDE_DEV_TOOLS',
-        'DEV_DEBUG_CSS',
-        'DEBUG_TEMPLATES',
-        'DEBUG_LOG',
-        'COOKIE_PATH',
-    ];
+
+    protected static $importantIPS = [];
+    protected static $devTools = [];
     protected $constants;
 
     public function form()
     {
         $constants = $this->buildConstants();
         $e = [];
+
+
         foreach ( $constants as $key => $value ) {
             $tab = mb_ucfirst( mb_substr( $key, 0, 1 ) );
 
-            if ( in_array( $key, static::$devTools, \true ) ) {
-                $tab = 'DevTools';
-            }
-
             if ( in_array( $key, static::$importantIPS, \true ) ) {
                 $tab = 'Important';
+            }
+
+            if ( isset( $value[ 'tab' ] ) ) {
+                $tab = $value[ 'tab' ];
             }
 
             Member::loggedIn()->language()->words[ $tab . '_tab' ] = $tab;
@@ -94,7 +78,6 @@ class _Cons extends Singleton
                 'default'     => $value[ 'current' ],
                 'description' => $value[ 'description' ] ?? \null,
                 'tab'         => $tab,
-
             ];
 
             switch ( gettype( $value[ 'current' ] ) ) {
@@ -120,11 +103,25 @@ class _Cons extends Singleton
 
     protected function buildConstants()
     {
-
         if ( $this->constants === \null ) {
             $cons = IPS::defaultConstants();
             $first = [];
             $constants = [];
+            $important[] = static::$importantIPS;
+
+            foreach ( Application::allExtensions( 'toolbox', 'constants' ) as $extension ) {
+                $important[] = $extension->add2Important();
+                $extra = $extension->getConstants();
+                $first[] = $extra;
+
+                foreach ( $extra as $k => $v ) {
+                    static::$devTools[ $k ] = $v[ 'name' ];
+                }
+
+            }
+
+            $first = array_merge( ...$first );
+            static::$importantIPS = array_merge( ... $important );
             foreach ( $cons as $key => $con ) {
                 if ( $key === 'READ_WRITE_SEPARATION' || $key === 'REPORT_EXCEPTIONS' ) {
                     continue;
@@ -147,31 +144,8 @@ class _Cons extends Singleton
             }
             ksort( $constants );
 
-            $toolbox = [
-                'BYPASSPROXYDT' => [
-                    'name'        => 'BYPASSPROXYDT',
-                    'default'     => \false,
-                    'current'     => defined( '\BYPASSPROXYDT' ) ? \BYPASSPROXYDT : \null,
-                    'description' => 'This is a very special use case, if defined, will create dtproxy2 and copy the contents of dtproxy2 to dtproxy when building proxy files.',
-                    'type'        => 'boolean',
-                ],
-                'DTBUILD'       => [
-                    'name'        => 'DTBUILD',
-                    'default'     => \false,
-                    'current'     => defined( '\DTBUILD' ) ? \DTBUILD : \null,
-                    'description' => 'This enables special app build features for toolbox, use with caution.',
-                    'type'        => 'boolean',
-                ],
-                'DTPROFILER'    => [
-                    'name'        => 'DTPROFILER',
-                    'default'     => \false,
-                    'current'     => defined( '\DTPROFILER' ) ? \DTPROFILER : \null,
-                    'description' => 'this will enable/disable extra features for the profiler.',
-                    'type'        => 'boolean',
-                ],
-            ];
 
-            $this->constants = array_merge( $toolbox, $first, $constants );
+            $this->constants = array_merge( $first, $constants );
 
         }
 
@@ -181,6 +155,10 @@ class _Cons extends Singleton
     public function save( array $values, array $constants )
     {
         $toWrite = [];
+
+        foreach ( Application::allExtensions( 'toolbox', 'constants' ) as $extension ) {
+            $extension->formateValues( $values );
+        }
 
         foreach ( $constants as $key => $val ) {
             $data = $values[ $key ];

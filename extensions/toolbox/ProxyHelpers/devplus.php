@@ -57,8 +57,8 @@ class _devplus
     {
         $key = GeneratorAbstract::class;
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtdevplus_class_namespace', 'type' => '\\' . $key ];
-        $this->loop( Sources::i()->elements(), $classDoc );
-        $this->loop( Dev::i()->elements(), $classDoc );
+//        $this->loop( Sources::i()->elements(), $classDoc );
+//        $this->loop( Dev::i()->elements(), $classDoc );
         $app = Application::load( 'core' );
         $this->loop( ( new ContentRouter( $app, $app, 'foo' ) )->elements(), $classDoc );
         $this->loop( ( new CreateMenu( $app, $app, 'foo' ) )->elements(), $classDoc );

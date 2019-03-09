@@ -25,6 +25,7 @@ use IPS\toolbox\Proxy\Proxyclass;
 use IPS\toolbox\ReservedWords;
 use IPS\toolbox\Shared\Write;
 use ReflectionClass;
+use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\GenericTag;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
@@ -54,7 +55,6 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
-
 
 /**
  * Proxy Class
@@ -163,11 +163,12 @@ class _Proxy extends GeneratorAbstract
                         $type = 'abstract ';
                     }
 
-                    $new = new DTClassGenerator();
+                    $new = new ClassGenerator();
                     $new->setName( $class );
                     $new->setNamespaceName( $namespace );
                     $new->setExtendedClass( $namespace . '\\' . $ipsClass );
-
+                    $this->cache->addClass( $namespace . '\\' . $class );
+                    $this->cache->addNamespace( $namespace );
                     if ( $type === 'abstract' ) {
                         $new->setAbstract( \true );
                     }
@@ -467,9 +468,10 @@ class _Proxy extends GeneratorAbstract
      */
     protected function runHelperClasses( $class, &$classDoc, &$classExtends, &$body )
     {
+        $helpers = [];
+
         try {
-            if ( empty( $this->helperClasses ) ) {
-                $helpers = [];
+            if ( empty( $this->helperClasses ) === true ) {
                 /* @var Application $app */
                 foreach ( Application::appsWithExtension( 'toolbox', 'ProxyHelpers' ) as $app ) {
                     $extensions = $app->extensions( 'toolbox', 'ProxyHelpers', \true );
@@ -481,8 +483,8 @@ class _Proxy extends GeneratorAbstract
                 }
 
                 $this->helperClasses = $helpers;
+                Debug::add( 'helperClasses', $this->helperClasses, true );
             }
-
             if ( isset( $this->helperClasses[ $class ] ) && \is_array( $this->helperClasses[ $class ] ) ) {
                 /* @var HelpersAbstract $helperClass */
                 foreach ( $this->helperClasses[ $class ] as $helper ) {

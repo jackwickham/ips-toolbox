@@ -120,7 +120,7 @@ class _Debug extends ActiveRecord
      */
     public static function build()
     {
-        $sql = Db::i()->select( '*', 'dtprofiler_debug', [
+        $sql = Db::i()->select( '*', 'toolbox_debug', [
             'debug_ajax = ? AND debug_viewed = ?',
             0,
             0,
@@ -136,7 +136,7 @@ class _Debug extends ActiveRecord
             $last = $obj->id;
         }
         try {
-            Db::i()->update( 'dtprofiler_debug', [ 'debug_viewed' => 1 ] );
+            Db::i()->update( 'toolbox_debug', [ 'debug_viewed' => 1 ] );
         } catch ( Db\Exception $e ) {
         }
 

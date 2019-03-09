@@ -15,7 +15,7 @@ while ( \true ) {
         \IPS\Output::i()->json( [ 'end' => 1 ] );
     }
 
-    $query = \IPS\Db::i()->select( '*', 'dtprofiler_debug', [ 'debug_ajax = ?', 1 ], 'debug_id DESC' );
+    $query = \IPS\Db::i()->select( '*', 'toolbox_debug', [ 'debug_ajax = ?', 1 ], 'debug_id DESC' );
 
     if ( count( $query ) ) {
 

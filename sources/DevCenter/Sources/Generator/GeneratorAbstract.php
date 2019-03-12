@@ -11,7 +11,6 @@
  */
 
 namespace IPS\toolbox\DevCenter\Sources\Generator;
-use function ltrim;
 
 use Exception;
 use InvalidArgumentException;
@@ -43,6 +42,7 @@ use function in_array;
 use function is_array;
 use function json_decode;
 use function json_encode;
+use function ltrim;
 use function mb_strtolower;
 use function mb_ucfirst;
 use function str_replace;
@@ -71,7 +71,7 @@ abstract class _GeneratorAbstract
      * @var array
      */
     protected static $arDescendent = [
-        'ActiveRecord',
+        'Activerecord',
         'Node',
         'Item',
         'Comment',

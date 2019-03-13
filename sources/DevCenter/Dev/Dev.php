@@ -78,7 +78,7 @@ class _Dev extends Singleton
      */
     public function __construct( Application $application = null )
     {
-        if( $application instanceof Application ) {
+        if ( $application instanceof Application ) {
             $this->application = $application;
             $this->app = $this->application->directory;
         }
@@ -107,7 +107,7 @@ class _Dev extends Singleton
     {
         if ( $values = $this->form->values() ) {
             /**
-             * @var \IPS\tooblox\Dev\Compiler\CompilerAbstract $class ;
+             * @var \IPS\toolbox\Dev\Compiler\CompilerAbstract $class ;
              */
             $type = $this->type;
             $values[ 'type' ] = $type;

@@ -141,7 +141,7 @@ class _bt extends Controller
 
                 $last = 0;
 
-                /* @var \IPS\tooblox\Profiler\Debug $obj */
+                /* @var \IPS\toolbox\Profiler\Debug $obj */
                 foreach ( $iterators as $obj ) {
                     $list[] = $obj->body();
                     $last = $obj->id;
@@ -199,7 +199,7 @@ class _bt extends Controller
         $path = \IPS\ROOT_PATH . '/hook_temp';
 
         if ( is_dir( $path ) ) {
-            \IPS\tooblox\Application::loadAutoLoader();
+            \IPS\toolbox\Application::loadAutoLoader();
             $fs = new Filesystem();
             $fs->remove( [ $path ] );
         }

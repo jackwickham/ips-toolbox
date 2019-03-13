@@ -528,7 +528,7 @@ EOF;
     {
         if ( $file === \IPS\ROOT_PATH . "/applications/{$this->application->directory}/data/settings.json" ) {
             if ( Application::appIsEnabled( 'dtproxy' ) ) {
-                \IPS\tooblox\Generator\Proxy::i()->generateSettings();
+                \IPS\toolbox\Generator\Proxy::i()->generateSettings();
             }
         }
 

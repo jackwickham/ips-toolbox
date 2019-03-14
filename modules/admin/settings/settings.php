@@ -11,10 +11,6 @@
  */
 
 namespace IPS\toolbox\modules\admin\settings;
-use function array_shift;
-use function print_r;
-
-\IPS\toolbox\Application::loadAutoLoader();
 
 use Exception;
 use IPS\Application;
@@ -26,11 +22,15 @@ use IPS\Request;
 use IPS\Settings;
 use IPS\toolbox\Forms;
 use Zend\Code\Generator\ClassGenerator;
+use function array_shift;
 use function defined;
 use function file_get_contents;
 use function header;
 use function is_file;
 use function preg_replace_callback;
+use function print_r;
+
+\IPS\toolbox\Application::loadAutoLoader();
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 
@@ -173,9 +173,8 @@ public static function monkeyPatch($namespace, $finalClass, $extraCode = '')
                 \mkdir($path, 0777, true);
             }
 
-            if( !isset( static::$PSR0Namespaces['Symfony'] ) ){
-                static::$PSR0Namespaces['Symfony'] = ROOT_PATH . '/applications/toolbox/sources/vendor/Symfony/';
-            }
+            $vendor = ROOT_PATH.'/applications/toolbox/sources/vendor/autoload.php';
+            require $vendor;
 
             foreach (self::$hooks[ "\\{$namespace}\\{$finalClass}" ] as $id => $data) {
                 $mtime = filemtime( ROOT_PATH . '/' . $data[ 'file' ] );

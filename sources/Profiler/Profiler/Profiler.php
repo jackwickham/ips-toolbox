@@ -174,6 +174,7 @@ EOF;
             'enable' => 0,
         ] );
 
+        $info[ 'apps' ][ 'app' ] = [];
         /* @var Application $app */
         foreach ( $this->apps( \true ) as $app ) {
             $name = $app->_title;
@@ -293,7 +294,6 @@ EOF;
         $dtApps = [];
         if ( $skip === \true ) {
             $dtApps = [
-                'dtbase',
                 'toolbox',
             ];
         }

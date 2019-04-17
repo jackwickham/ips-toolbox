@@ -11,6 +11,7 @@
 
 namespace IPS\toolbox\Build;
 
+use function function_exists;
 use IPS\Application;
 use IPS\IPS;
 use IPS\Member;
@@ -28,6 +29,7 @@ use function in_array;
 use function ksort;
 use function mb_substr;
 use function mb_ucfirst;
+use function opcache_reset;
 use function sleep;
 
 if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
@@ -196,7 +198,9 @@ class _Cons extends Singleton
 EOF;
         if ( \IPS\NO_WRITES !== \true ) {
             \file_put_contents( \IPS\ROOT_PATH . '/constants.php', $fileData );
-            \opcache_reset();
+            if( function_exists( 'opcache_reset' ) ){
+                opcache_reset();
+            }
             sleep( 2 );
         }
     }

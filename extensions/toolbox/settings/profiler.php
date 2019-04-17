@@ -14,6 +14,7 @@ namespace IPS\toolbox\extensions\toolbox\Settings;
 
 use IPS\Member;
 use IPS\Settings;
+use IPS\toolbox\Forms\Form;
 use function defined;
 use function header;
 use function json_decode;
@@ -22,7 +23,7 @@ use function json_encode;
 /* To prevent PHP errors (extending class does not exist) revealing path */
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
@@ -35,9 +36,9 @@ class _profiler
     /**
      * add in array of form helpers
      *
-     * @param array $helpers
+     * @param Form $form
      */
-    public function elements( &$helpers )
+    public function elements( &$form ): void
     {
         $members = \null;
         if ( Settings::i()->dtprofiler_can_use ) {
@@ -48,103 +49,27 @@ class _profiler
             }
         }
 
-        $helpers[] = [
-            'name'    => 'dtprofiler_can_use',
-            'class'   => 'member',
-            'default' => $members,
-            'ops'     => [
-                'multiple' => 10,
-            ],
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_show_admin',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'   => 'dtprofiler_enabled_execution',
-            'class'  => 'yn',
-            'header' => 'dtprofiler_profiler_tabs',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_executions',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_memory',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_memory_summary',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_files',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_enivro',
-            'class' => 'yn',
-        ];
-
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_templates',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_css',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_js',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_jsvars',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_enabled_logs',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_logs_amount',
-            'class' => '#',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_git_data',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtprofiler_show_changes',
-            'class' => 'yn',
-        ];
-
+        $form->element( 'dtprofiler_can_use', 'members' )
+             ->tab( 'dtprofiler' )
+             ->value( $members )
+             ->options( [ 'multiple' => 10 ] );
+        $form->element( 'dtprofiler_show_admin', 'yn' );
+        $form->element( 'dtprofiler_enabled_execution', 'yn' )->header( 'dtprofiler_profiler_tabs' );
+        $form->element( 'dtprofiler_enabled_executions', 'yn' );
+        $form->element( 'dtprofiler_enabled_memory', 'yn' );
+        $form->element( 'dtprofiler_enabled_memory_summary', 'yn' );
+        $form->element( 'dtprofiler_enabled_files', 'yn' );
+        $form->element( 'dtprofiler_enabled_enivro', 'yn' );
+        $form->element( 'dtprofiler_enabled_templates', 'yn' );
+        $form->element( 'dtprofiler_enabled_css', 'yn' );
+        $form->element( 'dtprofiler_enabled_js', 'yn' );
+        $form->element( 'dtprofiler_enabled_jsvars', 'yn' );
+        $form->element( 'dtprofiler_enabled_logs', 'yn' );
+        $form->element( 'dtprofiler_logs_amount', '#' );
+        $form->element( 'dtprofiler_git_data', 'yn' );
+        $form->element( 'dtprofiler_show_changes', 'yn' );
     }
 
-    /**
-     * return a tab name
-     *
-     * @return string
-     */
-    public function tab()
-    {
-        return 'dtprofiler';
-    }
 
     /**
      * formValues, format the values before saving as settings
@@ -153,7 +78,7 @@ class _profiler
      *
      * @return void
      */
-    public function formateValues( &$values )
+    public function formatValues( &$values ): void
     {
         $new = [];
         foreach ( $values[ 'dtprofiler_can_use' ] as $key => $value ) {

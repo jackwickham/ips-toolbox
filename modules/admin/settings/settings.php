@@ -20,7 +20,6 @@ use IPS\Helpers\Form;
 use IPS\Output;
 use IPS\Request;
 use IPS\Settings;
-use IPS\toolbox\Forms;
 use Zend\Code\Generator\ClassGenerator;
 use function array_shift;
 use function defined;
@@ -78,34 +77,18 @@ class _settings extends Controller
             ];
         }
 
-        $elements = [];
+        $form = \IPS\toolbox\Forms\Form::create()->object( Settings::i() );
 
-        $elements[] = [
-            'name'  => 'toolbox_debug_templates',
-            'class' => 'yn',
-            'tab'   => 'toolbox',
-        ];
-
+        $form->element( 'toolbox_debug_templates', 'yn' )->tab( 'toolbox' );
         /* @var \IPS\toolbox\extensions\toolbox\Settings\settings $extension */
         foreach ( Application::allExtensions( 'toolbox', 'settings' ) as $extension ) {
-            $elements[] = [
-                'type' => 'tab',
-                'name' => $extension->tab(),
-            ];
-            $extension->elements( $elements );
+            $extension->elements( $form );
         }
-
-        $config = [
-            'elements' => $elements,
-            'object'   => Settings::i(),
-        ];
 
         /**
          * @var Form $form
          */
         try {
-            $form = Forms::execute( $config );
-
             if ( $values = $form->values() ) {
 
                 foreach ( Application::appsWithExtension( 'toolbox', 'settings' ) as $app ) {
@@ -152,7 +135,6 @@ EOF;
     protected function patchInit()
     {
         if ( \IPS\NO_WRITES === \false ) {
-
             $path = \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR;
             $init = $path . 'init.php';
             $content = \file_get_contents( $init );

@@ -42,7 +42,7 @@ use function json_encode;
 use function microtime;
 use function round;
 
-\IPS\toolbox\Application::loadAutoLoader();
+Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -67,7 +67,7 @@ class _Profiler extends Singleton
      */
     public function run()
     {
-        if ( !Member::loggedIn()->member_id && \IPS\CACHE_PAGE_TIMEOUT !== 0 ) {
+        if ( \IPS\CACHE_PAGE_TIMEOUT !== 0 && !Member::loggedIn()->member_id ) {
             return '';
         }
         if ( !Request::i()->isAjax() ) {
@@ -125,18 +125,6 @@ class _Profiler extends Singleton
      */
     protected function extra(): array
     {
-        $url = (string)Url::internal( 'app=core&module=applications&controller=applications&do=form', 'admin' );
-
-        //http://10.0.0.22/~michael/dev/admin/?adsess=vmdf9akrfn9dgfioft5cho39l4&app=core&module=applications&controller=applications&do=form
-        $foo = <<<EOF
-<li id="" data-ipstooltip="" class="isParent dtProfileFirst dtProfilermemory" title="Memory Total" data-ipstooltip>
-    <a href="{$url}">
-    <i class="fa fa-microchip"></i> Create App
-    </a> 
-</li>
-EOF;
-
-
         return [];
     }
 
@@ -149,11 +137,10 @@ EOF;
     protected function info(): array
     {
         $info = [];
-        $url = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [ 'do' => 'phpinfo' ] );
         $info[ 'server' ] = [
-            "<a>IPS " . Application::load( 'core' )->version . "</a>",
-            "<a href='{$url}' target='_blank'>PHP: " . \PHP_VERSION . "</a>",
-            "<a>MySQL: " . Db::i()->server_info . "</a>",
+            '<a>IPS ' . Application::load( 'core' )->version . '</a>',
+            \PHP_VERSION . '<a href=\'{$url}\' target=\'_blank\'>PHP: ' . '</a>',
+            '<a>MySQL: ' . Db::i()->server_info . '</a>',
         ];
         $slowestLink = Database::$slowestLink;
         $slowestTime = Database::$slowest;
@@ -251,16 +238,13 @@ EOF;
             $location[] = '_' . Request::i()->controller;
         }
 
-        if ( isset( Request::i()->do ) ) {
-            $do = Request::i()->do;
-        }
-        else {
-            $do = 'manage';
-        }
+        $do = Request::i()->do ?? 'manage';
 
         $class = 'IPS\\' . implode( '\\', $location );
         $location = $class . '::' . $do;
         $link = \null;
+        $url = \null;
+        $line = \null;
         try {
             $reflection = new ReflectionClass( $class );
             $method = $reflection->getMethod( $do );
@@ -285,7 +269,7 @@ EOF;
      *
      * @return array
      */
-    public function apps( $skip = \true )
+    public function apps( $skip = \true ): array
     {
         if ( \IPS\NO_WRITES ) {
             return [];
@@ -316,7 +300,7 @@ EOF;
     /**
      * @return array
      */
-    public function plugins()
+    public function plugins(): array
     {
         if ( \IPS\NO_WRITES ) {
             return [];
@@ -334,10 +318,10 @@ EOF;
     }
 
     /**
-     * @return null|array
+     * @return string|null
      * @throws \UnexpectedValueException
      */
-    protected function environment()
+    protected function environment(): ?string
     {
         if ( !Settings::i()->dtprofiler_enabled_enivro ) {
             return \null;
@@ -402,7 +386,7 @@ EOF;
             }
         }
 
-        $return = \null;
+        $return = null;
         if ( is_array( $data ) && count( $data ) ) {
             $return = Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->button( 'Environment', 'environment', 'Environment Variables.', $data, json_encode( $data ), count( $data ), 'random', \true, \false );
 
@@ -417,7 +401,7 @@ EOF;
      * @throws \InvalidArgumentException
      * @throws \OutOfRangeException
      */
-    public function getLastCommitId( &$info )
+    public function getLastCommitId( &$info ): void
     {
         if ( Settings::i()->dtprofiler_git_data ) {
             $app = Request::i()->id;
@@ -464,7 +448,7 @@ EOF;
      *
      * @throws \InvalidArgumentException
      */
-    public function hasChanges( &$info )
+    public function hasChanges( &$info ): void
     {
         if ( Settings::i()->dtprofiler_show_changes && function_exists( 'exec' ) ) {
             /* @var Application $app */

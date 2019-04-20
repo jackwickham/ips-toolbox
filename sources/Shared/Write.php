@@ -16,8 +16,9 @@ namespace IPS\toolbox\Shared;
 
 use Exception;
 use IPS\Application;
-use IPS\dtproxy\Proxyclass;
+use IPS\providers\Profiler\Debug;
 use IPS\toolbox\DevCenter\Profiler\Debug;
+use IPS\toolbox\Proxy\Proxyclass;
 use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 

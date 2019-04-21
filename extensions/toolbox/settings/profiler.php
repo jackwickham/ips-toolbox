@@ -19,6 +19,7 @@ use function defined;
 use function header;
 use function json_decode;
 use function json_encode;
+use function is_array;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 
@@ -81,9 +82,12 @@ class _profiler
     public function formatValues( &$values ): void
     {
         $new = [];
-        foreach ( $values[ 'dtprofiler_can_use' ] as $key => $value ) {
-            $new[] = $value->member_id;
+        if( is_array( $values['dtprofiler_can_use'] ) ) {
+            foreach ( $values[ 'dtprofiler_can_use' ] as $key => $value ) {
+                $new[] = $value->member_id;
+            }
+
+            $values[ 'dtprofiler_can_use' ] = json_encode( $new );
         }
-        $values[ 'dtprofiler_can_use' ] = json_encode( $new );
     }
 }

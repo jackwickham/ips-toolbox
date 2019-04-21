@@ -2,7 +2,6 @@
 
 namespace IPS\toolbox\Forms;
 
-use IPS\Helpers\Form;
 use IPS\Helpers\Form\FormAbstract;
 use IPS\Helpers\Form\Matrix;
 use IPS\Helpers\Form\Text;
@@ -125,13 +124,13 @@ class _Form
      *
      * @param Form|null $form
      */
-    public function __construct( Form $form = null )
+    public function __construct( \IPS\Helpers\Form $form = null )
     {
         $this->lang = Member::loggedIn()->language();
         if ( $form === null ) {
-            $this->form = new Form();
+            $this->form = new \IPS\Helpers\Form();
         }
-        else if ( $form instanceof Form ) {
+        else if ( $form instanceof \IPS\Helpers\Form ) {
             $this->form = $form;
         }
     }
@@ -141,7 +140,7 @@ class _Form
      *
      * @return Form
      */
-    public static function constructFromForm( Form $form ): Form
+    public static function constructFromForm( \IPS\Helpers\Form $form ): Form
     {
         return new static( $form );
     }
@@ -267,7 +266,7 @@ class _Form
      *
      * @return \IPS\toolbox\Forms\FormAbstract
      */
-    public function element( string $name, string $type = 'text', array $extra = [] ): \IPS\toolbox\Forms\FormAbstract
+    public function element( string $name, string $type = 'text', array $extra = [] ): \IPS\toolbox\Forms\Element
     {
         $notHelpers = [
             'tab',
@@ -292,7 +291,7 @@ class _Form
         $el[ 'extra' ] = $extra;
 
         $this->elementStore[ $name ] = $el;
-        return new \IPS\toolbox\Forms\FormAbstract( $name, $type, $this );
+        return new \IPS\toolbox\Forms\Element( $name, $type, $this );
     }
 
     public function updateElement( $name, $key, $value ): void
@@ -325,12 +324,13 @@ class _Form
         return (string)$this->build();
     }
 
-
+    protected $built = false;
     /**
      * @return Form
      */
-    public function build(): Form
+    public function build(): \IPS\Helpers\Form
     {
+        $this->built = true;
         $typesWName = [
             'tab',
             'header',
@@ -656,6 +656,9 @@ class _Form
      */
     public function values()
     {
+        if( $this->built === false ) {
+            $this->build();
+        }
         $newValues = false;
         if ( $values = $this->form->values() ) {
             foreach ( $values as $key => $value ) {
@@ -665,6 +668,14 @@ class _Form
         }
 
         return $newValues;
+    }
+
+    public function saveAsSettings( $values = null ){
+        if( $values === null ){
+            $values = $this->values();
+        }
+
+        $this->form->saveAsSettings($values);
     }
 
     /**

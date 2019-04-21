@@ -88,26 +88,20 @@ class _settings extends Controller
         /**
          * @var Form $form
          */
-        try {
-            if ( $values = $form->values() ) {
-
+             if ( $values = $form->values() ) {
                 foreach ( Application::appsWithExtension( 'toolbox', 'settings' ) as $app ) {
                     $extensions = $app->extensions( 'toolbox', 'settings', \true );
                     /* @var \IPS\toolbox\extensions\toolbox\settings\settings $extension */
                     foreach ( $extensions as $extension ) {
-                        $extension->formateValues( $values );
+                        $extension->formatValues( $values );
                     }
                 }
-
                 $form->saveAsSettings( $values );
-                Output::i()->redirect( $this->url->setQueryString( [ 'tab' => '' ] ) );
+                Output::i()->redirect( $this->url->setQueryString( [ 'tab' => '' ] ), 'foo' );
             }
 
             Output::i()->title = 'Settings';
             Output::i()->output = $form;
-        } catch ( Exception $e ) {
-            throw $e;
-        }
 
     }
 

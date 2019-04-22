@@ -1,9 +1,0 @@
-/**
- * @brief       {brief}
- * @author      -storm_author-
- * @copyright   -storm_copyright-
- * @package     IPS Social Suite
- * @subpackage  {subpackage}
- * @since       {since}
- * @version     -storm_version-
- */

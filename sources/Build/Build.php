@@ -27,6 +27,7 @@ use PharData;
 use RuntimeException;
 use Slasher\Slasher;
 use ZipArchive;
+use function is_array;
 
 class _Build extends Singleton
 {
@@ -39,57 +40,57 @@ class _Build extends Singleton
      */
     public function export()
     {
-        if (!Application::appIsEnabled('toolbox') || !\IPS\IN_DEV) {
-            throw new \InvalidArgumentException('toolbox not installed');
+        if ( !Application::appIsEnabled( 'toolbox' ) || !\IPS\IN_DEV ) {
+            throw new \InvalidArgumentException( 'toolbox not installed' );
         }
-        
+
         $app = Request::i()->appKey;
         \IPS\toolbox\Application::loadAutoLoader();
-        $application = Application::load($app);
+        $application = Application::load( $app );
         $title = $application->_title;
-        Member::loggedIn()->language()->parseOutputForDisplay($title);
+        Member::loggedIn()->language()->parseOutputForDisplay( $title );
         $e = [];
         $newLong = $application->long_version + 1;
-        $exploded = explode('.', $application->version);
-        $newShort = "{$exploded[0]}.{$exploded[1]}." . ((int) $exploded[2] + 1);
+        $exploded = explode( '.', $application->version );
+        $newShort = "{$exploded[0]}.{$exploded[1]}." . ( (int)$exploded[ 2 ] + 1 );
         $e = [];
 
         $e[] = [
-            'name' => 'toolbox_long_version',
-            'class' => '#',
-            'label' => 'Long Version',
+            'name'     => 'toolbox_long_version',
+            'class'    => '#',
+            'label'    => 'Long Version',
             'required' => \true,
-            'default' => $newLong,
+            'default'  => $newLong,
         ];
         $e[] = [
-            'name' => 'toolbox_short_version',
-            'label' => 'Short Version',
+            'name'     => 'toolbox_short_version',
+            'label'    => 'Short Version',
             'required' => \true,
-            'default' => $newShort,
+            'default'  => $newShort,
         ];
         $e[] = [
-            'name' => 'toolbox_use_imports',
-            'label' => 'Use Imports',
+            'name'        => 'toolbox_use_imports',
+            'label'       => 'Use Imports',
             'description' => 'Instead of backslashing methods/constants, it will create imports.',
-            'class' => 'yn',
-            'default' => \true,
+            'class'       => 'yn',
+            'default'     => \true,
         ];
         $e[] = [
-            'name' => 'toolbox_skip',
-            'class' => 'stack',
-            'label' => 'Skip',
-            'default' => ['3rdparty', 'vendor'],
+            'name'        => 'toolbox_skip',
+            'class'       => 'stack',
+            'label'       => 'Skip',
+            'default'     => [ '3rdparty', 'vendor' ],
             'description' => 'Files or folders to skip using slasher on.',
         ];
-        $form = Forms::execute(['elements' => $e]);
+        $form = Forms::execute( [ 'elements' => $e ] );
 
-        if ($values = $form->values()) {
-            $long = $values['toolbox_long_version'];
-            $short = $values['toolbox_short_version'];
+        if ( $values = $form->values() ) {
+            $long = $values[ 'toolbox_long_version' ];
+            $short = $values[ 'toolbox_short_version' ];
             $application->long_version = $long;
             $application->version = $short;
             $application->save();
-            unset(Store::i()->applications);
+            unset( Store::i()->applications );
             $slasherPath = \IPS\ROOT_PATH . '/applications/toolbox/sources/vendor/slasher.php';
             require_once $slasherPath;
 
@@ -101,58 +102,59 @@ class _Build extends Singleton
                 '-all',
             ];
 
-            if (isset($values['toolbox_use_imports']) && $values['toolbox_use_imports']) {
+            if ( isset( $values[ 'toolbox_use_imports' ] ) && $values[ 'toolbox_use_imports' ] ) {
                 $args[] = '-use';
             }
 
-            if (isset($values['toolbox_skip']) && \is_array($values['toolbox_skip'])) {
-                $skip = implode(',', $values['toolbox_skip']);
+            if ( isset( $values[ 'toolbox_skip' ] ) && is_array( $values[ 'toolbox_skip' ] ) ) {
+                $skip = implode( ',', $values[ 'toolbox_skip' ] );
                 $args[] = '-skip=' . $skip;
             }
             try {
-                (new Slasher($args, \true))->execute();
+                ( new Slasher( $args, \true ) )->execute();
 
                 $path = \IPS\ROOT_PATH . '/' . $application->directory . '/' . $short . '/';
 
                 try {
-                    $application->assignNewVersion($long, $short);
+                    $application->assignNewVersion( $long, $short );
                     $application->build();
                     $application->save();
-                    if (!is_dir($path)) {
-                        if (!mkdir($path, \IPS\IPS_FOLDER_PERMISSION, \true) && !is_dir($path)) {
-                            throw new RuntimeException(sprintf('Directory "%s" was not created', $path));
+                    if ( !is_dir( $path ) ) {
+                        if ( !mkdir( $path, \IPS\IPS_FOLDER_PERMISSION, \true ) && !is_dir( $path ) ) {
+                            throw new RuntimeException( sprintf( 'Directory "%s" was not created', $path ) );
                         }
-                        chmod($path, \IPS\IPS_FOLDER_PERMISSION);
+                        chmod( $path, \IPS\IPS_FOLDER_PERMISSION );
                     }
                     $pharPath = $path . $application->directory . '.tar';
-                    $download = new PharData($pharPath, 0, $application->directory . '.tar', Phar::TAR);
-                    $download->buildFromIterator(new BuilderIterator($application));
-                } catch (Exception $e) {
-                    Log::log($e, 'phar');
+                    $download = new PharData( $pharPath, 0, $application->directory . '.tar', Phar::TAR );
+                    $download->buildFromIterator( new BuilderIterator( $application ) );
+                } catch ( Exception $e ) {
+                    Log::log( $e, 'phar' );
                 }
-            } catch (\Exception $e) {}
+            } catch ( \Exception $e ) {
+            }
 
             $directions = \IPS\ROOT_PATH . '/applications/' . $application->directory . '/data/defaults/instructions.txt';
             $apps = [];
 
-            if (is_file($directions)) {
-                copy($directions, $path . 'instructions.txt');
+            if ( is_file( $directions ) ) {
+                copy( $directions, $path . 'instructions.txt' );
                 $apps[] = 'instructions.txt';
             }
 
             $apps[] = $application->directory . '.tar';
 
             $zip = new ZipArchive;
-            if ($zip->open($path . $title . ' - ' . $short . '.zip', ZIPARCHIVE::CREATE) === \true) {
-                foreach ($apps as $app) {
-                    $zip->addFile($path . $app, $app);
+            if ( $zip->open( $path . $title . ' - ' . $short . '.zip', ZIPARCHIVE::CREATE ) === \true ) {
+                foreach ( $apps as $app ) {
+                    $zip->addFile( $path . $app, $app );
                 }
                 $zip->close();
             }
-            unset(Store::i()->applications, $download);
-            \Phar::unlinkArchive($pharPath);
-            $url = Url::internal('app=core&module=applications&controller=applications');
-            Output::i()->redirect($url, $application->_title . ' successfully built!');
+            unset( Store::i()->applications, $download );
+            \Phar::unlinkArchive( $pharPath );
+            $url = Url::internal( 'app=core&module=applications&controller=applications' );
+            Output::i()->redirect( $url, $application->_title . ' successfully built!' );
         }
 
         Output::i()->title = 'Build ' . $application->_title;

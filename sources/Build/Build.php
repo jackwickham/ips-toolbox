@@ -25,12 +25,11 @@ use IPS\Request;
 use Phar;
 use PharData;
 use RuntimeException;
-use Slasher\Slasher;
 use ZipArchive;
-use function is_array;
 
 class _Build extends Singleton
 {
+
     protected static $instance;
 
     /**
@@ -40,6 +39,7 @@ class _Build extends Singleton
      */
     public function export()
     {
+
         if ( !Application::appIsEnabled( 'toolbox' ) || !\IPS\IN_DEV ) {
             throw new \InvalidArgumentException( 'toolbox not installed' );
         }
@@ -68,19 +68,20 @@ class _Build extends Singleton
             'required' => \true,
             'default'  => $newShort,
         ];
+
         $e[] = [
-            'name'        => 'toolbox_use_imports',
-            'label'       => 'Use Imports',
-            'description' => 'Instead of backslashing methods/constants, it will create imports.',
-            'class'       => 'yn',
-            'default'     => \true,
-        ];
-        $e[] = [
-            'name'        => 'toolbox_skip',
+            'name'        => 'toolbox_skip_dir',
             'class'       => 'stack',
-            'label'       => 'Skip',
+            'label'       => 'Skip Directories',
             'default'     => [ '3rdparty', 'vendor' ],
-            'description' => 'Files or folders to skip using slasher on.',
+            'description' => 'Folders to skip using slasher on.',
+        ];
+
+        $e[] = [
+            'name'        => 'toolbox_skip_files',
+            'class'       => 'stack',
+            'label'       => 'Skip Files',
+            'description' => 'Files to skip using slasher on.',
         ];
         $form = Forms::execute( [ 'elements' => $e ] );
 
@@ -91,27 +92,8 @@ class _Build extends Singleton
             $application->version = $short;
             $application->save();
             unset( Store::i()->applications );
-            $slasherPath = \IPS\ROOT_PATH . '/applications/toolbox/sources/vendor/slasher.php';
-            require_once $slasherPath;
-
-            //lets slash them before we go forward
-            $appPath = \IPS\ROOT_PATH . '/applications/' . $application->directory . '/';
-            $args = [
-                'foo.php',
-                $appPath,
-                '-all',
-            ];
-
-            if ( isset( $values[ 'toolbox_use_imports' ] ) && $values[ 'toolbox_use_imports' ] ) {
-                $args[] = '-use';
-            }
-
-            if ( isset( $values[ 'toolbox_skip' ] ) && is_array( $values[ 'toolbox_skip' ] ) ) {
-                $skip = implode( ',', $values[ 'toolbox_skip' ] );
-                $args[] = '-skip=' . $skip;
-            }
             try {
-                ( new Slasher( $args, \true ) )->execute();
+                Slasher::i()->start( $application, $values[ 'toolbox_skip_files' ] ?? [], $values[ 'toolbox_skip_dir' ] ?? [] );
 
                 $path = \IPS\ROOT_PATH . '/' . $application->directory . '/' . $short . '/';
 

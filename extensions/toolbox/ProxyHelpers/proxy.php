@@ -12,7 +12,9 @@
 
 namespace IPS\toolbox\extensions\toolbox\ProxyHelpers;
 
+use IPS\Content\Item;
 use IPS\Data\Store;
+use IPS\Http\Url;
 use IPS\Node\Model;
 use IPS\Output;
 use IPS\Request;
@@ -20,6 +22,7 @@ use IPS\toolbox\DevCenter\Sources\Generator\GeneratorAbstract as devPlusGenerato
 use IPS\toolbox\Proxy\Helpers\GeneratorAbstract;
 use IPS\toolbox\Proxy\Helpers\Request as HelpersRequest;
 use IPS\toolbox\Proxy\Helpers\Store as HelpersStore;
+use IPS\Widget;
 use function defined;
 use function header;
 
@@ -42,6 +45,7 @@ class _proxy
      */
     public function store( &$classDoc )
     {
+
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtproxy_proxy_files', 'type' => 'array' ];
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'dt_json', 'type' => 'array' ];
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtproxy_templates', 'type' => 'array' ];
@@ -67,10 +71,15 @@ class _proxy
      */
     public function map( &$helpers )
     {
+
         $helpers[ Request::class ][] = HelpersRequest::class;
         $helpers[ Store::class ][] = HelpersStore::class;
         $helpers[ devPlusGeneratorAbstract::class ][] = GeneratorAbstract::class;
         $helpers[ Output::class ][] = \IPS\toolbox\Proxy\Helpers\Output::class;
         $helpers[ Model::class ][] = \IPS\toolbox\Proxy\Helpers\Model::class;
+        $helpers[ Url::class ][] = \IPS\toolbox\Proxy\Helpers\Url::class;
+        $helpers[ Widget::class ][] = \IPS\toolbox\Proxy\Helpers\Widget::class;
+        $helpers[ Item::class ][] = \IPS\toolbox\Proxy\Helpers\Item::class;
+
     }
 }

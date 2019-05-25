@@ -11,12 +11,12 @@
 namespace IPS\toolbox\Proxy\Generator;
 
 use Exception;
-use IPS\_Settings;
-use IPS\Application;
 use IPS\Data\Store;
 use IPS\IPS;
+use IPS\Log;
 use IPS\Patterns\ActiveRecord;
 use IPS\Settings;
+use IPS\toolbox\Application;
 use IPS\toolbox\Generator\DTClassGenerator;
 use IPS\toolbox\Generator\DTFileGenerator;
 use IPS\toolbox\Profiler\Debug;
@@ -29,6 +29,7 @@ use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\GenericTag;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
+use Zend\Code\Generator\PropertyGenerator;
 use function array_filter;
 use function array_merge;
 use function array_shift;
@@ -41,6 +42,7 @@ use function implode;
 use function is_dir;
 use function is_numeric;
 use function json_decode;
+use function json_encode;
 use function mb_strlen;
 use function mb_strpos;
 use function mb_substr;
@@ -63,6 +65,7 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _Proxy extends GeneratorAbstract
 {
+
     use Write;
 
     /**
@@ -86,6 +89,7 @@ class _Proxy extends GeneratorAbstract
      */
     public static function adjustModel( $table )
     {
+
         $apps = Application::applications();
         $relations = [ [] ];
         foreach ( $apps as $app ) {
@@ -112,6 +116,7 @@ class _Proxy extends GeneratorAbstract
      */
     public function create( string $content )
     {
+
         try {
             $data = $this->tokenize( $content );
             if ( isset( $data[ 'class' ], $data[ 'namespace' ] ) ) {
@@ -212,9 +217,14 @@ class _Proxy extends GeneratorAbstract
 
                     if ( \is_array( $body ) ) {
                         $newMethods = [];
+                        $newProps = [];
                         foreach ( $body as $method ) {
                             if ( $method instanceof MethodGenerator ) {
                                 $newMethods[ $method->getName() ] = $method;
+                            }
+
+                            if ( $method instanceof PropertyGenerator ) {
+                                $new->addPropertyFromGenerator( $method );
                             }
                         }
 
@@ -235,7 +245,7 @@ class _Proxy extends GeneratorAbstract
                 }
             }
         } catch ( Exception $e ) {
-            Debug::add( 'Proxy Create', $e );
+//            Debug::add( 'Proxy Create', $e );
         }
     }
 
@@ -248,6 +258,7 @@ class _Proxy extends GeneratorAbstract
      */
     public function tokenize( $source )
     {
+
         $namespace = 0;
         $tokens = token_get_all( $source );
         $count = \count( $tokens );
@@ -279,6 +290,7 @@ class _Proxy extends GeneratorAbstract
 
             if ( ( $tokens[ $i - 2 ][ 0 ] === \T_CLASS || ( isset( $tokens[ $i - 2 ][ 1 ] ) && $tokens[ $i - 2 ][ 1 ] === 'phpclass' ) ) && $tokens[ $i - 1 ][ 0 ] === \T_WHITESPACE && $tokens[ $i ][ 0 ] === \T_STRING ) {
                 $class = $tokens[ $i ][ 1 ];
+
                 return [
                     'namespace' => $namespace,
                     'class'     => $class,
@@ -302,6 +314,7 @@ class _Proxy extends GeneratorAbstract
      */
     protected function buildHead( $name, $def, &$classDefinition )
     {
+
         $ints = [
             'TINYINT',
             'SMALLINT',
@@ -341,120 +354,74 @@ class _Proxy extends GeneratorAbstract
      * @param $class
      * @param $classDefinition
      */
-    protected function buildProperty( $class, &$classDefinition )
+    public function buildProperty( $class, &$classDefinition )
     {
+
+
         try {
-            $gs = [ 'set_', 'get_' ];
+            $data = [];
             $reflect = new ReflectionClass( $class );
             $methods = $reflect->getMethods();
-            if ( \is_array( $methods ) && \count( $methods ) ) {
-                $data = [];
+            if ( empty( $methods ) !== true ) {
                 foreach ( $methods as $method ) {
-                    if ( $method->name !== \null ) {
-                        $type = trim( mb_substr( $method->name, 0, 4 ) );
-                        $key = trim( mb_substr( $method->name, 4, mb_strlen( $method->name ) ) );
-
-                        if ( \in_array( $type, $gs, \true ) ) {
-                            $comment = \null;
-                            $return = [ 'type' => $type === 'set_' ? 'void' : 'string' ];
-                            if ( $method->hasReturnType() ) {
-                                $return = [ 'type' => $method->getReturnType() ];
-                            }
-                            else {
-                                $doc = $method->getDocComment();
-                                preg_match_all( '#@return([^\n]+)?#', $doc, $match );
-
-                                if ( isset( $match[ 1 ][ 0 ] ) ) {
-                                    $match = array_filter( explode( ' ', $match[ 1 ][ 0 ] ) );
-                                    $mtype = trim( array_shift( $match ) );
-                                    if ( \is_array( $match ) && \count( $match ) ) {
-                                        $comment = implode( ' ', $match );
-                                    }
-
-                                    $return = [ 'type' => $mtype, 'comment' => $comment ];
-                                }
-                            }
-
+                    $type = trim( mb_substr( $method->name, 0, 4 ) );
+                    $key = trim( mb_substr( $method->name, 4, mb_strlen( $method->name ) ) );
+                    if ( $type === 'set_' || $type === 'get_' ) {
+                        $pt = null;
+                        if ( !isset( $data[ $key ] ) && !isset( $classDefinition[ $key ] ) ) {
                             if ( $type === 'set_' ) {
-                                if ( !isset( $classDefinition[ $key ] ) && isset( $data[ 'get' ][ $key ] ) ) {
-                                    $data[ 'prop' ][ $key ] = $data[ 'get' ][ $key ];
-                                    unset( $data[ 'get' ][ $key ] );
-                                }
-                                else if ( !isset( $data[ 'prop' ][ $key ] ) ) {
-                                    if ( !isset( $classDefinition[ $key ] ) ) {
-                                        $data[ 'set' ][ $key ] = $return;
-                                    }
-                                    else {
-                                        $data[ 'prop' ][ $key ] = $return;
-                                    }
-                                }
+                                $pt = 'w';
                             }
-                            else if ( $type === 'get_' ) {
-                                if ( !isset( $classDefinition[ $key ] ) && isset( $data[ 'set' ][ $key ] ) ) {
-                                    $return = [ 'type' => 'string' ];
-                                    if ( $method->hasReturnType() ) {
-                                        $return = [ 'type' => $method->getReturnType() ];
-                                    }
-                                    else {
-                                        $doc = $method->getDocComment();
-                                        preg_match_all( '#@return([^\n]+)?#', $doc, $match );
-                                        if ( isset( $match[ 1 ][ 0 ] ) ) {
-                                            $match = array_filter( explode( ' ', $match[ 1 ][ 0 ] ) );
-                                            $mtype = trim( array_shift( $match ) );
-                                            if ( \is_array( $match ) && \count( $match ) ) {
-                                                $comment = implode( ' ', $match );
-                                            }
 
-                                            $return = [ 'type' => $mtype, 'comment' => $comment ];
-                                        }
-                                    }
-                                    $data[ 'prop' ][ $key ] = $return;
-                                    unset( $data[ 'set' ][ $key ] );
-                                }
-                                else {
-                                    if ( !isset( $data[ 'prop' ][ $key ] ) ) {
-                                        if ( !isset( $classDefinition[ $key ] ) ) {
-                                            $data[ 'get' ][ $key ] = $return;
-                                        }
-                                        else {
-                                            $data[ 'prop' ][ $key ] = $return;
-                                        }
-                                    }
-                                }
+                            if ( $type === 'get_' ) {
+                                $pt = 'r';
                             }
                         }
+                        else {
+                            $pt = 'p';
+                        }
+
+                        $comment = \null;
+                        $return = $type === 'set_' ? 'void' : 'string';
+                        if ( $method->hasReturnType() ) {
+                            $return = (string)$method->getReturnType();
+                        }
+                        else {
+                            $doc = $method->getDocComment();
+                            preg_match_all( '#@return([^\n]+)?#', $doc, $match );
+
+                            if ( isset( $match[ 1 ][ 0 ] ) ) {
+                                $match = array_filter( explode( ' ', $match[ 1 ][ 0 ] ) );
+                                $mtype = trim( array_shift( $match ) );
+                                if ( \is_array( $match ) && \count( $match ) ) {
+                                    $comment = implode( ' ', $match );
+                                }
+
+                                $return = $mtype;
+                            }
+                        }
+
+                        if ( isset( $data[ $key ] ) ) {
+                            if ( $return === 'void' || $data[ $key ][ 'type' ] !== 'void' ) {
+                                $return = $data[ $key ][ 'type' ];
+                            }
+                        }
+
+                        $data[ $key ] = [
+                            'prop'    => trim( $key ),
+                            'pt'      => $pt,
+                            'type'    => $return,
+                            'comment' => $comment,
+                        ];
                     }
                 }
 
-                foreach ( $data as $key => $value ) {
-                    if ( \is_array( $value ) && \count( $value ) ) {
-                        foreach ( $value as $prop => $return ) {
-                            $prop = trim( $prop );
-                            switch ( $key ) {
-                                case 'get':
-                                    $vals = 'r';
-                                    break;
-                                case 'set':
-                                    $vals = 'w';
-                                    break;
-                                default:
-                                case 'prop':
-                                    $vals = 'p';
-                                    break;
-                            }
-
-                            $classDefinition[ $prop ] = [
-                                'pt'      => $vals,
-                                'prop'    => $prop,
-                                'type'    => $return[ 'type' ],
-                                'comment' => $return[ 'comment' ] ?? \null,
-                            ];
-                        }
-                    }
+                foreach ( $data as $prop => $value ) {
+                    $classDefinition[ $prop ] = $value;
                 }
             }
         } catch ( Exception $e ) {
-            Debug::add( 'class', $e );
+//            Debug::add( 'class', $e );
         }
     }
 
@@ -468,6 +435,7 @@ class _Proxy extends GeneratorAbstract
      */
     protected function runHelperClasses( $class, &$classDoc, &$classExtends, &$body )
     {
+
         $helpers = [];
 
         try {
@@ -483,7 +451,7 @@ class _Proxy extends GeneratorAbstract
                 }
 
                 $this->helperClasses = $helpers;
-                Debug::add( 'helperClasses', $this->helperClasses, true );
+//                Debug::add( 'helperClasses', $this->helperClasses, true );
             }
             if ( isset( $this->helperClasses[ $class ] ) && \is_array( $this->helperClasses[ $class ] ) ) {
                 /* @var HelpersAbstract $helperClass */
@@ -494,7 +462,7 @@ class _Proxy extends GeneratorAbstract
             }
 
         } catch ( Exception $e ) {
-            Debug::add( 'helpers', $e );
+//            Debug::add( 'helpers', $e );
         }
     }
 
@@ -505,6 +473,7 @@ class _Proxy extends GeneratorAbstract
      */
     public function buildClassDoc( array $properties )
     {
+
         $block = [];
         foreach ( $properties as $key => $property ) {
             try {
@@ -526,14 +495,15 @@ class _Proxy extends GeneratorAbstract
                 }
                 $block[] = new GenericTag( $pt, $content );
             } catch ( Exception $e ) {
-                Debug::add( 'proxy', $property );
-                Debug::add( 'proxy2', $e );
-                Debug::add( 'proxy3', $properties );
+//                Debug::add( 'proxy', $property );
+//                Debug::add( 'proxy2', $e );
+//                Debug::add( 'proxy3', $properties );
             }
         }
 
         $docBlock = new DocBlockGenerator();
         $docBlock->setTags( $block );
+
         return $docBlock;
     }
 
@@ -542,6 +512,7 @@ class _Proxy extends GeneratorAbstract
      */
     public function generateSettings()
     {
+
         try {
 
             Settings::i();
@@ -575,7 +546,7 @@ class _Proxy extends GeneratorAbstract
             $class = new DTClassGenerator();
             $class->setNamespaceName( 'IPS' );
             $class->setName( 'Settings' );
-            $class->setExtendedClass( _Settings::class );
+            $class->setExtendedClass( 'IPS\_Settings' );
             $class->setDocBlock( $header );
             $file = new DTFileGenerator;
             $file->setClass( $class );
@@ -591,6 +562,7 @@ class _Proxy extends GeneratorAbstract
      */
     public function buildConstants()
     {
+
         if ( Proxyclass::i()->doConstants ) {
             $load = IPS::defaultConstants();
             $extra = "\n";

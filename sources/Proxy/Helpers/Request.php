@@ -30,6 +30,7 @@ class _Request implements HelpersAbstract
      */
     public function process( $class, &$classDoc, &$classExtends, &$body )
     {
+
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'app', 'type' => 'string' ];
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'module', 'type' => 'string' ];
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'controller', 'type' => 'string' ];
@@ -56,7 +57,10 @@ class _Request implements HelpersAbstract
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'sortby', 'type' => 'string' ];
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'sortdirection', 'type' => 'string' ];
         $classDoc[] = [ 'pt' => 'p', 'prop' => 'parent', 'type' => 'int' ];
-
+        $classDoc[] = [ 'pt' => 'p', 'prop' => 'filter', 'type' => 'string' ];
+        $classDoc[] = [ 'pt' => 'p', 'prop' => 'params', 'type' => 'string' ];
+        $classDoc[] = [ 'pt' => 'p', 'prop' => 'input', 'type' => 'string' ];
+        $classDoc[] = [ 'pt' => 'p', 'prop' => 'action', 'type' => 'string' ];
         /* @var Application $app */
         foreach ( Application::appsWithExtension( 'toolbox', 'ProxyHelpers' ) as $app ) {
             $extensions = $app->extensions( 'toolbox', 'ProxyHelpers', \true );

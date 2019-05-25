@@ -44,11 +44,13 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class _Item extends GeneratorAbstract
 {
+
     /**
      * @inheritdoc
      */
     protected function bodyGenerator()
     {
+
         $this->brief = 'Content Item Class';
         $this->extends = Item::class;
 
@@ -61,7 +63,6 @@ class _Item extends GeneratorAbstract
             'title',
             'start_date',
             'ip_address',
-            'container_id',
             'seoTitle',
         ];
 
@@ -70,13 +71,12 @@ class _Item extends GeneratorAbstract
             'title'      => 'title',
             'date'       => 'start_date',
             'ip_address' => 'ip_address',
-            'container'  => 'container_id',
         ];
 
         $this->application();
         $this->module();
         $this->title();
-        $this->itemNodeClass();
+        $this->itemNodeClass( $dbColumns, $columnMap );
         $this->urlTemplate();
         $this->urlBase();
         $this->_url();
@@ -93,6 +93,7 @@ class _Item extends GeneratorAbstract
      */
     protected function application()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'Application' ],
@@ -116,6 +117,7 @@ class _Item extends GeneratorAbstract
      */
     protected function module()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'Module' ],
@@ -141,6 +143,7 @@ class _Item extends GeneratorAbstract
      */
     protected function title( $extra = '_title' )
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'Title' ],
@@ -162,8 +165,9 @@ class _Item extends GeneratorAbstract
     /**
      * adds the containerNodeClass property
      */
-    protected function itemNodeClass()
+    protected function itemNodeClass( &$dbColumns, &$columnMap )
     {
+
         if ( $this->item_node_class !== \null ) {
             $this->item_node_class = mb_ucfirst( $this->item_node_class );
 
@@ -182,7 +186,8 @@ class _Item extends GeneratorAbstract
             }
 
             $itemNodeClass .= '::class';
-
+            $dbColumns[] = 'container_id';
+            $columnMap[ 'container' ] = 'container_id';
             $config = [
                 'name'   => 'containerNodeClass',
                 'value'  => new PropertyValueGenerator( $itemNodeClass, PropertyValueGenerator::TYPE_CONSTANT ),
@@ -203,6 +208,7 @@ class _Item extends GeneratorAbstract
      */
     protected function commentClass( &$dbColumns, &$columnMap )
     {
+
         if ( $this->comment_class !== \null ) {
             $dbColumns[] = 'num_comments';
             $dbColumns[] = 'last_comment';
@@ -248,6 +254,7 @@ class _Item extends GeneratorAbstract
      */
     protected function reviewClass( &$dbColumns, &$columnMap )
     {
+
         if ( $this->review_class !== \null ) {
             $dbColumns[] = 'num_reviews';
             $dbColumns[] = 'last_review';
@@ -316,6 +323,7 @@ class _Item extends GeneratorAbstract
      */
     protected function buildImplementsAndTraits( &$dbColumns, &$columnMap )
     {
+
         if ( is_array( $this->implements ) ) {
             //edit history
             if ( in_array( EditHistory::class, $this->implements, \false ) ) {
@@ -388,9 +396,9 @@ class _Item extends GeneratorAbstract
             if ( in_array( Polls::class, $this->implements, \false ) && in_array( SplObserver::class, $this->implements, \false ) ) {
                 $methodDocBlock = new DocBlockGenerator( '	 * SplObserver notification that poll has been voted on
 ', \null, [
-                        new ParamTag( 'poll', SplSubject::class, 'SplObserver notification that poll has been voted on' ),
-                        new ReturnTag( [ 'dataType' => 'void' ] ),
-                    ] );
+                    new ParamTag( 'poll', SplSubject::class, 'SplObserver notification that poll has been voted on' ),
+                    new ReturnTag( [ 'dataType' => 'void' ] ),
+                ] );
 
                 $poll = SplSubject::class;
 
@@ -464,6 +472,7 @@ class _Item extends GeneratorAbstract
      */
     protected function columnMap( array $columnMap )
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'Database Column Map' ],

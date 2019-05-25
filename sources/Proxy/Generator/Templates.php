@@ -8,17 +8,14 @@
  * @version    -storm_version-
  */
 
-
 namespace IPS\toolbox\Proxy\Generator;
-use function random_int;
-use function md5;
-use function time;
-use function rand;
 
 use Exception;
+use function file_put_contents;
 use IPS\Data\Store;
 use IPS\Log;
 use IPS\Theme;
+use function json_decode;
 use ReflectionException;
 use ReflectionFunction;
 use Zend\Code\Generator\ClassGenerator;
@@ -29,9 +26,12 @@ use function defined;
 use function function_exists;
 use function header;
 use function mb_strtolower;
+use function md5;
+use function rand;
+use function random_int;
 use function str_replace;
+use function time;
 use function trim;
-
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -58,6 +58,7 @@ class _Templates extends GeneratorAbstract
      */
     public function create()
     {
+
         $jsonMeta = [];
         if ( isset( Store::i()->dt_json ) ) {
             $jsonMeta = Store::i()->dt_json;
@@ -176,7 +177,7 @@ class _Templates extends GeneratorAbstract
                     }
                 }
                 try {
-                    $mn = mb_strtolower( trim( $template[ 'method' ] ) );
+                    $mn =  $template[ 'method' ];
                     $tempClass[ $temp ][ $mn ] = MethodGenerator::fromArray( [
                         'name'       => $template[ 'method' ],
                         'parameters' => $newParams,
@@ -203,16 +204,17 @@ class _Templates extends GeneratorAbstract
      */
     public function makeTempClasses( array $classes )
     {
+
         foreach ( $classes as $key => $templates ) {
             try {
-
+                $fileName = str_replace( [ '\\', '/' ], '', $key );
                 $newClass = new ClassGenerator;
                 $newClass->setNamespaceName( 'dtProxy\Templates' );
                 $newClass->setName( $key );
                 $newClass->addMethods( $templates );
                 $content = new FileGenerator;
                 $content->setClass( $newClass );
-                $content->setFilename( $this->save . '/templates/' . $key . '.php' );
+                $content->setFilename( $this->save . '/templates/' . $fileName . '.php' );
                 $content->write();
             } catch ( Exception $e ) {
                 Log::log( $e );

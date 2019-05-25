@@ -37,6 +37,7 @@ use function header;
 use function implode;
 use function is_array;
 use function is_dir;
+use function is_object;
 use function json_decode;
 use function json_encode;
 use function microtime;
@@ -67,6 +68,7 @@ class _Profiler extends Singleton
      */
     public function run()
     {
+
         if ( \IPS\CACHE_PAGE_TIMEOUT !== 0 && !Member::loggedIn()->member_id ) {
             return '';
         }
@@ -125,6 +127,7 @@ class _Profiler extends Singleton
      */
     protected function extra(): array
     {
+
         return [];
     }
 
@@ -136,6 +139,7 @@ class _Profiler extends Singleton
      */
     protected function info(): array
     {
+
         $info = [];
         $info[ 'server' ] = [
             '<a>IPS ' . Application::load( 'core' )->version . '</a>',
@@ -216,6 +220,7 @@ class _Profiler extends Singleton
      */
     protected function getLocation()
     {
+
         $location = [];
         if ( isset( Request::i()->app ) ) {
             $location[] = Request::i()->app;
@@ -258,6 +263,7 @@ class _Profiler extends Singleton
 
         if ( $link ) {
             $url = ( new Editor )->replace( $url, $line );
+
             return '<a href="' . $url . '">' . $location . '</a>';
         }
 
@@ -271,6 +277,7 @@ class _Profiler extends Singleton
      */
     public function apps( $skip = \true ): array
     {
+
         if ( \IPS\NO_WRITES ) {
             return [];
         }
@@ -302,6 +309,7 @@ class _Profiler extends Singleton
      */
     public function plugins(): array
     {
+
         if ( \IPS\NO_WRITES ) {
             return [];
         }
@@ -323,6 +331,7 @@ class _Profiler extends Singleton
      */
     protected function environment(): ?string
     {
+
         if ( !Settings::i()->dtprofiler_enabled_enivro ) {
             return \null;
         }
@@ -331,6 +340,9 @@ class _Profiler extends Singleton
 
         if ( !empty( $_GET ) ) {
             foreach ( $_GET as $key => $val ) {
+                if ( is_object( $val ) ) {
+                    continue;
+                }
                 if ( !is_array( $val ) ) {
                     $val = json_decode( $val, \true ) ?? $val;
                 }
@@ -341,6 +353,9 @@ class _Profiler extends Singleton
 
         if ( !empty( $_POST ) ) {
             foreach ( $_POST as $key => $val ) {
+                if ( is_object( $val ) ) {
+                    continue;
+                }
                 if ( !is_array( $val ) ) {
                     $val = json_decode( $val, \true ) ?? $val;
                 }
@@ -352,6 +367,9 @@ class _Profiler extends Singleton
         if ( !empty( Request::i()->returnData() ) ) {
             $request = Request::i()->returnData();
             foreach ( $request as $key => $val ) {
+                if ( is_object( $val ) ) {
+                    continue;
+                }
                 if ( !is_array( $val ) ) {
                     $val = json_decode( $val, \true ) ?? $val;
                 }
@@ -368,17 +386,23 @@ class _Profiler extends Singleton
             }
         }
 
-        if ( !empty( $_SESSION ) ) {
-            foreach ( $_SESSION as $key => $val ) {
-                if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
-                }
-                $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_SESSION : ' . $key, $val ) ];
-            }
-        }
+        //        if ( !empty( $_SESSION ) ) {
+        //            foreach ( $_SESSION as $key => $val ) {
+        //                if ( is_object( $val ) ) {
+        //                    continue;
+        //                }
+        //                if ( !is_array( $val ) ) {
+        //                    $val = json_decode( $val, \true ) ?? $val;
+        //                }
+        //                $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_SESSION : ' . $key, $val ) ];
+        //            }
+        //        }
 
         if ( !empty( $_SERVER ) ) {
             foreach ( $_SERVER as $key => $val ) {
+                if ( is_object( $val ) ) {
+                    continue;
+                }
                 if ( !is_array( $val ) ) {
                     $val = json_decode( $val, \true ) ?? $val;
                 }
@@ -403,6 +427,7 @@ class _Profiler extends Singleton
      */
     public function getLastCommitId( &$info ): void
     {
+
         if ( Settings::i()->dtprofiler_git_data ) {
             $app = Request::i()->id;
             $path = \IPS\ROOT_PATH . '/applications/' . $app . '/.git/';
@@ -450,6 +475,7 @@ class _Profiler extends Singleton
      */
     public function hasChanges( &$info ): void
     {
+
         if ( Settings::i()->dtprofiler_show_changes && function_exists( 'exec' ) ) {
             /* @var Application $app */
             foreach ( Application::enabledApplications() as $app ) {

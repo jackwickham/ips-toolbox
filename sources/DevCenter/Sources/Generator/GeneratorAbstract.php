@@ -15,6 +15,7 @@ namespace IPS\toolbox\DevCenter\Sources\Generator;
 use Exception;
 use InvalidArgumentException;
 use IPS\Application;
+use IPS\Log;
 use IPS\toolbox\Generator\DTClassGenerator;
 use IPS\toolbox\Generator\DTFileGenerator;
 use IPS\toolbox\Generator\DTInterfaceGenerator;
@@ -63,6 +64,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 abstract class _GeneratorAbstract
 {
+
     use LanguageBuilder, SchemaBuilder, ModuleBuilder, Write, Magic;
 
     /**
@@ -136,6 +138,15 @@ abstract class _GeneratorAbstract
             }
         }
 
+        if ( is_array( $this->ips_traits ) ) {
+            $this->traits = is_array( $this->traits ) ? array_merge( $this->traits, $this->ips_traits ) : $this->ips_traits;
+
+        }
+
+        if ( is_array( $this->ips_implements ) ) {
+            $this->implements = is_array( $this->implements ) ? array_merge( $this->implements, $this->ips_implements ) : $this->ips_implements;
+        }
+
         $this->application = $application;
         $this->app = $this->application->directory;
         $this->type = mb_ucfirst( $this->type );
@@ -172,7 +183,6 @@ abstract class _GeneratorAbstract
      */
     final public function process()
     {
-
 
         if ( $this->className !== \null ) {
             $this->classname = mb_ucfirst( $this->className );
@@ -253,6 +263,8 @@ abstract class _GeneratorAbstract
                 if ( $this->useImports ) {
                     $trait = ltrim( $trait, '\\' );
                     $this->generator->addUse( $trait );
+                    $foo = explode( '\\', $trait );
+                    $trait = array_pop( $foo );
                 }
                 $this->generator->addTrait( $trait );
             }
@@ -296,36 +308,33 @@ abstract class _GeneratorAbstract
         if ( !in_array( $this->type, [ 'Interface', 'Traits' ] ) ) {
             $this->proxy = \true;
         }
-
         $content->setFilename( $dir . '/' . $file );
-
         try {
             $content->write();
-
-
-            if ( $this->scaffolding_create && in_array( $this->type, static::$arDescendent, \true ) ) {
+            if ( $this->scaffolding_create && in_array( $this->type, static::$arDescendent, \false ) ) {
                 $this->_createRelation( $file, $dir, $this->database );
-
-                try {
-                    if ( in_array( $this->type, static::$arDescendent, \true ) ) {
+                if ( in_array( 'db', $this->scaffolding_type, false ) ) {
+                    try {
                         $this->db->add( 'bitwise' );
+                        $this->db->createTable()->_buildSchemaFile( $this->database, $this->application );
+                    } catch ( Exception $e ) {
+                        Log::log( $e, 'Devplus database' );
                     }
-                    $this->db->createTable()->_buildSchemaFile( $this->database, $this->application );
-                } catch ( Exception $e ) {
-                    Debug::add( 'DevPlus Database Compiler', $e );
                 }
 
-                try {
-                    $this->_buildModule( $this->application, $this->classname, $this->namespace, $this->type, $this->useImports );
-                } catch ( Exception $e ) {
-                    //@todo maybe we should add a error class?
-                    $this->error = 1;
-                    Debug::add( 'modules', $e );
+                if ( in_array( 'modules', $this->scaffolding_type, false ) ) {
+                    try {
+                        $this->_buildModule( $this->application, $this->classname, $this->namespace, $this->type, $this->useImports );
+                    } catch ( Exception $e ) {
+                        //@todo maybe we should add a error class?
+                        $this->error = 1;
+                    }
                 }
             }
         } catch ( RuntimeException $e ) {
             $this->error = 1;
             Debug::add( 'modules', $e );
+            Log::debug( $e );
         }
     }
 
@@ -334,6 +343,7 @@ abstract class _GeneratorAbstract
      */
     protected function _arDescendantProps()
     {
+
         //multitons
         $doc = [
             'tags' => [
@@ -413,7 +423,7 @@ abstract class _GeneratorAbstract
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'Bitwise Keys' ],
-                [ 'name' => 'var', 'description' => 'string' ],
+                [ 'name' => 'var', 'description' => 'array' ],
             ],
         ];
 
@@ -440,6 +450,7 @@ abstract class _GeneratorAbstract
      */
     protected function addProperty( array $config = [] )
     {
+
         try {
             if ( !isset( $config[ 'name' ] ) ) {
                 throw new InvalidArgumentException( 'array missing name or name value is null' );
@@ -470,6 +481,7 @@ abstract class _GeneratorAbstract
      */
     protected function _getDir()
     {
+
         $namespace = explode( '\\', $this->namespace );
         array_shift( $namespace );
         array_shift( $namespace );
@@ -489,6 +501,7 @@ abstract class _GeneratorAbstract
      */
     protected function _createRelation( $file, $dir, $database )
     {
+
         $relationFile = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/data/';
         $relations = [];
         if ( file_exists( $relationFile . '/arRelations.json' ) ) {
@@ -503,6 +516,7 @@ abstract class _GeneratorAbstract
      */
     protected function seoTitleColumn()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'SEO Title Column' ],
@@ -526,6 +540,7 @@ abstract class _GeneratorAbstract
      */
     protected function urlBase()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'URL Base' ],
@@ -551,6 +566,7 @@ abstract class _GeneratorAbstract
      */
     protected function _url()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'Cached URL' ],
@@ -574,6 +590,7 @@ abstract class _GeneratorAbstract
      */
     protected function urlTemplate()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'URL Furl Template' ],

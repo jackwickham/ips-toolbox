@@ -13,13 +13,11 @@ namespace IPS\toolbox\Proxy\Generator;
 use Exception;
 use IPS\Data\Store;
 use IPS\IPS;
-use IPS\Log;
 use IPS\Patterns\ActiveRecord;
-use IPS\Settings;
+use IPS\Patterns\Bitwise;
 use IPS\toolbox\Application;
 use IPS\toolbox\Generator\DTClassGenerator;
 use IPS\toolbox\Generator\DTFileGenerator;
-use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Proxy\Helpers\HelpersAbstract;
 use IPS\toolbox\Proxy\Proxyclass;
 use IPS\toolbox\ReservedWords;
@@ -34,26 +32,40 @@ use function array_filter;
 use function array_merge;
 use function array_shift;
 use function class_exists;
+use function constant;
+use function count;
+use function defined;
 use function explode;
 use function file_exists;
 use function file_get_contents;
 use function header;
 use function implode;
+use function in_array;
+use function is_array;
+use function is_bool;
 use function is_dir;
+use function is_float;
+use function is_int;
 use function is_numeric;
 use function json_decode;
-use function json_encode;
 use function mb_strlen;
 use function mb_strpos;
 use function mb_substr;
 use function method_exists;
+use function preg_match;
 use function preg_match_all;
 use function property_exists;
 use function str_replace;
 use function token_get_all;
 use function trim;
+use const T_ABSTRACT;
+use const T_CLASS;
+use const T_FINAL;
+use const T_NS_SEPARATOR;
+use const T_STRING;
+use const T_WHITESPACE;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
@@ -61,7 +73,7 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 /**
  * Proxy Class
  *
- * @mixin \IPS\toolbox\Proxy\Generator\Proxy
+ * @mixin Proxy
  */
 class _Proxy extends GeneratorAbstract
 {
@@ -95,7 +107,7 @@ class _Proxy extends GeneratorAbstract
         foreach ( $apps as $app ) {
             $dir = \IPS\ROOT_PATH . '/applications/' . $app->directory . '/data/arRelations.json';
             if ( file_exists( $dir ) ) {
-                $relations[] = json_decode( file_get_contents( $dir ), \true );
+                $relations[] = json_decode( file_get_contents( $dir ), true );
             }
         }
 
@@ -120,20 +132,21 @@ class _Proxy extends GeneratorAbstract
         try {
             $data = $this->tokenize( $content );
             if ( isset( $data[ 'class' ], $data[ 'namespace' ] ) ) {
+                preg_match( '#\$bitOptions#', $content, $bitOptions );
                 $namespace = $data[ 'namespace' ];
                 $ns2 = explode( '\\', $namespace );
                 array_shift( $ns2 );
                 $app = array_shift( $ns2 );
-                $isApp = \false;
+                $isApp = false;
                 $appPath = \IPS\ROOT_PATH . '/applications/' . $app;
 
                 if ( $app && is_dir( $appPath ) ) {
-                    $isApp = \true;
+                    $isApp = true;
                 }
 
                 $ipsClass = $data[ 'class' ];
 
-                if ( ( $namespace === 'IPS' && $ipsClass === '_Settings' ) || mb_strpos( $namespace, 'IPS\convert' ) !== \false ) {
+                if ( ( $namespace === 'IPS' && $ipsClass === '_Settings' ) || mb_strpos( $namespace, 'IPS\convert' ) !== false ) {
                     return;
                 }
 
@@ -148,8 +161,8 @@ class _Proxy extends GeneratorAbstract
                     $type = '';
                     $body = [];
                     $classDefinition = [];
-                    $classBlock = \null;
-                    $props = \null;
+                    $classBlock = null;
+                    $props = null;
 
                     $extraPath = $isApp ? $app : 'system';
                     $path = $this->save . '/class/' . $extraPath . '/';
@@ -170,23 +183,51 @@ class _Proxy extends GeneratorAbstract
 
                     $new = new ClassGenerator();
                     $new->setName( $class );
+                    $f = explode( "\n", $content );
+
+                    foreach ( $f as $l ) {
+                        preg_match( '#^use\s(.*?);$#', $l, $match );
+                        if ( isset( $match[ 1 ] ) ) {
+                            $new->addUse( $match[ 1 ] );
+                        }
+                    }
                     $new->setNamespaceName( $namespace );
                     $new->setExtendedClass( $namespace . '\\' . $ipsClass );
                     $this->cache->addClass( $namespace . '\\' . $class );
                     $this->cache->addNamespace( $namespace );
                     if ( $type === 'abstract' ) {
-                        $new->setAbstract( \true );
+                        $new->setAbstract( true );
                     }
 
                     if ( $type === 'final' ) {
-                        $new->setFinal( \true );
+                        $new->setFinal( true );
                     }
+                    if ( isset( $bitOptions[ 0 ] ) ) {
+                        $reflect = new ReflectionClass( $data[ 'namespace' ] . '\\' . str_replace( '_', '', $data[ 'class' ] ) );
+                        $bits = $reflect->getProperty( 'bitOptions' );
+                        $bits->setAccessible( true );
 
+                        if ( $bits->isStatic() ) {
+                            $bt = $bits->getValue();
+
+                            if ( is_array( $bt ) ) {
+                                foreach ( $bt as $key => $value ) {
+                                    foreach ( $value as $k => $v ) {
+                                        $classDefinition[] = [
+                                            'pt'   => 'p',
+                                            'prop' => $k,
+                                            'type' => Bitwise::class,
+                                        ];
+                                    }
+                                }
+                            }
+                        }
+                    }
                     if ( Proxyclass::i()->doProps ) {
                         /* @var ActiveRecord $dbClass */
                         $dbClass = $namespace . '\\' . $class;
                         try {
-                            if ( class_exists( $dbClass ) && method_exists( $dbClass, 'db' ) && property_exists( $dbClass, 'databaseTable' ) ) {
+                            if ( property_exists( $dbClass, 'databaseTable' ) && class_exists( $dbClass ) && method_exists( $dbClass, 'db' ) ) {
                                 $table = $dbClass::$databaseTable;
                                 if ( $table && $dbClass::db()->checkForTable( $table ) ) {
                                     /* @var array $definitions */
@@ -212,12 +253,12 @@ class _Proxy extends GeneratorAbstract
                         }
 
                         $this->runHelperClasses( $dbClass, $classDefinition, $ipsClass, $body );
+
                         $classBlock = $this->buildClassDoc( $classDefinition );
                     }
 
-                    if ( \is_array( $body ) ) {
+                    if ( is_array( $body ) ) {
                         $newMethods = [];
-                        $newProps = [];
                         foreach ( $body as $method ) {
                             if ( $method instanceof MethodGenerator ) {
                                 $newMethods[ $method->getName() ] = $method;
@@ -228,7 +269,7 @@ class _Proxy extends GeneratorAbstract
                             }
                         }
 
-                        if ( \count( $newMethods ) ) {
+                        if ( count( $newMethods ) ) {
                             $new->addMethods( $newMethods );
                         }
                     }
@@ -238,14 +279,14 @@ class _Proxy extends GeneratorAbstract
                     }
 
                     $proxyFile = new DTFileGenerator;
-                    $proxyFile->isProxy = \true;
+                    $proxyFile->isProxy = true;
                     $proxyFile->setClass( $new );
                     $proxyFile->setFilename( $path . '/' . $file );
                     $proxyFile->write();
                 }
             }
         } catch ( Exception $e ) {
-//            Debug::add( 'Proxy Create', $e );
+            //            Debug::add( 'Proxy Create', $e );
         }
     }
 
@@ -261,34 +302,34 @@ class _Proxy extends GeneratorAbstract
 
         $namespace = 0;
         $tokens = token_get_all( $source );
-        $count = \count( $tokens );
-        $dlm = \false;
-        $final = \false;
-        $abstract = \false;
+        $count = count( $tokens );
+        $dlm = false;
+        $final = false;
+        $abstract = false;
 
         for ( $i = 2; $i < $count; $i++ ) {
-            if ( ( isset( $tokens[ $i - 2 ][ 1 ] ) && ( $tokens[ $i - 2 ][ 1 ] === 'phpnamespace' || $tokens[ $i - 2 ][ 1 ] === 'namespace' ) ) || ( $dlm && $tokens[ $i - 1 ][ 0 ] === \T_NS_SEPARATOR && $tokens[ $i ][ 0 ] === \T_STRING ) ) {
+            if ( ( isset( $tokens[ $i - 2 ][ 1 ] ) && ( $tokens[ $i - 2 ][ 1 ] === 'phpnamespace' || $tokens[ $i - 2 ][ 1 ] === 'namespace' ) ) || ( $dlm && $tokens[ $i - 1 ][ 0 ] === T_NS_SEPARATOR && $tokens[ $i ][ 0 ] === T_STRING ) ) {
                 if ( !$dlm ) {
                     $namespace = 0;
                 }
                 if ( isset( $tokens[ $i ][ 1 ] ) ) {
                     $namespace = $namespace ? $namespace . "\\" . $tokens[ $i ][ 1 ] : $tokens[ $i ][ 1 ];
-                    $dlm = \true;
+                    $dlm = true;
                 }
             }
-            else if ( $dlm && ( $tokens[ $i ][ 0 ] !== \T_NS_SEPARATOR ) && ( $tokens[ $i ][ 0 ] !== \T_STRING ) ) {
-                $dlm = \false;
+            else if ( $dlm && ( $tokens[ $i ][ 0 ] !== T_NS_SEPARATOR ) && ( $tokens[ $i ][ 0 ] !== T_STRING ) ) {
+                $dlm = false;
             }
 
-            if ( $tokens[ $i ][ 0 ] === \T_FINAL ) {
-                $final = \true;
+            if ( $tokens[ $i ][ 0 ] === T_FINAL ) {
+                $final = true;
             }
 
-            if ( $tokens[ $i ][ 0 ] === \T_ABSTRACT ) {
-                $abstract = \true;
+            if ( $tokens[ $i ][ 0 ] === T_ABSTRACT ) {
+                $abstract = true;
             }
 
-            if ( ( $tokens[ $i - 2 ][ 0 ] === \T_CLASS || ( isset( $tokens[ $i - 2 ][ 1 ] ) && $tokens[ $i - 2 ][ 1 ] === 'phpclass' ) ) && $tokens[ $i - 1 ][ 0 ] === \T_WHITESPACE && $tokens[ $i ][ 0 ] === \T_STRING ) {
+            if ( ( $tokens[ $i - 2 ][ 0 ] === T_CLASS || ( isset( $tokens[ $i - 2 ][ 1 ] ) && $tokens[ $i - 2 ][ 1 ] === 'phpclass' ) ) && $tokens[ $i - 1 ][ 0 ] === T_WHITESPACE && $tokens[ $i ][ 0 ] === T_STRING ) {
                 $class = $tokens[ $i ][ 1 ];
 
                 return [
@@ -300,7 +341,7 @@ class _Proxy extends GeneratorAbstract
             }
         }
 
-        return \null;
+        return null;
     }
 
     /**
@@ -326,15 +367,15 @@ class _Proxy extends GeneratorAbstract
             'BIT',
         ];
 
-        $comment = \null;
+        $comment = null;
 
         if ( $def[ 'comment' ] ) {
             $comment = $def[ 'comment' ];
         }
 
-        $type = \null;
+        $type = null;
 
-        if ( \in_array( $def[ 'type' ], $ints, \true ) ) {
+        if ( in_array( $def[ 'type' ], $ints, true ) ) {
             $type = 'int';
         }
         else {
@@ -356,7 +397,6 @@ class _Proxy extends GeneratorAbstract
      */
     public function buildProperty( $class, &$classDefinition )
     {
-
 
         try {
             $data = [];
@@ -381,7 +421,7 @@ class _Proxy extends GeneratorAbstract
                             $pt = 'p';
                         }
 
-                        $comment = \null;
+                        $comment = null;
                         $return = $type === 'set_' ? 'void' : 'string';
                         if ( $method->hasReturnType() ) {
                             $return = (string)$method->getReturnType();
@@ -393,7 +433,7 @@ class _Proxy extends GeneratorAbstract
                             if ( isset( $match[ 1 ][ 0 ] ) ) {
                                 $match = array_filter( explode( ' ', $match[ 1 ][ 0 ] ) );
                                 $mtype = trim( array_shift( $match ) );
-                                if ( \is_array( $match ) && \count( $match ) ) {
+                                if ( is_array( $match ) && count( $match ) ) {
                                     $comment = implode( ' ', $match );
                                 }
 
@@ -421,7 +461,7 @@ class _Proxy extends GeneratorAbstract
                 }
             }
         } catch ( Exception $e ) {
-//            Debug::add( 'class', $e );
+            //            Debug::add( 'class', $e );
         }
     }
 
@@ -442,7 +482,7 @@ class _Proxy extends GeneratorAbstract
             if ( empty( $this->helperClasses ) === true ) {
                 /* @var Application $app */
                 foreach ( Application::appsWithExtension( 'toolbox', 'ProxyHelpers' ) as $app ) {
-                    $extensions = $app->extensions( 'toolbox', 'ProxyHelpers', \true );
+                    $extensions = $app->extensions( 'toolbox', 'ProxyHelpers', true );
                     foreach ( $extensions as $extension ) {
                         if ( method_exists( $extension, 'map' ) ) {
                             $extension->map( $helpers );
@@ -451,9 +491,9 @@ class _Proxy extends GeneratorAbstract
                 }
 
                 $this->helperClasses = $helpers;
-//                Debug::add( 'helperClasses', $this->helperClasses, true );
+                //                Debug::add( 'helperClasses', $this->helperClasses, true );
             }
-            if ( isset( $this->helperClasses[ $class ] ) && \is_array( $this->helperClasses[ $class ] ) ) {
+            if ( isset( $this->helperClasses[ $class ] ) && is_array( $this->helperClasses[ $class ] ) ) {
                 /* @var HelpersAbstract $helperClass */
                 foreach ( $this->helperClasses[ $class ] as $helper ) {
                     $helperClass = new $helper;
@@ -462,7 +502,7 @@ class _Proxy extends GeneratorAbstract
             }
 
         } catch ( Exception $e ) {
-//            Debug::add( 'helpers', $e );
+            //            Debug::add( 'helpers', $e );
         }
     }
 
@@ -474,30 +514,31 @@ class _Proxy extends GeneratorAbstract
     public function buildClassDoc( array $properties )
     {
 
+        $done = [];
         $block = [];
         foreach ( $properties as $key => $property ) {
             try {
-                if ( class_exists( $property[ 'type' ] ) ) {
-                    $property[ 'type' ] = '\\' . $property[ 'type' ];
+                if ( !isset( $done[ $property[ 'prop' ] ] ) ) {
+                    if ( class_exists( $property[ 'type' ] ) ) {
+                        $property[ 'type' ] = '\\' . $property[ 'type' ];
+                    }
+                    $done[ $property[ 'prop' ] ] = 1;
+                    $comment = $property[ 'comment' ] ?? '';
+                    $content = $property[ 'type' ] . ' $' . $property[ 'prop' ] . ' ' . $comment;
+                    $pt = 'property';
+                    switch ( $property[ 'pt' ] ) {
+                        case 'p':
+                            $pt = 'property';
+                            break;
+                        case 'w':
+                            $pt = 'property-write';
+                            break;
+                        case 'r':
+                            $pt = 'property-read';
+                    }
+                    $block[] = new GenericTag( $pt, $content );
                 }
-                $comment = $property[ 'comment' ] ?? '';
-                $content = $property[ 'type' ] . ' $' . $property[ 'prop' ] . ' ' . $comment;
-                $pt = 'property';
-                switch ( $property[ 'pt' ] ) {
-                    case 'p':
-                        $pt = 'property';
-                        break;
-                    case 'w':
-                        $pt = 'property-write';
-                        break;
-                    case 'r':
-                        $pt = 'property-read';
-                }
-                $block[] = new GenericTag( $pt, $content );
             } catch ( Exception $e ) {
-//                Debug::add( 'proxy', $property );
-//                Debug::add( 'proxy2', $e );
-//                Debug::add( 'proxy3', $properties );
             }
         }
 
@@ -515,7 +556,6 @@ class _Proxy extends GeneratorAbstract
 
         try {
 
-            Settings::i();
             $classDoc = [];
 
             /**
@@ -523,16 +563,16 @@ class _Proxy extends GeneratorAbstract
              */
             $load = Store::i()->settings;
             foreach ( $load as $key => $val ) {
-                if ( \is_array( $val ) ) {
+                if ( is_array( $val ) ) {
                     $type = 'array';
                 }
-                else if ( \is_int( $val ) ) {
+                else if ( is_int( $val ) ) {
                     $type = 'int';
                 }
-                else if ( \is_float( $val ) ) {
+                else if ( is_float( $val ) ) {
                     $type = 'float';
                 }
-                else if ( \is_bool( $val ) ) {
+                else if ( is_bool( $val ) ) {
                     $type = 'bool';
                 }
                 else {
@@ -567,12 +607,12 @@ class _Proxy extends GeneratorAbstract
             $load = IPS::defaultConstants();
             $extra = "\n";
             foreach ( $load as $key => $val ) {
-                $vals = \null;
-                if ( \defined( $key ) ) {
-                    $vals = \constant( $key );
+                $vals = null;
+                if ( defined( $key ) ) {
+                    $vals = constant( $key );
                 }
 
-                if ( \is_bool( $val ) ) {
+                if ( is_bool( $val ) ) {
                     $vals = (int)$vals;
                     $val = $vals === 1 ? 'true' : 'false';
                 }
@@ -595,7 +635,7 @@ eof;
 
             $file = new DTFileGenerator;
             $file->setBody( $extra );
-            $this->_writeFile( 'IPS_Constants.php', $file->generate(), $this->save, \false );
+            $this->_writeFile( 'IPS_Constants.php', $file->generate(), $this->save, false );
         }
     }
 }

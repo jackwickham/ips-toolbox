@@ -115,8 +115,9 @@ class _Slasher extends Singleton
             if ( $previousToken !== null && $foo = $this->isFunction( $token, $previousToken ) === true ) {
 
                 $uses[ $t ] = $t;
-                $source[ $line - 1 ] = preg_replace( "#\\\\" . $t . '#u', $t, $source[ $line - 1 ] );
-
+                if ( isset( $source[ $line - 1 ] ) ) {
+                    $source[ $line - 1 ] = preg_replace( "#\\\\" . $t . '#u', $t, $source[ $line - 1 ] );
+                }
             }
             else if ( $previousToken !== null && $this->isConstant( $token, $previousToken ) ) {
                 $find = $token[ 1 ];
@@ -126,8 +127,10 @@ class _Slasher extends Singleton
         ksort( $uses );
         ksort( $constants );
         $this->finalize( $uses, $constants, $content );
-        $this->write( $uses, $constants, $source, $filename );
 
+        if ( empty( $uses ) !== true || empty( $constants ) !== true ) {
+            $this->write( $uses, $constants, $source, $filename );
+        }
     }
 
     protected function write( $uses, $constants, $source, $filename )

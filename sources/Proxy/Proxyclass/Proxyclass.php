@@ -14,9 +14,9 @@ namespace IPS\toolbox\Proxy;
 
 use Exception;
 use IPS\Data\Store;
-use IPS\toolbox\GitHooks;
 use IPS\Patterns\Singleton;
 use IPS\Settings;
+use IPS\toolbox\GitHooks;
 use IPS\toolbox\Proxy\Generator\Applications;
 use IPS\toolbox\Proxy\Generator\Db as GeneratorDb;
 use IPS\toolbox\Proxy\Generator\Extensions;
@@ -259,7 +259,7 @@ class _Proxyclass extends Singleton
             ( new GitHooks( \IPS\Application::applications() ) )->writeSpecialHooks();
             Proxy::i()->generateSettings();
 
-                        unset( Store::i()->dtproxy_proxy_files, Store::i()->dtproxy_templates );
+            unset( Store::i()->dtproxy_proxy_files, Store::i()->dtproxy_templates );
 
             return \null;
         }
@@ -500,7 +500,7 @@ class _Proxyclass extends Singleton
             $filter = function ( \SplFileInfo $file )
             {
 
-                if ( !in_array( $file->getExtension(), ['php', 'phtml' ] ) ) {
+                if ( !in_array( $file->getExtension(), [ 'php', 'phtml' ] ) ) {
                     return \false;
                 }
 
@@ -587,7 +587,6 @@ class _Proxyclass extends Singleton
             'interface',
             'data',
             'hooks',
-            'extensions',
             'setup',
             'tasks',
             'widgets',

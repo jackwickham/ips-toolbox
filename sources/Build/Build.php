@@ -92,10 +92,10 @@ class _Build extends Singleton
             $application->version = $short;
             $application->save();
             unset( Store::i()->applications );
+            $path = \IPS\ROOT_PATH . '/' . $application->directory . '/' . $short . '/';
+
             try {
                 Slasher::i()->start( $application, $values[ 'toolbox_skip_files' ] ?? [], $values[ 'toolbox_skip_dir' ] ?? [] );
-
-                $path = \IPS\ROOT_PATH . '/' . $application->directory . '/' . $short . '/';
 
                 try {
                     $application->assignNewVersion( $long, $short );
@@ -113,7 +113,9 @@ class _Build extends Singleton
                 } catch ( Exception $e ) {
                     Log::log( $e, 'phar' );
                 }
-            } catch ( \Exception $e ) {
+            } catch ( Exception $e ) {
+                Log::log( $e, 'phar' );
+
             }
 
             $directions = \IPS\ROOT_PATH . '/applications/' . $application->directory . '/data/defaults/instructions.txt';

@@ -43,6 +43,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _Debug extends ActiveRecord
 {
+    use \IPS\toolbox\Shared\ActiveRecord;
     /**
      * @brief    [ActiveRecord] Database Prefix
      */
@@ -120,16 +121,12 @@ class _Debug extends ActiveRecord
      */
     public static function build()
     {
-        $sql = Db::i()->select( '*', 'toolbox_debug', [
-            'debug_ajax = ? AND debug_viewed = ?',
-            0,
-            0,
-        ], 'debug_id DESC', [ 0, 100 ] );
-        $iterators = new ActiveRecordIterator( $sql, Debug::class );
+
+        $iterators = static::all( ['where' => ['debug_ajax = ? AND debug_viewed = ?', 0, 0], 'order' => 'debug_id DESC', 'limit' => [ 0, 100 ] ] );
         $list = [];
         $last = 0;
 
-        /* @var \IPS\toolbox\Profiler\Debug $obj */
+        /* @var Debug $obj */
         foreach ( $iterators as $obj ) {
             $list[] = $obj->body();
             $obj->viewed();

@@ -12,14 +12,21 @@
 
 namespace IPS\toolbox\Profiler\Profiler;
 
+use function base64_encode;
 use Exception;
+use function in_array;
+use InvalidArgumentException;
+use const IPS\CACHE_PAGE_TIMEOUT;
+use const IPS\CACHING_LOG;
 use IPS\Db;
 use IPS\Dispatcher;
 use IPS\Http\Url;
 use IPS\Member;
+use const IPS\NO_WRITES;
 use IPS\Patterns\Singleton;
 use IPS\Plugin;
 use IPS\Request;
+use const IPS\ROOT_PATH;
 use IPS\Settings;
 use IPS\Theme;
 use IPS\toolbox\Application;
@@ -29,6 +36,9 @@ use IPS\toolbox\Profiler\Parsers\Database;
 use IPS\toolbox\Profiler\Parsers\Files;
 use IPS\toolbox\Profiler\Parsers\Logs;
 use IPS\toolbox\Profiler\Parsers\Templates;
+use function mb_substr;
+use OutOfRangeException;
+use const PHP_VERSION;
 use ReflectionClass;
 use function count;
 use function defined;
@@ -42,6 +52,8 @@ use function json_decode;
 use function json_encode;
 use function microtime;
 use function round;
+use RuntimeException;
+use UnexpectedValueException;
 
 Application::loadAutoLoader();
 
@@ -61,15 +73,15 @@ class _Profiler extends Singleton
 
     /**
      * @return mixed
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
-     * @throws \RuntimeException
-     * @throws \UnexpectedValueException
+     * @throws InvalidArgumentException
+     * @throws OutOfRangeException
+     * @throws RuntimeException
+     * @throws UnexpectedValueException
      */
     public function run()
     {
 
-        if ( \IPS\CACHE_PAGE_TIMEOUT !== 0 && !Member::loggedIn()->member_id ) {
+        if ( CACHE_PAGE_TIMEOUT !== 0 && !Member::loggedIn()->member_id ) {
             return '';
         }
         if ( !Request::i()->isAjax() ) {
@@ -85,7 +97,10 @@ class _Profiler extends Singleton
             $extra = implode( ' ', $this->extra() );
             $info = $this->info();
             $environment = $this->environment();
-            $debug = Debug::build();
+            $debug = null;
+            if( Settings::i()->dtprofiler_enable_debug === true ) {
+                $debug = Debug::build();
+            }
             $files = \null;
             $memory = \null;
             $cache = \null;
@@ -96,7 +111,7 @@ class _Profiler extends Singleton
                 $files = Files::i()->build();
             }
 
-            if ( \IPS\CACHING_LOG ) {
+            if ( CACHING_LOG ) {
                 $cache = Caching::i()->build();
             }
 
@@ -133,17 +148,21 @@ class _Profiler extends Singleton
 
     /**
      * @return array
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
-     * @throws \RuntimeException
+     * @throws InvalidArgumentException
+     * @throws OutOfRangeException
+     * @throws RuntimeException
      */
     protected function info(): array
     {
-
+        $data = base64_encode( (string)Request::i()->url() );
+        $url = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
+            'do'   => 'clearCaches',
+            'data' => $data,
+        ] );
         $info = [];
         $info[ 'server' ] = [
             '<a>IPS ' . Application::load( 'core' )->version . '</a>',
-            \PHP_VERSION . '<a href=\'{$url}\' target=\'_blank\'>PHP: ' . '</a>',
+            '<a href="'.(string) $url->setQueryString(['do' => 'phpinfo']) .'" data-ipsDialog data-ipsDialog-title="phpinfo()">PHP: '. PHP_VERSION . '</a>',
             '<a>MySQL: ' . Db::i()->server_info . '</a>',
         ];
         $slowestLink = Database::$slowestLink;
@@ -152,11 +171,7 @@ class _Profiler extends Singleton
             'Controller'    => $this->getLocation(),
             'Slowest Query' => "<a href='{$slowestLink}' data-ipsdialog>{$slowestTime}ms</a>",
         ];
-        $data = \base64_encode( (string)Request::i()->url() );
-        $url = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
-            'do'   => 'clearCaches',
-            'data' => $data,
-        ] );
+
         $info[ 'cache' ] = (string)$url;
         //        $info[ 'apps' ][ 'enable' ] = Url::internal('app=toolbox&module=bt&controller=bt', 'front')->setQueryString(['do' => 'thirdParty', 'data' => $data, 'enable' => 1]);
         $info[ 'apps' ][ 'disable' ] = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
@@ -216,7 +231,7 @@ class _Profiler extends Singleton
 
     /**
      * @return array|string
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function getLocation()
     {
@@ -278,7 +293,7 @@ class _Profiler extends Singleton
     public function apps( $skip = \true ): array
     {
 
-        if ( \IPS\NO_WRITES ) {
+        if ( NO_WRITES ) {
             return [];
         }
 
@@ -292,8 +307,8 @@ class _Profiler extends Singleton
 
         foreach ( Application::applications() as $app ) {
 
-            if ( !\in_array( $app->directory, Application::$ipsApps, \true ) ) {
-                if ( \in_array( $app->directory, $dtApps, \true ) ) {
+            if ( !in_array( $app->directory, Application::$ipsApps, \true ) ) {
+                if ( in_array( $app->directory, $dtApps, \true ) ) {
                     continue;
                 }
 
@@ -310,7 +325,7 @@ class _Profiler extends Singleton
     public function plugins(): array
     {
 
-        if ( \IPS\NO_WRITES ) {
+        if ( NO_WRITES ) {
             return [];
         }
 
@@ -327,7 +342,7 @@ class _Profiler extends Singleton
 
     /**
      * @return string|null
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     protected function environment(): ?string
     {
@@ -422,15 +437,15 @@ class _Profiler extends Singleton
     /**
      * @param $info
      *
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
+     * @throws InvalidArgumentException
+     * @throws OutOfRangeException
      */
     public function getLastCommitId( &$info ): void
     {
 
         if ( Settings::i()->dtprofiler_git_data ) {
             $app = Request::i()->id;
-            $path = \IPS\ROOT_PATH . '/applications/' . $app . '/.git/';
+            $path = ROOT_PATH . '/applications/' . $app . '/.git/';
             //            print_r($path);exit;
             if ( is_dir( $path ) && function_exists( 'exec' ) ) {
                 $app = Application::load( $app );
@@ -458,7 +473,7 @@ class _Profiler extends Singleton
                 $info = [
                     'version'  => $app->version,
                     'app'      => $name,
-                    'id'       => \mb_substr( $id, 0, 6 ),
+                    'id'       => mb_substr( $id, 0, 6 ),
                     'fid'      => $id,
                     'msg'      => implode( '<br>', $msg ),
                     'branch'   => $branch,
@@ -471,7 +486,7 @@ class _Profiler extends Singleton
     /**
      * @param $info
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function hasChanges( &$info ): void
     {
@@ -480,10 +495,10 @@ class _Profiler extends Singleton
             /* @var Application $app */
             foreach ( Application::enabledApplications() as $app ) {
                 if ( $app->directory === 'dtbase' ) {
-                    $path = \IPS\ROOT_PATH . '/applications/.git/';
+                    $path = ROOT_PATH . '/applications/.git/';
                 }
                 else {
-                    $path = \IPS\ROOT_PATH . '/applications/' . $app->directory . '/.git/';
+                    $path = ROOT_PATH . '/applications/' . $app->directory . '/.git/';
                 }
                 if ( is_dir( $path ) ) {
                     $name = $app->_title;

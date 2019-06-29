@@ -3,6 +3,7 @@
 
 namespace IPS\toolbox\modules\front\bt;
 
+use function base64_decode;
 use Exception;
 use IPS\Application;
 use IPS\Data\Cache;
@@ -17,8 +18,11 @@ use IPS\Output;
 use IPS\Patterns\ActiveRecordIterator;
 use IPS\Plugin;
 use IPS\Request;
+use const IPS\ROOT_PATH;
 use IPS\Theme;
 use IPS\toolbox\Profiler\Profiler\Debug;
+use function phpinfo;
+use phpQuery;
 use Symfony\Component\Filesystem\Filesystem;
 use function count;
 use function defined;
@@ -34,6 +38,7 @@ use function nl2br;
 use function sleep;
 use function str_replace;
 use function time;
+use UnexpectedValueException;
 
 \IPS\toolbox\Application::loadAutoLoader();
 
@@ -96,11 +101,11 @@ class _bt extends Controller
             $log = Log::load( $id );
             $data = DateTime::ts( $log->time );
             $name = 'Date: ' . $data;
-            if ( $log->category !== \null ) {
+            if ( $log->category !== null ) {
                 $name .= '<br> Type: ' . $log->category;
             }
 
-            if ( $log->url !== \null ) {
+            if ( $log->url !== null ) {
                 $name .= '<br> URL: ' . $log->url;
             }
             $msg = nl2br( htmlentities( $log->message ) );
@@ -115,40 +120,37 @@ class _bt extends Controller
 
     /**
      * @throws Db\Exception
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     protected function debug()
     {
-        $max = ( ini_get( 'max_execution_time' ) / 2 ) - 5;
-        $time = time();
-        $since = Request::i()->last ?: 0;
-        while ( \true ) {
-            $ct = time() - $time;
-            if ( $ct >= $max ) {
-                Output::i()->json( [ 'error' => 1 ] );
-            }
+        Debug::add('foo', 'foo', true);
 
-            $query = Db::i()->select( '*', 'toolbox_debug', [
-                'debug_ajax = ? AND debug_id > ? AND debug_viewed=?',
+        $since = Request::i()->last ?: 0;
+        $return = ['error' => 1];
+
+        $config = [
+            'where' => [
+                'debug_ajax = ? AND debug_id > ? AND debug_viewed = ?',
                 1,
                 $since,
-                0,
-            ], \null, \null, \null, \null, Db::SELECT_SQL_CALC_FOUND_ROWS );
-
-            if ( $query->count( \true ) ) {
-
-                $iterators = new ActiveRecordIterator( $query, Debug::class );
+                0
+            ],
+            'flags' => Db::SELECT_SQL_CALC_FOUND_ROWS
+        ];
+            $debug = Debug::all($config);
+            if ( count( $debug ) !== 0 ) {
 
                 $last = 0;
-
-                /* @var \IPS\toolbox\Profiler\Debug $obj */
-                foreach ( $iterators as $obj ) {
+                $list = [];
+                /* @var Debug $obj */
+                foreach ( $debug as $obj ) {
                     $list[] = $obj->body();
                     $last = $obj->id;
                 }
 
                 $return = [];
-                if ( is_array( $list ) && count( $list ) ) {
+                if (  empty( $list ) !== true ) {
                     $count = count( $list );
                     $return[ 'count' ] = $count;
                     $lists = '';
@@ -159,26 +161,34 @@ class _bt extends Controller
                     $return[ 'items' ] = $lists;
                 }
 
-                if ( is_array( $return ) && count( $return ) ) {
-                    Output::i()->json( $return );
-                }
             }
-            else {
-                sleep( 1 );
-                continue;
-            }
-        }
+
+        Output::i()->json( $return );
+
     }
 
     protected function phpinfo()
     {
-        \phpinfo();
-        exit;
+        ob_start();
+        phpinfo();
+        $content = ob_get_clean();
+        ob_end_clean();
+        $content = preg_replace( '/<(\/)?(html|head|body)(>| (.+?))/', '<$1temp$2$3', $content );
+        $content = str_replace( '<!DOCTYPE html>', '<tempdoctype></tempdoctype>', $content );
+
+        /* Load phpQuery  */
+        require_once ROOT_PATH . '/system/3rd_party/phpQuery/phpQuery.php';
+        libxml_use_internal_errors(TRUE);
+        $phpQuery = phpQuery::newDocumentHTML($content );
+
+        $content = $phpQuery->find('tempbody')->html();
+        Output::i()->title = 'phpinfo()';
+        Output::i()->output = Theme::i()->getTemplate('bt', 'toolbox', 'front')->phpinfo($content);
     }
 
     protected function clearCaches()
     {
-        $redirect = \base64_decode( Request::i()->data );
+        $redirect = base64_decode( Request::i()->data );
         /* Clear JS Maps first */
         Output::clearJsFiles();
 
@@ -196,7 +206,7 @@ class _bt extends Controller
         Cache::i()->clearAll();
         Member::clearCreateMenu();
 
-        $path = \IPS\ROOT_PATH . '/hook_temp';
+        $path = ROOT_PATH . '/hook_temp';
 
         if ( is_dir( $path ) ) {
             \IPS\toolbox\Application::loadAutoLoader();
@@ -210,7 +220,7 @@ class _bt extends Controller
     protected function thirdParty()
     {
         $enable = Request::i()->enable;
-        $redirect = \base64_decode( Request::i()->data );
+        $redirect = base64_decode( Request::i()->data );
         $apps = Profiler::i()->apps();
         $plugins = Profiler::i()->plugins();
 
@@ -229,7 +239,7 @@ class _bt extends Controller
         }
 
         if ( !empty( $plugins ) ) {
-            Plugin::postToggleEnable( \true );
+            Plugin::postToggleEnable( true );
         }
 
         /* Clear cache */
@@ -240,7 +250,7 @@ class _bt extends Controller
     protected function enableDisableApp()
     {
         $enabled = !Request::i()->enabled;
-        $redirect = \base64_decode( Request::i()->data );
+        $redirect = base64_decode( Request::i()->data );
         $id = Request::i()->id;
         Db::i()->update( 'core_applications', [ 'app_enabled' => $enabled ], [ 'app_id=?', $id ] );
         Application::postToggleEnable();
@@ -251,7 +261,7 @@ class _bt extends Controller
     protected function enableDisablePlugin()
     {
         $enabled = !Request::i()->enabled;
-        $redirect = \base64_decode( Request::i()->data );
+        $redirect = base64_decode( Request::i()->data );
         $id = Request::i()->id;
         Db::i()->update( 'core_plugins', [ 'plugin_enabled' => $enabled ], [ 'plugin_id=?', $id ] );
         Application::postToggleEnable();

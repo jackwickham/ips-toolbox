@@ -65,6 +65,7 @@ class _profiler
         $form->element( 'dtprofiler_enabled_css', 'yn' );
         $form->element( 'dtprofiler_enabled_js', 'yn' );
         $form->element( 'dtprofiler_enabled_jsvars', 'yn' );
+        $form->element( 'dtprofiler_enable_debug', 'yn');
         $form->element( 'dtprofiler_enabled_logs', 'yn' );
         $form->element( 'dtprofiler_logs_amount', '#' );
         $form->element( 'dtprofiler_git_data', 'yn' );

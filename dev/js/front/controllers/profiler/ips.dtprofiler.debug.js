@@ -28,40 +28,37 @@
             el = elem;
             ajax = ips.getAjax();
             _debug();
+            current = setInterval( function() {
+                _debug() }, 5000);
         };
         var abort = function () {
-            current.abort();
+            clearInterval( current );
         };
         var _debug = function () {
-            current = ajax({
-                type: "POST",
-                data: 'last=' + $('#elProfiledebug', el).attr('data-last'),
-                url: aurl,
-                dataType: "json",
-                bypassRedirect: true,
-                success: function (data) {
-                    var countEl = el.find('#elProfiledebug').find('.dtprofilerCount');
-
-                    if (!data.hasOwnProperty('error')) {
-                        $('#elProfiledebug_list', el).append(data.items);
-                        var count = Number(countEl.attr('data-count'));
-                        count = Number(data.count) + count;
-                        countEl.html(count).attr('data-count', count);
-                        countEl.parent().addClass('dtprofilerFlash');
-                        $('#elProfiledebug', el).attr('data-last', data.last);
-                        if ($('#elProfiledebug', el).hasClass('ipsHide')) {
-                            $('#elProfiledebug', el).removeClass('ipsHide');
+                ajax( {
+                    type: "POST",
+                    data: 'last=' + $( '#elProfiledebug', el ).attr( 'data-last' ),
+                    url: aurl,
+                    dataType: "json",
+                    bypassRedirect: true,
+                    success: function( data ) {
+                        let countEl = el.find('#elProfiledebug').find( '.dtprofilerCount' );
+                        console.log( data );
+                        if ( !data.hasOwnProperty( 'error' ) ) {
+                            $( '#elProfiledebug_list', el ).append( data.items );
+                            var count = Number( countEl.attr( 'data-count' ) );
+                            count = Number( data.count ) + count;
+                            countEl.html( count ).attr( 'data-count', count );
+                            countEl.parent().addClass( 'dtprofilerFlash' );
+                            $( '#elProfiledebug', el ).attr( 'data-last', data.last );
+                            if ( $( '#elProfiledebug', el ).hasClass( 'ipsHide' ) ) {
+                                $( '#elProfiledebug', el ).removeClass( 'ipsHide' );
+                            }
+                            countEl.parent().addClass( 'dtprofilerFlash' );
                         }
-                        countEl.parent().addClass('dtprofilerFlash');
                     }
-                },
-                complete: function (data) {
-                    _debug();
-                },
-                error: function (data) {
-                }
-            });
-        };
+                } );
+         };
 
         return {
             init: init,

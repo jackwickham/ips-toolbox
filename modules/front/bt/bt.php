@@ -124,22 +124,26 @@ class _bt extends Controller
      */
     protected function debug()
     {
-        Debug::add('foo', 'foo', true);
-
+        $max = ( ini_get( 'max_execution_time' ) / 2 ) - 5;
+        $time = time();
         $since = Request::i()->last ?: 0;
-        $return = ['error' => 1];
+        while ( \true ) {
+            $ct = time() - $time;
+            if ( $ct >= $max ) {
+                Output::i()->json( [ 'error' => 1 ] );
+            }
 
-        $config = [
-            'where' => [
-                'debug_ajax = ? AND debug_id > ? AND debug_viewed = ?',
-                1,
-                $since,
-                0
-            ],
-            'flags' => Db::SELECT_SQL_CALC_FOUND_ROWS
-        ];
+            $config = [
+                'where' => [
+                    'debug_ajax = ? AND debug_id > ? AND debug_viewed = ?',
+                    1,
+                    $since,
+                    0
+                ],
+                'flags' => Db::SELECT_SQL_CALC_FOUND_ROWS
+            ];
             $debug = Debug::all($config);
-            if ( count( $debug ) !== 0 ) {
+            if ( count( $debug ) !== 0) {
 
                 $last = 0;
                 $list = [];
@@ -150,7 +154,7 @@ class _bt extends Controller
                 }
 
                 $return = [];
-                if (  empty( $list ) !== true ) {
+                if ( empty( $list ) !== true ) {
                     $count = count( $list );
                     $return[ 'count' ] = $count;
                     $lists = '';
@@ -161,10 +165,15 @@ class _bt extends Controller
                     $return[ 'items' ] = $lists;
                 }
 
+                if ( is_array( $return ) && count( $return ) ) {
+                    Output::i()->json( $return );
+                }
             }
-
-        Output::i()->json( $return );
-
+            else {
+                sleep( 1 );
+                continue;
+            }
+        }
     }
 
     protected function phpinfo()

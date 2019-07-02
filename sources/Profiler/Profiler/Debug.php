@@ -74,7 +74,7 @@ class _Debug extends ActiveRecord
      * @param $key
      * @param $message
      */
-    public static function add( $key, $message, $ajax = \false )
+    public static function add( $key, $message )
     {
         if ( !\IPS\QUERY_LOG && defined( '\DTPROFILER' ) && !\DTPROFILER ) {
             return;
@@ -109,9 +109,6 @@ class _Debug extends ActiveRecord
         $debug->type = $type;
         $debug->log = $message;
         $debug->time = time();
-        if ( Request::i()->isAjax() || $ajax === \true ) {
-            $debug->ajax = 1;
-        }
         $debug->save();
     }
 

@@ -135,8 +135,7 @@ class _bt extends Controller
 
             $config = [
                 'where' => [
-                    'debug_ajax = ? AND debug_id > ? AND debug_viewed = ?',
-                    1,
+                    'debug_id > ? AND debug_viewed = ?',
                     $since,
                     0
                 ],

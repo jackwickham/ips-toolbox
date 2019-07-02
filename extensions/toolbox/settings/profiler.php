@@ -50,7 +50,7 @@ class _profiler
             }
         }
 
-        $form->element( 'dtprofiler_can_use', 'members' )
+        $form->element( 'dtprofiler_can_use', 'member' )
              ->tab( 'dtprofiler' )
              ->value( $members )
              ->options( [ 'multiple' => 10 ] );

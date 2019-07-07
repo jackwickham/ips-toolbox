@@ -137,6 +137,7 @@ class _Sources
             'ctraits',
             'singleton',
             'ar',
+            'api',
             'node',
             'item',
             'comment',
@@ -948,6 +949,21 @@ class _Sources
                     'maxItems'             => 1,
                 ],
             ],
+        ];
+    }
+
+    protected function elApiType(){
+        $this->elements[] = [
+            'name' => 'apiType',
+            'class' => 'select',
+            'options' => [
+                'options' => [
+                    's' => 'Standard',
+                    'i' => 'Content/Item',
+                    'c' => 'Comments',
+                    'n' => 'Node',
+                ]
+            ]
         ];
     }
 }

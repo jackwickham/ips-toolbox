@@ -98,7 +98,7 @@ class _Profiler extends Singleton
             $info = $this->info();
             $environment = $this->environment();
             $debug = null;
-            if( Settings::i()->dtprofiler_enable_debug === true ) {
+            if( Settings::i()->dtprofiler_enable_debug ) {
                 $debug = Debug::build();
             }
             $files = \null;

@@ -60,7 +60,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  * Class _GeneratorAbstract
  *
  * @package IPS\toolbox\DevCenter\Sources\Generator
- * @mixin \IPS\toolbox\DevCenter\Sources\Generator\GeneratorAbstract
+ * @mixin GeneratorAbstract
  */
 abstract class _GeneratorAbstract
 {
@@ -85,7 +85,7 @@ abstract class _GeneratorAbstract
      *
      * @var bool
      */
-    public $error = \false;
+    public $error = false;
 
     /**
      * @var Application
@@ -114,18 +114,18 @@ abstract class _GeneratorAbstract
      *
      * @var bool
      */
-    protected $useImports = \true;
+    protected $useImports = true;
 
     /**
      * @param array       $values
      * @param Application $application
      * @param bool        $strip
      */
-    public function __construct( array $values, Application $application, bool $strip = \false )
+    public function __construct( array $values, Application $application, bool $strip = false )
     {
 
         foreach ( $values as $key => $val ) {
-            if ( $strip === \false ) {
+            if ( $strip === false ) {
                 $key = str_replace( 'dtdevplus_class_', '', $key );
             }
 
@@ -134,7 +134,7 @@ abstract class _GeneratorAbstract
                 $this->{$key} = $val;
             }
             else {
-                $this->{$key} = \null;
+                $this->{$key} = null;
             }
         }
 
@@ -150,8 +150,8 @@ abstract class _GeneratorAbstract
         $this->application = $application;
         $this->app = $this->application->directory;
         $this->type = mb_ucfirst( $this->type );
-        if ( in_array( $this->type, static::$arDescendent, \true ) ) {
-            if ( $this->database === \null ) {
+        if ( in_array( $this->type, static::$arDescendent, true ) ) {
+            if ( $this->database === null ) {
                 $this->database = $this->app . '_' . $this->classname_lower;
             }
             else {
@@ -161,13 +161,13 @@ abstract class _GeneratorAbstract
             $this->database = mb_strtolower( $this->database );
         }
 
-        if ( $this->prefix !== \null ) {
+        if ( $this->prefix !== null ) {
             $this->prefix .= '_';
         }
 
         $this->db = new Database( $this->database, $this->prefix );
 
-        if ( !in_array( $this->type, [ 'Traits', 'Interfacing' ], \true ) ) {
+        if ( !in_array( $this->type, [ 'Traits', 'Interfacing' ], true ) ) {
             $this->generator = new DTClassGenerator;
         }
         else if ( $this->type === 'Interfacing' ) {
@@ -184,13 +184,13 @@ abstract class _GeneratorAbstract
     final public function process()
     {
 
-        if ( $this->className !== \null ) {
+        if ( $this->className !== null ) {
             $this->classname = mb_ucfirst( $this->className );
         }
-        else if ( $this->interfaceName !== \null ) {
+        else if ( $this->interfaceName !== null ) {
             $this->classname = mb_ucfirst( $this->interfaceName );
         }
-        else if ( $this->traitName !== \null ) {
+        else if ( $this->traitName !== null ) {
             $this->classname = mb_ucfirst( $this->traitName );
         }
         else {
@@ -199,7 +199,7 @@ abstract class _GeneratorAbstract
 
         $this->classname_lower = mb_strtolower( $this->classname );
 
-        if ( !in_array( $this->type, [ 'Traits', 'Interfacing' ], \true ) ) {
+        if ( !in_array( $this->type, [ 'Traits', 'Interfacing' ], true ) ) {
             $this->_classname = '_' . $this->classname;
         }
         else {
@@ -210,18 +210,18 @@ abstract class _GeneratorAbstract
             $this->namespace = 'IPS\\' . $this->app;
         }
         else {
-            $this->namespace = $this->namespace !== \null ? 'IPS\\' . $this->app . '\\' . mb_ucfirst( $this->namespace ) : 'IPS\\' . $this->app;
+            $this->namespace = $this->namespace !== null ? 'IPS\\' . $this->app . '\\' . mb_ucfirst( $this->namespace ) : 'IPS\\' . $this->app;
         }
 
-        if ( !in_array( $this->type, static::$arDescendent, \true ) && !in_array( $this->type, [
+        if ( $this->type !== 'Api' && !in_array( $this->type, static::$arDescendent, true ) && !in_array( $this->type, [
                 'Traits',
                 'Interfacing',
                 'Singleton',
                 'Form',
-            ], \true ) ) {
+            ], true ) ) {
             $methodDocBlock = DocBlockGenerator::fromArray( [
                 'shortDescription' => $this->_classname . ' constructor',
-                'longDescription'  => \null,
+                'longDescription'  => null,
             ] );
 
             $this->methods[] = MethodGenerator::fromArray( [
@@ -231,13 +231,12 @@ abstract class _GeneratorAbstract
             ] );
         }
 
-        if ( in_array( $this->type, static::$arDescendent, \true ) ) {
+        if ( in_array( $this->type, static::$arDescendent, true ) ) {
             $this->_arDescendantProps();
         }
-
         $this->bodyGenerator();
 
-        if ( $this->extends !== \null ) {
+        if ( $this->extends !== null ) {
             if ( $this->useImports ) {
                 $this->extends = ltrim( $this->extends, '\\' );
                 $this->generator->addUse( $this->extends );
@@ -285,14 +284,14 @@ abstract class _GeneratorAbstract
 
         $docBlock = DocBlockGenerator::fromArray( [
             'shortDescription' => $this->classname . ' Class',
-            'longDescription'  => \null,
+            'longDescription'  => null,
             'tags'             => [ [ 'name' => 'mixin', 'description' => $this->mixin ] ],
         ] );
 
         $this->generator->setName( $this->_classname )->setDocBlock( $docBlock )->setNamespaceName( $this->namespace );
 
         if ( $this->abstract ) {
-            $this->generator->setAbstract( \true );
+            $this->generator->setAbstract( true );
         }
 
         if ( !empty( $this->methods ) ) {
@@ -302,16 +301,21 @@ abstract class _GeneratorAbstract
         $content = new DTFileGenerator;
         $content->setDocBlock( $headerBlock );
         $content->setClass( $this->generator );
-        $dir = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/sources/' . $this->_getDir();
+        if( $this->type === 'Api' ){
+            $dir = \IPS\ROOT_PATH.'/applications/'.$this->application->directory.'/api/';
+        }
+        else {
+            $dir = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/sources/' . $this->_getDir();
+        }
         $file = $this->classname . '.php';
 
         if ( !in_array( $this->type, [ 'Interface', 'Traits' ] ) ) {
-            $this->proxy = \true;
+            $this->proxy = true;
         }
         $content->setFilename( $dir . '/' . $file );
         try {
             $content->write();
-            if ( $this->scaffolding_create && in_array( $this->type, static::$arDescendent, \false ) ) {
+            if ( $this->scaffolding_create && in_array( $this->type, static::$arDescendent, false ) ) {
                 $this->_createRelation( $file, $dir, $this->database );
                 if ( in_array( 'db', $this->scaffolding_type, false ) ) {
                     try {
@@ -357,7 +361,7 @@ abstract class _GeneratorAbstract
             'value'  => new PropertyValueGenerator( [], PropertyValueGenerator::TYPE_ARRAY_LONG, PropertyValueGenerator::OUTPUT_SINGLE_LINE ),
             'vis'    => 'protected',
             'doc'    => $doc,
-            'static' => \true,
+            'static' => true,
         ];
 
         $this->addProperty( $config );
@@ -395,7 +399,7 @@ abstract class _GeneratorAbstract
                 'value'  => $this->prefix,
                 'vis'    => 'public',
                 'doc'    => $doc,
-                'static' => \true,
+                'static' => true,
             ];
 
             $this->addProperty( $config );
@@ -414,7 +418,7 @@ abstract class _GeneratorAbstract
             'value'  => $this->database,
             'vis'    => 'public',
             'doc'    => $doc,
-            'static' => \true,
+            'static' => true,
         ];
 
         $this->addProperty( $config );
@@ -432,7 +436,7 @@ abstract class _GeneratorAbstract
             'value'  => [ 'bitwise' => [ 'bitwise' => [] ] ],
             'vis'    => 'protected',
             'doc'    => $doc,
-            'static' => \true,
+            'static' => true,
         ];
 
         $this->addProperty( $config );
@@ -455,16 +459,16 @@ abstract class _GeneratorAbstract
             if ( !isset( $config[ 'name' ] ) ) {
                 throw new InvalidArgumentException( 'array missing name or name value is null' );
             }
-            $config[ 'defaultvalue' ] = $config[ 'value' ] ?? \null;
+            $config[ 'defaultvalue' ] = $config[ 'value' ] ?? null;
             if ( !empty( $config[ 'doc' ] ) ) {
                 $config[ 'docblock' ] = DocBlockGenerator::fromArray( $config[ 'doc' ] );
                 unset( $config[ 'doc' ] );
             }
-            $config[ 'visibility' ] = $config[ 'vis' ] ?? \false;
-            $config[ 'static' ] = $config[ 'static' ] ?? \false;
+            $config[ 'visibility' ] = $config[ 'vis' ] ?? false;
+            $config[ 'static' ] = $config[ 'static' ] ?? false;
             $prop = PropertyGenerator::fromArray( $config );
             $this->generator->addPropertyFromGenerator( $prop );
-        } catch ( \Exception $e ) {
+        } catch ( Exception $e ) {
             Debug::add( 'addProperty', $e );
         }
     }
@@ -505,10 +509,10 @@ abstract class _GeneratorAbstract
         $relationFile = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/data/';
         $relations = [];
         if ( file_exists( $relationFile . '/arRelations.json' ) ) {
-            $relations = json_decode( file_get_contents( $relationFile . '/arRelations.json' ), \true );
+            $relations = json_decode( file_get_contents( $relationFile . '/arRelations.json' ), true );
         }
         $relations[ $database ] = str_replace( \IPS\ROOT_PATH . '/', '', $dir ) . '/' . $file;
-        $this->_writeFile( 'arRelations.json', json_encode( $relations ), $relationFile, \false );
+        $this->_writeFile( 'arRelations.json', json_encode( $relations ), $relationFile, false );
     }
 
     /**
@@ -529,7 +533,7 @@ abstract class _GeneratorAbstract
             'value'  => new PropertyValueGenerator( 'seoTitle', PropertyValueGenerator::TYPE_STRING, PropertyValueGenerator::OUTPUT_SINGLE_LINE ),
             'vis'    => 'public',
             'doc'    => $doc,
-            'static' => \true,
+            'static' => true,
         ];
 
         $this->addProperty( $config );
@@ -555,7 +559,7 @@ abstract class _GeneratorAbstract
             'value'  => new PropertyValueGenerator( $base, PropertyValueGenerator::TYPE_STRING ),
             'vis'    => 'public',
             'doc'    => $doc,
-            'static' => \true,
+            'static' => true,
         ];
 
         $this->addProperty( $config );
@@ -579,7 +583,7 @@ abstract class _GeneratorAbstract
             'value'  => new PropertyValueGenerator( [], PropertyValueGenerator::TYPE_ARRAY_LONG ),
             'vis'    => 'protected',
             'doc'    => $doc,
-            'static' => \false,
+            'static' => false,
         ];
 
         $this->addProperty( $config );
@@ -603,7 +607,7 @@ abstract class _GeneratorAbstract
             'value'  => new PropertyValueGenerator( $this->app . '_' . $this->classname_lower, PropertyValueGenerator::TYPE_STRING ),
             'vis'    => 'public',
             'doc'    => $doc,
-            'static' => \true,
+            'static' => true,
         ];
 
         $this->addProperty( $config );

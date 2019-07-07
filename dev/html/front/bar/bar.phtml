@@ -1,6 +1,6 @@
 <ips:template parameters="$time, $memory, $files, $templates, $database, $cache, $logs, $extra, $info, $environment, $debug, $executions"/>
 <div id="dtProfilerBarContainer" class="dtProfilerBar">
-    <ul class="ipsList_reset dtProfilerBar_list ipsClearfix" data-ipsdtprofiler{{if settings.dtprofiler_enable_debug === true }} data-ipsdtprofilerdebug data-url="{url='app=toolbox&module=bt&controller=bt' base='front'}"{{endif}}>
+    <ul class="ipsList_reset dtProfilerBar_list ipsClearfix" data-ipsdtprofiler data-ipsdtprofilerdebug data-url="{url='app=toolbox&module=bt&controller=bt' base='front'}" >
         {{if $time }}
         <li id="elProfileTimeLog" title="total time" class="isParent dtProfileFirst dtProfilerTime" data-ipstooltip>
             <i class="fa fa-server"></i> {$time['total']}ms <i class="fa fa-angle-up dtprofilearrow"></i>

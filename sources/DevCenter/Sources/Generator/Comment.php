@@ -26,11 +26,13 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class _Comment extends Item
 {
+
     /**
      * @inheritdoc
      */
     protected function bodyGenerator()
     {
+
         $dbColumns = [
             'item_id',
             'author',
@@ -90,6 +92,7 @@ class _Comment extends Item
      */
     protected function contentItemClass()
     {
+
         if ( $this->content_item_class !== \null ) {
             $this->content_item_class = mb_ucfirst( $this->content_item_class );
 
@@ -112,7 +115,7 @@ class _Comment extends Item
             $config = [
                 'name'   => 'itemClass',
                 'value'  => new PropertyValueGenerator( $itemClass, PropertyValueGenerator::TYPE_CONSTANT ),
-                'vis'    => 'protected',
+                'vis'    => 'public',
                 'doc'    => $doc,
                 'static' => \true,
             ];

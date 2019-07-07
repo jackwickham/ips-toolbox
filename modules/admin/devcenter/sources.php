@@ -279,4 +279,12 @@ class _sources extends \IPS\Dispatcher\Controller
             Output::i()->json( $return );
         }
     }
+
+    protected function api(){
+        $config = [
+            'ClassName',
+            'apiType'
+        ];
+        $this->doOutput( $config, 'api', 'API Class' );
+    }
 }

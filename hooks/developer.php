@@ -9,6 +9,7 @@ use IPS\Output;
 use IPS\Request;
 use IPS\toolbox\DevCenter\Extensions\ExtensionException;
 use IPS\toolbox\DevCenter\Schema;
+use IPS\toolbox\DevCenter\Sources;
 use IPS\toolbox\Forms;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
@@ -27,7 +28,7 @@ class toolbox_hook_developer extends _HOOK_CLASS_
 
     public function manage()
     {
-        \IPS\toolbox\DevCenter\Sources::menu();
+        Sources::menu();
         parent::manage();
     }
 

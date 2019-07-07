@@ -13,6 +13,7 @@
 namespace IPS\toolbox;
 
 use Exception;
+use function explode;
 use IPS\Application;
 use IPS\Application\BuilderIterator;
 use IPS\Data\Store;
@@ -50,9 +51,17 @@ class _Build extends Singleton
         $title = $application->_title;
         Member::loggedIn()->language()->parseOutputForDisplay( $title );
         $e = [];
-        $newLong = $application->long_version + 1;
-        $exploded = explode( '.', $application->version );
-        $newShort = "{$exploded[0]}.{$exploded[1]}." . ( (int)$exploded[ 2 ] + 1 );
+
+            $newLong = $application->long_version + 1;
+
+        if( empty( $application->version ) !== true ) {
+            $exploded = explode( '.', $application->version );
+            $newShort = "{$exploded[0]}.{$exploded[1]}." . ( (int)$exploded[ 2 ] + 1 );
+        }
+        else{
+            $newShort = '1.0.0';
+            $newLong = 10000;
+        }
         $e = [];
 
         $e[] = [

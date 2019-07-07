@@ -312,5 +312,7 @@ $lang = [
     'dtdeveplus_table_name'                          => 'Table',
     'module__toolbox_bt' => 'Toolbox',
     'dtprofiler_enable_debug' => 'Debug',
-    'dtprofiler_enable_debug_desc' => 'Enable the toolbox\'s debug class.'
+    'dtprofiler_enable_debug_desc' => 'Enable the toolbox\'s debug class.',
+    'dtdevplus_menu_title_api' => 'API',
+    'dtdevplus_class_apiType' => 'Type',
 ];

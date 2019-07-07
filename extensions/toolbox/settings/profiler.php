@@ -91,4 +91,5 @@ class _profiler
             $values[ 'dtprofiler_can_use' ] = json_encode( $new );
         }
     }
+
 }

@@ -497,9 +497,22 @@ class toolbox_hook_developer extends _HOOK_CLASS_
                 switch ( $type ) {
                     case 'pre-commit':
                         if ( !\is_file( $hook ) ) {
-                            $content = <<<EOF
-#!/bin/sh
-/usr/bin/php -r 'require "/home/michael/public_html/dev/init.php";\$gitHooks = (new \\IPS\\toolbox\\GitHooks( ["{$app}"] ) )->removeSpecialHooks(true);'
+                            $content = <<<'EOF'
+#!/usr/bin/php
+<?php
+require "/home/michael/public_html/dev/init.php";
+$gitHooks = (new \IPS\toolbox\GitHooks( ["toolbox"] ) )->removeSpecialHooks(true);
+EOF;
+                            \file_put_contents( $hook, $content );
+                        }
+                        break;
+                    case 'post-commit':
+                        if ( !\is_file( $hook ) ) {
+                            $content = <<<'EOF'
+#!/usr/bin/php
+<?php
+require "/home/michael/public_html/dev/init.php";
+$gitHooks = (new \IPS\toolbox\GitHooks( ["toolbox"] ) )->writeSpecialHooks(true);
 EOF;
                             \file_put_contents( $hook, $content );
                         }

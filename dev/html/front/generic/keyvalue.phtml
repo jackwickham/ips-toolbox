@@ -9,7 +9,7 @@
         {{if \is_array($value) }}
         {template="keyvalue" group="generic" location="front" app="toolbox" params="$value"}
         {{else}}
-        {expression="(new \IPS\toolbox\Profiler\Profiler\Dumper)->add($value)" raw="true"}
+        {expression="(new \IPS\toolbox\Profiler\Dumper)->add($value)" raw="true"}
         {{endif}}
     </div>
 </div>

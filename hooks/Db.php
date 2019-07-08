@@ -2,8 +2,8 @@
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 
-use IPS\toolbox\Profiler\Profiler\Memory;
-use IPS\toolbox\Profiler\Profiler\Time;
+use IPS\toolbox\Profiler\Memory;
+use IPS\toolbox\Profiler\Time;
 use IPS\toolbox\Proxy\Generator\Db;
 use IPS\toolbox\Proxy\Generator\Proxy;
 use IPS\toolbox\Proxy\Proxyclass;

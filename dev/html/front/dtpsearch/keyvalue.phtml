@@ -7,7 +7,7 @@
         {template="keyvalue" group="dtpsearch" location="front" app="toolbox" params="$k,$v"}
         {{endforeach}}
         {{else}}
-        {expression="(new \IPS\toolbox\Profiler\Profiler\Dumper)->type($value)" raw="true"}
+        {expression="(new \IPS\toolbox\Profiler\Dumper)->type($value)" raw="true"}
         {{endif}}
     </div>
 </div>

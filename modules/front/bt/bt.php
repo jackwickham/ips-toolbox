@@ -1,29 +1,28 @@
 <?php
 
-
 namespace IPS\toolbox\modules\front\bt;
 
-use function base64_decode;
 use Exception;
-use IPS\Application;
 use IPS\Data\Cache;
 use IPS\Data\Store;
 use IPS\DateTime;
 use IPS\Db;
 use IPS\Dispatcher\Controller;
-use IPS\dtprofiler\Profiler;
 use IPS\Log;
 use IPS\Member;
 use IPS\Output;
-use IPS\Patterns\ActiveRecordIterator;
 use IPS\Plugin;
 use IPS\Request;
-use const IPS\ROOT_PATH;
 use IPS\Theme;
-use IPS\toolbox\Profiler\Profiler\Debug;
-use function phpinfo;
+use IPS\toolbox\Application;
+use IPS\toolbox\Form;
+use IPS\toolbox\Profiler;
+use IPS\toolbox\Profiler\Debug;
+use IPS\toolbox\Shared\Lorem;
 use phpQuery;
 use Symfony\Component\Filesystem\Filesystem;
+use UnexpectedValueException;
+use function base64_decode;
 use function count;
 use function defined;
 use function header;
@@ -33,14 +32,14 @@ use function is_array;
 use function is_dir;
 use function md5;
 use function microtime;
-use function mt_rand;
 use function nl2br;
+use function phpinfo;
 use function sleep;
 use function str_replace;
 use function time;
-use UnexpectedValueException;
+use const IPS\ROOT_PATH;
 
-\IPS\toolbox\Application::loadAutoLoader();
+Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -56,8 +55,9 @@ class _bt extends Controller
     /**
      * @inheritdoc
      */
-    protected function manage()
+    protected function manage(): void
     {
+
         $store = Store::i()->dtprofiler_bt;
         $hash = Request::i()->bt;
         $output = 'Nothing Found';
@@ -74,8 +74,9 @@ class _bt extends Controller
     /**
      * shows data for the cache dialog
      */
-    protected function cache()
+    protected function cache(): void
     {
+
         $store = Store::i()->dtprofiler_bt_cache;
         $hash = Request::i()->bt;
         $output = 'Nothing Found';
@@ -93,8 +94,9 @@ class _bt extends Controller
     /**
      * shows data for the logs dialog
      */
-    protected function log()
+    protected function log(): void
     {
+
         $id = Request::i()->id;
         $output = 'Nothing Found';
         try {
@@ -122,12 +124,13 @@ class _bt extends Controller
      * @throws Db\Exception
      * @throws UnexpectedValueException
      */
-    protected function debug()
+    protected function debug(): void
     {
+
         $max = ( ini_get( 'max_execution_time' ) / 2 ) - 5;
         $time = time();
         $since = Request::i()->last ?: 0;
-        while ( \true ) {
+        while ( true ) {
             $ct = time() - $time;
             if ( $ct >= $max ) {
                 Output::i()->json( [ 'error' => 1 ] );
@@ -137,12 +140,12 @@ class _bt extends Controller
                 'where' => [
                     'debug_id > ? AND debug_viewed = ?',
                     $since,
-                    0
+                    0,
                 ],
-                'flags' => Db::SELECT_SQL_CALC_FOUND_ROWS
+                'flags' => Db::SELECT_SQL_CALC_FOUND_ROWS,
             ];
-            $debug = Debug::all($config);
-            if ( count( $debug ) !== 0) {
+            $debug = Debug::all( $config );
+            if ( count( $debug ) !== 0 ) {
 
                 $last = 0;
                 $list = [];
@@ -175,8 +178,9 @@ class _bt extends Controller
         }
     }
 
-    protected function phpinfo()
+    protected function phpinfo(): void
     {
+
         ob_start();
         phpinfo();
         $content = ob_get_clean();
@@ -186,24 +190,31 @@ class _bt extends Controller
 
         /* Load phpQuery  */
         require_once ROOT_PATH . '/system/3rd_party/phpQuery/phpQuery.php';
-        libxml_use_internal_errors(TRUE);
-        $phpQuery = phpQuery::newDocumentHTML($content );
+        libxml_use_internal_errors( true );
+        $phpQuery = phpQuery::newDocumentHTML( $content );
 
-        $content = $phpQuery->find('tempbody')->html();
+        $content = $phpQuery->find( 'tempbody' )->html();
         Output::i()->title = 'phpinfo()';
-        Output::i()->output = Theme::i()->getTemplate('bt', 'toolbox', 'front')->phpinfo($content);
+        Output::i()->output = Theme::i()->getTemplate( 'bt', 'toolbox', 'front' )->phpinfo( $content );
     }
 
-    protected function clearCaches()
+    protected function clearCaches(): void
     {
+
         $redirect = base64_decode( Request::i()->data );
         /* Clear JS Maps first */
         Output::clearJsFiles();
 
-        /* Reset theme maps to make sure bad data hasn't been cached by visits mid-setup */
+        /**
+         * @var int    $id
+         * @var  Theme $set
+         */
         foreach ( Theme::themes() as $id => $set ) {
             /* Invalidate template disk cache */
-            $set->cache_key = md5( microtime() . mt_rand( 0, 1000 ) );
+            try {
+                $set->cache_key = md5( microtime() . random_int( 0, 1000 ) );
+            } catch ( Exception $e ) {
+            }
 
             /* Update mappings */
             $set->css_map = [];
@@ -217,7 +228,7 @@ class _bt extends Controller
         $path = ROOT_PATH . '/hook_temp';
 
         if ( is_dir( $path ) ) {
-            \IPS\toolbox\Application::loadAutoLoader();
+            Application::loadAutoLoader();
             $fs = new Filesystem();
             $fs->remove( [ $path ] );
         }
@@ -225,8 +236,9 @@ class _bt extends Controller
         Output::i()->redirect( $redirect );
     }
 
-    protected function thirdParty()
+    protected function thirdParty(): void
     {
+
         $enable = Request::i()->enable;
         $redirect = base64_decode( Request::i()->data );
         $apps = Profiler::i()->apps();
@@ -255,8 +267,9 @@ class _bt extends Controller
         Output::i()->redirect( $redirect );
     }
 
-    protected function enableDisableApp()
+    protected function enableDisableApp(): void
     {
+
         $enabled = !Request::i()->enabled;
         $redirect = base64_decode( Request::i()->data );
         $id = Request::i()->id;
@@ -266,8 +279,9 @@ class _bt extends Controller
         Output::i()->redirect( $redirect );
     }
 
-    protected function enableDisablePlugin()
+    protected function enableDisablePlugin(): void
     {
+
         $enabled = !Request::i()->enabled;
         $redirect = base64_decode( Request::i()->data );
         $id = Request::i()->id;
@@ -277,18 +291,53 @@ class _bt extends Controller
         Output::i()->redirect( $redirect );
     }
 
-    protected function gitInfo()
+    protected function gitInfo(): void
     {
+
         $info = [];
         Profiler::i()->getLastCommitId( $info );
         Profiler::i()->hasChanges( $info );
-        //        print_r($info);exit;
         $html = '';
         if ( !empty( $info ) ) {
-            $html = Theme::i()->getTemplate( 'bar', 'dtprofiler', 'front' )->git( $info );
+            $html = Theme::i()->getTemplate( 'bar', 'toolbox', 'front' )->git( $info );
         }
 
         Output::i()->json( [ 'html' => $html ] );
+    }
+
+    protected function lorem(): void
+    {
+
+        $form = Form::create()->formPrefix( 'toolbox_lorem_' );
+        $form->add( 'amount', 'number' )->value( 5 )->options( [ 'min' => 1 ] );
+        $form->add( 'type', 'select' )->options( [
+            'options' => [
+                0 => 'Select type',
+                1 => 'Words',
+                2 => 'Sentences',
+                3 => 'Paragraphs',
+            ],
+        ] )->required();
+
+        if ( $values = $form->values() ) {
+            $return = '';
+            $amount = $values[ 'amount' ];
+            switch ( $values[ 'type' ] ) {
+                case 1:
+                    $return = Lorem::i()->words( $amount );
+                    break;
+                case 2:
+                    $return = Lorem::i()->sentences( $amount );
+                    break;
+                case 3:
+                    $return = Lorem::i()->paragraphs( $amount );
+                    break;
+            }
+
+            Output::i()->json( [ 'text' => $return, 'type' => 'toolboxClipBoard' ] );
+        }
+
+        Output::i()->output = $form->dialogForm();
     }
     //    protected function checkout(){
     //        $app = Request::i()->dir;

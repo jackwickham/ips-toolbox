@@ -11,13 +11,19 @@
  */
 
 
-namespace IPS\toolbox\Profiler\Profiler;
+namespace IPS\toolbox\Profiler;
 
 use function basename;
 use function dirname;
 use function preg_match;
 use function realpath;
 
+/**
+ * Class _Git
+ *
+ * @package IPS\toolbox\Profiler
+ * @mixin Git
+ */
 class _Git
 {
 

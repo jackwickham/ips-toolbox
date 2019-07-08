@@ -10,50 +10,52 @@
  * @version     -storm_version-
  */
 
-namespace IPS\toolbox\Profiler\Profiler;
+namespace IPS\toolbox;
 
-use function base64_encode;
 use Exception;
-use function in_array;
 use InvalidArgumentException;
-use const IPS\CACHE_PAGE_TIMEOUT;
-use const IPS\CACHING_LOG;
 use IPS\Db;
 use IPS\Dispatcher;
 use IPS\Http\Url;
 use IPS\Member;
-use const IPS\NO_WRITES;
 use IPS\Patterns\Singleton;
 use IPS\Plugin;
 use IPS\Request;
-use const IPS\ROOT_PATH;
 use IPS\Settings;
 use IPS\Theme;
-use IPS\toolbox\Application;
-use IPS\toolbox\Editor;
 use IPS\toolbox\Profiler\Parsers\Caching;
 use IPS\toolbox\Profiler\Parsers\Database;
 use IPS\toolbox\Profiler\Parsers\Files;
 use IPS\toolbox\Profiler\Parsers\Logs;
 use IPS\toolbox\Profiler\Parsers\Templates;
-use function mb_substr;
+use IPS\toolbox\Profiler\Debug;
+use IPS\toolbox\Profiler\Memory;
+use IPS\toolbox\Profiler\Git;
+use IPS\toolbox\Profiler\Time;
 use OutOfRangeException;
-use const PHP_VERSION;
 use ReflectionClass;
+use RuntimeException;
+use UnexpectedValueException;
+use function base64_encode;
 use function count;
 use function defined;
 use function function_exists;
 use function header;
 use function implode;
+use function in_array;
 use function is_array;
 use function is_dir;
 use function is_object;
 use function json_decode;
 use function json_encode;
+use function mb_substr;
 use function microtime;
 use function round;
-use RuntimeException;
-use UnexpectedValueException;
+use const IPS\CACHE_PAGE_TIMEOUT;
+use const IPS\CACHING_LOG;
+use const IPS\NO_WRITES;
+use const IPS\ROOT_PATH;
+use const PHP_VERSION;
 
 Application::loadAutoLoader();
 
@@ -98,7 +100,7 @@ class _Profiler extends Singleton
             $info = $this->info();
             $environment = $this->environment();
             $debug = null;
-            if( Settings::i()->dtprofiler_enable_debug ) {
+            if ( Settings::i()->dtprofiler_enable_debug ) {
                 $debug = Debug::build();
             }
             $files = \null;
@@ -154,6 +156,7 @@ class _Profiler extends Singleton
      */
     protected function info(): array
     {
+
         $data = base64_encode( (string)Request::i()->url() );
         $url = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
             'do'   => 'clearCaches',
@@ -162,7 +165,7 @@ class _Profiler extends Singleton
         $info = [];
         $info[ 'server' ] = [
             '<a>IPS ' . Application::load( 'core' )->version . '</a>',
-            '<a href="'.(string) $url->setQueryString(['do' => 'phpinfo']) .'" data-ipsDialog data-ipsDialog-title="phpinfo()">PHP: '. PHP_VERSION . '</a>',
+            '<a href="' . (string)$url->setQueryString( [ 'do' => 'phpinfo' ] ) . '" data-ipsDialog data-ipsDialog-title="phpinfo()">PHP: ' . PHP_VERSION . '</a>',
             '<a>MySQL: ' . Db::i()->server_info . '</a>',
         ];
         $slowestLink = Database::$slowestLink;

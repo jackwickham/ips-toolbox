@@ -7,8 +7,8 @@ use IPS\Request;
 use IPS\Settings;
 use IPS\toolbox\Application;
 use IPS\toolbox\Editor;
-use IPS\toolbox\Profiler\Profiler\Memory;
-use IPS\toolbox\Profiler\Profiler\Time;
+use IPS\toolbox\Profiler\Memory;
+use IPS\toolbox\Profiler\Time;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -183,7 +183,6 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_
         $classFileName = $cachePath . $classFile . $mtime . '.php';
 
         if ( !\file_exists( $classFileName ) ) {
-
             $func = [];
             $files = new Finder;
             $files->in( $path );

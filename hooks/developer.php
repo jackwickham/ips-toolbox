@@ -499,7 +499,7 @@ class toolbox_hook_developer extends _HOOK_CLASS_
                         if ( !\is_file( $hook ) ) {
                             $content = <<<EOF
 #!/bin/sh
-/usr/bin/php -r 'require "/home/michael/public_html/dev/init.php";\$gitHooks = (new \IPS\toolbox\GitHooks( ["{$app}"] ) )->removeSpecialHooks(true);'
+/usr/bin/php -r 'require "/home/michael/public_html/dev/init.php";\$gitHooks = (new \\IPS\\toolbox\\GitHooks( ["{$app}"] ) )->removeSpecialHooks(true);'
 EOF;
                             \file_put_contents( $hook, $content );
                         }

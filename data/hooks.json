@@ -66,5 +66,9 @@
     "Settings": {
         "type": "C",
         "class": "\\IPS\\Settings"
+    },
+    "ipsLog": {
+        "type": "C",
+        "class": "\\IPS\\Log"
     }
 }

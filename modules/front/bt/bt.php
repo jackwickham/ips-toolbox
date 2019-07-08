@@ -305,6 +305,11 @@ class _bt extends Controller
         Output::i()->json( [ 'html' => $html ] );
     }
 
+    protected function gitCheckout()
+    {
+
+    }
+
     protected function lorem(): void
     {
 

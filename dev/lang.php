@@ -317,4 +317,5 @@ $lang = [
     'dtdevplus_class_apiType'                        => 'Type',
     'toolbox_lorem_amount'                           => 'Amount',
     'toolbox_lorem_type'                             => 'Type',
+    'toolbox_gitcommit_message'                      => 'Message',
 ];

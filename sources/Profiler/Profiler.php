@@ -23,14 +23,14 @@ use IPS\Plugin;
 use IPS\Request;
 use IPS\Settings;
 use IPS\Theme;
+use IPS\toolbox\Profiler\Debug;
+use IPS\toolbox\Profiler\Git;
+use IPS\toolbox\Profiler\Memory;
 use IPS\toolbox\Profiler\Parsers\Caching;
 use IPS\toolbox\Profiler\Parsers\Database;
 use IPS\toolbox\Profiler\Parsers\Files;
 use IPS\toolbox\Profiler\Parsers\Logs;
 use IPS\toolbox\Profiler\Parsers\Templates;
-use IPS\toolbox\Profiler\Debug;
-use IPS\toolbox\Profiler\Memory;
-use IPS\toolbox\Profiler\Git;
 use IPS\toolbox\Profiler\Time;
 use OutOfRangeException;
 use ReflectionClass;
@@ -494,22 +494,18 @@ class _Profiler extends Singleton
     public function hasChanges( &$info ): void
     {
 
-        if ( Settings::i()->dtprofiler_show_changes && function_exists( 'exec' ) ) {
+        if ( function_exists( 'exec' ) ) {
             /* @var Application $app */
             foreach ( Application::enabledApplications() as $app ) {
-                if ( $app->directory === 'dtbase' ) {
-                    $path = ROOT_PATH . '/applications/.git/';
-                }
-                else {
-                    $path = ROOT_PATH . '/applications/' . $app->directory . '/.git/';
-                }
+                $path = ROOT_PATH . '/applications/' . $app->directory . '/.git/';
                 if ( is_dir( $path ) ) {
                     $name = $app->_title;
                     Member::loggedIn()->language()->parseOutputForDisplay( $name );
                     $git = new Git( $path );
                     if ( $git->hasChanges() ) {
                         $info[ 'changes' ][] = [
-                            'name' => $name,
+                            'name'      => $name,
+                            'directory' => $app->directory,
                         ];
                     }
                 }

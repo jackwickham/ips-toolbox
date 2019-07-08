@@ -36,12 +36,13 @@
     {{if !empty( $info['changes'] ) }}
     <div>
         <a id="elProfileGitBranchesChanges"  href="#elProfileGitBranchesChanges_menu" title="Apps with changes" data-ipstooltip data-ipsmenu>
-            Apps W/Changes <i class="fa fa-angle-up"></i>
+             Changes <i class="fa fa-angle-up"></i>
         </a>
     </div>
     <ul id="elProfileGitBranchesChanges_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
         {{foreach $info['changes'] as $val }}
         <li class="ipsMenu_item">
+            {{$dir = $val['directory'];}}
             <a>
                 {$val['name']|raw}
             </a>

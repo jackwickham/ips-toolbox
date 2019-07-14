@@ -13,6 +13,7 @@ use IPS\Member;
 use IPS\Output;
 use IPS\Plugin;
 use IPS\Request;
+use IPS\Session;
 use IPS\Theme;
 use IPS\toolbox\Application;
 use IPS\toolbox\Form;
@@ -313,37 +314,58 @@ class _bt extends Controller
     protected function lorem(): void
     {
 
-        $form = Form::create()->formPrefix( 'toolbox_lorem_' );
-        $form->add( 'amount', 'number' )->value( 5 )->options( [ 'min' => 1 ] );
-        $form->add( 'type', 'select' )->options( [
-            'options' => [
-                0 => 'Select type',
-                1 => 'Words',
-                2 => 'Sentences',
-                3 => 'Paragraphs',
-            ],
-        ] )->required();
+        if ( Session::i()->userAgent->browser === 'Chrome' ) {
+            $form = Form::create()->formPrefix( 'toolbox_lorem_' );
 
-        if ( $values = $form->values() ) {
-            $return = '';
-            $amount = $values[ 'amount' ];
-            switch ( $values[ 'type' ] ) {
-                case 1:
-                    $return = Lorem::i()->words( $amount );
-                    break;
-                case 2:
-                    $return = Lorem::i()->sentences( $amount );
-                    break;
-                case 3:
-                    $return = Lorem::i()->paragraphs( $amount );
-                    break;
+            $form->add( 'amount', 'number' )->value( 5 )->options( [ 'min' => 1 ] );
+            $form->add( 'type', 'select' )->options( [
+                'options' => [
+                    0 => 'Select type',
+                    1 => 'Words',
+                    2 => 'Sentences',
+                    3 => 'Paragraphs',
+                ],
+            ] )->required();
+
+            if ( $values = $form->values() ) {
+                $return = '';
+                $amount = $values[ 'amount' ];
+                switch ( $values[ 'type' ] ) {
+                    case 1:
+                        $return = Lorem::i()->words( $amount );
+                        break;
+                    case 2:
+                        $return = Lorem::i()->sentences( $amount );
+                        break;
+                    case 3:
+                        $return = Lorem::i()->paragraphs( $amount );
+                        break;
+                }
+
+                Output::i()->json( [ 'text' => $return, 'type' => 'toolboxClipBoard' ] );
             }
-
-            Output::i()->json( [ 'text' => $return, 'type' => 'toolboxClipBoard' ] );
+            Output::i()->output = $form->dialogForm();
         }
-
-        Output::i()->output = $form->dialogForm();
+        else {
+            Output::i()->output = '<div class="ipsPad">' . nl2br( Lorem::i()->paragraphs( 8 ) ) . '</div>';
+        }
     }
+
+    protected function bitwiseValues()
+    {
+
+        $start = 1;
+        $values = [ 1 ];
+        $html = '<div class="ipsPad ipsClearfix">';
+        $html .= '<div class="ipsPad ipsPos_left">1 => 1</div>';
+        for ( $i = 2; $i <= 45; $i++ ) {
+            $start *= 2;
+            $html .= '<div class="ipsPad ipsPos_left">' . $i . ' => ' . $start . '</div>';
+        }
+        $html .= '</div>';
+        Output::i()->output = $html;
+    }
+
     //    protected function checkout(){
     //        $app = Request::i()->dir;
     //        $branch = Request::i()->branch;

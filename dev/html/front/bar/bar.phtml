@@ -102,9 +102,22 @@
                 </li>
             </ul>
             <a href="{$info['cache']}">Clear Caches</a>
-            <a href="{url="app=toolbox&module=bt&controller=bt&do=lorem"}" data-ipsDialog data-ipsDialog-forceReload="true" data-ipsDialog-remoteSubmit="true" data-ipsdialog-title="Lorem Ipsum Generator">
-                Lorem Ipsum
+
+            <a href="#toolbox_snippet_menu" id="toolbox_snippet" data-ipsMenu>
+                snippets
             </a>
+            <ul id="toolbox_snippet_menu" class="ipsMenu ipsList_reset ipsHide">
+                <li class="ipsMenu_item">
+                    <a href="{url="app=toolbox&module=bt&controller=bt&do=lorem"}" data-ipsDialog data-ipsDialog-forceReload="true" data-ipsDialog-remoteSubmit="true" data-ipsdialog-title="Lorem Ipsum Generator">
+                        Lorem Ipsum
+                    </a>
+                </li>
+                <li class="ipsMenu_item">
+                    <a href="{url="app=toolbox&module=bt&controller=bt&do=bitwiseValues"}" data-ipsDialog data-ipsdialog-title="BitWise Values">
+                        BitWise Values
+                    </a>
+                </li>
+            </ul>
         </div>
         {{if settings.dtprofiler_git_data || settings.dtprofiler_show_changes}}
         <div id="el_dtProfileGit" class="dttProfilerInfoGit ipsClearfix" data-ipsdtprofilergit data-ipsdtprofilergit-url="{$info['git_url']}">

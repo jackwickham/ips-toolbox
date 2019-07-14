@@ -14,6 +14,7 @@ namespace IPS\toolbox\Profiler;
 
 use Exception;
 use IPS\Db;
+use IPS\Http\Url;
 use IPS\Patterns\ActiveRecord;
 use IPS\Theme;
 use function count;
@@ -21,6 +22,7 @@ use function defined;
 use function get_class;
 use function header;
 use function htmlentities;
+use IPS\toolbox\Editor;
 use function is_array;
 use function json_decode;
 use function json_encode;
@@ -68,13 +70,19 @@ class _Debug extends ActiveRecord
      */
     protected static $multitons = [];
 
+    public static function log( $message, $key = null )
+    {
+
+        static::add( $key, $message, true );
+    }
+
     /**
      * adds a debug message to the log
      *
      * @param $key
      * @param $message
      */
-    public static function add( $key, $message )
+    public static function add( $key, $message, $alias = false )
     {
 
         if ( !\IPS\QUERY_LOG && defined( '\DTPROFILER' ) && !\DTPROFILER ) {
@@ -83,7 +91,18 @@ class _Debug extends ActiveRecord
 
         $debug = new static;
         $debug->key = $key;
-
+        $bt = debug_backtrace();
+        array_shift( $bt );
+        $prev = array_shift( $bt );
+        if ( $alias === true ) {
+            $prev = array_shift( $bt );
+        }
+        $bt = array_shift( $bt );
+        if ( $key === null ) {
+            $key = $bt[ 'function' ];
+        }
+        $debug->path = $prev[ 'file' ];
+        $debug->line = $prev[ 'line' ];
         if ( $message instanceof Exception ) {
             $data[ 'class' ] = get_class( $message );
             $data[ 'ecode' ] = $message->getCode();
@@ -155,10 +174,10 @@ class _Debug extends ActiveRecord
 
         if ( $this->type === 'exception' || $this->type === 'array' ) {
             $message = json_decode( $this->log, \true );
-            $list = Theme::i()->getTemplate( 'generic', 'toolbox', 'front' )->keyvalue( $message, $this->name );
+            $list = Theme::i()->getTemplate( 'generic', 'toolbox', 'front' )->keyvalueDebug( $this );
         }
         else {
-            $list = Theme::i()->getTemplate( 'generic', 'toolbox', 'front' )->string( $this->log, $this->name );
+            $list = Theme::i()->getTemplate( 'generic', 'toolbox', 'front' )->stringDebug( $this );
         }
 
         return $list;
@@ -174,6 +193,12 @@ class _Debug extends ActiveRecord
         $this->save();
     }
 
+    public function get_messages()
+    {
+
+        return json_decode( $this->log, true );
+    }
+
     /**
      * @return string
      */
@@ -181,5 +206,11 @@ class _Debug extends ActiveRecord
     {
 
         return '#' . $this->_data[ 'id' ] . ' ' . $this->_data[ 'key' ];
+    }
+
+    public function url()
+    {
+
+        return ( new Editor )->replace( $this->path, $this->line );
     }
 }

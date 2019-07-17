@@ -4,7 +4,7 @@
 {{endif}}
 <div class="ipsColumns">
     <div class="ipsColumn ipsColumn_fluid">
-        <a href="{$debug->url()}">{$debug->path}</a>
+        <a href="{$debug->url()}">{$debug->path}:{$debug->line}</a>
         {expression="(new \IPS\toolbox\Profiler\Dumper)->add($debug->log)" raw="true"}
     </div>
 </div>

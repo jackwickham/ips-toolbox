@@ -227,7 +227,11 @@ class _Proxy extends GeneratorAbstract
                         /* @var ActiveRecord $dbClass */
                         $dbClass = $namespace . '\\' . $class;
                         try {
-                            if ( property_exists( $dbClass, 'databaseTable' ) && class_exists( $dbClass ) && method_exists( $dbClass, 'db' ) ) {
+                            $go = true;
+                            if ( isset( $data[ 'extends' ] ) && !class_exists( $data[ 'extends' ] ) ) {
+                                $go = false;
+                            }
+                            if ( $go === true && property_exists( $dbClass, 'databaseTable' ) && class_exists( $dbClass ) && method_exists( $dbClass, 'db' ) ) {
                                 $table = $dbClass::$databaseTable;
                                 if ( $table && $dbClass::db()->checkForTable( $table ) ) {
                                     /* @var array $definitions */
@@ -297,7 +301,7 @@ class _Proxy extends GeneratorAbstract
      *
      * @return array|null
      */
-    public function tokenize( $source )
+    function tokenize( $source )
     {
 
         $namespace = 0;
@@ -306,7 +310,9 @@ class _Proxy extends GeneratorAbstract
         $dlm = false;
         $final = false;
         $abstract = false;
-
+        $class = false;
+        $extended = false;
+        //    _p( $tokens );
         for ( $i = 2; $i < $count; $i++ ) {
             if ( ( isset( $tokens[ $i - 2 ][ 1 ] ) && ( $tokens[ $i - 2 ][ 1 ] === 'phpnamespace' || $tokens[ $i - 2 ][ 1 ] === 'namespace' ) ) || ( $dlm && $tokens[ $i - 1 ][ 0 ] === T_NS_SEPARATOR && $tokens[ $i ][ 0 ] === T_STRING ) ) {
                 if ( !$dlm ) {
@@ -331,17 +337,47 @@ class _Proxy extends GeneratorAbstract
 
             if ( ( $tokens[ $i - 2 ][ 0 ] === T_CLASS || ( isset( $tokens[ $i - 2 ][ 1 ] ) && $tokens[ $i - 2 ][ 1 ] === 'phpclass' ) ) && $tokens[ $i - 1 ][ 0 ] === T_WHITESPACE && $tokens[ $i ][ 0 ] === T_STRING ) {
                 $class = $tokens[ $i ][ 1 ];
+            }
 
-                return [
-                    'namespace' => $namespace,
-                    'class'     => $class,
-                    'abstract'  => $abstract,
-                    'final'     => $final,
-                ];
+            if ( $tokens[ $i ][ 0 ] === T_EXTENDS ) {
+                $extends = [];
+                for ( $ii = $i; $ii < $count; $ii++ ) {
+                    $current = $tokens[ $ii ];
+                    if ( is_array( $current ) && ( $current[ 0 ] === T_NS_SEPARATOR || $current[ 0 ] === T_STRING ) ) {
+                        if ( $current !== T_NS_SEPARATOR ) {
+                            $extends[] = $current[ 1 ];
+                        }
+                    }
+
+                    if ( $current === '{' || ( is_array( $current ) && $current[ 0 ] === T_IMPLEMENTS ) ) {
+                        $extended = implode( '', $extends );
+                        break 2;
+                    }
+                }
+            }
+
+            if ( $tokens[ $i ] === '{' || ( is_array( $tokens[ $i ] ) && $tokens[ $i ][ 0 ] === T_IMPLEMENTS ) ) {
+                if ( is_array( $tokens[ $i ] ) && $tokens[ $i ][ 0 ] === T_IMPLEMENTS ) {
+                    break;
+                }
+
+                for ( $ii = $i; $ii >= 0; $ii-- ) {
+                    if ( $tokens[ $ii ][ 0 ] === T_CLASS ) {
+                        break 2;
+                    }
+                }
+
             }
         }
+        $return = [
+            'namespace' => $namespace,
+            'class'     => $class,
+            'abstract'  => $abstract,
+            'final'     => $final,
+            'extends'   => $extended,
+        ];
 
-        return null;
+        return $return;
     }
 
     /**
@@ -639,4 +675,3 @@ eof;
         }
     }
 }
-

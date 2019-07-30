@@ -13,6 +13,7 @@
 namespace IPS\toolbox\Proxy\Helpers;
 
 use IPS\Http\Request\Curl;
+use IPS\toolbox\Generator\Builders\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\ParamTag;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
 use Zend\Code\Generator\DocBlockGenerator;
@@ -33,31 +34,28 @@ class _Url implements HelpersAbstract
     /**
      * @inheritdoc
      */
-    public function process( $class, &$classDoc, &$classExtends, &$body )
+    public function process( $class, ClassGenerator $classGenerator, &$classExtends )
     {
 
-        $methodDocBlock = new DocBlockGenerator( '@inheritdoc', \null, [
-            new ParamTag( 'timeout', null ),
-            new ParamTag( 'httpVersion', null ),
-            new ParamTag( 'followRedirects', null ),
-            new ParamTag( 'skipLocalhostRedirects', null ),
-            new ReturnTag( [ 'dataType' => '\\' . Curl::class ] ),
-        ] );
+        $params = [
+            [ 'name' => '$timeout', 'value' => null ],
+            [ 'name' => 'httpVersion', 'value' => 200 ],
+            [ 'name' => 'followRedirects', 'value' => 5 ],
+            [ 'name' => 'skipLocalhostRedirects', 'value' => false ],
 
-        try {
-            $body[] = MethodGenerator::fromArray( [
-                'name'       => 'request',
-                'parameters' => [
-                    new ParameterGenerator( 'timeout', \null, 'null', 0 ),
-                    new ParameterGenerator( 'httpVersion', \null, 'null', 1 ),
-                    new ParameterGenerator( 'followRedirects', \null, 'null', 2 ),
-                    new ParameterGenerator( 'skipLocalhostRedirects', \null, 'null', 4 ),
-                ],
-                'body'       => 'return parent::request(... func_get_arguments());',
-                'docblock'   => $methodDocBlock,
-                'static'     => \false,
-            ] );
-        } catch ( InvalidArgumentException $e ) {
-        }
+        ];
+        $extra = [
+            'document' => [
+                '@param int|null $timeout',
+                '@param string $httpVersion',
+                '@param bool|int $followRedirects',
+                '@param bool $skipLocalhostRedirects',
+                '@return \\' . Curl::class,
+            ],
+        ];
+        $body = 'return parent::request(... func_get_args());';
+
+        $classGenerator->addMethod( 'request', $body, $params, $extra );
+
     }
 }

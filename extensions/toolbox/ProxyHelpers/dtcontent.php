@@ -12,6 +12,7 @@
 
 namespace IPS\toolbox\extensions\toolbox\ProxyHelpers;
 
+use IPS\toolbox\Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 
@@ -30,9 +31,9 @@ class _dtcontent
     /**
      * add property to \IPS\Data\Store DocComment
      *
-     * @param array $classDoc
+     * @param ClassGenerator $classGenerator
      */
-    public function store( &$classDoc )
+    public function store( ClassGenerator $classGenerator )
     {
 
     }
@@ -40,11 +41,12 @@ class _dtcontent
     /**
      * add property to \IPS\Request proxy DocComment
      *
-     * @param array $classDoc
+     * @param ClassGenerator $classGenerator
      */
-    public function request( &$classDoc )
+    public function request( ClassGenerator $classGenerator )
     {
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'oldDo', 'type' => 'string' ];
+
+        $classGenerator->addPropertyTag( 'oldDo', [ 'hint' => 'string' ] );
 
     }
 }

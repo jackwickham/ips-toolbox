@@ -239,7 +239,6 @@ class _Proxyclass extends Singleton
         }
 
         if ( $step === 'constants' ) {
-            Proxy::i()->buildConstants();
             $complete++;
             $lastStep = $step;
             $step = 'apps';
@@ -292,7 +291,7 @@ class _Proxyclass extends Singleton
             }
         }
         else if ( $finder->getExtension() === 'php' ) {
-            Proxy::i()->create( $content );
+            Proxy::i()->create( $file );
         }
     }
 
@@ -402,8 +401,7 @@ class _Proxyclass extends Singleton
         }
         Store::i()->dtproxy_templates = $this->templates;
         $this->console( 'Generating Additional Proxy Files and PHP-Toolbox files' );
-        Proxy::i()->buildConstants();
-        $this->console( 'Constants 1/10' );
+
         Proxy::i()->generateSettings();
         $this->console( 'Settings 2/10' );
         if ( $this->doProxies ) {
@@ -439,6 +437,46 @@ class _Proxyclass extends Singleton
         }
 
         unset( Store::i()->dtproxy_proxy_files, Store::i()->dtproxy_templates );
+    }
+
+    /**
+     * adds a # for percents (10%)
+     *
+     * @param $total
+     * @param $done
+     */
+    public function bump( $total, $done )
+    {
+
+        $old = $total;
+        $total /= 10;
+
+        if ( $done % $total === 0 ) {
+            if ( static::$fe === \null ) {
+                static::$fe = \fopen( 'php://stdout', 'wb' );
+            }
+            \fwrite( static::$fe, '#' );
+        }
+
+        if ( $old === $done ) {
+            $this->console( \PHP_EOL . 'File Processing Done!' );
+        }
+    }
+
+    /**
+     * prints to console
+     *
+     * @param $msg
+     */
+    public function console( $msg )
+    {
+
+        if ( $this->console ) {
+            if ( static::$fe === \null ) {
+                static::$fe = \fopen( 'php://stdout', 'wb' );
+            }
+            \fwrite( static::$fe, $msg . \PHP_EOL );
+        }
     }
 
     /**
@@ -525,22 +563,6 @@ class _Proxyclass extends Singleton
             return $finder->count();
         } catch ( Exception $e ) {
             return 0;
-        }
-    }
-
-    /**
-     * prints to console
-     *
-     * @param $msg
-     */
-    public function console( $msg )
-    {
-
-        if ( $this->console ) {
-            if ( static::$fe === \null ) {
-                static::$fe = \fopen( 'php://stdout', 'wb' );
-            }
-            \fwrite( static::$fe, $msg . \PHP_EOL );
         }
     }
 
@@ -632,30 +654,6 @@ class _Proxyclass extends Singleton
             'test.php',
 
         ];
-    }
-
-    /**
-     * adds a # for percents (10%)
-     *
-     * @param $total
-     * @param $done
-     */
-    public function bump( $total, $done )
-    {
-
-        $old = $total;
-        $total /= 10;
-
-        if ( $done % $total === 0 ) {
-            if ( static::$fe === \null ) {
-                static::$fe = \fopen( 'php://stdout', 'wb' );
-            }
-            \fwrite( static::$fe, '#' );
-        }
-
-        if ( $old === $done ) {
-            $this->console( \PHP_EOL . 'File Processing Done!' );
-        }
     }
 
     /**

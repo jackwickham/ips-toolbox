@@ -13,6 +13,7 @@
 namespace IPS\toolbox\modules\admin\settings;
 
 use Exception;
+use Go\ParserReflection\ReflectionFile;
 use IPS\Application;
 use IPS\Dispatcher;
 use IPS\Dispatcher\Controller;
@@ -20,14 +21,23 @@ use IPS\Helpers\Form;
 use IPS\Output;
 use IPS\Request;
 use IPS\Settings;
+use IPS\toolbox\Generator\Tokenizer;
+use IPS\toolbox\Generator\Tokenizers\StandardTokenizer;
+use IPS\toolbox\Profiler\Debug;
+use RuntimeException;
 use Zend\Code\Generator\ClassGenerator;
 use function array_shift;
 use function defined;
 use function file_get_contents;
+use function file_put_contents;
 use function header;
 use function is_file;
 use function preg_replace_callback;
 use function print_r;
+use function str_replace;
+use const DIRECTORY_SEPARATOR;
+use const IPS\NO_WRITES;
+use const IPS\ROOT_PATH;
 
 \IPS\toolbox\Application::loadAutoLoader();
 
@@ -43,14 +53,16 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _settings extends Controller
 {
+
     /**
      * Execute
      *
      * @return    void
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function execute()
     {
+
         Dispatcher\Admin::i()->checkAcpPermission( 'settings_manage' );
         parent::execute();
     }
@@ -62,7 +74,8 @@ class _settings extends Controller
      */
     protected function manage()
     {
-        if ( \IPS\NO_WRITES === \false ) {
+
+        if ( NO_WRITES === \false ) {
             Output::i()->sidebar[ 'actions' ][ 'init' ] = [
                 'icon'  => 'plus',
                 'title' => 'Patch init.php',
@@ -88,39 +101,39 @@ class _settings extends Controller
         /**
          * @var Form $form
          */
-             if ( $values = $form->values() ) {
-                foreach ( Application::appsWithExtension( 'toolbox', 'settings' ) as $app ) {
-                    $extensions = $app->extensions( 'toolbox', 'settings', \true );
-                    /* @var \IPS\toolbox\extensions\toolbox\settings\settings $extension */
-                    foreach ( $extensions as $extension ) {
-                        $extension->formatValues( $values );
-                    }
+        if ( $values = $form->values() ) {
+            foreach ( Application::appsWithExtension( 'toolbox', 'settings' ) as $app ) {
+                $extensions = $app->extensions( 'toolbox', 'settings', \true );
+                /* @var \IPS\toolbox\extensions\toolbox\settings\settings $extension */
+                foreach ( $extensions as $extension ) {
+                    $extension->formatValues( $values );
                 }
-                $form->saveAsSettings( $values );
-                Output::i()->redirect( $this->url->setQueryString( [ 'tab' => '' ] ), 'foo' );
             }
+            $form->saveAsSettings( $values );
+            Output::i()->redirect( $this->url->setQueryString( [ 'tab' => '' ] ), 'foo' );
+        }
 
-            Output::i()->title = 'Settings';
-            Output::i()->output = $form;
+        Output::i()->title = 'Settings';
+        Output::i()->output = $form;
 
     }
 
     protected function patchHelpers()
     {
-        if ( \IPS\NO_WRITES === \false ) {
 
-            $path = \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR;
-            $init = $path . 'init.php';
-            $content = \file_get_contents( $init );
-            if ( !is_file( \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR . 'init.bu.php' ) ) {
-                \file_put_contents( \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR . 'init.bu.php', $content );
+        if ( NO_WRITES === \false ) {
+
+            try {
+                $tokenizer = new StandardTokenizer( 'init.php' );
+                $helpers = '__DIR__ . \'/applications/toolbox/sources/Debug/Helpers.php\'';
+                if ( $tokenizer->hasBackup() === false ) {
+                    $tokenizer->backup();
+                }
+                $tokenizer->addRequire( $helpers, true, false );
+                $tokenizer->write();
+            } catch ( \Exception $e ) {
+                Debug::log( $e );
             }
-            $r = <<<EOF
-require __DIR__ . '/applications/toolbox/sources/Debug/Helpers.php';
-class IPS
-EOF;
-            $content = \str_replace( 'class IPS', $r, $content );
-            \file_put_contents( $init, $content );
         }
 
         Output::i()->redirect( $this->url, 'init.php patched with Debug Helpers' );
@@ -128,21 +141,12 @@ EOF;
 
     protected function patchInit()
     {
-        if ( \IPS\NO_WRITES === \false ) {
-            $path = \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR;
-            $init = $path . 'init.php';
-            $content = \file_get_contents( $init );
-            if ( !is_file( \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR . 'init.bu.php' ) ) {
-                \file_put_contents( \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR . 'init.bu.php', $content );
-            }
-            $preg = "#public static function monkeyPatch\((.*?)public#msu";
+
+        if ( NO_WRITES === \false ) {
+
             $before = <<<'eof'
-public static $beenPatched = true;
 
-public static function monkeyPatch($namespace, $finalClass, $extraCode = '')
-    {
         $realClass = "_{$finalClass}";
-
         if (isset(self::$hooks[ "\\{$namespace}\\{$finalClass}" ]) AND \IPS\RECOVERY_MODE === false) {
             $path = ROOT_PATH . '/hook_temp/';
             if (!\is_dir($path)) {
@@ -184,30 +188,22 @@ public static function monkeyPatch($namespace, $finalClass, $extraCode = '')
         if (eval("namespace {$namespace}; " . $extraCode . ($reflection->isAbstract() ? 'abstract' : '') . " class {$finalClass} extends {$realClass} {}") === false) {
             trigger_error("There was an error initiating the class {$namespace}\\{$finalClass}.", E_USER_ERROR);
         }
-    }
+    
 eof;
-            $content = preg_replace_callback( $preg, function ( $e ) use ( $before )
-            {
-                return $before . "\n\n  public";
-            }, $content );
+            try {
+                $tokenizer = new StandardTokenizer( 'init.php' );
+                $tokenizer->replaceMethod( 'monkeyPatch', $before );
 
-            \file_put_contents( $init, $content );
+                if ( $tokenizer->hasBackup() === false ) {
+                    $tokenizer->backup();
+                }
+
+                $tokenizer->write();
+            } catch ( \Exception $e ) {
+                Debug::log( $e );
+            }
         }
 
         Output::i()->redirect( $this->url, 'init.php patched' );
-    }
-
-    protected function foo()
-    {
-        $content = file_get_contents( \IPS\ROOT_PATH . '/init.php' );
-        $parsedFile = new \Go\ParserReflection\ReflectionFile( \IPS\ROOT_PATH . '/init.php' );
-        $info = $parsedFile->getFileNamespace( 'IPS' );
-        $class = new ClassGenerator();
-        $rc = $info->getClasses();
-        $rc2 = array_shift( $rc );
-        $class->setName( $rc );
-        echo '<pre>';
-        print_r( $parsedFile );
-        exit;
     }
 }

@@ -79,7 +79,7 @@ class _Menu extends Singleton
             'name' => 'Content Generator',
             'url'  => (string)Url::internal( 'app=toolbox&module=content&controller=generator' ),
         ];
- 
+
         $store[ 'toolbox' ][] = [
             'id'   => 'proxy',
             'name' => 'Generate Application Dev Folder',

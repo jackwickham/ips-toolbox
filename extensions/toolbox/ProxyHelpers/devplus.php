@@ -19,6 +19,7 @@ use IPS\toolbox\DevCenter\Extensions\CreateMenu;
 use IPS\toolbox\DevCenter\Extensions\FileStorage;
 use IPS\toolbox\DevCenter\Helpers\HelperCompilerAbstract;
 use IPS\toolbox\DevCenter\Sources\Generator\GeneratorAbstract;
+use IPS\toolbox\Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 use function mb_strtolower;
@@ -39,34 +40,37 @@ class _devplus
     /**
      * add property to \IPS\Data\Store DocComment
      *
-     * @param array $classDoc
+     * @param ClassGenerator $classGenerator
      */
-    public function store( &$classDoc )
+    public function store( ClassGenerator $classGenerator )
     {
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtdevplus_class_namespace', 'type' => 'array' ];
+
+        $classGenerator->addPropertyTag( 'dtdevplus_class_namespace', [ 'hint' => 'array' ] );
+
     }
 
     /**
      * add property to \IPS\Request proxy DocComment
      *
-     * @param array $classDoc
+     * @param ClassGenerator $classGenerator
      *
      * @throws \Exception
      */
-    public function request( &$classDoc )
+    public function request( ClassGenerator $classGenerator )
     {
+
         $key = GeneratorAbstract::class;
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtdevplus_class_namespace', 'type' => '\\' . $key ];
-//        $this->loop( Sources::i()->elements(), $classDoc );
-//        $this->loop( Dev::i()->elements(), $classDoc );
+        $classGenerator->addPropertyTag( 'dtdevplus_class_namespace', [ 'hint' => '\\' . $key ] );
+
         $app = Application::load( 'core' );
-        $this->loop( ( new ContentRouter( $app, $app, 'foo' ) )->elements(), $classDoc );
-        $this->loop( ( new CreateMenu( $app, $app, 'foo' ) )->elements(), $classDoc );
-        $this->loop( ( new FileStorage( $app, $app, 'foo' ) )->elements(), $classDoc );
+        $this->loop( ( new ContentRouter( $app, $app, 'foo' ) )->elements(), $classGenerator );
+        $this->loop( ( new CreateMenu( $app, $app, 'foo' ) )->elements(), $classGenerator );
+        $this->loop( ( new FileStorage( $app, $app, 'foo' ) )->elements(), $classGenerator );
     }
 
-    protected function loop( array $elements, &$classDoc )
+    protected function loop( array $elements, ClassGenerator $classGenerator )
     {
+
         $prefix = \null;
         if ( isset( $elements[ 'prefix' ] ) ) {
             $prefix = $elements[ 'prefix' ];
@@ -80,8 +84,7 @@ class _devplus
                 else {
                     $key = 'string';
                 }
-
-                $classDoc[ $el[ 'name' ] ] = [ 'pt' => 'p', 'prop' => "{$prefix}{$el['name']}", 'type' => $key ];
+                $classGenerator->addPropertyTag( $prefix . $el[ 'name' ], [ 'hint' => $key ] );
             }
         }
     }
@@ -94,6 +97,7 @@ class _devplus
      */
     public function map( &$helpers )
     {
+
         $helpers[ Dev\Compiler\CompilerAbstract::class ][] = HelperCompilerAbstract::class;
     }
 }

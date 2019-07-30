@@ -12,6 +12,7 @@
 
 namespace IPS\toolbox\Proxy\Helpers;
 
+use IPS\toolbox\Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 
@@ -26,9 +27,10 @@ class _Model implements HelpersAbstract
     /**
      * @inheritdoc
      */
-    public function process( $class, &$classDoc, &$classExtends, &$body )
+    public function process( $class, ClassGenerator $classGenerator, &$classExtends )
     {
-        $classDoc[] = [ 'pt' => 'p', 'prop' => '_id', 'type' => 'int' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => '_title', 'type' => 'string' ];
+
+        $classGenerator->addPropertyTag( '_id', [ 'hint' => 'int' ] );
+        $classGenerator->addPropertyTag( '_title', [ 'hint' => 'string' ] );
     }
 }

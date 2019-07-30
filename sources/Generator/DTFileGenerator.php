@@ -10,7 +10,6 @@
  * @version     -storm_version-
  */
 
-
 namespace IPS\toolbox\Generator;
 
 use Exception;
@@ -30,6 +29,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class _DTFileGenerator extends FileGenerator
 {
+
     public $isProxy = \false;
 
     /**
@@ -38,6 +38,7 @@ class _DTFileGenerator extends FileGenerator
      */
     public function write(): FileGenerator
     {
+
         if ( $this->filename !== '' ) {
             $path = \pathinfo( $this->filename );
             try {
@@ -54,7 +55,7 @@ class _DTFileGenerator extends FileGenerator
 
         $parent = parent::write();
 
-        if ( $this->isProxy === \false && Application::appIsEnabled( 'dtproxy' ) ) {
+        if ( $this->isProxy === \false ) {
             Proxyclass::i()->buildAndMake( $this->filename );
         }
 

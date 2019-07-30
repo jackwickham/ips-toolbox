@@ -12,8 +12,7 @@
 
 namespace IPS\toolbox\Proxy\Helpers;
 
-use Zend\Code\Generator\Exception\InvalidArgumentException;
-use Zend\Code\Generator\PropertyGenerator;
+use IPS\toolbox\Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 
@@ -28,17 +27,9 @@ class _Item implements HelpersAbstract
     /**
      * @inheritdoc
      */
-    public function process( $class, &$classDoc, &$classExtends, &$body )
+    public function process( $class, ClassGenerator $classGenerator, &$classExtends )
     {
 
-        try {
-
-            $config = [
-                'name'   => 'application',
-                'static' => true,
-            ];
-            $body[] = PropertyGenerator::fromArray( $config );
-        } catch ( InvalidArgumentException $e ) {
-        }
+        $classGenerator->addProperty( 'application', null, [ 'static' => true ] );
     }
 }

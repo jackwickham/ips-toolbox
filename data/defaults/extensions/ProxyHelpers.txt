@@ -16,27 +16,25 @@ class _{class}
 {
 
     /**
-    * add property to \IPS\Data\Store DocComment
-    * @param array $classDoc
-    * example $classDoc[] = [ 'pt' => 'p', 'prop' => 'prop_name', 'type' => 'array'];
-    * pt: property type (choices: p (property), w (property-write), r (property-read))
-    * prop: property name
-    * type: the type of the property, can be whatever you want, examples: array, string, int, etc
-    */
-    public function store(&$classDoc){
-
+     * add property to \IPS\Data\Store DocComment
+     *
+     * @param array $classDoc
+     */
+    public function store( ClassGenerator $classGenerator )
+    {
+        //any add/remove method from ClassGenerator can be used here, however will add to the Data\Store proxy class, use map() if you want to target a particular class.
+        //$classGenerator->addPropertyTag( 'propName', [ 'hint' => int|string|array|Class, 'comment' => 'comment', 'type' => read|write|both);
     }
 
     /**
-    * add property to \IPS\Request proxy DocComment
-    * @param array $classDoc
-    * example $classDoc[] = [ 'pt' => 'p', 'prop' => 'prop_name', 'type' => 'array'];
-    * pt: property type (choices: p (property), w (property-write), r (property-read))
-    * prop: property name
-    * type: the type of the property, can be whatever you want, examples: array, string, int, etc
-    */
-    public function request(&$classDoc){
-
+     * add property to \IPS\Request proxy DocComment
+     *
+     * @param array $classDoc
+     */
+    public function request( ClassGenerator $classGenerator )
+    {
+        //any add/remove method from ClassGenerator can be used here, however will add to the Data\Store proxy class, use map() if you want to target a particular class.
+        //$classGenerator->addPropertyTag( 'propName', [ 'hint' => int|string|array|Class, 'comment' => 'comment', 'type' => read|write|both);
     }
 
     /**
@@ -47,5 +45,6 @@ class _{class}
     */
     public function map(&$helpers)
     {
+        //see toolbox\extensions\toolbox\ProxyHelpers\proxy.php::map()
     }
 }

@@ -1,11 +1,10 @@
 //<?php
 
-/* To prevent PHP errors (extending class does not exist) revealing path */
-
 use IPS\Settings;
 use IPS\Theme\Dev\Template;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
@@ -38,3 +37,4 @@ class toolbox_hook_Theme extends _HOOK_CLASS_
     }
 
 }
+

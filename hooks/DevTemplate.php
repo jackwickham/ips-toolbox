@@ -1,7 +1,5 @@
 //<?php
 
-/* To prevent PHP errors (extending class does not exist) revealing path */
-
 use IPS\Data\Store;
 use IPS\Request;
 use IPS\Settings;
@@ -12,14 +10,14 @@ use IPS\toolbox\Profiler\Time;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
-Application::loadAutoLoader();
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
 class toolbox_hook_DevTemplate extends _HOOK_CLASS_
 {
-    public static $debugFileName = \null;
+    public static  $debugFileName = \null;
 
     public function __call( $bit, $params )
     {
@@ -222,4 +220,6 @@ EOF;
 
         include_once( $classFileName );
     }
+
 }
+

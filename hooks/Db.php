@@ -1,6 +1,8 @@
 //<?php
 
-/* To prevent PHP errors (extending class does not exist) revealing path */
+/**
+* @inheritdoc
+*/
 
 use IPS\toolbox\Profiler\Memory;
 use IPS\toolbox\Profiler\Time;
@@ -8,18 +10,16 @@ use IPS\toolbox\Proxy\Generator\Db;
 use IPS\toolbox\Proxy\Generator\Proxy;
 use IPS\toolbox\Proxy\Proxyclass;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
 class toolbox_hook_Db extends _HOOK_CLASS_
 {
-    protected $dtkey = 0;
+    protected  $dtkey = 0;
 
-    /**
-     * @inheritdoc
-     */
-    public function query( $query, $log = \TRUE, $read = \FALSE )
+    public function query( $query, $log = true, $read = false )
     {
         if ( \IPS\QUERY_LOG && \class_exists( Memory::class, \true ) ) {
             $memory = new Memory;
@@ -37,10 +37,6 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         return $parent;
     }
 
-    /**
-     * @param $time
-     * @param $mem
-     */
     protected function finalizeLog( $time, $mem )
     {
         $id = $this->dtkey - 1;
@@ -48,11 +44,7 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         $this->log[ $id ][ 'mem' ] = $mem;
     }
 
-    /**
-     * @inheritdoc
-     * @throws \IPS\Db\Exception
-     */
-    public function preparedQuery( $query, array $_binds, $read = \FALSE )
+    public function preparedQuery( $query, array $_binds, $read = false )
     {
         if ( \IPS\QUERY_LOG && \class_exists( Memory::class, \true ) ) {
             $memory = new Memory;
@@ -70,9 +62,6 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         return $parent;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createTable( $data )
     {
         $return = parent::createTable( $data );
@@ -83,9 +72,6 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         return $return;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function addColumn( $table, $definition )
     {
         parent::addColumn( $table, $definition );
@@ -94,12 +80,11 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function log( $query, $server = \null )
+    protected function log( $query, $server = null )
     {
         $this->dtkey++;
         parent::log( $query, $server );
     }
+
 }
+

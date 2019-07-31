@@ -12,8 +12,8 @@ use IPS\toolbox\DevCenter\Schema;
 use IPS\toolbox\DevCenter\Sources;
 use IPS\toolbox\Forms;
 
-/* To prevent PHP errors (extending class does not exist) revealing path */
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
@@ -535,7 +535,6 @@ EOF;
 EOF;
         }
         return $html;
-
     }
 
     protected function _writeJson( $file, $data )
@@ -594,6 +593,8 @@ EOF;
     }
 
     // Create new methods with the same name as the 'do' parameter which should execute it
+    }
+
     protected function dtgetFields()
     {
         $table = Request::i()->table;
@@ -635,6 +636,7 @@ EOF;
         }
 
         Output::i()->redirect( Url::internal( "app=core&module=applications&controller=developer&appKey={$this->application->directory}&tab=SchemaImports" ) );
-
     }
+
 }
+

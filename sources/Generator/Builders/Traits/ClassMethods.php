@@ -19,7 +19,6 @@ trait ClassMethods
             if ( isset( $this->removeMethods[ $name ] ) ) {
                 continue;
             }
-
             $this->toWrite .= "\n{$this->tab}";
             if ( $method[ 'document' ] && is_array( $method[ 'document' ] ) ) {
                 $this->toWrite .= "\n";
@@ -42,9 +41,10 @@ trait ClassMethods
                 $static = ' static';
             }
 
-            $this->toWrite .= $final . $method[ 'visibility' ] . $static . ' function ' . $name . '( ';
+            $this->toWrite .= $final . $method[ 'visibility' ] . $static . ' function ' . $name . '(';
 
             if ( empty( $method[ 'params' ] ) !== true && is_array( $method[ 'params' ] ) ) {
+                $this->toWrite .= ' ';
                 $built = [];
 
                 foreach ( $method[ 'params' ] as $param ) {
@@ -75,8 +75,12 @@ trait ClassMethods
                         else if ( $param[ 'value' ] === null || mb_strtolower( $param[ 'value' ] ) === 'null' ) {
                             $val = 'null';
                         }
+                        else if ( $param[ 'value' ] === "''" || $param === '""' ) {
+                            $val = $param[ 'value' ];
+                        }
                         else if ( is_string( $param[ 'value' ] ) ) {
-                            $val = "'" . $param[ 'value' ] . "'";
+
+                            $val = $param[ 'value' ];
                         }
                         else {
                             $val = $param[ 'value' ];
@@ -87,8 +91,10 @@ trait ClassMethods
 
                 }
                 $this->toWrite .= implode( ', ', $built );
+                $this->toWrite .= ' ';
+
             }
-            $this->toWrite .= ' )';
+            $this->toWrite .= ')';
 
             if ( isset( $method[ 'returnType' ] ) && $method[ 'returnType' ] ) {
                 $this->toWrite .= ': ' . $method[ 'returnType' ];

@@ -197,7 +197,7 @@ eof;
                 if ( $tokenizer->hasBackup() === false ) {
                     $tokenizer->backup();
                 }
-
+                $tokenizer->addProperty( 'beenPatched', true, [ 'static' => true ] );
                 $tokenizer->write();
             } catch ( \Exception $e ) {
                 Debug::log( $e );

@@ -13,7 +13,7 @@ class _StandardTokenizer extends ClassGenerator
     protected function writeBody()
     {
 
-        $this->normalizeMethods();
+        $this->rebuildMethods();
         parent::writeBody();
     }
 

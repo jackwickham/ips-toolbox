@@ -4,14 +4,13 @@ use IPS\Application;
 use IPS\Request;
 use IPS\Settings;
 
-/* To prevent PHP errors (extending class does not exist) revealing path */
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
 class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
 {
-
     public function accept()
     {
         if ( $this->isFile() ) {
@@ -74,4 +73,6 @@ class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
 
         return $skip;
     }
+
 }
+

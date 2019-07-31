@@ -112,12 +112,13 @@ class _Proxy extends GeneratorAbstract
     /**
      * @param $content
      */
-    public function create( string $file ): void
+    public function create( string $content ): void
     {
 
         try {
 
-            $currentClass = new StandardTokenizer( $file );
+            $currentClass = new StandardTokenizer();
+            $currentClass->addPath( $content );
             $namespace = $currentClass->getNameSpace();
             $ns2 = explode( '\\', $namespace );
             array_shift( $ns2 );
@@ -153,13 +154,12 @@ class _Proxy extends GeneratorAbstract
                 $file = $alt . '_' . $class . '.php';
                 $type = $currentClass->getType();
 
-                $nc = new ClassGenerator();
+                $nc = new ClassGenerator( $path . '/' . $file );
                 $nc->addNameSpace( $namespace );
                 $nc->addExtends( $namespace . '\\' . $ipsClass );
                 $nc->addClassName( $class );
                 $nc->addType( $type );
-                $nc->addFileName( $file );
-                $nc->addPath( $path );
+                $nc->addPath( $path . '/' . $file );
 
                 foreach ( $currentClass->getImports() as $import ) {
                     $class = $import[ 'class' ];
@@ -220,7 +220,7 @@ class _Proxy extends GeneratorAbstract
                 }
 
                 $nc->isProxy = true;
-                $nc->save();
+                $nc->write();
 
             }
         } catch ( Exception $e ) {
@@ -472,7 +472,7 @@ function mb_ucfirst(\$text)
 
 }
 eof;
-                $class->extra( [ $extra ] );
+                $class->extra( $extra );
             }
             $class->write();
         } catch ( Exception $e ) {

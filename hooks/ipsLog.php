@@ -1,15 +1,16 @@
 //<?php
 
-
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+/* To prevent PHP errors (extending class does not exist) revealing path */
+if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
 class toolbox_hook_ipsLog extends _HOOK_CLASS_
 {
+
     public static function debug( $message, $category = null )
     {
+
         if ( $category === 'request' ) {
             return;
         }
@@ -18,4 +19,3 @@ class toolbox_hook_ipsLog extends _HOOK_CLASS_
     }
 
 }
-

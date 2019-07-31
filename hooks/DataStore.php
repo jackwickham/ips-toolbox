@@ -1,17 +1,37 @@
 //<?php
 
+/* To prevent PHP errors (extending class does not exist) revealing path */
+
 use IPS\toolbox\Application;
 use IPS\toolbox\Profiler\Debug;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_DataStore extends _HOOK_CLASS_
+Application::loadAutoLoader();
+
+abstract class toolbox_hook_DataStore extends _HOOK_CLASS_
 {
+
+    //    public function clearAll($exclude = \null)
+    //    {
+    //        $paths = [
+    //            \IPS\ROOT_PATH . '/toolbox_templates/',
+    //            \IPS\ROOT_PATH . '/hook_temp/',
+    //        ];
+    //
+    //        foreach ($paths as $path) {
+    //            if (\is_dir($path)) {
+    //                $this->removeFiles($path);
+    //            }
+    //        }
+    //
+    //        parent::clearAll($exclude);
+    //    }
+
     protected function removeFiles( $path )
     {
         try {
@@ -26,6 +46,4 @@ class toolbox_hook_DataStore extends _HOOK_CLASS_
             Debug::add( 'Data Store Clear', $e );
         }
     }
-
 }
-

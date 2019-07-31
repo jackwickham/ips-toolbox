@@ -114,7 +114,7 @@ class _ClassGenerator extends GeneratorAbstract
         if ( empty( $this->interfaces ) !== true ) {
             $this->toWrite .= " implements \n" . implode( ",\n", $this->interfaces );
         }
-
+        $this->toWrite .= "\n{";
     }
 
     /**

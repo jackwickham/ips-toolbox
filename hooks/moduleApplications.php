@@ -1,20 +1,23 @@
 //<?php
 
-/**
-* Export an application
-* @return void
-* @note    We have to use a custom RecursiveDirectoryIterator in order to skip the /dev folder
-*/
+/* To prevent PHP errors (extending class does not exist) revealing path */
 
 use IPS\toolbox\Build;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
 class toolbox_hook_moduleApplications extends _HOOK_CLASS_
 {
+
+
+    /**
+     * Export an application
+     *
+     * @return void
+     * @note    We have to use a custom RecursiveDirectoryIterator in order to skip the /dev folder
+     */
     public function download()
     {
         if ( \defined( '\DTBUILD' ) && \DTBUILD ) {
@@ -26,4 +29,3 @@ class toolbox_hook_moduleApplications extends _HOOK_CLASS_
     }
 
 }
-

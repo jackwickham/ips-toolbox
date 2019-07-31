@@ -133,6 +133,7 @@ trait ClassTrait
     {
 
         $this->preppedMethod[] = $data;
+
         $this->buildMethod( $data );
     }
 
@@ -158,6 +159,7 @@ trait ClassTrait
         if ( empty( $params ) !== true ) {
             //            $params = [];
             //            $params[] = 'int $extra = null';
+
             foreach ( $params as $param ) {
 
                 $sliced = <<<EOF
@@ -165,15 +167,32 @@ trait ClassTrait
 
 {$param}
 EOF;
+
                 $tokens = token_get_all( $sliced );
+                $count = count( $tokens );
                 $p = [];
                 $hint = null;
+                $in = [
+                    T_ARRAY,
+                    T_STRING,
+                    T_CONSTANT_ENCAPSED_STRING,
+                    T_LNUMBER,
+                ];
+                $i = 0;
                 foreach ( $tokens as $token ) {
                     if ( isset( $tokens[ 0 ] ) && $tokens[ 0 ] !== T_OPEN_TAG ) {
                         $type = $token[ 0 ] ?? null;
                         $value = $token[ 1 ] ?? $token;
                         if ( $value ) {
-                            if ( $type === T_STRING || $type === T_ARRAY ) {
+                            if ( $type === '[' ) {
+                                $vv = '';
+                                for ( $ii = $i; $ii < $count; $ii++ ) {
+                                    $vv .= $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
+                                }
+
+                                $p[ 'value' ] = $vv;
+                            }
+                            else if ( in_array( $type, $in, true ) ) {
                                 if ( $type === T_ARRAY || ( !isset( $p[ 'hint' ] ) && !isset( $p[ 'value' ] ) && !isset( $p[ 'name' ] ) ) ) {
                                     $hint[] = $value;
                                 }
@@ -187,6 +206,9 @@ EOF;
 
                             }
                             else if ( $type === T_VARIABLE ) {
+                                if ( trim( $value ) === '$httpHeaders' ) {
+                                    //                                    _p( $param, $tokens );
+                                }
                                 if ( $hint !== null ) {
                                     $p[ 'hint' ] = implode( '\\', $hint );
                                     $hint = null;
@@ -195,6 +217,7 @@ EOF;
                             }
                         }
                     }
+                    $i++;
                 }
                 $newParams[] = $p;
 
@@ -241,27 +264,33 @@ EOF;
 
                 }
             }
+
             $nb = trim( $nb );
-            if ( isset( $this->startOfMethods[ $name ] ) ) {
+            if ( mb_substr( $nb, 0, 1 ) === '{' ) {
                 $nb = mb_substr( $nb, 1 );
+            }
+
+            if ( mb_substr( $nb, -1 ) === '}' ) {
+                $nb = mb_substr( $nb, 0, -1 );
+            }
+
+            if ( isset( $this->startOfMethods[ $name ] ) ) {
                 $first = '';
                 foreach ( $this->startOfMethods[ $name ] as $content ) {
                     $first .= "\n" . $this->tab . $this->tab;
                     $first .= $content;
                     $first .= "\n" . $this->tab . $this->tab;
                 }
-                $nb = "\n{\n" . $first . $nb;
+                $nb = $first . $nb;
             }
 
             if ( isset( $this->endofMethods[ $name ] ) ) {
-                $nb = mb_substr( $nb, 0, -1 );
-                $last = '';
+
                 foreach ( $this->endofMethods[ $name ] as $content ) {
-                    $last .= "\n" . $this->tab . $this->tab;
-                    $last .= $content;
-                    $last .= "\n" . $this->tab . $this->tab;
+                    $nb .= "\n" . $this->tab . $this->tab;
+                    $nb .= $content;
+                    $nb .= "\n" . $this->tab . $this->tab;
                 }
-                $nb .= $last . "\n{$this->tab}}\n";
             }
 
             $body = $nb;
@@ -277,49 +306,17 @@ EOF;
         $this->addMethod( $name, $body, $params, $extra );
     }
 
-    protected function normalizeMethods()
-    {
-
-        $this->rebuildMethods();
-        $methods = $this->methods;
-        $last = array_pop( $methods );
-        $newlast = '';
-        $extra = null;
-        $body = $last[ 'body' ];
-        $body = explode( "\n", $body );
-        $func = 'function foo()';
-        $end = false;
-        foreach ( $body as $b ) {
-            if ( $end === true ) {
-                $extra .= $b . "\n";
-            }
-            else {
-                $func .= $b;
-                try {
-                    eval( $func );
-                    $end = true;
-                    $newlast .= $b . "\n";
-
-                } catch ( \ParseError $e ) {
-                    $newlast .= $b . "\n";
-                }
-            }
-        }
-
-        if ( $extra !== null ) {
-            $last[ 'body' ] = $newlast;
-            $methods[ $last[ 'name' ] ] = $last;
-            $this->extra = $extra;
-        }
-        $this->methods = $methods;
-
-    }
-
     protected function rebuildMethods()
     {
 
         foreach ( $this->preppedMethod as $data ) {
             $this->buildMethod( $data );
         }
+    }
+
+    protected function addToExtra( $data )
+    {
+
+        $this->extra[] = $data;
     }
 }

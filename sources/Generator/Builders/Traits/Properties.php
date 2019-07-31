@@ -118,8 +118,21 @@ EOF;
                     }
                     $this->toWrite .= $this->tab . "*/\n{$this->tab}";
                 }
+                $visibility = $property[ 'visibility' ];
 
-                $this->toWrite .= $property[ 'visibility' ] . ' ';
+                if ( $visibility === T_PUBLIC ) {
+                    $visibility = 'public';
+                }
+                else if ( $visibility === T_PROTECTED ) {
+                    $visibility = 'protected';
+                }
+                else if ( $visibility === T_PRIVATE ) {
+                    $visibility = 'private';
+                }
+                else if ( $visibility === null ) {
+                    $visibility = 'public';
+                }
+                $this->toWrite .= $visibility . ' ';
                 if ( isset( $property[ 'static' ] ) && $property[ 'static' ] ) {
                     $this->toWrite .= 'static ';
                 }

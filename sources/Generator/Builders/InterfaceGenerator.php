@@ -14,7 +14,7 @@ use IPS\toolbox\Generator\Builders\Traits\Properties;
 class _InterfaceGenerator extends GeneratorAbstract
 {
 
-    use Constants;
+    use Properties, Constants;
 
     /**
      * an array of class method's
@@ -56,7 +56,7 @@ class _InterfaceGenerator extends GeneratorAbstract
     {
 
         $tab = $this->tab;
-        $this->writeConst();
+
         foreach ( $this->methods as $name => $method ) {
             if ( isset( $this->removeMethods[ $name ] ) ) {
                 continue;

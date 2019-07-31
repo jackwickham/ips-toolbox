@@ -2,7 +2,10 @@
 
 namespace IPS\toolbox\Generator\Builders;
 
+use InvalidArgumentException;
 use IPS\toolbox\Proxy\Proxyclass;
+use RuntimeException;
+use function count;
 use function file_put_contents;
 use function is_array;
 use const IPS\ROOT_PATH;
@@ -18,6 +21,8 @@ abstract class _GeneratorAbstract
     public $path;
 
     public $isProxy = false;
+
+    public $isHook = false;
 
     /**
      * the file document
@@ -84,22 +89,15 @@ abstract class _GeneratorAbstract
 
     protected $tab = '    ';
 
-    /**
-     * ClassAbstract constructor.
-     *
-     * @param null $path
-     */
-    public function __construct( $path = null )
-    {
-
-        $this->path = ROOT_PATH . '/' . $path;
-    }
+    protected $fileName;
 
     public function addPath( $path )
     {
 
         $this->path = $path;
-
+        if ( !is_dir( $this->path ) ) {
+            $this->path = ROOT_PATH . '/' . $path;
+        }
     }
 
     /**
@@ -180,10 +178,27 @@ abstract class _GeneratorAbstract
     }
 
     /**
+     * @deprecated use static::save();
+     */
+    public function write()
+    {
+
+        $this->save();
+    }
+
+    /**
      * @param null $path
      */
-    public function write( $path = null )
+    public function save()
     {
+
+        if ( $this->className === null ) {
+            throw new InvalidArgumentException( 'Classname is not set!' );
+        }
+
+        if ( !is_dir( $this->path ) && !mkdir( $this->path, 0777, true ) && !is_dir( $this->path ) ) {
+            throw new RuntimeException( sprintf( 'Directory "%s" was not created', $this->path ) );
+        }
 
         $this->writeHead();
 
@@ -197,42 +212,34 @@ abstract class _GeneratorAbstract
         }
 
         $this->writeSourceType();
+        $this->toWrite .= "\n{";
         $this->writeBody();
-
-        if ( $this->extra !== null ) {
-            if ( mb_strpos( trim( $this->extra ), '}' ) !== 0 ) {
-                $this->toWrite .= "}\n";
-            }
-            $this->toWrite .= "\n" . $this->extra;
-        }
-        else {
-            $this->toWrite .= '}';
-        }
-
-        if ( $path === null ) {
-            $path = $this->path;
-        }
-        //        file_put_contents( ROOT_PATH . '/foo.php', $this->toWrite );
+        $this->toWrite .= "\n}";
+        $this->writeExtra();
 
         if ( $this->isProxy === false ) {
-            Proxyclass::i()->buildAndMake( $path );
+            Proxyclass::i()->buildAndMake( $this->saveFileName() );
         }
-        $fileInfo = pathinfo( $path );
-        $dir = $fileInfo[ 'dirname' ];
-        if ( !is_dir( $dir ) ) {
-            \mkdir( $dir, 0777, true );
-        }
-        //        \file_put_contents( ROOT_PATH . '/foo.php', $this->toWrite );
-        file_put_contents( $path, $this->toWrite );
+
+        //file_put_contents( ROOT_PATH . '/foo.php', $this->toWrite );
+        file_put_contents( $this->saveFileName(), $this->toWrite );
     }
 
     protected function writeHead()
     {
 
-        $this->toWrite = <<<'EOF'
+        if ( $this->isHook === true ) {
+            $this->toWrite = <<<'EOF'
+//<?php
+
+EOF;
+        }
+        else {
+            $this->toWrite = <<<'EOF'
 <?php
 
 EOF;
+        }
 
         if ( $this->docComment ) {
             $this->toWrite .= "\n";
@@ -310,12 +317,46 @@ EOF;
 
     abstract protected function writeBody();
 
+    protected function writeExtra()
+    {
+
+        if ( $this->extra !== null ) {
+            $this->toWrite .= "\n";
+            if ( is_array( $this->extra ) && count( $this->extra ) ) {
+                foreach ( $this->extra as $extra ) {
+                    $this->toWrite .= $extra;
+                }
+            }
+            else {
+                $this->toWrite .= $this->extra;
+            }
+        }
+    }
+
+    protected function saveFileName()
+    {
+
+        $name = $this->fileName;
+        if ( $name === null ) {
+            $name = $this->className;
+        }
+
+        return $this->path . '/' . $name . '.php';
+    }
+
+    public function addFileName( string $name )
+    {
+
+        $info = pathinfo( $name );
+        $this->fileName = $info[ 'filename' ] ?? null;
+    }
+
     /**
      * @param array $extra
      *
      * @return $this
      */
-    public function extra( $extra )
+    public function extra( array $extra )
     {
 
         $this->extra = $extra;

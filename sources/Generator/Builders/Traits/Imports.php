@@ -31,7 +31,7 @@ trait Imports
         $this->importsConst[ $hash ] = [ 'class' => $import ];
     }
 
-    public function checkForImportConstant( $name )
+    public function checkForImportConstant( string $name )
     {
 
         $hash = $this->hash( $name );
@@ -56,7 +56,7 @@ trait Imports
         $this->importsFunctions[ $hash ] = [ 'class' => $import, 'alias' => $alias ];
     }
 
-    public function checkForImportFunction( $name )
+    public function checkForImportFunction( string $name )
     {
 
         $hash = $this->hash( $name );

@@ -29,7 +29,7 @@ class _TraitGenerator extends GeneratorAbstract
     {
 
         $this->toWrite .= "\ntrait {$this->className}";
-        $this->toWrite .= "\n{";
+
     }
 
     protected function writeBody()

@@ -8,17 +8,17 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-/**
- * Class toolbox_hook_Application
- *
- * @mixin \IPS\Application
- */
-class toolbox_hook_Application extends _HOOK_CLASS_
-{
 
+/**
+* Class toolbox_hook_Application
+* @mixin \IPS\Application
+*/
+class toolbox_hook_Application extends _HOOK_CLASS_toolbox_hook_Application
+{
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     public function assignNewVersion( $long, $human )
     {
 
@@ -29,9 +29,10 @@ class toolbox_hook_Application extends _HOOK_CLASS_
         }
     }
 
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     public function build()
     {
 
@@ -41,9 +42,10 @@ class toolbox_hook_Application extends _HOOK_CLASS_
         parent::build();
     }
 
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     public function installOther()
     {
 
@@ -66,6 +68,9 @@ class toolbox_hook_Application extends _HOOK_CLASS_
     }
 
 }
+
+
+
 
 
 

@@ -10,9 +10,8 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-abstract class toolbox_hook_DataStore extends _HOOK_CLASS_
+abstract class toolbox_hook_DataStore extends _HOOK_CLASS_toolbox_hook_DataStore
 {
-
     protected function removeFiles( $path )
     {
 
@@ -30,5 +29,8 @@ abstract class toolbox_hook_DataStore extends _HOOK_CLASS_
     }
 
 }
+
+
+
 
 

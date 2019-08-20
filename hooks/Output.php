@@ -1,13 +1,13 @@
 //<?php
 
+
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
-class toolbox_hook_Output extends _HOOK_CLASS_
+class toolbox_hook_Output extends _HOOK_CLASS_toolbox_hook_Output
 {
-
     public $dtContentType = '\null';
 
     public function sendOutput( $output = '', $httpStatusCode = 200, $contentType = 'text/html', $httpHeaders = [], $cacheThisPage = true, $pageIsCached = false, $parseFileObjects = true, $parseEmoji = true )
@@ -18,6 +18,9 @@ class toolbox_hook_Output extends _HOOK_CLASS_
     }
 
 }
+
+
+
 
 
 

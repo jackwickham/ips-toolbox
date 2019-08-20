@@ -8,9 +8,8 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_Theme extends _HOOK_CLASS_
+class toolbox_hook_Theme extends _HOOK_CLASS_toolbox_hook_Theme
 {
-
     public static function runProcessFunction( $content, $functionName )
     {
 
@@ -39,6 +38,9 @@ class toolbox_hook_Theme extends _HOOK_CLASS_
     }
 
 }
+
+
+
 
 
 

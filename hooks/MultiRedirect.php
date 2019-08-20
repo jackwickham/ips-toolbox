@@ -9,9 +9,8 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_MultiRedirect extends _HOOK_CLASS_
+class toolbox_hook_MultiRedirect extends _HOOK_CLASS_toolbox_hook_MultiRedirect
 {
-
     public function __construct( $url, $callback, $finished, $finalRedirect = true )
     {
 
@@ -33,6 +32,9 @@ class toolbox_hook_MultiRedirect extends _HOOK_CLASS_
     }
 
 }
+
+
+
 
 
 

@@ -11,14 +11,14 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_Db extends _HOOK_CLASS_
+class toolbox_hook_Db extends _HOOK_CLASS_toolbox_hook_Db
 {
-
     protected $dtkey;
 
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     public function query( $query, $log = true, $read = false )
     {
 
@@ -38,10 +38,11 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         return $parent;
     }
 
+    
     /**
-     * @param $time
-     * @param $mem
-     */
+    * @param $time
+    * @param $mem
+    */
     protected function finalizeLog( $time, $mem )
     {
 
@@ -50,10 +51,11 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         $this->log[ $id ][ 'mem' ] = $mem;
     }
 
+    
     /**
-     * @inheritdoc
-     * @throws \IPS\Db\Exception
-     */
+    * @inheritdoc
+    * @throws \IPS\Db\Exception
+    */
     public function preparedQuery( $query, array $_binds, $read = false )
     {
 
@@ -73,9 +75,10 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         return $parent;
     }
 
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     public function createTable( $data )
     {
 
@@ -88,9 +91,10 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         return $return;
     }
 
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     public function addColumn( $table, $definition )
     {
 
@@ -100,9 +104,10 @@ class toolbox_hook_Db extends _HOOK_CLASS_
         }
     }
 
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     protected function log( $query, $server = null )
     {
 
@@ -111,5 +116,8 @@ class toolbox_hook_Db extends _HOOK_CLASS_
     }
 
 }
+
+
+
 
 

@@ -17,9 +17,8 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_developer extends _HOOK_CLASS_
+class toolbox_hook_developer extends _HOOK_CLASS_toolbox_hook_developer
 {
-
     public function execute( $command = 'do' )
     {
 
@@ -605,6 +604,7 @@ EOF;
 
     // Create new methods with the same name as the 'do' parameter which should execute it
 
+
     protected function dtgetFields()
     {
 
@@ -651,5 +651,8 @@ EOF;
     }
 
 }
+
+
+
 
 

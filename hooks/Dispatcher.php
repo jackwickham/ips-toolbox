@@ -6,7 +6,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-abstract class toolbox_hook_Dispatcher extends _HOOK_CLASS_toolbox_hook_Dispatcher
+abstract class toolbox_hook_Dispatcher extends _HOOK_CLASS_
 {
     public function run()
     {
@@ -16,6 +16,15 @@ abstract class toolbox_hook_Dispatcher extends _HOOK_CLASS_toolbox_hook_Dispatch
     }
 
 }
+
+
+
+
+
+
+
+
+
 
 
 

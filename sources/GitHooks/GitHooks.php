@@ -2,6 +2,8 @@
 
 namespace IPS\toolbox;
 
+Application::loadAutoLoader();;
+
 use Exception;
 use Generator\Tokenizers\StandardTokenizer;
 use IPS\IPS;

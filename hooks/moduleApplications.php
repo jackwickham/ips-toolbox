@@ -7,7 +7,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_moduleApplications extends _HOOK_CLASS_toolbox_hook_moduleApplications
+class toolbox_hook_moduleApplications extends _HOOK_CLASS_
 {
     
     /**
@@ -29,6 +29,15 @@ class toolbox_hook_moduleApplications extends _HOOK_CLASS_toolbox_hook_moduleApp
     }
 
 }
+
+
+
+
+
+
+
+
+
 
 
 

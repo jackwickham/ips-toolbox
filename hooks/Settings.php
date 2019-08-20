@@ -6,7 +6,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_Settings extends _HOOK_CLASS_toolbox_hook_Settings
+class toolbox_hook_Settings extends _HOOK_CLASS_
 {
     public function getData()
     {
@@ -19,6 +19,15 @@ class toolbox_hook_Settings extends _HOOK_CLASS_toolbox_hook_Settings
     }
 
 }
+
+
+
+
+
+
+
+
+
 
 
 

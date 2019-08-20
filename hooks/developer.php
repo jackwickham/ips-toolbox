@@ -17,7 +17,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_developer extends _HOOK_CLASS_toolbox_hook_developer
+class toolbox_hook_developer extends _HOOK_CLASS_
 {
     public function execute( $command = 'do' )
     {
@@ -651,6 +651,15 @@ EOF;
     }
 
 }
+
+
+
+
+
+
+
+
+
 
 
 

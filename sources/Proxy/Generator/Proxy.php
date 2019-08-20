@@ -11,12 +11,14 @@
 namespace IPS\toolbox\Proxy\Generator;
 
 use Exception;
+use Generator\Builders\ClassGenerator;
+use Generator\Builders\FileGenerator;
+use Generator\Tokenizers\StandardTokenizer;
 use IPS\Data\Store;
 use IPS\IPS;
 use IPS\Patterns\Bitwise;
 use IPS\toolbox\Application;
-use IPS\toolbox\Generator\Builders\ClassGenerator;
-use IPS\toolbox\Generator\Tokenizers\StandardTokenizer;
+
 use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Proxy\Helpers\HelpersAbstract;
 use IPS\toolbox\Proxy\Proxyclass;
@@ -50,6 +52,8 @@ use function str_replace;
 use function trim;
 use const IPS\ROOT_PATH;
 use IPS\_Settings;
+
+\IPS\toolbox\Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -112,13 +116,12 @@ class _Proxy extends GeneratorAbstract
     /**
      * @param $content
      */
-    public function create( string $content ): void
+    public function create( string $file ): void
     {
 
         try {
 
-            $currentClass = new StandardTokenizer();
-            $currentClass->addPath( $content );
+            $currentClass = new StandardTokenizer( $file );
             $namespace = $currentClass->getNameSpace();
             $ns2 = explode( '\\', $namespace );
             array_shift( $ns2 );
@@ -152,15 +155,22 @@ class _Proxy extends GeneratorAbstract
                     ';',
                 ], '_', $namespace );
                 $file = $alt . '_' . $class . '.php';
-                $type = $currentClass->getType();
 
-                $nc = new ClassGenerator( $path . '/' . $file );
+                $nc = new ClassGenerator();
+                $nc->isProxy = true;
+
+                $nc->addPath( $path );
+                $nc->addFileName( $file );
                 $nc->addNameSpace( $namespace );
                 $nc->addExtends( $namespace . '\\' . $ipsClass );
                 $nc->addClassName( $class );
-                $nc->addType( $type );
-                $nc->addPath( $path . '/' . $file );
+                if ( $currentClass->isFinal() ) {
+                    $nc->makeFinal();
+                }
 
+                if ( $currentClass->isAbstract() ) {
+                    $nc->makeAbstract();
+                }
                 foreach ( $currentClass->getImports() as $import ) {
                     $class = $import[ 'class' ];
                     $alias = $import[ 'alias' ];
@@ -218,9 +228,7 @@ class _Proxy extends GeneratorAbstract
                     $this->buildProprties( $currentClass, $nc );
                     $this->runHelperClasses( $dbClass, $nc, $ipsClass );
                 }
-
-                $nc->isProxy = true;
-                $nc->write();
+                $nc->save();
 
             }
         } catch ( Exception $e ) {
@@ -334,12 +342,6 @@ class _Proxy extends GeneratorAbstract
                             }
                         }
 
-                        if ( isset( $data[ $key ] ) ) {
-                            if ( $return === 'void' || $data[ $key ][ 'type' ] !== 'void' ) {
-                                $return = $data[ $key ][ 'type' ];
-                            }
-                        }
-
                         $data[ $key ] = [
                             'prop'    => trim( $key ),
                             'pt'      => $pt,
@@ -412,11 +414,11 @@ class _Proxy extends GeneratorAbstract
     {
 
         try {
-
             $classDoc = [];
             $class = new ClassGenerator;
-            $class->addPath( $this->save . '/IPS_Settings.php' );
             $class->isProxy = true;
+            $class->addPath( $this->save );
+            $class->addFileName( 'IPS_Settings.php' );
             $class->addNameSpace( 'IPS' );
             $class->addClassName( 'Settings' );
             $class->addExtends( _Settings::class );
@@ -442,8 +444,13 @@ class _Proxy extends GeneratorAbstract
                 }
                 $class->addPropertyTag( $key, [ 'hint' => $type, 'type' => 'read' ] );
             }
+            $class->save();
 
             if ( Proxyclass::i()->doConstants ) {
+                $constants = new FileGenerator;
+                $constants->isProxy = true;
+                $constants->addPath( $this->save );
+                $constants->addFileName( 'IPS_CONSTANTS.php' );
                 $load = IPS::defaultConstants();
                 $extra = "\n";
                 foreach ( $load as $key => $val ) {
@@ -460,9 +467,10 @@ class _Proxy extends GeneratorAbstract
                         $val = "'" . $val . "'";
                     }
 
-                    $extra .= 'define( "IPS\\' . $key . '",' . $val . ");\n";
+                    $contst = 'define( "IPS\\' . $key . '",' . $val . ");\n";
+                    $constants->addBody( $contst );
                 }
-                $extra .= <<<eof
+                $funcs = <<<eof
 /**
  * @param string \$text
  * @return string
@@ -472,10 +480,11 @@ function mb_ucfirst(\$text)
 
 }
 eof;
-                $class->extra( $extra );
+                $constants->addBody( $funcs );
+                $constants->save();
             }
-            $class->write();
         } catch ( Exception $e ) {
+            Debug::log( $e );
         }
 
     }

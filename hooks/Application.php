@@ -1,25 +1,27 @@
 //<?php
 
-
 use IPS\toolbox\DevCenter\Headerdoc;
 use IPS\toolbox\DevFolder\Applications;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
+
 /**
- * Class toolbox_hook_Application
- *
- * @mixin \IPS\Application
- */
-class toolbox_hook_Application extends _HOOK_CLASS_
+* Class toolbox_hook_Application
+* @mixin \IPS\Application
+*/
+class toolbox_hook_Application extends _HOOK_CLASS_toolbox_hook_Application
 {
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     public function assignNewVersion( $long, $human )
     {
+
         parent::assignNewVersion( $long, $human );
         if ( static::appIsEnabled( 'toolbox' ) ) {
             $this->version = $human;
@@ -27,22 +29,26 @@ class toolbox_hook_Application extends _HOOK_CLASS_
         }
     }
 
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     public function build()
     {
+
         if ( static::appIsEnabled( 'toolbox' ) ) {
             Headerdoc::i()->addIndexHtml( $this );
         }
         parent::build();
     }
 
+    
     /**
-     * @inheritdoc
-     */
+    * @inheritdoc
+    */
     public function installOther()
     {
+
         if ( \IPS\IN_DEV ) {
             $dir = \IPS\ROOT_PATH . '/applications/' . $this->directory . '/dev/';
             if ( !\file_exists( $dir ) ) {
@@ -61,5 +67,8 @@ class toolbox_hook_Application extends _HOOK_CLASS_
         parent::installOther();
     }
 
-
 }
+
+
+
+

@@ -11,7 +11,7 @@
 namespace IPS\toolbox\DevCenter\Helpers;
 
 use IPS\toolbox\DevCenter\Dev;
-use IPS\toolbox\Generator\Builders\ClassGenerator;
+use Generator\Builders\ClassGenerator;
 use IPS\toolbox\Proxy\Helpers\HelpersAbstract;
 use function header;
 use function mb_strtolower;

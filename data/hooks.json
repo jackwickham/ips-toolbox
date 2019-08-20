@@ -70,5 +70,9 @@
     "ipsLog": {
         "type": "C",
         "class": "\\IPS\\Log"
+    },
+    "Dispatcher": {
+        "type": "C",
+        "class": "\\IPS\\Dispatcher"
     }
 }

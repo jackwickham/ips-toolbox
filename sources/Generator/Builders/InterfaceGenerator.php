@@ -1,33 +1,25 @@
 <?php
 
-namespace IPS\toolbox\Generator\Builders;
+namespace Generator\Builders;
 
-use IPS\toolbox\Generator\Builders\Traits\Constants;
-use IPS\toolbox\Generator\Builders\Traits\Properties;
+use Generator\Builders\Traits\Constants;
+use Generator\Builders\Traits\Properties;
 
 /**
  * Class _ClassGenerator
  *
- * @package IPS\toolbox\Generator\Builders
- * @mixin InterfaceGenerator
+ * @package  Builders
  */
-class _InterfaceGenerator extends GeneratorAbstract
+class InterfaceGenerator extends GeneratorAbstract
 {
 
     use Properties, Constants;
 
-    /**
-     * an array of class method's
-     *
-     * @var array
-     */
-    protected $methods = [];
-
     public function writeSourceType()
     {
 
-        $this->toWrite .= "\ninterface {$this->className}";
-        $this->toWrite .= "\n{";
+        $this->output( "\ninterface {$this->className}" );
+        $this->output( "\n{" );
     }
 
     /**
@@ -61,14 +53,14 @@ class _InterfaceGenerator extends GeneratorAbstract
             if ( isset( $this->removeMethods[ $name ] ) ) {
                 continue;
             }
-            $this->toWrite .= "\n{$tab}";
+            $this->output( "\n{$tab}" );
             if ( $method[ 'document' ] && is_array( $method[ 'document' ] ) ) {
-                $this->toWrite .= "\n";
-                $this->toWrite .= $tab . "/**\n";
+                $this->output( "\n" );
+                $this->output( $tab . "/**\n" );
                 foreach ( $method[ 'document' ] as $item ) {
-                    $this->toWrite .= "{$tab}* {$item}\n";
+                    $this->output( "{$tab}* {$item}\n" );
                 }
-                $this->toWrite .= "{$tab}*/\n{$tab}";
+                $this->output( "{$tab}*/\n{$tab}" );
 
             }
 
@@ -83,7 +75,7 @@ class _InterfaceGenerator extends GeneratorAbstract
                 $static = ' static';
             }
 
-            $this->toWrite .= $final . $method[ 'visibility' ] . $static . ' function ' . $name . '(';
+            $this->output( $final . $method[ 'visibility' ] . $static . ' function ' . $name . '(' );
 
             if ( empty( $method[ 'params' ] ) !== true && is_array( $method[ 'params' ] ) ) {
                 $built = [];
@@ -118,15 +110,15 @@ class _InterfaceGenerator extends GeneratorAbstract
                     $built[] = $p;
 
                 }
-                $this->toWrite .= implode( ', ', $built );
+                $this->output( implode( ', ', $built ) );
             }
-            $this->toWrite .= ')';
+            $this->output( ')' );
 
             if ( isset( $method[ 'returnType' ] ) && $method[ 'returnType' ] ) {
-                $this->toWrite .= ': ' . $method[ 'returnType' ];
+                $this->output( ': ' . $method[ 'returnType' ] );
             }
 
-            $this->toWrite .= ';';
+            $this->output( ';' );
 
         }
 

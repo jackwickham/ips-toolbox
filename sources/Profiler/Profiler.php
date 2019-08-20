@@ -87,10 +87,10 @@ class _Profiler extends Singleton
             return '';
         }
         if ( !Request::i()->isAjax() ) {
-            $framework = \null;
+            $framework = null;
 
             if ( Settings::i()->dtprofiler_enabled_execution ) {
-                $framework = round( microtime( \true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], 4 ) * 1000;
+                $framework = round( microtime( true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], 4 ) * 1000;
             }
             //
             $logs = Logs::i()->build();
@@ -103,10 +103,10 @@ class _Profiler extends Singleton
             if ( Settings::i()->dtprofiler_enable_debug ) {
                 $debug = Debug::build();
             }
-            $files = \null;
-            $memory = \null;
-            $cache = \null;
-            $time = \null;
+            $files = null;
+            $memory = null;
+            $cache = null;
+            $time = null;
             $executions = Time::build();
 
             if ( Settings::i()->dtprofiler_enabled_files ) {
@@ -122,7 +122,7 @@ class _Profiler extends Singleton
             }
 
             if ( Settings::i()->dtprofiler_enabled_execution ) {
-                $total = round( microtime( \true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], 4 ) * 1000;
+                $total = round( microtime( true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], 4 ) * 1000;
                 $profileTime = $total - $framework;
                 $time = [
                     'total'     => $total,
@@ -132,9 +132,10 @@ class _Profiler extends Singleton
             }
 
             return Theme::i()->getTemplate( 'bar', 'toolbox', 'front' )->bar( $time, $memory, $files, $templates, $database, $cache, $logs, $extra, $info, $environment, $debug, $executions );
+
         }
 
-        return \null;
+        return null;
     }
 
     /**
@@ -185,7 +186,7 @@ class _Profiler extends Singleton
 
         $info[ 'apps' ][ 'app' ] = [];
         /* @var Application $app */
-        foreach ( $this->apps( \true ) as $app ) {
+        foreach ( $this->apps( true ) as $app ) {
             $name = $app->_title;
             $title = $name;
             $title .= $app->enabled ? ' (Enabled)' : ' (Disabled)';
@@ -265,9 +266,9 @@ class _Profiler extends Singleton
 
         $class = 'IPS\\' . implode( '\\', $location );
         $location = $class . '::' . $do;
-        $link = \null;
-        $url = \null;
-        $line = \null;
+        $link = null;
+        $url = null;
+        $line = null;
         try {
             $reflection = new ReflectionClass( $class );
             $method = $reflection->getMethod( $do );
@@ -293,7 +294,7 @@ class _Profiler extends Singleton
      *
      * @return array
      */
-    public function apps( $skip = \true ): array
+    public function apps( $skip = true ): array
     {
 
         if ( NO_WRITES ) {
@@ -301,7 +302,7 @@ class _Profiler extends Singleton
         }
 
         $dtApps = [];
-        if ( $skip === \true ) {
+        if ( $skip === true ) {
             $dtApps = [
                 'toolbox',
             ];
@@ -310,8 +311,8 @@ class _Profiler extends Singleton
 
         foreach ( Application::applications() as $app ) {
 
-            if ( !in_array( $app->directory, Application::$ipsApps, \true ) ) {
-                if ( in_array( $app->directory, $dtApps, \true ) ) {
+            if ( !in_array( $app->directory, Application::$ipsApps, true ) ) {
+                if ( in_array( $app->directory, $dtApps, true ) ) {
                     continue;
                 }
 
@@ -351,7 +352,7 @@ class _Profiler extends Singleton
     {
 
         if ( !Settings::i()->dtprofiler_enabled_enivro ) {
-            return \null;
+            return null;
         }
 
         $data = [];
@@ -362,7 +363,7 @@ class _Profiler extends Singleton
                     continue;
                 }
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
 
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_GET : ' . $key, $val ) ];
@@ -375,7 +376,7 @@ class _Profiler extends Singleton
                     continue;
                 }
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
 
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_POST : ' . $key, $val ) ];
@@ -389,7 +390,7 @@ class _Profiler extends Singleton
                     continue;
                 }
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_REQUEST : ' . $key, $val ) ];
             }
@@ -398,7 +399,7 @@ class _Profiler extends Singleton
         if ( !empty( $_COOKIE ) ) {
             foreach ( $_COOKIE as $key => $val ) {
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_COOKIE : ' . $key, $val ) ];
             }
@@ -422,7 +423,7 @@ class _Profiler extends Singleton
                     continue;
                 }
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_SERVER : ' . $key, $val ) ];
             }
@@ -430,7 +431,7 @@ class _Profiler extends Singleton
 
         $return = null;
         if ( is_array( $data ) && count( $data ) ) {
-            $return = Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->button( 'Environment', 'environment', 'Environment Variables.', $data, json_encode( $data ), count( $data ), 'random', \true, \false );
+            $return = Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->button( 'Environment', 'environment', 'Environment Variables.', $data, json_encode( $data ), count( $data ), 'random', true, false );
 
         }
 
@@ -455,10 +456,10 @@ class _Profiler extends Singleton
                 $name = $app->_title;
                 Member::loggedIn()->language()->parseOutputForDisplay( $name );
                 $git = new Git( $path );
-                $id = \null;
-                $branch = \null;
+                $id = null;
+                $branch = null;
                 $msg = [];
-                $branches = \null;
+                $branches = null;
                 $id = $git->getLastCommitId();
                 $msg = $git->getLastCommitMessage();
                 $branch = $git->getCurrentBranchName();

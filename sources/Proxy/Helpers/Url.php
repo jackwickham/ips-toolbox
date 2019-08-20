@@ -13,7 +13,7 @@
 namespace IPS\toolbox\Proxy\Helpers;
 
 use IPS\Http\Request\Curl;
-use IPS\toolbox\Generator\Builders\ClassGenerator;
+use Generator\Builders\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\ParamTag;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
 use Zend\Code\Generator\DocBlockGenerator;

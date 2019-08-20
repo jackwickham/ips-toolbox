@@ -14,7 +14,6 @@ namespace IPS\toolbox\DevCenter\Sources\Generator;
 
 use IPS\Content\Comment;
 use IPS\Content\Review;
-use Zend\Code\Generator\PropertyValueGenerator;
 use function defined;
 use function header;
 use function mb_strtolower;
@@ -53,10 +52,8 @@ class _Comment extends Item
 
         if ( mb_strtolower( $this->type ) === 'comment' ) {
             $this->brief = 'Content Comment Class';
-            $this->extends = Comment::class;
-            if ( $this->useImports ) {
-                $this->generator->addUse( Comment::class );
-            }
+            $this->extends = 'Comment';
+            $this->generator->addUse( Comment::class );
         }
         else if ( mb_strtolower( $this->type ) === 'review' ) {
             $dbColumns[] = 'rating';
@@ -66,10 +63,8 @@ class _Comment extends Item
             $dbColumns[] = 'author_response';
 
             $this->brief = 'Content Review Class';
-            $this->extends = Review::class;
-            if ( $this->useImports ) {
-                $this->generator->addUse( Review::class );
-            }
+            $this->extends = 'Review';
+            $this->generator->addUse( Review::class );
 
             $columnMap[ 'rating' ] = 'rating';
             $columnMap[ 'votes_total' ] = 'votes_total';
@@ -95,35 +90,21 @@ class _Comment extends Item
 
         if ( $this->content_item_class !== \null ) {
             $this->content_item_class = mb_ucfirst( $this->content_item_class );
-
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => 'Node Class' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
-
             $itemClass = '\\IPS\\' . $this->app . '\\' . $this->content_item_class;
-
-            if ( $this->useImports ) {
-                $this->generator->addUse( $itemClass );
-                $itemClass = $this->content_item_class;
-            }
-
+            $this->generator->addUse( $itemClass );
+            $itemClass = $this->content_item_class;
             $itemClass .= '::class';
-
-            $config = [
-                'name'   => 'itemClass',
-                'value'  => new PropertyValueGenerator( $itemClass, PropertyValueGenerator::TYPE_CONSTANT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
+            $doc = [
+                '@Brief Item Class',
+                '@Var ' . $this->content_item_class,
             ];
 
-            try {
-                $this->addProperty( $config );
-            } catch ( \Exception $e ) {
-            }
+            $this->generator->addProperty( 'itemClass', $itemClass, [
+                'visibility' => T_PUBLIC,
+                'static'     => true,
+                'document'   => $doc,
+            ] );
+
         }
     }
 }

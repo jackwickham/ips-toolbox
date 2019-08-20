@@ -14,7 +14,7 @@ namespace IPS\toolbox\Generator;
 
 use Exception;
 use IPS\Application;
-use IPS\dtproxy\Proxyclass;
+use IPS\toolbox\Proxy\Proxyclass;
 use Symfony\Component\Filesystem\Filesystem;
 use Zend\Code\Generator\FileGenerator;
 use function defined;

@@ -27,6 +27,7 @@ use IPS\Request;
 use IPS\Settings;
 use IPS\toolbox\Content\Club;
 use IPS\toolbox\Content\Forum;
+use IPS\toolbox\Content\Generator;
 use IPS\toolbox\Content\Member as Dtmember;
 use IPS\toolbox\Content\Post;
 use IPS\toolbox\Content\Topic;
@@ -45,12 +46,14 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _generator extends Controller
 {
+
     /**
      * @inheritdoc
      * @throws Exception
      */
     protected function manage()
     {
+
         $groups = [];
 
         /* @var \IPS\Member\Group $group */
@@ -97,6 +100,7 @@ class _generator extends Controller
                 ],
                 'validation' => function ( $data )
                 {
+
                     if ( $data === 'none' ) {
                         throw new InvalidArgumentException( 'dtcontent_gen_none' );
                     }
@@ -178,11 +182,13 @@ class _generator extends Controller
      */
     protected function delete()
     {
+
         Output::i()->title = 'Delete Content';
 
         $url = $this->url->setQueryString( [ 'do' => 'delete', 'oldDo' => Request::i()->oldDo ] );
-        Output::i()->output = new MultipleRedirect( $url, function ( $data )
+        Output::i()->output = new MultipleRedirect( $url, static function ( $data )
         {
+
             $offset = 0;
             if ( isset( $data[ 'offset' ] ) ) {
                 $offset = $data[ 'offset' ];
@@ -199,7 +205,7 @@ class _generator extends Controller
                 $total = $data[ 'total' ];
             }
 
-            $limit = 10;
+            $limit = 100;
 
             $select = Db::i()->select( '*', 'toolbox_generator', [], 'generator_id ASC', $limit, \null, \null, Db::SELECT_SQL_CALC_FOUND_ROWS );
 
@@ -211,7 +217,7 @@ class _generator extends Controller
 
             $contents = new ActiveRecordIterator( $sql, Generator::class );
 
-            /* @var \IPS\dtcontent\Generator $content */
+            /* @var \IPS\toolbox\Content\Generator $content */
             foreach ( $contents as $content ) {
                 $content->process();
                 $offset++;
@@ -233,6 +239,7 @@ class _generator extends Controller
             ];
         }, function ()
         {
+
             /* And redirect back to the overview screen */
             $url = Url::internal( 'app=toolbox&module=content&controller=generator' );
             Output::i()->redirect( $url, 'dtcontent_generation_delete_done' );
@@ -244,6 +251,7 @@ class _generator extends Controller
      */
     protected function queue()
     {
+
         Output::i()->title = 'Generator';
         $type = Request::i()->type ?: 'forums';
         $limit = Request::i()->limit ?: 10;
@@ -262,6 +270,7 @@ class _generator extends Controller
 
         Output::i()->output = new MultipleRedirect( $url, function ( $data )
         {
+
             $offset = 0;
             $type = Request::i()->type ?: 'forums';
             $limit = Request::i()->limit ?: 10;
@@ -371,6 +380,7 @@ class _generator extends Controller
             ];
         }, function ()
         {
+
             $url = Url::internal( 'app=toolbox&module=content&controller=generator' );
             $lang = Member::loggedIn()->language()->addToStack( 'dtcontent_completed', \false, [ 'sprintf' => [ mb_ucfirst( Request::i()->type ) ] ] );
             Member::loggedIn()->language()->parseOutputForDisplay( $lang );

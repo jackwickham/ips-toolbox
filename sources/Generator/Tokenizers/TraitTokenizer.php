@@ -1,12 +1,10 @@
 <?php
 
-namespace IPS\toolbox\Generator\Tokenizers;
+namespace Generator\Tokenizers;
 
-use IPS\toolbox\Generator\Builders\TraitGenerator;
-use IPS\toolbox\sources\Generator\Tokenizers\ClassTrait;
-use const IPS\ROOT_PATH;
+use Generator\Builders\TraitGenerator;
 
-class _TraitTokenizer extends TraitGenerator
+class TraitTokenizer extends TraitGenerator
 {
 
     use Shared, ClassTrait;

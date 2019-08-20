@@ -13,7 +13,7 @@
 namespace IPS\toolbox\modules\admin\settings;
 
 use Exception;
-use Go\ParserReflection\ReflectionFile;
+use Generator\Tokenizers\StandardTokenizer;
 use IPS\Application;
 use IPS\Dispatcher;
 use IPS\Dispatcher\Controller;
@@ -21,21 +21,10 @@ use IPS\Helpers\Form;
 use IPS\Output;
 use IPS\Request;
 use IPS\Settings;
-use IPS\toolbox\Generator\Tokenizer;
-use IPS\toolbox\Generator\Tokenizers\StandardTokenizer;
 use IPS\toolbox\Profiler\Debug;
 use RuntimeException;
-use Zend\Code\Generator\ClassGenerator;
-use function array_shift;
 use function defined;
-use function file_get_contents;
-use function file_put_contents;
 use function header;
-use function is_file;
-use function preg_replace_callback;
-use function print_r;
-use function str_replace;
-use const DIRECTORY_SEPARATOR;
 use const IPS\NO_WRITES;
 use const IPS\ROOT_PATH;
 
@@ -62,6 +51,8 @@ class _settings extends Controller
      */
     public function execute()
     {
+
+        \IPS\toolbox\Application::loadAutoLoader();
 
         Dispatcher\Admin::i()->checkAcpPermission( 'settings_manage' );
         parent::execute();
@@ -124,14 +115,14 @@ class _settings extends Controller
         if ( NO_WRITES === \false ) {
 
             try {
-                $tokenizer = new StandardTokenizer( 'init.php' );
+                $tokenizer = new StandardTokenizer( ROOT_PATH . '/init.php' );
                 $helpers = '__DIR__ . \'/applications/toolbox/sources/Debug/Helpers.php\'';
                 if ( $tokenizer->hasBackup() === false ) {
                     $tokenizer->backup();
                 }
                 $tokenizer->addRequire( $helpers, true, false );
                 $tokenizer->write();
-            } catch ( \Exception $e ) {
+            } catch ( Exception $e ) {
                 Debug::log( $e );
             }
         }
@@ -191,15 +182,17 @@ class _settings extends Controller
     
 eof;
             try {
-                $tokenizer = new StandardTokenizer( 'init.php' );
+                $tokenizer = new StandardTokenizer( ROOT_PATH . '/init.php' );
+                $tokenizer->addPath( ROOT_PATH );
+                $tokenizer->addFileName( 'init' );
                 $tokenizer->replaceMethod( 'monkeyPatch', $before );
-
+                $tokenizer->addProperty( 'beenPatched', 'true', [ 'static' => true ] );
                 if ( $tokenizer->hasBackup() === false ) {
                     $tokenizer->backup();
                 }
 
-                $tokenizer->write();
-            } catch ( \Exception $e ) {
+                $tokenizer->save();
+            } catch ( Exception $e ) {
                 Debug::log( $e );
             }
         }

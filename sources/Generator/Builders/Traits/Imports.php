@@ -1,6 +1,6 @@
 <?php
 
-namespace IPS\toolbox\Generator\Builders\Traits;
+namespace Generator\Builders\Traits;
 
 trait Imports
 {
@@ -24,31 +24,28 @@ trait Imports
     public function addImportConstant( string $import )
     {
 
-        $hash = $this->hash( $import );
         if ( $this->checkForImportConstant( $import ) ) {
             throw new \InvalidArgumentException( 'This constant exist as a import!' );
         }
-        $this->importsConst[ $hash ] = [ 'class' => $import ];
+        $this->importsConst[ $import ] = [ 'class' => $import ];
     }
 
-    public function checkForImportConstant( string $name )
+    public function checkForImportConstant( $import )
     {
 
-        $hash = $this->hash( $name );
-
-        return isset( $this->importsConst[ $hash ] );
+        return isset( $this->importsConst[ $import ] );
     }
 
     public function addImportFunction( string $import, $alias = null )
     {
 
         if ( $alias !== null ) {
-            $hash = $this->hash( $alias );
+            $hash = $alias;
         }
         else {
             $parts = explode( '\\', $import );
             $class = array_pop( $parts );
-            $hash = $this->hash( $class );
+            $hash = $class;
         }
         if ( $this->checkForImportFunction( $class ) || $this->checkForImportFunction( $alias ) ) {
             throw new \InvalidArgumentException( 'This function exist as a import!' );
@@ -56,12 +53,10 @@ trait Imports
         $this->importsFunctions[ $hash ] = [ 'class' => $import, 'alias' => $alias ];
     }
 
-    public function checkForImportFunction( string $name )
+    public function checkForImportFunction( $import )
     {
 
-        $hash = $this->hash( $name );
-
-        return isset( $this->importsFunctions[ $hash ] );
+        return isset( $this->importsFunctions[ $import ] );
     }
 
     public function addImport( string $import, string $alias = null )
@@ -69,10 +64,10 @@ trait Imports
 
         $parts = explode( '\\', $import );
         $class = array_pop( $parts );
-        $hash = $this->hash( $class );
+        $hash = $class;
 
         if ( $alias !== null ) {
-            $hash = $this->hash( $alias );
+            $hash = $alias;
         }
 
         $continue = true;
@@ -87,12 +82,10 @@ trait Imports
 
     }
 
-    public function checkForImport( $name )
+    public function checkForImport( $import )
     {
 
-        $hash = $this->hash( $name );
-
-        return isset( $this->imports[ $hash ] );
+        return isset( $this->imports[ $import ] );
     }
 
     public function getImportFunctions()
@@ -143,15 +136,15 @@ trait Imports
     protected function buildImport( $import, $type = null )
     {
 
-        $this->toWrite .= "\nuse ";
+        $this->output( "\nuse " );
         if ( $type !== null ) {
-            $this->toWrite .= $type . ' ';
+            $this->output( $type . ' ' );
         }
-        $this->toWrite .= $import[ 'class' ];
+        $this->output( $import[ 'class' ] );
         if ( isset( $import[ 'alias' ] ) && $import[ 'alias' ] ) {
-            $this->toWrite .= " as {$import['alias']}";
+            $this->output( " as {$import['alias']}" );
         }
-        $this->toWrite .= ';';
+        $this->output( ';' );
     }
 
 }

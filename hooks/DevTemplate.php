@@ -1,7 +1,5 @@
 //<?php
 
-/* To prevent PHP errors (extending class does not exist) revealing path */
-
 use IPS\Data\Store;
 use IPS\Request;
 use IPS\Settings;
@@ -12,17 +10,18 @@ use IPS\toolbox\Profiler\Time;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
-Application::loadAutoLoader();
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
-class toolbox_hook_DevTemplate extends _HOOK_CLASS_
+class toolbox_hook_DevTemplate extends _HOOK_CLASS_toolbox_hook_DevTemplate
 {
-    public static $debugFileName = \null;
+    public static $debugFileName = '\null';
 
     public function __call( $bit, $params )
     {
+
         static::$debugFileName = \null;
         $template = \null;
         if ( !Request::i()->isAjax() && \IPS\QUERY_LOG && Settings::i()->dtprofiler_enabled_templates && $this->app !== 'dtprofiler' && ( $this->app === 'core' && $bit !== 'cachingLog' ) ) {
@@ -155,6 +154,7 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_
 
     protected function buildTemplateCache()
     {
+
         $cachePath = \IPS\ROOT_PATH . '/toolbox_templates/';
         if ( !\is_dir( $cachePath ) ) {
             \mkdir( $cachePath, 0777, \true );
@@ -222,4 +222,7 @@ EOF;
 
         include_once( $classFileName );
     }
+
 }
+
+

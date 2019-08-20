@@ -19,7 +19,7 @@ use IPS\Node\Model;
 use IPS\Output;
 use IPS\Request;
 use IPS\toolbox\DevCenter\Sources\Generator\GeneratorAbstract as devPlusGeneratorAbstract;
-use IPS\toolbox\Generator\Builders\ClassGenerator;
+use Generator\Builders\ClassGenerator;
 use IPS\toolbox\Proxy\Helpers\GeneratorAbstract;
 use IPS\toolbox\Proxy\Helpers\Request as HelpersRequest;
 use IPS\toolbox\Proxy\Helpers\Store as HelpersStore;

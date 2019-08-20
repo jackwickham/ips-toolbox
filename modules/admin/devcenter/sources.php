@@ -1,6 +1,5 @@
 <?php
 
-
 namespace IPS\toolbox\modules\admin\devcenter;
 
 use IPS\Application;
@@ -37,6 +36,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     public function execute()
     {
+
         \IPS\Dispatcher::i()->checkAcpPermission( 'sources_manage' );
         Sources::menu();
         $this->application = Application::load( Request::i()->appKey );
@@ -50,6 +50,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function standard()
     {
+
         $config = [
             'Namespace',
             'ClassName',
@@ -65,6 +66,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function doOutput( $config, $type, $title )
     {
+
         $this->elements->buildForm( $config, $type );
         $this->elements->create();
         $url = (string)Url::internal( 'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey );
@@ -83,6 +85,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function debug()
     {
+
         $this->elements->type = 'Debug';
         $this->elements->generate();
         $url = Url::internal( 'app=core&module=applications&controller=developer&appKey=' . $this->application->directory );
@@ -91,6 +94,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function memory()
     {
+
         $this->elements->type = 'Memory';
         $this->elements->generate();
         $url = Url::internal( 'app=core&module=applications&controller=developer&appKey=' . $this->application->directory );
@@ -99,6 +103,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function form()
     {
+
         $this->elements->type = 'Form';
         $this->elements->generate();
         $url = Url::internal( 'app=core&module=applications&controller=developer&appKey=' . $this->application->directory );
@@ -107,6 +112,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function cinterface()
     {
+
         $config = [
             'Namespace',
             'ClassName',
@@ -117,6 +123,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function ctraits()
     {
+
         $config = [
             'Namespace',
             'ClassName',
@@ -127,6 +134,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function singleton()
     {
+
         $config = [
             'Namespace',
             'ClassName',
@@ -140,6 +148,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function ar()
     {
+
         $config = [
             'Namespace',
             'ClassName',
@@ -156,6 +165,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function node()
     {
+
         $config = [
             'Namespace',
             'ClassName',
@@ -173,6 +183,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function item()
     {
+
         $config = [
             'Namespace',
             'ClassName',
@@ -191,6 +202,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function comment()
     {
+
         $config = [
             'Namespace',
             'ClassName',
@@ -207,6 +219,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function review()
     {
+
         $config = [
             'Namespace',
             'ClassName',
@@ -223,6 +236,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function findClass()
     {
+
         $classes = Cache::i()->getClasses();
 
         if ( empty( $classes ) !== true ) {
@@ -243,6 +257,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function findClass2()
     {
+
         $classes = Cache::i()->getClasses();
 
         if ( empty( $classes ) !== true ) {
@@ -263,6 +278,7 @@ class _sources extends \IPS\Dispatcher\Controller
 
     protected function findNamespace()
     {
+
         $ns = Cache::i()->getNamespaces();
 
         if ( empty( $ns ) !== true ) {
@@ -280,10 +296,12 @@ class _sources extends \IPS\Dispatcher\Controller
         }
     }
 
-    protected function api(){
+    protected function api()
+    {
+
         $config = [
             'ClassName',
-            'apiType'
+            'apiType',
         ];
         $this->doOutput( $config, 'api', 'API Class' );
     }

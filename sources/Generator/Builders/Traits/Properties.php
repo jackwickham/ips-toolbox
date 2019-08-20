@@ -1,6 +1,8 @@
 <?php
 
-namespace IPS\toolbox\Generator\Builders\Traits;
+namespace Generator\Builders\Traits;
+
+use Generator\Builders\ClassGenerator;
 
 trait Properties
 {
@@ -22,21 +24,27 @@ trait Properties
     public function addProperty( string $name, $value, array $extra )
     {
 
-        $hash = $this->hash( $name );
-        $this->properties[ $hash ] = [
+        //        if ( $name === 'multitons' ) {
+        //            _d( $value, empty( $value ), trim( ClassGenerator::convertValue( $value ) ) );
+        //        }
+        $this->properties[ $name ] = [
             'name'       => $name,
-            'value'      => $value,
+            'value'      => empty( $value ) !== true ? trim( ClassGenerator::convertValue( $value ) ) : null,
             'document'   => $extra[ 'document' ] ?? null,
             'static'     => $extra[ 'static' ] ?? false,
             'visibility' => $extra[ 'visibility' ] ?? T_PUBLIC,
+            'type'       => $extra[ 'type' ] ?? 'string',
         ];
+
+        //        if ( $name === 'beenPatched' ) {
+        //            _p( $this->properties[ $name ] );
+        //        }
     }
 
     public function removeProperty( string $name )
     {
 
-        $hash = $this->hash( $name );
-        unset( $this->properties[ $hash ] );
+        unset( $this->properties[ $name ] );
     }
 
     public function getProperties()
@@ -50,11 +58,10 @@ trait Properties
 
         $property = $this->getProperty( $property );
         if ( $property !== null && isset( $property[ 'value' ] ) && $property[ 'value' ] !== null ) {
-            $value = <<<EOF
-return {$property['value']};
-EOF;
+            $value = trim( $property[ 'value' ], '"' );
+            $value = trim( $value, "'" );
 
-            return eval( $value );
+            return $value;
         }
 
         return null;
@@ -63,7 +70,7 @@ EOF;
     public function getProperty( $name )
     {
 
-        return $this->properties[ $this->hash( $name ) ] ?? null;
+        return $this->properties[ $name ] ?? null;
     }
 
     /**
@@ -95,13 +102,13 @@ EOF;
             $doc .= ' ' . $extra[ 'comment' ];
         }
 
-        $this->classComment[ $this->hash( $name ) ] = $doc;
+        $this->classComment[ $name ] = $doc;
     }
 
     public function getPropertyTag( $name )
     {
 
-        return $this->classComment[ $this->hash( $name ) ] ?? null;
+        return $this->classComment[ $name ] ?? null;
     }
 
     protected function writeProperties(): void
@@ -109,38 +116,47 @@ EOF;
 
         if ( empty( $this->properties ) !== true ) {
             foreach ( $this->properties as $property ) {
-                $this->toWrite .= "\n{$this->tab}";
+                $this->output( "\n{$this->tab}" );
 
                 if ( $property[ 'document' ] ) {
-                    $this->toWrite .= "/**\n";
+                    $this->output( "/**\n" );
                     foreach ( $property[ 'document' ] as $item ) {
-                        $this->toWrite .= "{$this->tab}* {$item}\n";
+                        $this->output( "{$this->tab}* {$item}\n" );
                     }
-                    $this->toWrite .= $this->tab . "*/\n{$this->tab}";
+                    $this->output( $this->tab . "*/\n{$this->tab}" );
                 }
                 $visibility = $property[ 'visibility' ];
 
                 if ( $visibility === T_PUBLIC ) {
-                    $visibility = 'public';
+                    $visibility = 'public ';
                 }
                 else if ( $visibility === T_PROTECTED ) {
-                    $visibility = 'protected';
+                    $visibility = 'protected ';
                 }
                 else if ( $visibility === T_PRIVATE ) {
-                    $visibility = 'private';
+                    $visibility = 'private ';
                 }
                 else if ( $visibility === null ) {
-                    $visibility = 'public';
+                    $visibility = 'public ';
                 }
-                $this->toWrite .= $visibility . ' ';
+                $this->output( $visibility . ' ' );
                 if ( isset( $property[ 'static' ] ) && $property[ 'static' ] ) {
-                    $this->toWrite .= 'static ';
+                    $this->output( 'static ' );
                 }
-                $this->toWrite .= ' $' . $property[ 'name' ];
-                if ( $property[ 'value' ] ) {
-                    $this->toWrite .= ' = ' . trim( $property[ 'value' ] );
+                $this->output( '$' . $property[ 'name' ] );
+                //                if ( $property[ 'name' ] === 'multitons' ) {
+                //                    _d( $property[ 'value' ], $property[ 'value' ] !== 'null' );
+                //                }
+                if ( isset( $property[ 'value' ] ) && ( $property[ 'value' ] !== null && $property[ 'value' ] !== 'null' ) ) {
+                    $pType = $property[ 'type' ];
+                    if ( $pType !== 'string' ) {
+                        $this->output( ' = ' . $property[ 'value' ] );
+                    }
+                    else {
+                        $this->output( ' = ' . trim( ClassGenerator::convertValue( $property[ 'value' ] ) ) );
+                    }
                 }
-                $this->toWrite .= ";\n";
+                $this->output( ";\n" );
             }
         }
     }

@@ -1,11 +1,10 @@
 <?php
 
-namespace IPS\toolbox\Generator\Tokenizers;
+namespace Generator\Tokenizers;
 
-use IPS\toolbox\Generator\Builders\ClassGenerator;
-use IPS\toolbox\sources\Generator\Tokenizers\ClassTrait;
+use Generator\Builders\ClassGenerator;
 
-class _StandardTokenizer extends ClassGenerator
+class StandardTokenizer extends ClassGenerator
 {
 
     use Shared, ClassTrait;

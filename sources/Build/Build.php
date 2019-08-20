@@ -13,6 +13,7 @@
 namespace IPS\toolbox;
 
 use Exception;
+use IPS\toolbox\Profiler\Debug;
 use function explode;
 use IPS\Application;
 use IPS\Application\BuilderIterator;
@@ -52,13 +53,13 @@ class _Build extends Singleton
         Member::loggedIn()->language()->parseOutputForDisplay( $title );
         $e = [];
 
-            $newLong = $application->long_version + 1;
+        $newLong = $application->long_version + 1;
 
-        if( empty( $application->version ) !== true ) {
+        if ( empty( $application->version ) !== true ) {
             $exploded = explode( '.', $application->version );
             $newShort = "{$exploded[0]}.{$exploded[1]}." . ( (int)$exploded[ 2 ] + 1 );
         }
-        else{
+        else {
             $newShort = '1.0.0';
             $newLong = 10000;
         }
@@ -68,13 +69,13 @@ class _Build extends Singleton
             'name'     => 'toolbox_long_version',
             'class'    => '#',
             'label'    => 'Long Version',
-            'required' => \true,
+            'required' => true,
             'default'  => $newLong,
         ];
         $e[] = [
             'name'     => 'toolbox_short_version',
             'label'    => 'Short Version',
-            'required' => \true,
+            'required' => true,
             'default'  => $newShort,
         ];
 
@@ -111,7 +112,7 @@ class _Build extends Singleton
                     $application->build();
                     $application->save();
                     if ( !is_dir( $path ) ) {
-                        if ( !mkdir( $path, \IPS\IPS_FOLDER_PERMISSION, \true ) && !is_dir( $path ) ) {
+                        if ( !mkdir( $path, \IPS\IPS_FOLDER_PERMISSION, true ) && !is_dir( $path ) ) {
                             throw new RuntimeException( sprintf( 'Directory "%s" was not created', $path ) );
                         }
                         chmod( $path, \IPS\IPS_FOLDER_PERMISSION );
@@ -120,32 +121,32 @@ class _Build extends Singleton
                     $download = new PharData( $pharPath, 0, $application->directory . '.tar', Phar::TAR );
                     $download->buildFromIterator( new BuilderIterator( $application ) );
                 } catch ( Exception $e ) {
-                    Log::log( $e, 'phar' );
+                    Debug::log( $e, 'phar' );
                 }
             } catch ( Exception $e ) {
-                Log::log( $e, 'phar' );
+                Debug::log( $e, 'phar' );
 
             }
 
-            $directions = \IPS\ROOT_PATH . '/applications/' . $application->directory . '/data/defaults/instructions.txt';
-            $apps = [];
-
-            if ( is_file( $directions ) ) {
-                copy( $directions, $path . 'instructions.txt' );
-                $apps[] = 'instructions.txt';
-            }
-
-            $apps[] = $application->directory . '.tar';
-
-            $zip = new ZipArchive;
-            if ( $zip->open( $path . $title . ' - ' . $short . '.zip', ZIPARCHIVE::CREATE ) === \true ) {
-                foreach ( $apps as $app ) {
-                    $zip->addFile( $path . $app, $app );
-                }
-                $zip->close();
-            }
+            //            $directions = \IPS\ROOT_PATH . '/applications/' . $application->directory . '/data/defaults/instructions.txt';
+            //            $apps = [];
+            //
+            //            if ( is_file( $directions ) ) {
+            //                copy( $directions, $path . 'instructions.txt' );
+            //                $apps[] = 'instructions.txt';
+            //            }
+            //
+            //            $apps[] = $application->directory . '.tar';
+            //
+            //            $zip = new ZipArchive;
+            //            if ( $zip->open( $path . $title . ' - ' . $short . '.zip', ZIPARCHIVE::CREATE ) === \true ) {
+            //                foreach ( $apps as $app ) {
+            //                    $zip->addFile( $path . $app, $app );
+            //                }
+            //                $zip->close();
+            //            }
             unset( Store::i()->applications, $download );
-            \Phar::unlinkArchive( $pharPath );
+            Phar::unlinkArchive( $pharPath );
             $url = Url::internal( 'app=core&module=applications&controller=applications' );
             Output::i()->redirect( $url, $application->_title . ' successfully built!' );
         }

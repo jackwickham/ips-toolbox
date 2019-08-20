@@ -1,33 +1,12 @@
 <?php
 
-namespace IPS\toolbox\sources\Generator\Tokenizers;
+namespace Generator\Tokenizers;
+
+use Generator\Builders\ClassGenerator;
+use IPS\babble\Profiler\Debug;
 
 trait ClassTrait
 {
-
-    /**
-     * an array of methods to replace in class
-     *
-     * @var array
-     */
-    protected $replaceMethods = [];
-
-    /**
-     * an array of methods to remove from class
-     *
-     * @var array
-     */
-    protected $removeMethods = [];
-
-    protected $beforeLines = [];
-
-    protected $afterLines = [];
-
-    protected $replaceLines = [];
-
-    protected $startOfMethods = [];
-
-    protected $endofMethods = [];
 
     protected $preppedMethod = [];
 
@@ -82,6 +61,12 @@ trait ClassTrait
     {
 
         $this->endofMethods[ $method ][] = $content;
+    }
+
+    public function afterMethod( $method, $content )
+    {
+
+        $this->afterMethod[ $method ][] = $content;
     }
 
     public function getMethods()
@@ -141,11 +126,12 @@ trait ClassTrait
     {
 
         $newParams = [];
+        $abstract = $data[ 'abstract' ] ?? null;
         $name = $data[ 'name' ];
         $static = $data[ 'static' ];
         $final = $data[ 'final' ];
         $visibility = 'public';
-        $params = $data[ 'params' ] ?? [];
+        $params = $data[ 'params' ] ?? null;
         $document = $data[ 'document' ] ?? null;
         $returnType = $data[ 'returnType' ] ?? null;
         $body = $data[ 'body' ] ?? '';
@@ -157,77 +143,16 @@ trait ClassTrait
         }
 
         if ( empty( $params ) !== true ) {
-            //            $params = [];
-            //            $params[] = 'int $extra = null';
-
-            foreach ( $params as $param ) {
-
-                $sliced = <<<EOF
-<?php
-
-{$param}
-EOF;
-
-                $tokens = token_get_all( $sliced );
-                $count = count( $tokens );
-                $p = [];
-                $hint = null;
-                $in = [
-                    T_ARRAY,
-                    T_STRING,
-                    T_CONSTANT_ENCAPSED_STRING,
-                    T_LNUMBER,
-                ];
-                $i = 0;
-                foreach ( $tokens as $token ) {
-                    if ( isset( $tokens[ 0 ] ) && $tokens[ 0 ] !== T_OPEN_TAG ) {
-                        $type = $token[ 0 ] ?? null;
-                        $value = $token[ 1 ] ?? $token;
-                        if ( $value ) {
-                            if ( $type === '[' ) {
-                                $vv = '';
-                                for ( $ii = $i; $ii < $count; $ii++ ) {
-                                    $vv .= $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
-                                }
-
-                                $p[ 'value' ] = $vv;
-                            }
-                            else if ( in_array( $type, $in, true ) ) {
-                                if ( $type === T_ARRAY || ( !isset( $p[ 'hint' ] ) && !isset( $p[ 'value' ] ) && !isset( $p[ 'name' ] ) ) ) {
-                                    $hint[] = $value;
-                                }
-                                else {
-                                    if ( $hint !== null ) {
-                                        $p[ 'hint' ] = implode( '\\', $hint );
-                                        $hint = null;
-                                    }
-                                    $p[ 'value' ] = $value;
-                                }
-
-                            }
-                            else if ( $type === T_VARIABLE ) {
-                                if ( trim( $value ) === '$httpHeaders' ) {
-                                    //                                    _p( $param, $tokens );
-                                }
-                                if ( $hint !== null ) {
-                                    $p[ 'hint' ] = implode( '\\', $hint );
-                                    $hint = null;
-                                }
-                                $p[ 'name' ] = ltrim( trim( $value ), '$' );
-                            }
-                        }
-                    }
-                    $i++;
-                }
-                $newParams[] = $p;
-
+            //            if ( trim( $name ) === 'featured' ) {
+            //                _p( $params );
+            //            }
+            $params = ClassGenerator::paramsFromString( $params );
+            if ( trim( $name ) === 'monkeyPatch' ) {
+                //_d( $params );
             }
-            $params = $newParams;
         }
 
-        if ( $returnType !== null ) {
-            $returnType = implode( '\\', $returnType );
-        }
+        $params = $params ?? [];
 
         if ( $body !== null ) {
             $nb = '';
@@ -236,7 +161,7 @@ EOF;
                 if ( isset( $item[ 'content' ] ) ) {
                     if ( isset( $this->beforeLines[ $item[ 'line' ] ] ) ) {
                         foreach ( $this->beforeLines[ $item[ 'line' ] ] as $content ) {
-                            $nb .= $content;
+                            $nb .= $this->tab2space( $content );
                             $nb .= "\n" . $this->tab . $this->tab;
                         }
                         unset( $this->beforeLines[ $item[ 'line' ] ] );
@@ -245,18 +170,18 @@ EOF;
                     if ( isset( $this->replaceLines[ $item[ 'line' ] ] ) ) {
 
                         foreach ( $this->replaceLines[ $item[ 'line' ] ] as $content ) {
-                            $nb .= $content;
+                            $nb .= $this->tab2space( $content );
                             $nb .= "\n" . $this->tab . $this->tab;
                         }
                         unset( $this->replaceLines[ $item[ 'line' ] ] );
                     }
                     else {
-                        $nb .= $item[ 'content' ];
+                        $nb .= $this->tab2space( $item[ 'content' ] );
                     }
 
                     if ( isset( $this->afterLines[ $item[ 'line' ] ] ) ) {
                         foreach ( $this->afterLines[ $item[ 'line' ] ] as $content ) {
-                            $nb .= $content;
+                            $nb .= $this->tab2space( $content );
                             $nb .= "\n" . $this->tab . $this->tab;
                         }
                         unset( $this->afterLines[ $item[ 'line' ] ] );
@@ -269,10 +194,10 @@ EOF;
             if ( mb_substr( $nb, 0, 1 ) === '{' ) {
                 $nb = mb_substr( $nb, 1 );
             }
-
-            if ( mb_substr( $nb, -1 ) === '}' ) {
-                $nb = mb_substr( $nb, 0, -1 );
-            }
+            //
+            //            if ( mb_substr( $nb, -1 ) === '}' ) {
+            //                $nb = mb_substr( $nb, 0, -1 );
+            //            }
 
             if ( isset( $this->startOfMethods[ $name ] ) ) {
                 $first = '';
@@ -297,6 +222,7 @@ EOF;
         }
         $extra = [
             'static'     => (bool)$static,
+            'abstract'   => $abstract,
             'visibility' => $visibility,
             'final'      => (bool)$final,
             'document'   => $document,
@@ -319,4 +245,5 @@ EOF;
 
         $this->extra[] = $data;
     }
+
 }

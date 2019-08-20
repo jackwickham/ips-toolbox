@@ -1,17 +1,22 @@
 <?php
 
-namespace IPS\toolbox\Generator\Builders;
+namespace Generator\Builders;
 
 use InvalidArgumentException;
-use IPS\toolbox\Proxy\Proxyclass;
 use RuntimeException;
 use function count;
 use function file_put_contents;
 use function is_array;
-use const IPS\ROOT_PATH;
 
-abstract class _GeneratorAbstract
+/**
+ * Class _GeneratorAbstract
+ *
+ * @package IPS\toolbox\Generator\Builders
+ */
+abstract class GeneratorAbstract
 {
+
+    protected const HASCLASS = true;
 
     /**
      * read/write path of class file
@@ -19,8 +24,6 @@ abstract class _GeneratorAbstract
      * @var null
      */
     public $path;
-
-    public $isProxy = false;
 
     public $isHook = false;
 
@@ -91,13 +94,15 @@ abstract class _GeneratorAbstract
 
     protected $fileName;
 
+    /**
+     * this should be the FULL PATH
+     *
+     * @param $path
+     */
     public function addPath( $path )
     {
 
         $this->path = $path;
-        if ( !is_dir( $this->path ) ) {
-            $this->path = ROOT_PATH . '/' . $path;
-        }
     }
 
     /**
@@ -192,34 +197,29 @@ abstract class _GeneratorAbstract
     public function save()
     {
 
-        if ( $this->className === null ) {
+        if ( static::HASCLASS === true && $this->className === null ) {
             throw new InvalidArgumentException( 'Classname is not set!' );
         }
 
         if ( !is_dir( $this->path ) && !mkdir( $this->path, 0777, true ) && !is_dir( $this->path ) ) {
             throw new RuntimeException( sprintf( 'Directory "%s" was not created', $this->path ) );
         }
-
         $this->writeHead();
 
         if ( $this->classComment ) {
-            $this->toWrite .= "\n";
-            $this->toWrite .= "/**\n";
+            $this->output( "\n\n" );
+            $this->output( "/**\n" );
             foreach ( $this->classComment as $item ) {
-                $this->toWrite .= '* ' . $item . "\n";
+                $this->output( '* ' . $item . "\n" );
             }
-            $this->toWrite .= '*/';
+            $this->output( '*/' );
         }
 
         $this->writeSourceType();
-        $this->toWrite .= "\n{";
+        $this->output( "\n{" );
         $this->writeBody();
-        $this->toWrite .= "\n}";
+        $this->output( "\n}" );
         $this->writeExtra();
-
-        if ( $this->isProxy === false ) {
-            Proxyclass::i()->buildAndMake( $this->saveFileName() );
-        }
 
         //file_put_contents( ROOT_PATH . '/foo.php', $this->toWrite );
         file_put_contents( $this->saveFileName(), $this->toWrite );
@@ -229,40 +229,41 @@ abstract class _GeneratorAbstract
     {
 
         if ( $this->isHook === true ) {
-            $this->toWrite = <<<'EOF'
+            $openTag = <<<'EOF'
 //<?php
 
 EOF;
         }
         else {
-            $this->toWrite = <<<'EOF'
+            $openTag = <<<'EOF'
 <?php
 
 EOF;
         }
-
+        $this->output( $openTag );
         if ( $this->docComment ) {
-            $this->toWrite .= "\n";
-            $this->toWrite .= "/**\n";
+            $this->output( "\n" );
+            $this->output( "/**\n" );
             foreach ( $this->docComment as $item ) {
-                $this->toWrite .= '* ' . $item . "\n";
+                $this->output( '* ' . $item . "\n" );
             }
-            $this->toWrite .= '*/';
-            $this->toWrite .= "\n";
+            $this->output( '*/' );
+            $this->output( "\n" );
         }
 
         if ( $this->nameSpace ) {
-            $this->toWrite .= <<<EOF
+            $ns = <<<EOF
 
 namespace {$this->nameSpace};
 
 EOF;
+            $this->output( $ns );
         }
 
         $this->afterNameSpace();
 
         if ( $this->headerCatch === true ) {
-            $this->toWrite .= <<<'EOF'
+            $headerCatch = <<<'EOF'
 
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
@@ -271,11 +272,11 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 }
 
 EOF;
-
+            $this->output( $headerCatch );
         }
 
         if ( empty( $this->required ) !== true ) {
-            $this->toWrite .= "\n";
+            $this->output( "\n" );
             foreach ( $this->required as $required ) {
                 $escaped = null;
                 if ( $required[ 'escape' ] === true ) {
@@ -283,29 +284,35 @@ EOF;
                 }
                 if ( $required[ 'once' ] === true ) {
 
-                    $this->toWrite .= 'require_once ' . $escaped . $required[ 'path' ] . $escaped . ";\n";
+                    $this->output( 'require_once ' . $escaped . $required[ 'path' ] . $escaped . ";\n" );
                 }
                 else {
-                    $this->toWrite .= 'require ' . $escaped . $required[ 'path' ] . $escaped . ";\n";
+                    $this->output( 'require ' . $escaped . $required[ 'path' ] . $escaped . ";\n" );
                 }
             }
         }
 
         if ( empty( $this->included ) !== true ) {
-            $this->toWrite .= "\n";
+            $this->output( "\n" );
             foreach ( $this->included as $included ) {
                 $escaped = null;
                 if ( $included[ 'escape' ] === true ) {
                     $escaped = '"';
                 }
                 if ( $included[ 'once' ] === true ) {
-                    $this->toWrite .= 'include_once ' . $escaped . $included[ 'path' ] . $escaped . ";\n";
+                    $this->output( 'include_once ' . $escaped . $included[ 'path' ] . $escaped . ";\n" );
                 }
                 else {
-                    $this->toWrite .= 'include ' . $escaped . $included[ 'path' ] . $escaped . ";\n";
+                    $this->output( 'include ' . $escaped . $included[ 'path' ] . $escaped . ";\n" );
                 }
             }
         }
+    }
+
+    public function output( string $output )
+    {
+
+        $this->toWrite .= $output;
     }
 
     protected function afterNameSpace()
@@ -321,14 +328,14 @@ EOF;
     {
 
         if ( $this->extra !== null ) {
-            $this->toWrite .= "\n";
+            $this->output( "\n" );
             if ( is_array( $this->extra ) && count( $this->extra ) ) {
                 foreach ( $this->extra as $extra ) {
-                    $this->toWrite .= $extra;
+                    $this->output( $extra );
                 }
             }
             else {
-                $this->toWrite .= $this->extra;
+                $this->output( $this->extra );
             }
         }
     }
@@ -415,5 +422,4 @@ EOF;
         $hash = $this->hash( $path );
         $this->included[ $hash ] = [ 'path' => $path, 'once' => $once, 'escape' => $escape ];
     }
-
 }

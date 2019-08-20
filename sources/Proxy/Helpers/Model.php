@@ -12,7 +12,7 @@
 
 namespace IPS\toolbox\Proxy\Helpers;
 
-use IPS\toolbox\Generator\Builders\ClassGenerator;
+use Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 

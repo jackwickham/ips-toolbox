@@ -19,7 +19,7 @@ use IPS\toolbox\DevCenter\Extensions\CreateMenu;
 use IPS\toolbox\DevCenter\Extensions\FileStorage;
 use IPS\toolbox\DevCenter\Helpers\HelperCompilerAbstract;
 use IPS\toolbox\DevCenter\Sources\Generator\GeneratorAbstract;
-use IPS\toolbox\Generator\Builders\ClassGenerator;
+use Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 use function mb_strtolower;

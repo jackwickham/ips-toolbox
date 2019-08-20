@@ -14,15 +14,14 @@ namespace IPS\toolbox\Profiler;
 
 use Exception;
 use IPS\Db;
-use IPS\Http\Url;
 use IPS\Patterns\ActiveRecord;
 use IPS\Theme;
+use IPS\toolbox\Editor;
 use function count;
 use function defined;
 use function get_class;
 use function header;
 use function htmlentities;
-use IPS\toolbox\Editor;
 use function is_array;
 use function json_decode;
 use function json_encode;
@@ -94,9 +93,9 @@ class _Debug extends ActiveRecord
         $bt = debug_backtrace();
         array_shift( $bt );
         $prev = array_shift( $bt );
-        if ( $alias === true ) {
-            $prev = array_shift( $bt );
-        }
+        //        if ( $alias === true ) {
+        //            $prev = array_shift( $bt );
+        //        }
         $bt = array_shift( $bt );
         if ( $key === null ) {
             $key = $bt[ 'function' ];

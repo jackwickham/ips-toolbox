@@ -48,8 +48,8 @@ use function count;
 use function header;
 use function in_array;
 use function interface_exists;
-use function is_array;
 use function mb_ucfirst;
+use function is_array;
 use function trait_exists;
 
 if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
@@ -131,6 +131,12 @@ class _Sources
             ],
         ];
 
+        Output::i()->sidebar[ 'mobilenav' ] = static::subMenus();
+    }
+
+    public static function subMenus()
+    {
+
         $types = [
             'standard',
             'cinterface',
@@ -144,7 +150,7 @@ class _Sources
             'review',
             'debug',
             'memory',
-            'form',
+            //            'form',
         ];
 
         $dev = [
@@ -156,7 +162,7 @@ class _Sources
             'jsmixin',
         ];
 
-        Output::i()->sidebar[ 'mobilenav' ] = Theme::i()->getTemplate( 'dtdpmenu', 'toolbox', 'admin' )->menu( $types, $dev, Request::i()->appKey );
+        return Theme::i()->getTemplate( 'dtdpmenu', 'toolbox', 'admin' )->menu( $types, $dev, Request::i()->appKey );
     }
 
     /**
@@ -530,15 +536,17 @@ class _Sources
 
     /**
      * imports element
+     *
+     * @deprecated no longer gonna support non-imports
      */
     protected function elImports()
     {
 
-        $this->elements[] = [
-            'name'    => 'useImports',
-            'class'   => 'yn',
-            'default' => \true,
-        ];
+        //        $this->elements[] = [
+        //            'name'    => 'useImports',
+        //            'class'   => 'yn',
+        //            'default' => \true,
+        //        ];
     }
 
     /**
@@ -584,7 +592,7 @@ class _Sources
 
         $sc[ 'db' ] = 'Database';
 
-        if ( !in_array( $this->type, [ 'ActiveRecord', 'review', 'comment' ] ) ) {
+        if ( !in_array( $this->type, [ 'activerecord', 'review', 'comment' ] ) ) {
             $sc[ 'modules' ] = 'Module';
         }
 
@@ -645,10 +653,9 @@ class _Sources
         ];
 
         $this->elements[] = [
-            'name'     => 'subnode_class',
-            'prefix'   => '\\IPS\\' . $this->application->directory . '\\',
-            'required' => \true,
-            'options'  => [
+            'name'    => 'subnode_class',
+            'prefix'  => '\\IPS\\' . $this->application->directory . '\\',
+            'options' => [
                 'autocomplete' => [
                     'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
                     //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
@@ -952,18 +959,20 @@ class _Sources
         ];
     }
 
-    protected function elApiType(){
+    protected function elApiType()
+    {
+
         $this->elements[] = [
-            'name' => 'apiType',
-            'class' => 'select',
+            'name'    => 'apiType',
+            'class'   => 'select',
             'options' => [
                 'options' => [
                     's' => 'Standard',
                     'i' => 'Content/Item',
                     'c' => 'Comments',
                     'n' => 'Node',
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

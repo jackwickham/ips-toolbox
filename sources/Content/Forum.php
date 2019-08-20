@@ -32,12 +32,14 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class _Forum extends Generator
 {
+
     /**
-     * @return \IPS\forums\Forum
+     * @return IPSForum
      * @throws Exception
      */
     public static function get(): IPSForum
     {
+
         try {
             $db = Db::i()->select( '*', 'forums_forums', [ 'parent_id = ?', -1 ], 'RAND()' )->first();
             $db = IPSForum::constructFromData( $db );
@@ -71,13 +73,14 @@ class _Forum extends Generator
      */
     public function build()
     {
-        $parent = \null;
-        $category = \false;
+
+        $parent = null;
+        $category = false;
         try {
             $count = Db::i()->select( '*', 'forums_forums' )->count();
 
             if ( $count < 5 ) {
-                $category = \false;
+                $category = false;
             }
             else {
                 $parent = Db::i()->select( '*', 'forums_forums', [], 'RAND()' )->first();
@@ -88,15 +91,15 @@ class _Forum extends Generator
                         throw new InvalidArgumentException();
                     }
                 } catch ( Exception $e ) {
-                    $category = \false;
+                    $category = false;
                 }
             }
         } catch ( Exception $e ) {
             $this->build();
         }
 
-        if ( $parent === \null ) {
-            $category = \true;
+        if ( $parent === null ) {
+            $category = true;
         }
 
         $rand = array_rand( Data::$adjective, 1 );
@@ -108,7 +111,7 @@ class _Forum extends Generator
         $type = 'normal';
 
         if ( !$category ) {
-            if ( $parent === \null ) {
+            if ( $parent === null ) {
                 try {
                     $parent = static::get();
                 } catch ( Exception $e ) {

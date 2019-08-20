@@ -1,6 +1,6 @@
 <?php
 
-namespace IPS\toolbox\Generator\Builders\Traits;
+namespace Generator\Builders\Traits;
 
 trait Constants
 {
@@ -40,27 +40,27 @@ trait Constants
 
         if ( empty( $this->const ) !== true ) {
             foreach ( $this->const as $const ) {
-                $this->toWrite .= "\n{$this->tab}";
+                $this->output( "\n{$this->tab}" );
 
                 if ( $const[ 'document' ] ) {
-                    $this->toWrite .= "/**\n";
+                    $this->output( "/**\n" );
                     foreach ( $const[ 'document' ] as $item ) {
-                        $this->toWrite .= "{$this->tab}* {$item}\n";
+                        $this->output( "{$this->tab}* {$item}\n" );
                     }
-                    $this->toWrite .= $this->tab . "*/\n{$this->tab}";
+                    $this->output( $this->tab . "*/\n{$this->tab}" );
                 }
 
                 if ( $const[ 'visibility' ] !== null ) {
-                    $this->toWrite .= $const[ 'visibility' ] . ' ';
+                    $this->output( $const[ 'visibility' ] . ' ' );
                 }
 
-                $this->toWrite .= 'CONST ';
+                $this->output( 'CONST ' );
 
-                $this->toWrite .= $const[ 'name' ];
+                $this->output( $const[ 'name' ] );
                 if ( $const[ 'value' ] ) {
-                    $this->toWrite .= ' = ' . trim( $const[ 'value' ] );
+                    $this->output( ' = ' . trim( $const[ 'value' ] ) );
                 }
-                $this->toWrite .= ";\n";
+                $this->output( ";\n" );
             }
         }
     }

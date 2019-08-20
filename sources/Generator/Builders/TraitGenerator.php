@@ -1,19 +1,19 @@
 <?php
 
-namespace IPS\toolbox\Generator\Builders;
+namespace Generator\Builders;
 
-use IPS\toolbox\Generator\Builders\Traits\ClassMethods;
-use IPS\toolbox\Generator\Builders\Traits\Constants;
-use IPS\toolbox\Generator\Builders\Traits\Imports;
-use IPS\toolbox\Generator\Builders\Traits\Properties;
+use Generator\Builders\Traits\ClassMethods;
+use Generator\Builders\Traits\Constants;
+use Generator\Builders\Traits\Imports;
+use Generator\Builders\Traits\Properties;
 
 /**
- * Class _TraitGenerator
+ * Class TraitGenerator
  *
  * @package IPS\toolbox\Generator\Builders
  * @mixin TraitGenerator
  */
-class _TraitGenerator extends GeneratorAbstract
+class TraitGenerator extends GeneratorAbstract
 {
 
     use Properties, Constants, ClassMethods, Imports;
@@ -28,7 +28,7 @@ class _TraitGenerator extends GeneratorAbstract
     public function writeSourceType()
     {
 
-        $this->toWrite .= "\ntrait {$this->className}";
+        $this->output( "\ntrait {$this->className}" );
 
     }
 

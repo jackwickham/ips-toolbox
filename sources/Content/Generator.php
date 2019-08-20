@@ -35,22 +35,27 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _Generator extends ActiveRecord
 {
+
     /**
      * @brief    [ActiveRecord] Database Prefix
      */
     public static $databasePrefix = 'generator_';
+
     /**
      * @brief    [ActiveRecord] Database table
      */
     public static $databaseTable = 'toolbox_generator';
+
     /**
      * @brief   Bitwise keys
      */
     protected static $bitOptions = [];
+
     /**
      * @brief    [ActiveRecord] Multiton Store
      */
     protected static $multitons;
+
     protected $loops = 0;
 
     /**
@@ -58,6 +63,7 @@ class _Generator extends ActiveRecord
      */
     public function process()
     {
+
         try {
             switch ( $this->type ) {
                 case 'member':
@@ -86,13 +92,15 @@ class _Generator extends ActiveRecord
     /**
      * gets a timestamp that is newer than board start date, so we don't have timetravellers
      *
-     * @param null $date
+     * @param null $start
+     * @param null $end
      *
      * @return float|int|mixed|null
      * @throws Exception
      */
     protected function getTime( $start = \null, $end = \null )
     {
+
         $this->loops++;
         $rand = random_int( 1, 3 );
         $time = 60;

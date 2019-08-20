@@ -10,8 +10,9 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_SandboxedTemplate extends _HOOK_CLASS_toolbox_hook_SandboxedTemplate
+class toolbox_hook_SandboxedTemplate extends _HOOK_CLASS_
 {
+
     public function __call( $name, $args )
     {
 

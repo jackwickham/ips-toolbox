@@ -9,8 +9,9 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_MultiRedirect extends _HOOK_CLASS_toolbox_hook_MultiRedirect
+class toolbox_hook_MultiRedirect extends _HOOK_CLASS_
 {
+
     public function __construct( $url, $callback, $finished, $finalRedirect = true )
     {
 
@@ -18,6 +19,7 @@ class toolbox_hook_MultiRedirect extends _HOOK_CLASS_toolbox_hook_MultiRedirect
             $url = $url->setQueryString( [ 'storm' => Request::i()->storm ] );
             $finished = function ()
             {
+
                 $path = 'app=toolbox&module=devfolder&controller=plugins';
                 $url = Url::internal( $path )->setQueryString( [
                     'storm' => Request::i()->storm,

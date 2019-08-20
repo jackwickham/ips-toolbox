@@ -1,17 +1,16 @@
 //<?php
 
-
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
-class toolbox_hook_BuilderIterator extends _HOOK_CLASS_toolbox_hook_BuilderIterator
+class toolbox_hook_BuilderIterator extends _HOOK_CLASS_
 {
-    
+
     /**
-    * @inheritdoc
-    */
+     * @inheritdoc
+     */
     public function current()
     {
 
@@ -41,6 +40,7 @@ class toolbox_hook_BuilderIterator extends _HOOK_CLASS_toolbox_hook_BuilderItera
                 \file_put_contents( $temporary, $contents );
                 \register_shutdown_function( function ( $temporary )
                 {
+
                     \unlink( $temporary );
                 }, $temporary );
 

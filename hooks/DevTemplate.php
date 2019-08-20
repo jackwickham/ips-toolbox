@@ -15,8 +15,9 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_DevTemplate extends _HOOK_CLASS_toolbox_hook_DevTemplate
+class toolbox_hook_DevTemplate extends _HOOK_CLASS_
 {
+
     public static $debugFileName = '\null';
 
     public function __call( $bit, $params )
@@ -146,6 +147,7 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_toolbox_hook_DevTemplate
         if ( $template === \null ) {
 
             static::$debugFileName = \null;
+
             return parent::__call( $bit, $params );
         }
 
@@ -164,9 +166,11 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_toolbox_hook_DevTemplate
 
         $filter = function ( \SplFileInfo $file )
         {
+
             if ( !\in_array( $file->getExtension(), [ 'phtml' ] ) ) {
                 return \false;
             }
+
             return \true;
         };
         $mtime = 0;
@@ -201,7 +205,6 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_toolbox_hook_DevTemplate
                 $content = \preg_replace( '/^<ips:template parameters="(.+?)?"(\s+)?\/>(\r\n?|\n)/', '', $content );
 
                 $func[] = \IPS\Theme::compileTemplate( $content, $functionName, $params, \true, \false );
-
 
             }
 

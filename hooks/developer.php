@@ -17,8 +17,9 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_developer extends _HOOK_CLASS_toolbox_hook_developer
+class toolbox_hook_developer extends _HOOK_CLASS_
 {
+
     public function execute( $command = 'do' )
     {
 
@@ -91,6 +92,7 @@ class toolbox_hook_developer extends _HOOK_CLASS_toolbox_hook_developer
 
         $val = function ( $val )
         {
+
             /* Check it starts with \IPS\Db::i()-> */
             $val = \trim( $val );
             if ( \mb_substr( $val, 0, 14 ) !== '\IPS\Db::i()->' ) {
@@ -540,6 +542,7 @@ EOF;
 <div class="ipsPad">No Git repo found for this application</div>
 EOF;
         }
+
         return $html;
     }
 
@@ -601,7 +604,6 @@ EOF;
     }
 
     // Create new methods with the same name as the 'do' parameter which should execute it
-
 
     protected function dtgetFields()
     {

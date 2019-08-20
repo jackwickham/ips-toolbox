@@ -10,9 +10,10 @@
  * @version     -storm_version-
  */
 
-namespace IPS\toolbox\Profiler\Profiler;
+namespace IPS\toolbox;
 
 use Exception;
+use InvalidArgumentException;
 use IPS\Db;
 use IPS\Dispatcher;
 use IPS\Http\Url;
@@ -22,27 +23,41 @@ use IPS\Plugin;
 use IPS\Request;
 use IPS\Settings;
 use IPS\Theme;
-use IPS\toolbox\Application;
-use IPS\toolbox\Editor;
+use IPS\toolbox\Profiler\Debug;
+use IPS\toolbox\Profiler\Git;
+use IPS\toolbox\Profiler\Memory;
 use IPS\toolbox\Profiler\Parsers\Caching;
 use IPS\toolbox\Profiler\Parsers\Database;
 use IPS\toolbox\Profiler\Parsers\Files;
 use IPS\toolbox\Profiler\Parsers\Logs;
 use IPS\toolbox\Profiler\Parsers\Templates;
+use IPS\toolbox\Profiler\Time;
+use OutOfRangeException;
 use ReflectionClass;
+use RuntimeException;
+use UnexpectedValueException;
+use function base64_encode;
 use function count;
 use function defined;
 use function function_exists;
 use function header;
 use function implode;
+use function in_array;
 use function is_array;
 use function is_dir;
+use function is_object;
 use function json_decode;
 use function json_encode;
+use function mb_substr;
 use function microtime;
 use function round;
+use const IPS\CACHE_PAGE_TIMEOUT;
+use const IPS\CACHING_LOG;
+use const IPS\NO_WRITES;
+use const IPS\ROOT_PATH;
+use const PHP_VERSION;
 
-\IPS\toolbox\Application::loadAutoLoader();
+Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -60,21 +75,22 @@ class _Profiler extends Singleton
 
     /**
      * @return mixed
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
-     * @throws \RuntimeException
-     * @throws \UnexpectedValueException
+     * @throws InvalidArgumentException
+     * @throws OutOfRangeException
+     * @throws RuntimeException
+     * @throws UnexpectedValueException
      */
     public function run()
     {
-        if ( !Member::loggedIn()->member_id && \IPS\CACHE_PAGE_TIMEOUT !== 0 ) {
+
+        if ( CACHE_PAGE_TIMEOUT !== 0 && !Member::loggedIn()->member_id ) {
             return '';
         }
         if ( !Request::i()->isAjax() ) {
-            $framework = \null;
+            $framework = null;
 
             if ( Settings::i()->dtprofiler_enabled_execution ) {
-                $framework = round( microtime( \true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], 4 ) * 1000;
+                $framework = round( microtime( true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], 4 ) * 1000;
             }
             //
             $logs = Logs::i()->build();
@@ -83,18 +99,21 @@ class _Profiler extends Singleton
             $extra = implode( ' ', $this->extra() );
             $info = $this->info();
             $environment = $this->environment();
-            $debug = Debug::build();
-            $files = \null;
-            $memory = \null;
-            $cache = \null;
-            $time = \null;
+            $debug = null;
+            if ( Settings::i()->dtprofiler_enable_debug ) {
+                $debug = Debug::build();
+            }
+            $files = null;
+            $memory = null;
+            $cache = null;
+            $time = null;
             $executions = Time::build();
 
             if ( Settings::i()->dtprofiler_enabled_files ) {
                 $files = Files::i()->build();
             }
 
-            if ( \IPS\CACHING_LOG ) {
+            if ( CACHING_LOG ) {
                 $cache = Caching::i()->build();
             }
 
@@ -103,7 +122,7 @@ class _Profiler extends Singleton
             }
 
             if ( Settings::i()->dtprofiler_enabled_execution ) {
-                $total = round( microtime( \true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], 4 ) * 1000;
+                $total = round( microtime( true ) - $_SERVER[ 'REQUEST_TIME_FLOAT' ], 4 ) * 1000;
                 $profileTime = $total - $framework;
                 $time = [
                     'total'     => $total,
@@ -113,9 +132,10 @@ class _Profiler extends Singleton
             }
 
             return Theme::i()->getTemplate( 'bar', 'toolbox', 'front' )->bar( $time, $memory, $files, $templates, $database, $cache, $logs, $extra, $info, $environment, $debug, $executions );
+
         }
 
-        return \null;
+        return null;
     }
 
     /**
@@ -125,35 +145,29 @@ class _Profiler extends Singleton
      */
     protected function extra(): array
     {
-        $url = (string)Url::internal( 'app=core&module=applications&controller=applications&do=form', 'admin' );
-
-        //http://10.0.0.22/~michael/dev/admin/?adsess=vmdf9akrfn9dgfioft5cho39l4&app=core&module=applications&controller=applications&do=form
-        $foo = <<<EOF
-<li id="" data-ipstooltip="" class="isParent dtProfileFirst dtProfilermemory" title="Memory Total" data-ipstooltip>
-    <a href="{$url}">
-    <i class="fa fa-microchip"></i> Create App
-    </a> 
-</li>
-EOF;
-
 
         return [];
     }
 
     /**
      * @return array
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
-     * @throws \RuntimeException
+     * @throws InvalidArgumentException
+     * @throws OutOfRangeException
+     * @throws RuntimeException
      */
     protected function info(): array
     {
+
+        $data = base64_encode( (string)Request::i()->url() );
+        $url = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
+            'do'   => 'clearCaches',
+            'data' => $data,
+        ] );
         $info = [];
-        $url = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [ 'do' => 'phpinfo' ] );
         $info[ 'server' ] = [
-            "<a>IPS " . Application::load( 'core' )->version . "</a>",
-            "<a href='{$url}' target='_blank'>PHP: " . \PHP_VERSION . "</a>",
-            "<a>MySQL: " . Db::i()->server_info . "</a>",
+            '<a>IPS ' . Application::load( 'core' )->version . '</a>',
+            '<a href="' . (string)$url->setQueryString( [ 'do' => 'phpinfo' ] ) . '" data-ipsDialog data-ipsDialog-title="phpinfo()">PHP: ' . PHP_VERSION . '</a>',
+            '<a>MySQL: ' . Db::i()->server_info . '</a>',
         ];
         $slowestLink = Database::$slowestLink;
         $slowestTime = Database::$slowest;
@@ -161,11 +175,7 @@ EOF;
             'Controller'    => $this->getLocation(),
             'Slowest Query' => "<a href='{$slowestLink}' data-ipsdialog>{$slowestTime}ms</a>",
         ];
-        $data = \base64_encode( (string)Request::i()->url() );
-        $url = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
-            'do'   => 'clearCaches',
-            'data' => $data,
-        ] );
+
         $info[ 'cache' ] = (string)$url;
         //        $info[ 'apps' ][ 'enable' ] = Url::internal('app=toolbox&module=bt&controller=bt', 'front')->setQueryString(['do' => 'thirdParty', 'data' => $data, 'enable' => 1]);
         $info[ 'apps' ][ 'disable' ] = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
@@ -174,8 +184,9 @@ EOF;
             'enable' => 0,
         ] );
 
+        $info[ 'apps' ][ 'app' ] = [];
         /* @var Application $app */
-        foreach ( $this->apps( \true ) as $app ) {
+        foreach ( $this->apps( true ) as $app ) {
             $name = $app->_title;
             $title = $name;
             $title .= $app->enabled ? ' (Enabled)' : ' (Disabled)';
@@ -224,10 +235,11 @@ EOF;
 
     /**
      * @return array|string
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function getLocation()
     {
+
         $location = [];
         if ( isset( Request::i()->app ) ) {
             $location[] = Request::i()->app;
@@ -250,16 +262,13 @@ EOF;
             $location[] = '_' . Request::i()->controller;
         }
 
-        if ( isset( Request::i()->do ) ) {
-            $do = Request::i()->do;
-        }
-        else {
-            $do = 'manage';
-        }
+        $do = Request::i()->do ?? 'manage';
 
         $class = 'IPS\\' . implode( '\\', $location );
         $location = $class . '::' . $do;
-        $link = \null;
+        $link = null;
+        $url = null;
+        $line = null;
         try {
             $reflection = new ReflectionClass( $class );
             $method = $reflection->getMethod( $do );
@@ -273,6 +282,7 @@ EOF;
 
         if ( $link ) {
             $url = ( new Editor )->replace( $url, $line );
+
             return '<a href="' . $url . '">' . $location . '</a>';
         }
 
@@ -284,16 +294,16 @@ EOF;
      *
      * @return array
      */
-    public function apps( $skip = \true )
+    public function apps( $skip = true ): array
     {
-        if ( \IPS\NO_WRITES ) {
+
+        if ( NO_WRITES ) {
             return [];
         }
 
         $dtApps = [];
-        if ( $skip === \true ) {
+        if ( $skip === true ) {
             $dtApps = [
-                'dtbase',
                 'toolbox',
             ];
         }
@@ -301,8 +311,8 @@ EOF;
 
         foreach ( Application::applications() as $app ) {
 
-            if ( !\in_array( $app->directory, Application::$ipsApps, \true ) ) {
-                if ( \in_array( $app->directory, $dtApps, \true ) ) {
+            if ( !in_array( $app->directory, Application::$ipsApps, true ) ) {
+                if ( in_array( $app->directory, $dtApps, true ) ) {
                     continue;
                 }
 
@@ -316,9 +326,10 @@ EOF;
     /**
      * @return array
      */
-    public function plugins()
+    public function plugins(): array
     {
-        if ( \IPS\NO_WRITES ) {
+
+        if ( NO_WRITES ) {
             return [];
         }
 
@@ -334,21 +345,25 @@ EOF;
     }
 
     /**
-     * @return null|array
-     * @throws \UnexpectedValueException
+     * @return string|null
+     * @throws UnexpectedValueException
      */
-    protected function environment()
+    protected function environment(): ?string
     {
+
         if ( !Settings::i()->dtprofiler_enabled_enivro ) {
-            return \null;
+            return null;
         }
 
         $data = [];
 
         if ( !empty( $_GET ) ) {
             foreach ( $_GET as $key => $val ) {
+                if ( is_object( $val ) ) {
+                    continue;
+                }
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
 
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_GET : ' . $key, $val ) ];
@@ -357,8 +372,11 @@ EOF;
 
         if ( !empty( $_POST ) ) {
             foreach ( $_POST as $key => $val ) {
+                if ( is_object( $val ) ) {
+                    continue;
+                }
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
 
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_POST : ' . $key, $val ) ];
@@ -368,8 +386,11 @@ EOF;
         if ( !empty( Request::i()->returnData() ) ) {
             $request = Request::i()->returnData();
             foreach ( $request as $key => $val ) {
+                if ( is_object( $val ) ) {
+                    continue;
+                }
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_REQUEST : ' . $key, $val ) ];
             }
@@ -378,33 +399,39 @@ EOF;
         if ( !empty( $_COOKIE ) ) {
             foreach ( $_COOKIE as $key => $val ) {
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_COOKIE : ' . $key, $val ) ];
             }
         }
 
-        if ( !empty( $_SESSION ) ) {
-            foreach ( $_SESSION as $key => $val ) {
-                if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
-                }
-                $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_SESSION : ' . $key, $val ) ];
-            }
-        }
+        //        if ( !empty( $_SESSION ) ) {
+        //            foreach ( $_SESSION as $key => $val ) {
+        //                if ( is_object( $val ) ) {
+        //                    continue;
+        //                }
+        //                if ( !is_array( $val ) ) {
+        //                    $val = json_decode( $val, \true ) ?? $val;
+        //                }
+        //                $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_SESSION : ' . $key, $val ) ];
+        //            }
+        //        }
 
         if ( !empty( $_SERVER ) ) {
             foreach ( $_SERVER as $key => $val ) {
+                if ( is_object( $val ) ) {
+                    continue;
+                }
                 if ( !is_array( $val ) ) {
-                    $val = json_decode( $val, \true ) ?? $val;
+                    $val = json_decode( $val, true ) ?? $val;
                 }
                 $data[ $key ] = [ 'name' => Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->keyvalue( '$_SERVER : ' . $key, $val ) ];
             }
         }
 
-        $return = \null;
+        $return = null;
         if ( is_array( $data ) && count( $data ) ) {
-            $return = Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->button( 'Environment', 'environment', 'Environment Variables.', $data, json_encode( $data ), count( $data ), 'random', \true, \false );
+            $return = Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->button( 'Environment', 'environment', 'Environment Variables.', $data, json_encode( $data ), count( $data ), 'random', true, false );
 
         }
 
@@ -414,24 +441,25 @@ EOF;
     /**
      * @param $info
      *
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
+     * @throws InvalidArgumentException
+     * @throws OutOfRangeException
      */
-    public function getLastCommitId( &$info )
+    public function getLastCommitId( &$info ): void
     {
+
         if ( Settings::i()->dtprofiler_git_data ) {
             $app = Request::i()->id;
-            $path = \IPS\ROOT_PATH . '/applications/' . $app . '/.git/';
+            $path = ROOT_PATH . '/applications/' . $app . '/.git/';
             //            print_r($path);exit;
             if ( is_dir( $path ) && function_exists( 'exec' ) ) {
                 $app = Application::load( $app );
                 $name = $app->_title;
                 Member::loggedIn()->language()->parseOutputForDisplay( $name );
                 $git = new Git( $path );
-                $id = \null;
-                $branch = \null;
+                $id = null;
+                $branch = null;
                 $msg = [];
-                $branches = \null;
+                $branches = null;
                 $id = $git->getLastCommitId();
                 $msg = $git->getLastCommitMessage();
                 $branch = $git->getCurrentBranchName();
@@ -449,7 +477,7 @@ EOF;
                 $info = [
                     'version'  => $app->version,
                     'app'      => $name,
-                    'id'       => \mb_substr( $id, 0, 6 ),
+                    'id'       => mb_substr( $id, 0, 6 ),
                     'fid'      => $id,
                     'msg'      => implode( '<br>', $msg ),
                     'branch'   => $branch,
@@ -462,26 +490,23 @@ EOF;
     /**
      * @param $info
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
-    public function hasChanges( &$info )
+    public function hasChanges( &$info ): void
     {
-        if ( Settings::i()->dtprofiler_show_changes && function_exists( 'exec' ) ) {
+
+        if ( function_exists( 'exec' ) ) {
             /* @var Application $app */
             foreach ( Application::enabledApplications() as $app ) {
-                if ( $app->directory === 'dtbase' ) {
-                    $path = \IPS\ROOT_PATH . '/applications/.git/';
-                }
-                else {
-                    $path = \IPS\ROOT_PATH . '/applications/' . $app->directory . '/.git/';
-                }
+                $path = ROOT_PATH . '/applications/' . $app->directory . '/.git/';
                 if ( is_dir( $path ) ) {
                     $name = $app->_title;
                     Member::loggedIn()->language()->parseOutputForDisplay( $name );
                     $git = new Git( $path );
                     if ( $git->hasChanges() ) {
                         $info[ 'changes' ][] = [
-                            'name' => $name,
+                            'name'      => $name,
+                            'directory' => $app->directory,
                         ];
                     }
                 }

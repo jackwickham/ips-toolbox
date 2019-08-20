@@ -132,7 +132,7 @@ EOF;
             }
 
             if ( $func === 'print' ) {
-                if ( is_array( $arg ) ) {
+                if ( is_array( $arg ) || is_object( $arg ) ) {
                     $val = '<pre>' . print_r( $arg, \true );
                     $type = 'Array';
                 }

@@ -10,7 +10,7 @@
  * @version     -storm_version-
  */
 
-namespace IPS\toolbox\Profiler\Profiler;
+namespace IPS\toolbox\Profiler;
 
 use IPS\Settings;
 use IPS\Theme;
@@ -33,7 +33,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  * Class _Memory
  *
  * @package IPS\toolbox\Profiler
- * @mixin \IPS\toolbox\Profiler\Memory
+ * @mixin Memory
  */
 class _Memory
 {

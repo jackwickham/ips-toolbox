@@ -310,4 +310,12 @@ $lang = [
     'ext__SpecialHooks'                              => 'with the patched init.php, this will create a specialized hook class in proxy classes and allow hooks to behave like actual extended classes. you can also use the githooks section to remove this when you push to a git repo, and this will be automatically removed when the application gets built (as long as toolbox is installed and enabled).',
     'ext__constants'                                 => 'Allows you to add constants for your app to the change constants section in settings. as well as adding new constants to the "important" tab.',
     'dtdeveplus_table_name'                          => 'Table',
+    'module__toolbox_bt'                             => 'Toolbox',
+    'dtprofiler_enable_debug'                        => 'Debug',
+    'dtprofiler_enable_debug_desc'                   => 'Enable the toolbox\'s debug class.',
+    'dtdevplus_menu_title_api'                       => 'API',
+    'dtdevplus_class_apiType'                        => 'Type',
+    'toolbox_lorem_amount'                           => 'Amount',
+    'toolbox_lorem_type'                             => 'Type',
+    'toolbox_gitcommit_message'                      => 'Message',
 ];

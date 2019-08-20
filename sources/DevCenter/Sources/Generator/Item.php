@@ -26,16 +26,13 @@ use IPS\Content\Reportable;
 use IPS\Content\Views;
 use SplObserver;
 use SplSubject;
-use Zend\Code\Generator\DocBlock\Tag\ParamTag;
-use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\PropertyValueGenerator;
 use function defined;
 use function header;
 use function in_array;
 use function is_array;
+use function file_put_contents;
+use function file_get_contents;
+use const IPS\ROOT_PATH;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -44,24 +41,22 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class _Item extends GeneratorAbstract
 {
+
     /**
      * @inheritdoc
      */
     protected function bodyGenerator()
     {
-        $this->brief = 'Content Item Class';
-        $this->extends = Item::class;
 
-        if ( $this->useImports ) {
-            $this->generator->addUse( Item::class );
-        }
+        $this->brief = 'Content Item Class';
+        $this->extends = 'Item';
+        $this->generator->addUse( Item::class );
 
         $dbColumns = [
             'author',
             'title',
             'start_date',
             'ip_address',
-            'container_id',
             'seoTitle',
         ];
 
@@ -70,15 +65,14 @@ class _Item extends GeneratorAbstract
             'title'      => 'title',
             'date'       => 'start_date',
             'ip_address' => 'ip_address',
-            'container'  => 'container_id',
         ];
 
         $this->application();
         $this->module();
         $this->title();
-        $this->itemNodeClass();
-        $this->urlTemplate();
+        $this->itemNodeClass( $dbColumns, $columnMap );
         $this->urlBase();
+        $this->urlTemplate();
         $this->_url();
         $this->seoTitleColumn();
         $this->commentClass( $dbColumns, $columnMap );
@@ -93,22 +87,13 @@ class _Item extends GeneratorAbstract
      */
     protected function application()
     {
+
         $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Application' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+            '@brief Application',
+            '@var string',
         ];
 
-        $config = [
-            'name'   => 'application',
-            'value'  => new PropertyValueGenerator( $this->app, PropertyValueGenerator::TYPE_STRING ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty( 'application', $this->app, [ 'static' => true, 'document' => $doc ] );
     }
 
     /**
@@ -116,22 +101,13 @@ class _Item extends GeneratorAbstract
      */
     protected function module()
     {
+
         $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Module' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+            '@brief Module',
+            '@var string',
         ];
 
-        $config = [
-            'name'   => 'module',
-            'value'  => new PropertyValueGenerator( $this->app, PropertyValueGenerator::TYPE_STRING ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty( 'module', $this->app, [ 'static' => true, 'document' => $doc ] );
     }
 
     /**
@@ -141,57 +117,42 @@ class _Item extends GeneratorAbstract
      */
     protected function title( $extra = '_title' )
     {
+
         $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Title' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+            '@brief Title',
+            '@var string',
         ];
 
-        $config = [
-            'name'   => 'title',
-            'value'  => new PropertyValueGenerator( $this->app . '_' . $this->classname_lower . $extra, PropertyValueGenerator::TYPE_STRING ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty( 'application', $this->app . '_' . $this->classname_lower . $extra, [
+            'static'   => true,
+            'document' => $doc,
+        ] );
     }
 
     /**
      * adds the containerNodeClass property
      */
-    protected function itemNodeClass()
+    protected function itemNodeClass( &$dbColumns, &$columnMap )
     {
+
         if ( $this->item_node_class !== \null ) {
             $this->item_node_class = mb_ucfirst( $this->item_node_class );
-
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => 'Node Class' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
-
             $itemNodeClass = 'IPS\\' . $this->app . '\\' . $this->item_node_class;
-
-            if ( $this->useImports ) {
-                $this->generator->addUse( $itemNodeClass );
-                $itemNodeClass = $this->item_node_class;
-            }
-
+            $this->generator->addUse( $itemNodeClass );
+            $itemNodeClass = $this->item_node_class;
             $itemNodeClass .= '::class';
-
-            $config = [
-                'name'   => 'containerNodeClass',
-                'value'  => new PropertyValueGenerator( $itemNodeClass, PropertyValueGenerator::TYPE_CONSTANT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
+            $dbColumns[] = 'container_id';
+            $columnMap[ 'container' ] = 'container_id';
+            $doc = [
+                '@brief Node Class',
+                '@var string',
             ];
 
-            $this->addProperty( $config );
+            $extra = [
+                'static'   => true,
+                'document' => $doc,
+            ];
+            $this->generator->addProperty( 'containerNodeClass', $itemNodeClass, $extra );
         }
     }
 
@@ -203,6 +164,7 @@ class _Item extends GeneratorAbstract
      */
     protected function commentClass( &$dbColumns, &$columnMap )
     {
+
         if ( $this->comment_class !== \null ) {
             $dbColumns[] = 'num_comments';
             $dbColumns[] = 'last_comment';
@@ -212,31 +174,22 @@ class _Item extends GeneratorAbstract
             $columnMap[ 'last_comment' ] = 'last_comment';
             $columnMap[ 'last_comment_by' ] = 'last_comment_by';
             $columnMap[ 'last_comment_name' ] = 'last_comment_name';
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => 'Comment Class' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
-
             $this->comment_class = mb_ucfirst( $this->comment_class );
             $commentClass = 'IPS\\' . $this->app . '\\' . $this->classname . '\\' . $this->comment_class;
-
-            if ( $this->useImports ) {
-                $this->generator->addUse( $commentClass );
-                $commentClass = $this->comment_class;
-            }
+            $this->generator->addUse( $commentClass );
+            $commentClass = $this->comment_class;
             $commentClass .= '::class';
 
-            $config = [
-                'name'   => 'commentClass',
-                'value'  => new PropertyValueGenerator( $commentClass, PropertyValueGenerator::TYPE_CONSTANT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
+            $doc = [
+                '@brief Comment Class',
+                '@var string',
             ];
 
-            $this->addProperty( $config );
+            $extra = [
+                'static'   => true,
+                'document' => $doc,
+            ];
+            $this->generator->addProperty( 'commentClass', $commentClass, $extra );
         }
     }
 
@@ -248,6 +201,7 @@ class _Item extends GeneratorAbstract
      */
     protected function reviewClass( &$dbColumns, &$columnMap )
     {
+
         if ( $this->review_class !== \null ) {
             $dbColumns[] = 'num_reviews';
             $dbColumns[] = 'last_review';
@@ -270,41 +224,31 @@ class _Item extends GeneratorAbstract
 
             $this->review_class = mb_ucfirst( $this->review_class );
             $reviewClass = 'IPS\\' . $this->app . '\\' . $this->classname . '\\' . $this->review_class;
-
-            if ( $this->useImports ) {
-                $this->generator->addUse( $reviewClass );
-                $reviewClass = $this->review_class;
-            }
-
+            $this->generator->addUse( $reviewClass );
+            $reviewClass = $this->review_class;
             $reviewClass .= '::class';
-
-            $config = [
-                'name'   => 'reviewClass',
-                'value'  => new PropertyValueGenerator( $reviewClass, PropertyValueGenerator::TYPE_CONSTANT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
+            $doc = [
+                '@brief Review Class',
+                '@var string',
             ];
 
-            $this->addProperty( $config );
+            $extra = [
+                'static'   => true,
+                'document' => $doc,
+            ];
+            $this->generator->addProperty( 'reviewClass', $reviewClass, $extra );
 
             //reviews per page
             $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => '[Content\Item]  Number of reviews to show per page' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
+                '@brief [Content\Item]  Number of reviews to show per page',
+                '@var int',
             ];
 
-            $config = [
-                'name'   => 'reviewsPerPage',
-                'value'  => new PropertyValueGenerator( 25, PropertyValueGenerator::TYPE_INT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
+            $extra = [
+                'static'   => true,
+                'document' => $doc,
             ];
-
-            $this->addProperty( $config );
+            $this->generator->addProperty( 'reviewsPerPage', 25, $extra );
         }
     }
 
@@ -316,6 +260,7 @@ class _Item extends GeneratorAbstract
      */
     protected function buildImplementsAndTraits( &$dbColumns, &$columnMap )
     {
+
         if ( is_array( $this->implements ) ) {
             //edit history
             if ( in_array( EditHistory::class, $this->implements, \false ) ) {
@@ -386,28 +331,16 @@ class _Item extends GeneratorAbstract
             $replace[ 'polls' ] = \null;
             //SplObserver - aka Polls well more polls or something like that
             if ( in_array( Polls::class, $this->implements, \false ) && in_array( SplObserver::class, $this->implements, \false ) ) {
-                $methodDocBlock = new DocBlockGenerator( '	 * SplObserver notification that poll has been voted on
-', \null, [
-                        new ParamTag( 'poll', SplSubject::class, 'SplObserver notification that poll has been voted on' ),
-                        new ReturnTag( [ 'dataType' => 'void' ] ),
-                    ] );
-
                 $poll = SplSubject::class;
+                $this->generator->addUse( $poll );
+                $poll = 'SplSubject';
 
-                if ( $this->useImports ) {
-                    $this->generator->addUse( $poll );
-                    $poll = 'SplSubject';
-                }
-
-                $this->methods[] = MethodGenerator::fromArray( [
-                    'name'       => 'update',
-                    'parameters' => [
-                        new ParameterGenerator( 'poll', $poll ),
-                    ],
-                    'body'       => '',
-                    'docblock'   => $methodDocBlock,
-                    'static'     => \false,
-                ] );
+                $doc = [
+                    'SplObserver notification that poll has been voted on',
+                    '@param ' . $poll . ' $poll SplObserver notification that poll has been voted on',
+                    '@return void',
+                ];
+                $this->generator->addMethod( 'update', '', [ [ 'name' => 'poll', 'hint' => $poll ] ], $doc );
             }
 
             //Ratings
@@ -424,35 +357,29 @@ class _Item extends GeneratorAbstract
         if ( is_array( $this->traits ) ) {
             if ( in_array( Reactable::class, $this->traits, \false ) ) {
 
-                $methodDocBlock = new DocBlockGenerator( 'Reaction Type', \null, [
-                    new ReturnTag( [ 'dataType' => 'string' ] ),
-                ] );
-
-                $this->methods[] = MethodGenerator::fromArray( [
-                    'name'     => 'reactionType',
-                    'body'     => 'return \'' . $this->app . '_' . $this->classname_lower . '\';',
-                    'docblock' => $methodDocBlock,
-                    'static'   => \true,
-                ] );
+                $doc = [
+                    'Reaction Type',
+                    '@return string',
+                ];
+                $body = 'return \'' . $this->app . '_' . $this->classname_lower . '\';';
+                $params = [];
+                $extra = [
+                    'static'   => true,
+                    'document' => $doc,
+                ];
+                $this->generator->addMethod( 'reactionType', $body, $params, $extra );
             }
 
             if ( in_array( Reportable::class, $this->traits, \false ) ) {
-                $doc = [
-                    'tags' => [
-                        [ 'name' => 'brief', 'description' => 'Icon' ],
-                        [ 'name' => 'var', 'description' => 'string' ],
+
+                $extra = [
+                    'static'   => true,
+                    'document' => [
+                        '@brief Icon',
+                        '@var string',
                     ],
                 ];
-
-                $config = [
-                    'name'   => 'icon',
-                    'value'  => new PropertyValueGenerator( 'cubes', PropertyValueGenerator::TYPE_STRING ),
-                    'vis'    => 'public',
-                    'doc'    => $doc,
-                    'static' => \true,
-                ];
-
-                $this->addProperty( $config );
+                $this->generator->addProperty( 'icon', 'cubes', $extra );
             }
         }
     }
@@ -464,21 +391,36 @@ class _Item extends GeneratorAbstract
      */
     protected function columnMap( array $columnMap )
     {
-        $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Database Column Map' ],
-                [ 'name' => 'var', 'description' => 'array' ],
+
+        $extra = [
+            'static'   => true,
+            'document' => [
+                '@brief Database Column Map',
+                '@var array',
             ],
         ];
+        $this->generator->addProperty( 'databaseColumnMap', $columnMap, $extra );
+    }
 
-        $config = [
-            'name'   => 'databaseColumnMap',
-            'value'  => new PropertyValueGenerator( $columnMap, PropertyValueGenerator::TYPE_ARRAY_LONG ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
+    protected function addFurl( $value, $url )
+    {
+
+        $furlFile = ROOT_PATH . '/applications/' . $this->application->directory . '/data/furl.json';
+        if ( file_exists( $furlFile ) ) {
+            $furls = json_decode( file_get_contents( $furlFile ), true );
+        }
+        else {
+            $furls = [
+                'topLevel' => $this->app,
+                'pages'    => [],
+            ];
+        }
+
+        $furls[ 'pages' ][ $value ] = [
+            'friendly' => $this->classname_lower . '/' . mb_strtolower( $this->item_node_class ) . '/{#project}-{?}',
+            'real'     => $url,
         ];
 
-        $this->addProperty( $config );
+        file_put_contents( $furlFile, json_encode( $furls, JSON_PRETTY_PRINT ) );
     }
 }

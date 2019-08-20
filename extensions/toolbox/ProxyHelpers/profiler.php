@@ -12,6 +12,7 @@
 
 namespace IPS\toolbox\extensions\toolbox\ProxyHelpers;
 
+use Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 
@@ -30,25 +31,32 @@ class _profiler
     /**
      * add property to \IPS\Data\Store DocComment
      *
-     * @param array $classDoc
+     * @param ClassGenerator $classGenerator
      */
-    public function store( &$classDoc )
+    public function store( ClassGenerator $classGenerator )
     {
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtprofiler_css', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtprofiler_js', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtprofiler_js_vars', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtprofiler_templates', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtprofiler_bt_cache', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtprofiler_bt', 'type' => 'array' ];
+
+        $classDoc[] = [ 'prop' => 'dtprofiler_css', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'dtprofiler_js', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'dtprofiler_js_vars', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'dtprofiler_templates', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'dtprofiler_bt_cache', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'dtprofiler_bt', 'hint' => 'array' ];
+
+        foreach ( $classDoc as $doc ) {
+            $classGenerator->addPropertyTag( $doc[ 'prop' ], [ 'hint' => $doc[ 'hint' ] ] );
+
+        }
     }
 
     /**
      * add property to \IPS\Request proxy DocComment
      *
-     * @param attay $classDoc
+     * @param ClassGenerator $classGenerator
      */
-    public function request( &$classDoc )
+    public function request( ClassGenerator $classGenerator )
     {
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'bt', 'type' => 'string' ];
+
+        $classGenerator->addPropertyTag( 'bt', [ 'hint' => 'string' ] );
     }
 }

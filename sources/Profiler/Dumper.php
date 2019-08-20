@@ -10,9 +10,10 @@
  * @version     -storm_version-
  */
 
-namespace IPS\toolbox\Profiler\Profiler;
+namespace IPS\toolbox\Profiler;
 
 use IPS\Theme;
+use IPS\toolbox\Application;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use function defined;
@@ -26,7 +27,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-\IPS\toolbox\Application::loadAutoLoader();
+Application::loadAutoLoader();
 
 class _Dumper extends HtmlDumper
 {

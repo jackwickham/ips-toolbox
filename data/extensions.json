@@ -1,25 +1,25 @@
 {
-    "toolbox": {
-        "ProxyHelpers": {
-            "devplus": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\devplus",
-            "code": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\code",
-            "profiler": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\profiler",
-            "dtcontent": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\dtcontent",
-            "devfolder": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\devfolder",
-            "proxy": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\proxy"
-        },
-        "menu": {
-            "menu": "IPS\\toolbox\\extensions\\toolbox\\menu\\menu"
-        },
-        "Headerdoc": {
-            "header": "IPS\\toolbox\\extensions\\toolbox\\Headerdoc\\header"
-        },
-        "constants": {
-            "toolbox": "IPS\\toolbox\\extensions\\toolbox\\constants\\toolbox"
-        },
-        "settings": {
-            "proxy": "IPS\\toolbox\\extensions\\toolbox\\settings\\proxy",
-            "profiler": "IPS\\toolbox\\extensions\\toolbox\\settings\\profiler"
-        }
+  "toolbox": {
+    "SpecialHooks": {
+      "toolbox": "IPS\\toolbox\\extensions\\toolbox\\SpecialHooks\\toolbox"
+    },
+    "Headerdoc": {
+      "header": "IPS\\toolbox\\extensions\\toolbox\\Headerdoc\\header"
+    },
+    "settings": {
+      "profiler": "IPS\\toolbox\\extensions\\toolbox\\settings\\profiler",
+      "proxy": "IPS\\toolbox\\extensions\\toolbox\\settings\\proxy"
+    },
+    "constants": {
+      "toolbox": "IPS\\toolbox\\extensions\\toolbox\\constants\\toolbox"
+    },
+    "ProxyHelpers": {
+      "profiler": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\profiler",
+      "proxy": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\proxy",
+      "dtcontent": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\dtcontent",
+      "devfolder": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\devfolder",
+      "devplus": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\devplus",
+      "code": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\code"
     }
+  }
 }

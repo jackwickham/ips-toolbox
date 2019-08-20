@@ -58,6 +58,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _Proxyclass extends Singleton
 {
+
     use Read, Write, Replace;
 
     /**
@@ -131,6 +132,7 @@ class _Proxyclass extends Singleton
      */
     public function __construct( bool $console = \null )
     {
+
         $this->console = $console ?? false;
         if ( defined( '\BYPASSPROXYDT' ) && \BYPASSPROXYDT === \true ) {
             $this->save = 'dtProxy2';
@@ -161,6 +163,7 @@ class _Proxyclass extends Singleton
      */
     public function run( array $data = [] )
     {
+
         $i = 0;
         $totalFiles = 0;
         $iterator = 0;
@@ -236,10 +239,10 @@ class _Proxyclass extends Singleton
         }
 
         if ( $step === 'constants' ) {
-            Proxy::i()->buildConstants();
             $complete++;
             $lastStep = $step;
             $step = 'apps';
+
             return [ 'step' => $step, 'lastStep' => $lastStep, 'tot' => $steps, 'complete' => $complete ];
         }
 
@@ -254,7 +257,9 @@ class _Proxyclass extends Singleton
         if ( $step === \null ) {
             ( new GitHooks( \IPS\Application::applications() ) )->writeSpecialHooks();
             Proxy::i()->generateSettings();
+
             unset( Store::i()->dtproxy_proxy_files, Store::i()->dtproxy_templates );
+
             return \null;
         }
 
@@ -268,12 +273,13 @@ class _Proxyclass extends Singleton
      */
     public function build( $file )
     {
+
         $finder = new \SplFileInfo( $file );
         $content = $this->_getFileByFullPath( $file );
 
         if ( $finder->getExtension() === 'phtml' ) {
             $methodName = $finder->getBasename( '.' . $finder->getExtension() );
-            preg_match( '/^<ips:template parameters="(.+?)?" \/>(\r\n?|\n)/', $content, $params );
+            preg_match( '/^<ips:template parameters="(.+?)?"(.+?)?\/>(\r\n?|\n)/', $content, $params );
 
             if ( isset( $params[ 0 ] ) ) {
                 $parameters = \null;
@@ -285,7 +291,7 @@ class _Proxyclass extends Singleton
             }
         }
         else if ( $finder->getExtension() === 'php' ) {
-            Proxy::i()->create( $content );
+            Proxy::i()->create( $file );
         }
     }
 
@@ -298,6 +304,7 @@ class _Proxyclass extends Singleton
      */
     public function makeToolboxMeta( $step )
     {
+
         if ( $this->doProxies ) {
             switch ( $step ) {
                 default:
@@ -351,6 +358,7 @@ class _Proxyclass extends Singleton
      */
     public function makeJsonFile()
     {
+
         if ( isset( Store::i()->dt_json ) ) {
             $content = json_encode( Store::i()->dt_json, \JSON_PRETTY_PRINT );
             $this->_writeFile( '.ide-toolbox.metadata.json', $content, \IPS\ROOT_PATH . '/' . $this->save );
@@ -363,6 +371,7 @@ class _Proxyclass extends Singleton
      */
     public function consoleClose()
     {
+
         if ( static::$fe ) {
             \fclose( static::$fe );
         }
@@ -374,6 +383,7 @@ class _Proxyclass extends Singleton
      */
     public function cli( $fp )
     {
+
         if ( is_array( $this->templates ) && count( $this->templates ) ) {
             Store::i()->dtproxy_templates = $this->templates;
         }
@@ -391,8 +401,7 @@ class _Proxyclass extends Singleton
         }
         Store::i()->dtproxy_templates = $this->templates;
         $this->console( 'Generating Additional Proxy Files and PHP-Toolbox files' );
-        Proxy::i()->buildConstants();
-        $this->console( 'Constants 1/10' );
+
         Proxy::i()->generateSettings();
         $this->console( 'Settings 2/10' );
         if ( $this->doProxies ) {
@@ -431,6 +440,46 @@ class _Proxyclass extends Singleton
     }
 
     /**
+     * adds a # for percents (10%)
+     *
+     * @param $total
+     * @param $done
+     */
+    public function bump( $total, $done )
+    {
+
+        $old = $total;
+        $total /= 10;
+
+        if ( $done % $total === 0 ) {
+            if ( static::$fe === \null ) {
+                static::$fe = \fopen( 'php://stdout', 'wb' );
+            }
+            \fwrite( static::$fe, '#' );
+        }
+
+        if ( $old === $done ) {
+            $this->console( \PHP_EOL . 'File Processing Done!' );
+        }
+    }
+
+    /**
+     * prints to console
+     *
+     * @param $msg
+     */
+    public function console( $msg )
+    {
+
+        if ( $this->console ) {
+            if ( static::$fe === \null ) {
+                static::$fe = \fopen( 'php://stdout', 'wb' );
+            }
+            \fwrite( static::$fe, $msg . \PHP_EOL );
+        }
+    }
+
+    /**
      * this will iterator over directorys to find a list of php files to process, used in both the MR and CLI.
      *
      * @param null $dir
@@ -440,7 +489,7 @@ class _Proxyclass extends Singleton
      */
     public function dirIterator( $dir = \null, $returnIterator = \false )
     {
-        $this->console( 'Starting File Processing' );
+
         $ds = \DIRECTORY_SEPARATOR;
         $root = \IPS\ROOT_PATH;
         $save = $root . $ds . $this->save . $ds;
@@ -488,9 +537,11 @@ class _Proxyclass extends Singleton
 
             $filter = function ( \SplFileInfo $file )
             {
+
                 if ( !in_array( $file->getExtension(), [ 'php', 'phtml' ] ) ) {
                     return \false;
                 }
+
                 return \true;
             };
 
@@ -503,29 +554,15 @@ class _Proxyclass extends Singleton
             if ( $returnIterator ) {
                 return $finder;
             }
-
+            $files = iterator_to_array( $finder );
             $files = array_keys( iterator_to_array( $finder ) );
             asort( $files );
             Store::i()->dtproxy_proxy_files = $files;
             $this->console( 'Folder processing done.' );
+
             return $finder->count();
         } catch ( Exception $e ) {
             return 0;
-        }
-    }
-
-    /**
-     * prints to console
-     *
-     * @param $msg
-     */
-    public function console( $msg )
-    {
-        if ( $this->console ) {
-            if ( static::$fe === \null ) {
-                static::$fe = \fopen( 'php://stdout', 'wb' );
-            }
-            \fwrite( static::$fe, $msg . \PHP_EOL );
         }
     }
 
@@ -538,6 +575,7 @@ class _Proxyclass extends Singleton
      */
     public function emptyDirectory( $dir )
     {
+
         $fs = new Filesystem();
         $fs->remove( $dir );
     }
@@ -549,6 +587,7 @@ class _Proxyclass extends Singleton
      */
     protected function lookIn(): array
     {
+
         $ds = \DIRECTORY_SEPARATOR;
 
         return [
@@ -564,12 +603,12 @@ class _Proxyclass extends Singleton
      */
     protected function excludedDir(): array
     {
+
         return [
             'api',
             'interface',
             'data',
             'hooks',
-            'extensions',
             'setup',
             'tasks',
             'widgets',
@@ -598,6 +637,7 @@ class _Proxyclass extends Singleton
      */
     protected function excludedFiles(): array
     {
+
         return [
             '.htaccess',
             'lang.php',
@@ -617,37 +657,14 @@ class _Proxyclass extends Singleton
     }
 
     /**
-     * adds a # for percents (10%)
-     *
-     * @param $total
-     * @param $done
-     */
-    public function bump( $total, $done )
-    {
-        $old = $total;
-        $total /= 10;
-
-        if ( $done % $total === 0 ) {
-            if ( static::$fe === \null ) {
-                static::$fe = \fopen( 'php://stdout', 'wb' );
-            }
-            \fwrite( static::$fe, '#' );
-        }
-
-        if ( $old === $done ) {
-            $this->console( \PHP_EOL . 'File Processing Done!' );
-        }
-    }
-
-    /**
      * @param      $file
      * @param bool $isTemplate
      */
     public function buildAndMake( $file, $isTemplate = \false )
     {
+
         $this->build( $file );
-        if ( $isTemplate ) {
-            $this->makeTemplateList();
-        }
+
     }
+
 }

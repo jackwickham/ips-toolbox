@@ -1,5 +1,6 @@
 <?php
 
+use IPS\toolbox\Profiler\Debug;
 use IPS\Theme;
 
 require_once str_replace( 'applications/dtprofiler/interface/debug/debug.php', '', str_replace( '\\', '/', __FILE__ ) ) . 'init.php';
@@ -15,11 +16,11 @@ while ( \true ) {
         \IPS\Output::i()->json( [ 'end' => 1 ] );
     }
 
-    $query = \IPS\Db::i()->select( '*', 'dtprofiler_debug', [ 'debug_ajax = ?', 1 ], 'debug_id DESC' );
+    $query = \IPS\Db::i()->select( '*', 'toolbox_debug', [ 'debug_ajax = ?', 1 ], 'debug_id DESC' );
 
     if ( count( $query ) ) {
 
-        $iterators = new \IPS\Patterns\ActiveRecordIterator( $query, \IPS\tooblox\Profiler\Profiler\Debug::class );
+        $iterators = new \IPS\Patterns\ActiveRecordIterator( $query, Debug::class );
 
         foreach ( $iterators as $obj ) {
             if ( $obj->type === 'exception' || $obj->type === 'array' ) {

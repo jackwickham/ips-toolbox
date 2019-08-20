@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <language>
- <app key="toolbox" version="10001">
+ <app key="toolbox" version="30000">
   <word key="__app_toolbox" js="0">Dev Toolbox</word>
   <word key="menutab__devtools" js="0">Dev Toolbox</word>
   <word key="menutab__devtools_icon" js="0">wrench</word>
@@ -259,7 +259,7 @@
   <word key="dtdevplus_dev" js="0">Create Asset</word>
   <word key="dtdevplus_dev_templateName" js="0">Templates</word>
   <word key="dtdevplus_dev_templateName_desc" js="0">Place a name of the templates you are wanting to create.</word>
-  <word key="dtdevplus_menu_title_jstemplate" js="0">JS Tempaltes</word>
+  <word key="dtdevplus_menu_title_jstemplate" js="0">JS Template</word>
   <word key="dtdevplus_menu_title_jsmixin" js="0">JS Mixin</word>
   <word key="dtdevplus_dev__group" js="0">Group</word>
   <word key="dtdevplus_dev_mixin" js="0">Controller</word>
@@ -307,5 +307,16 @@
   <word key="dtproxy_progress_extra" js="0">Step Complete: %s, processing %s of %s</word>
   <word key="dtproxy_tab" js="0">Proxy Class Generator</word>
   <word key="ext__hookHelpers" js="0">renames _HOOK_CLASS_ to _HOOK_CLASS_app_hook_hookclassname</word>
+  <word key="ext__SpecialHooks" js="0">with the patched init.php, this will create a specialized hook class in proxy classes and allow hooks to behave like actual extended classes. you can also use the githooks section to remove this when you push to a git repo, and this will be automatically removed when the application gets built (as long as toolbox is installed and enabled).</word>
+  <word key="ext__constants" js="0">Allows you to add constants for your app to the change constants section in settings. as well as adding new constants to the &quot;important&quot; tab.</word>
+  <word key="dtdeveplus_table_name" js="0">Table</word>
+  <word key="module__toolbox_bt" js="0">Toolbox</word>
+  <word key="dtprofiler_enable_debug" js="0">Debug</word>
+  <word key="dtprofiler_enable_debug_desc" js="0">Enable the toolbox's debug class.</word>
+  <word key="dtdevplus_menu_title_api" js="0">API</word>
+  <word key="dtdevplus_class_apiType" js="0">Type</word>
+  <word key="toolbox_lorem_amount" js="0">Amount</word>
+  <word key="toolbox_lorem_type" js="0">Type</word>
+  <word key="toolbox_gitcommit_message" js="0">Message</word>
  </app>
 </language>

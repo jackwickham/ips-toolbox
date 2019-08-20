@@ -1,25 +1,29 @@
 <?php
 
-
 namespace IPS\toolbox\modules\front\bt;
 
 use Exception;
-use IPS\Application;
 use IPS\Data\Cache;
 use IPS\Data\Store;
 use IPS\DateTime;
 use IPS\Db;
 use IPS\Dispatcher\Controller;
-use IPS\dtprofiler\Profiler;
 use IPS\Log;
 use IPS\Member;
 use IPS\Output;
-use IPS\Patterns\ActiveRecordIterator;
 use IPS\Plugin;
 use IPS\Request;
+use IPS\Session;
 use IPS\Theme;
-use IPS\toolbox\Profiler\Profiler\Debug;
+use IPS\toolbox\Application;
+use IPS\toolbox\Form;
+use IPS\toolbox\Profiler;
+use IPS\toolbox\Profiler\Debug;
+use IPS\toolbox\Shared\Lorem;
+use phpQuery;
 use Symfony\Component\Filesystem\Filesystem;
+use UnexpectedValueException;
+use function base64_decode;
 use function count;
 use function defined;
 use function header;
@@ -29,13 +33,14 @@ use function is_array;
 use function is_dir;
 use function md5;
 use function microtime;
-use function mt_rand;
 use function nl2br;
+use function phpinfo;
 use function sleep;
 use function str_replace;
 use function time;
+use const IPS\ROOT_PATH;
 
-\IPS\toolbox\Application::loadAutoLoader();
+Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -51,8 +56,9 @@ class _bt extends Controller
     /**
      * @inheritdoc
      */
-    protected function manage()
+    protected function manage(): void
     {
+
         $store = Store::i()->dtprofiler_bt;
         $hash = Request::i()->bt;
         $output = 'Nothing Found';
@@ -69,8 +75,9 @@ class _bt extends Controller
     /**
      * shows data for the cache dialog
      */
-    protected function cache()
+    protected function cache(): void
     {
+
         $store = Store::i()->dtprofiler_bt_cache;
         $hash = Request::i()->bt;
         $output = 'Nothing Found';
@@ -88,19 +95,20 @@ class _bt extends Controller
     /**
      * shows data for the logs dialog
      */
-    protected function log()
+    protected function log(): void
     {
+
         $id = Request::i()->id;
         $output = 'Nothing Found';
         try {
             $log = Log::load( $id );
             $data = DateTime::ts( $log->time );
             $name = 'Date: ' . $data;
-            if ( $log->category !== \null ) {
+            if ( $log->category !== null ) {
                 $name .= '<br> Type: ' . $log->category;
             }
 
-            if ( $log->url !== \null ) {
+            if ( $log->url !== null ) {
                 $name .= '<br> URL: ' . $log->url;
             }
             $msg = nl2br( htmlentities( $log->message ) );
@@ -115,40 +123,41 @@ class _bt extends Controller
 
     /**
      * @throws Db\Exception
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
-    protected function debug()
+    protected function debug(): void
     {
+
         $max = ( ini_get( 'max_execution_time' ) / 2 ) - 5;
         $time = time();
         $since = Request::i()->last ?: 0;
-        while ( \true ) {
+        while ( true ) {
             $ct = time() - $time;
             if ( $ct >= $max ) {
                 Output::i()->json( [ 'error' => 1 ] );
             }
 
-            $query = Db::i()->select( '*', 'toolbox_debug', [
-                'debug_ajax = ? AND debug_id > ? AND debug_viewed=?',
-                1,
-                $since,
-                0,
-            ], \null, \null, \null, \null, Db::SELECT_SQL_CALC_FOUND_ROWS );
-
-            if ( $query->count( \true ) ) {
-
-                $iterators = new ActiveRecordIterator( $query, Debug::class );
+            $config = [
+                'where' => [
+                    'debug_id > ? AND debug_viewed = ?',
+                    $since,
+                    0,
+                ],
+                'flags' => Db::SELECT_SQL_CALC_FOUND_ROWS,
+            ];
+            $debug = Debug::all( $config );
+            if ( count( $debug ) !== 0 ) {
 
                 $last = 0;
-
-                /* @var \IPS\tooblox\Profiler\Debug $obj */
-                foreach ( $iterators as $obj ) {
+                $list = [];
+                /* @var Debug $obj */
+                foreach ( $debug as $obj ) {
                     $list[] = $obj->body();
                     $last = $obj->id;
                 }
 
                 $return = [];
-                if ( is_array( $list ) && count( $list ) ) {
+                if ( empty( $list ) !== true ) {
                     $count = count( $list );
                     $return[ 'count' ] = $count;
                     $lists = '';
@@ -170,22 +179,43 @@ class _bt extends Controller
         }
     }
 
-    protected function phpinfo()
+    protected function phpinfo(): void
     {
-        \phpinfo();
-        exit;
+
+        ob_start();
+        phpinfo();
+        $content = ob_get_clean();
+        ob_end_clean();
+        $content = preg_replace( '/<(\/)?(html|head|body)(>| (.+?))/', '<$1temp$2$3', $content );
+        $content = str_replace( '<!DOCTYPE html>', '<tempdoctype></tempdoctype>', $content );
+
+        /* Load phpQuery  */
+        require_once ROOT_PATH . '/system/3rd_party/phpQuery/phpQuery.php';
+        libxml_use_internal_errors( true );
+        $phpQuery = phpQuery::newDocumentHTML( $content );
+
+        $content = $phpQuery->find( 'tempbody' )->html();
+        Output::i()->title = 'phpinfo()';
+        Output::i()->output = Theme::i()->getTemplate( 'bt', 'toolbox', 'front' )->phpinfo( $content );
     }
 
-    protected function clearCaches()
+    protected function clearCaches(): void
     {
-        $redirect = \base64_decode( Request::i()->data );
+
+        $redirect = base64_decode( Request::i()->data );
         /* Clear JS Maps first */
         Output::clearJsFiles();
 
-        /* Reset theme maps to make sure bad data hasn't been cached by visits mid-setup */
+        /**
+         * @var int    $id
+         * @var  Theme $set
+         */
         foreach ( Theme::themes() as $id => $set ) {
             /* Invalidate template disk cache */
-            $set->cache_key = md5( microtime() . mt_rand( 0, 1000 ) );
+            try {
+                $set->cache_key = md5( microtime() . random_int( 0, 1000 ) );
+            } catch ( Exception $e ) {
+            }
 
             /* Update mappings */
             $set->css_map = [];
@@ -196,10 +226,10 @@ class _bt extends Controller
         Cache::i()->clearAll();
         Member::clearCreateMenu();
 
-        $path = \IPS\ROOT_PATH . '/hook_temp';
+        $path = ROOT_PATH . '/hook_temp';
 
         if ( is_dir( $path ) ) {
-            \IPS\tooblox\Application::loadAutoLoader();
+            Application::loadAutoLoader();
             $fs = new Filesystem();
             $fs->remove( [ $path ] );
         }
@@ -207,10 +237,11 @@ class _bt extends Controller
         Output::i()->redirect( $redirect );
     }
 
-    protected function thirdParty()
+    protected function thirdParty(): void
     {
+
         $enable = Request::i()->enable;
-        $redirect = \base64_decode( Request::i()->data );
+        $redirect = base64_decode( Request::i()->data );
         $apps = Profiler::i()->apps();
         $plugins = Profiler::i()->plugins();
 
@@ -229,7 +260,7 @@ class _bt extends Controller
         }
 
         if ( !empty( $plugins ) ) {
-            Plugin::postToggleEnable( \true );
+            Plugin::postToggleEnable( true );
         }
 
         /* Clear cache */
@@ -237,10 +268,11 @@ class _bt extends Controller
         Output::i()->redirect( $redirect );
     }
 
-    protected function enableDisableApp()
+    protected function enableDisableApp(): void
     {
+
         $enabled = !Request::i()->enabled;
-        $redirect = \base64_decode( Request::i()->data );
+        $redirect = base64_decode( Request::i()->data );
         $id = Request::i()->id;
         Db::i()->update( 'core_applications', [ 'app_enabled' => $enabled ], [ 'app_id=?', $id ] );
         Application::postToggleEnable();
@@ -248,10 +280,11 @@ class _bt extends Controller
         Output::i()->redirect( $redirect );
     }
 
-    protected function enableDisablePlugin()
+    protected function enableDisablePlugin(): void
     {
+
         $enabled = !Request::i()->enabled;
-        $redirect = \base64_decode( Request::i()->data );
+        $redirect = base64_decode( Request::i()->data );
         $id = Request::i()->id;
         Db::i()->update( 'core_plugins', [ 'plugin_enabled' => $enabled ], [ 'plugin_id=?', $id ] );
         Application::postToggleEnable();
@@ -259,19 +292,80 @@ class _bt extends Controller
         Output::i()->redirect( $redirect );
     }
 
-    protected function gitInfo()
+    protected function gitInfo(): void
     {
+
         $info = [];
         Profiler::i()->getLastCommitId( $info );
         Profiler::i()->hasChanges( $info );
-        //        print_r($info);exit;
         $html = '';
         if ( !empty( $info ) ) {
-            $html = Theme::i()->getTemplate( 'bar', 'dtprofiler', 'front' )->git( $info );
+            $html = Theme::i()->getTemplate( 'bar', 'toolbox', 'front' )->git( $info );
         }
 
         Output::i()->json( [ 'html' => $html ] );
     }
+
+    protected function gitCheckout()
+    {
+
+    }
+
+    protected function lorem(): void
+    {
+
+        if ( Session::i()->userAgent->browser === 'Chrome' ) {
+            $form = Form::create()->formPrefix( 'toolbox_lorem_' );
+
+            $form->add( 'amount', 'number' )->value( 5 )->options( [ 'min' => 1 ] );
+            $form->add( 'type', 'select' )->options( [
+                'options' => [
+                    0 => 'Select type',
+                    1 => 'Words',
+                    2 => 'Sentences',
+                    3 => 'Paragraphs',
+                ],
+            ] )->required();
+
+            if ( $values = $form->values() ) {
+                $return = '';
+                $amount = $values[ 'amount' ];
+                switch ( $values[ 'type' ] ) {
+                    case 1:
+                        $return = Lorem::i()->words( $amount );
+                        break;
+                    case 2:
+                        $return = Lorem::i()->sentences( $amount );
+                        break;
+                    case 3:
+                        $return = Lorem::i()->paragraphs( $amount );
+                        break;
+                }
+
+                Output::i()->json( [ 'text' => $return, 'type' => 'toolboxClipBoard' ] );
+            }
+            Output::i()->output = $form->dialogForm();
+        }
+        else {
+            Output::i()->output = '<div class="ipsPad">' . nl2br( Lorem::i()->paragraphs( 8 ) ) . '</div>';
+        }
+    }
+
+    protected function bitwiseValues()
+    {
+
+        $start = 1;
+        $values = [ 1 ];
+        $html = '<div class="ipsPad ipsClearfix">';
+        $html .= '<div class="ipsPad ipsPos_left">1 => 1</div>';
+        for ( $i = 2; $i <= 45; $i++ ) {
+            $start *= 2;
+            $html .= '<div class="ipsPad ipsPos_left">' . $i . ' => ' . $start . '</div>';
+        }
+        $html .= '</div>';
+        Output::i()->output = $html;
+    }
+
     //    protected function checkout(){
     //        $app = Request::i()->dir;
     //        $branch = Request::i()->branch;

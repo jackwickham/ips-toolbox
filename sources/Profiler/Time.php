@@ -10,7 +10,7 @@
  * @version     -storm_version-
  */
 
-namespace IPS\toolbox\Profiler\Profiler;
+namespace IPS\toolbox\Profiler;
 
 use IPS\Theme;
 use function count;
@@ -30,7 +30,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  * Class _Memory
  *
  * @package IPS\toolbox\Profiler\Profiler
- * @mixin \IPS\toolbox\Profiler\Profiler\Memory
+ * @mixin Time
  */
 class _Time
 {

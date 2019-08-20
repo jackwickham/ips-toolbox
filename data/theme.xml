@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <theme name="Default" author_name="Invision Power Services, Inc" author_url="https://www.invisioncommunity.com">
  <template template_group="bar" template_name="bar" template_data="$time, $memory, $files, $templates, $database, $cache, $logs, $extra, $info, $environment, $debug, $executions" template_location="front" template_app="toolbox"><![CDATA[<div id="dtProfilerBarContainer" class="dtProfilerBar">
-    <ul class="ipsList_reset dtProfilerBar_list ipsClearfix" data-ipsdtprofiler data-ipsdtprofilerdebug data-url="{url='app=toolbox&module=bt&controller=bt' base='front'}">
+    <ul class="ipsList_reset dtProfilerBar_list ipsClearfix" data-ipsdtprofiler data-ipsdtprofilerdebug data-url="{url='app=toolbox&module=bt&controller=bt' base='front'}" >
         {{if $time }}
         <li id="elProfileTimeLog" title="total time" class="isParent dtProfileFirst dtProfilerTime" data-ipstooltip>
             <i class="fa fa-server"></i> {$time['total']}ms <i class="fa fa-angle-up dtprofilearrow"></i>
@@ -74,7 +74,7 @@
             <a id="elProfileSystem" href="#elProfileSystem_menu" title="System" class=" " data-ipstooltip data-ipsmenu>
                 System <i class="fa fa-angle-up"></i>
             </a>
-            <ul id="elProfileSystem_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+            <ul id="elProfileSystem_menu" class="ipsMenu ipsMenu_auto ipsMenu_wide ipsList_reset ipsHide">
                 {{foreach $info['server'] as $key => $val }}
                 <li class="ipsMenu_item">
                     {$val|raw}
@@ -97,11 +97,28 @@
                     </a>
                 </li>
                 {{endforeach}}
+
                 <li class="ipsMenu_item">
                     <a href="{$info['apps']['disable']}">Disable All</a>
                 </li>
             </ul>
             <a href="{$info['cache']}">Clear Caches</a>
+
+            <a href="#toolbox_snippet_menu" id="toolbox_snippet" data-ipsMenu>
+                snippets
+            </a>
+            <ul id="toolbox_snippet_menu" class="ipsMenu ipsList_reset ipsHide">
+                <li class="ipsMenu_item">
+                    <a href="{url="app=toolbox&module=bt&controller=bt&do=lorem"}" data-ipsDialog data-ipsDialog-forceReload="true" data-ipsDialog-remoteSubmit="true" data-ipsdialog-title="Lorem Ipsum Generator">
+                        Lorem Ipsum
+                    </a>
+                </li>
+                <li class="ipsMenu_item">
+                    <a href="{url="app=toolbox&module=bt&controller=bt&do=bitwiseValues"}" data-ipsDialog data-ipsdialog-title="BitWise Values">
+                        BitWise Values
+                    </a>
+                </li>
+            </ul>
         </div>
         {{if settings.dtprofiler_git_data || settings.dtprofiler_show_changes}}
         <div id="el_dtProfileGit" class="dttProfilerInfoGit ipsClearfix" data-ipsdtprofilergit data-ipsdtprofilergit-url="{$info['git_url']}">
@@ -114,7 +131,8 @@
 <div class="dtProfilerPlaceHolder">
 </div>
 ]]></template>
- <template template_group="bar" template_name="git" template_data="$info=null" template_location="front" template_app="toolbox"><![CDATA[    <div title="Application" data-ipsTooltip>{$info['app']}</div>
+ <template template_group="bar" template_name="git" template_data="$info=null" template_location="front" template_app="toolbox"><![CDATA[{{if isset( $info['app'] ) }}
+    <div title="Application" data-ipsTooltip>{$info['app']}</div>
     <div title="Application Version" data-ipsTooltip>{$info['version']}</div>
     <div title="Commit: {$info['fid']}" data-ipstooltip>
         <a id="elProfileGitMessage" href="#elProfileGitMessage_menu" data-ipsmenu>
@@ -151,12 +169,13 @@
     {{if !empty( $info['changes'] ) }}
     <div>
         <a id="elProfileGitBranchesChanges"  href="#elProfileGitBranchesChanges_menu" title="Apps with changes" data-ipstooltip data-ipsmenu>
-            Apps W/Changes <i class="fa fa-angle-up"></i>
+             Changes <i class="fa fa-angle-up"></i>
         </a>
     </div>
     <ul id="elProfileGitBranchesChanges_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
         {{foreach $info['changes'] as $val }}
         <li class="ipsMenu_item">
+            {{$dir = $val['directory'];}}
             <a>
                 {$val['name']|raw}
             </a>
@@ -164,6 +183,11 @@
         {{endforeach}}
     </ul>
     {{endif}}
+{{endif}}
+]]></template>
+ <template template_group="bt" template_name="phpinfo" template_data="$info" template_location="front" template_app="toolbox"><![CDATA[<div class="toolboxPhpInfo ipsPad">
+    {$info|raw}
+</div>
 ]]></template>
  <template template_group="caching" template_name="caching" template_data="$lists, $count" template_location="front" template_app="toolbox"><![CDATA[<li id="elProfileCacheLog" title="Cache Log" class="isParent dtProfileFirst dtProfilerCacheLog" data-ipstooltip>
     <i class="fa fa-usd"></i> Cache Log ({$count}) <i class="fa fa-angle-up dtprofilearrow"></i>
@@ -273,7 +297,7 @@
         {template="keyvalue" group="dtpsearch" location="front" app="toolbox" params="$k,$v"}
         {{endforeach}}
         {{else}}
-        {expression="(new \IPS\toolbox\Profiler\Profiler\Dumper)->type($value)" raw="true"}
+        {expression="(new \IPS\toolbox\Profiler\Dumper)->type($value)" raw="true"}
         {{endif}}
     </div>
 </div>
@@ -290,7 +314,7 @@
 {{endif}}
 ]]></template>
  <template template_group="generic" template_name="button" template_data="$name, $key, $title, $lists, $count=null, $icon='random', $max=true, $hide=false, $last=null, $clear=false" template_location="front" template_app="toolbox"><![CDATA[<li id="elProfile{$key}" {{if $title}}title="{$title}" data-ipstooltip{{endif}} class="isParent dtProfileFirst dtProfiler{$key} {{if $hide}}ipsHide{{endif}}" {{if $last }}data-last="{$last}" {{endif}}>
-    <i class="fa fa-{$icon}"></i> {$name} {{if $count !== null}}{{if $name}}({{endif}}<span class="dtprofilerCount" data-\count="{$count}">{$count}</span>{{if $name}}){{endif}}
+    <i class="fa fa-{$icon}"></i> {$name} {{if $count !== null}}{{if $name}}({{endif}}<span class="dtprofilerCount" data-count="{$count}">{$count}</span>{{if $name}}){{endif}}
     <i class="fa fa-angle-up dtprofilearrow"></i>{{endif}}
 </li>
 {{if $clear || $count }}
@@ -320,7 +344,26 @@
         {{if \is_array($value) }}
         {template="keyvalue" group="generic" location="front" app="toolbox" params="$value"}
         {{else}}
-        {expression="(new \IPS\toolbox\Profiler\Profiler\Dumper)->add($value)" raw="true"}
+        {expression="(new \IPS\toolbox\Profiler\Dumper)->add($value)" raw="true"}
+        {{endif}}
+    </div>
+</div>
+{{endforeach}}
+]]></template>
+ <template template_group="generic" template_name="keyvalueDebug" template_data="$debug" template_location="front" template_app="toolbox"><![CDATA[{{if $debug->name }}
+<h4>{$debug->name}</h4>
+{{endif}}
+<div>
+    <a href="{$debug->url()}">{$debug->path}:{$debug->line}</a>
+</div>
+{{foreach $debug->messages as $key => $value }}
+<div class="ipsColumns">
+    <div class="ipsColumn ipsColumn_wide">{$key|raw}</div>
+    <div class="ipsColumn ipsColumn_fluid">
+        {{if \is_array($value) }}
+        {template="keyvalue" group="generic" location="front" app="toolbox" params="$value"}
+        {{else}}
+        {expression="(new \IPS\toolbox\Profiler\Dumper)->add($value)" raw="true"}
         {{endif}}
     </div>
 </div>
@@ -356,7 +399,17 @@
 {{endif}}
 <div class="ipsColumns">
     <div class="ipsColumn ipsColumn_fluid">
-        {expression="(new \IPS\toolbox\Profiler\Profiler\Dumper)->add($data)" raw="true"}
+        {expression="(new \IPS\toolbox\Profiler\Dumper)->add($data)" raw="true"}
+    </div>
+</div>
+]]></template>
+ <template template_group="generic" template_name="stringDebug" template_data="$debug" template_location="front" template_app="toolbox"><![CDATA[{{if $debug->name }}
+<h4>{$debug->name}</h4>
+{{endif}}
+<div class="ipsColumns">
+    <div class="ipsColumn ipsColumn_fluid">
+        <a href="{$debug->url()}">{$debug->path}:{$debug->line}</a>
+        {expression="(new \IPS\toolbox\Profiler\Dumper)->add($debug->log)" raw="true"}
     </div>
 </div>
 ]]></template>
@@ -419,9 +472,9 @@
     color: #fff;
 }
 ]]></css>
- <css css_location="admin" css_app="toolbox" css_attributes="" css_path="." css_name="dtcode.css">.dtcode_header {&#13;
-    margin-top: 15px;&#13;
-    cursor: pointer;&#13;
+ <css css_location="admin" css_app="toolbox" css_attributes="" css_path="." css_name="dtcode.css">.dtcode_header {
+    margin-top: 15px;
+    cursor: pointer;
 }</css>
  <css css_location="front" css_app="toolbox" css_attributes="" css_path="." css_name="profiler.css"><![CDATA[.dtProfilerPlaceHolder,
 .dtProfilerBar {
@@ -708,6 +761,76 @@
 .dtProfilerBar_search_ul > li,
 #elProfilelogs_list > li {
     border-bottom: #fff 1px solid;
+}
+
+
+.toolboxPhpInfo {font-family: sans-serif !important; font-size: 16px;}
+.toolboxPhpInfo a,
+.toolboxPhpInfo a:link {color: #000; text-decoration: none;}
+.toolboxPhpInfo a:hover {text-decoration: underline;}
+.toolboxPhpInfo pre {
+    margin: 0;
+    font-family: monospace;
+}
+.toolboxPhpInfo table {
+    border-collapse: collapse;
+    border: 0;
+    width: 934px;
+    box-shadow: 1px 2px 3px #ccc;
+}
+.toolboxPhpInfo .center {
+    text-align: center;
+}
+.toolboxPhpInfo .center table {
+    margin: 1em auto;
+    text-align: left;
+}
+.toolboxPhpInfo .center th {
+    text-align: center !important;
+}
+.toolboxPhpInfo td,
+.toolboxPhpInfo th {
+    border: 1px solid #666;
+    font-size: 75%;
+    vertical-align: baseline;
+    padding: 4px 5px;
+}
+.toolboxPhpInfo h1 {
+    font-size: 150%;
+}
+.toolboxPhpInfo h2 {
+    font-size: 125%;
+}
+.toolboxPhpInfo .p {
+    text-align: left;
+}
+.toolboxPhpInfo .e {
+    background-color: #87C1FA;
+    width: 300px;
+    font-weight: bold;
+}
+.toolboxPhpInfo .h {
+    color: #fff;
+    background-color: #3399FF;
+    font-weight: bold;
+}
+.toolboxPhpInfo .v {
+    max-width: 300px;
+    overflow-x: auto;
+    word-wrap: break-word;
+}
+.toolboxPhpInfo .v i {
+    color: #999;
+}
+.toolboxPhpInfo img {
+    float: right;
+    border: 0;
+}
+.toolboxPhpInfo hr {
+    width: 934px;
+    background-color: #ccc;
+    border: 0;
+    height: 1px;
 }
 ]]></css>
 </theme>

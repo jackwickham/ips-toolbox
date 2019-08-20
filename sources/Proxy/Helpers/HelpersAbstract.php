@@ -12,16 +12,21 @@
 
 namespace IPS\toolbox\Proxy\Helpers;
 
+use Generator\Builders\ClassGenerator;
+
 interface HelpersAbstract
 {
+
     /**
      * the method that can be used to add extra data to a proxy before it is written.
      *
-     * @param string $class        the class with NS
-     * @param array  $classDoc     if a class doc was built (if it is a AR descendant it will most likely have one)
-     * @param string $classExtends the IPS Class it is extending
+     * @param string         $class        the class with NS
+     * @param ClassGenerator $classGenerator
+     * @param array          $classDoc     if a class doc was built (if it is a AR descendant it will most likely have
+     *                                     one)
+     * @param string         $classExtends the IPS Class it is extending
      *
      * @return void
      */
-    public function process( $class, &$classDoc, &$classExtends, &$body );
+    public function process( $class, ClassGenerator $classGenerator, &$classExtends );
 }

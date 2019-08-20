@@ -12,12 +12,13 @@
 
 namespace IPS\toolbox\extensions\toolbox\Settings;
 
+use IPS\toolbox\Forms\Form;
 use function defined;
 use function header;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
@@ -30,38 +31,13 @@ class _proxy
     /**
      * add in array of form helpers
      *
-     * @param array $helpers
+     * @param Form $form
      */
-    public function elements( &$helpers )
+    public function elements( &$form ): void
     {
-        $helpers[] = [
-            'name'  => 'dtproxy_do_props',
-            'class' => 'yn',
-            'ops'   => [
-                'togglesOn' => [ 'do_props_doc' ],
-            ],
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtproxy_do_constants',
-            'class' => 'yn',
-        ];
-
-        $helpers[] = [
-            'name'  => 'dtproxy_do_proxies',
-            'class' => 'yn',
-        ];
-
-    }
-
-    /**
-     * return a tab name
-     *
-     * @return string
-     */
-    public function tab(): string
-    {
-        return 'dtproxy';
+        $form->element( 'dtproxy_do_props', 'yn' )->tab( 'dtproxy' )->toggles( [ 'do_props_doc' ] );
+        $form->element( 'dtproxy_do_constants', 'yn' );
+        $form->element( 'dtproxy_do_proxies', 'yn' );
     }
 
     /**
@@ -71,7 +47,7 @@ class _proxy
      *
      * @return void
      */
-    public function formateValues( &$values )
+    public function formatValues( &$values )
     {
 
     }

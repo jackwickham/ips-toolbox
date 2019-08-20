@@ -1,7 +1,7 @@
 //<?php
 
-/* To prevent PHP errors (extending class does not exist) revealing path */
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
@@ -13,6 +13,7 @@ class toolbox_hook_BuilderIterator extends _HOOK_CLASS_
      */
     public function current()
     {
+
         $file = $this->key();
         $file = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/' . $file;
         $path = new \SplFileInfo( $this->key() );
@@ -39,6 +40,7 @@ class toolbox_hook_BuilderIterator extends _HOOK_CLASS_
                 \file_put_contents( $temporary, $contents );
                 \register_shutdown_function( function ( $temporary )
                 {
+
                     \unlink( $temporary );
                 }, $temporary );
 
@@ -48,4 +50,7 @@ class toolbox_hook_BuilderIterator extends _HOOK_CLASS_
 
         return $file;
     }
+
 }
+
+

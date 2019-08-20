@@ -11,26 +11,19 @@
  */
 
 namespace IPS\toolbox\DevCenter\Sources\Generator;
-use function ltrim;
 
 use Exception;
-use InvalidArgumentException;
 use IPS\Application;
-use IPS\toolbox\Generator\DTClassGenerator;
-use IPS\toolbox\Generator\DTFileGenerator;
-use IPS\toolbox\Generator\DTInterfaceGenerator;
-use IPS\toolbox\Generator\DTTraitGenerator;
+use IPS\Log;
+use Generator\Builders\ClassGenerator;
+use Generator\Builders\InterfaceGenerator;
+use Generator\Builders\TraitGenerator;
 use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Shared\LanguageBuilder;
 use IPS\toolbox\Shared\Magic;
 use IPS\toolbox\Shared\ModuleBuilder;
 use IPS\toolbox\Shared\SchemaBuilder;
 use IPS\toolbox\Shared\Write;
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\Exception\RuntimeException;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\PropertyGenerator;
-use Zend\Code\Generator\PropertyValueGenerator;
 use function array_shift;
 use function count;
 use function defined;
@@ -59,10 +52,25 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  * Class _GeneratorAbstract
  *
  * @package IPS\toolbox\DevCenter\Sources\Generator
- * @mixin \IPS\toolbox\DevCenter\Sources\Generator\GeneratorAbstract
+ * @mixin GeneratorAbstract
+ * @property string $className
+ * @property string $classname
+ * @property string $classname_lower
+ * @property string $_classname
+ * @property string $namespace
+ * @property string $extends
+ * @property array  $implements
+ * @property array  $traits
+ * @property bool   $abstract
+ * @property string $scaffolding_type
+ * @property string $brief
+ * @property string $content_item_class
+ * @property string $item_node_class
+ * @property string $comment_class
  */
 abstract class _GeneratorAbstract
 {
+
     use LanguageBuilder, SchemaBuilder, ModuleBuilder, Write, Magic;
 
     /**
@@ -71,7 +79,7 @@ abstract class _GeneratorAbstract
      * @var array
      */
     protected static $arDescendent = [
-        'ActiveRecord',
+        'Activerecord',
         'Node',
         'Item',
         'Comment',
@@ -83,10 +91,10 @@ abstract class _GeneratorAbstract
      *
      * @var bool
      */
-    public $error = \false;
+    public $error = false;
 
     /**
-     * @var Application
+     * @var \IPS\Application
      */
     protected $application;
 
@@ -96,7 +104,7 @@ abstract class _GeneratorAbstract
     protected $db;
 
     /**
-     * @var DTClassGenerator|DTInterfaceGenerator|DTTraitGenerator
+     * @var ClassGenerator|InterfaceGenerator|TraitGenerator
      */
     protected $generator;
 
@@ -112,18 +120,30 @@ abstract class _GeneratorAbstract
      *
      * @var bool
      */
-    protected $useImports = \true;
+    protected $useImports = true;
+
+    protected $type;
+
+    protected $app;
+
+    protected $database;
+
+    protected $prefix;
+
+    protected $mixin;
+
+    protected $baseurl;
 
     /**
      * @param array       $values
      * @param Application $application
      * @param bool        $strip
      */
-    public function __construct( array $values, Application $application, bool $strip = \false )
+    public function __construct( array $values, Application $application, bool $strip = false )
     {
 
         foreach ( $values as $key => $val ) {
-            if ( $strip === \false ) {
+            if ( $strip === false ) {
                 $key = str_replace( 'dtdevplus_class_', '', $key );
             }
 
@@ -132,15 +152,24 @@ abstract class _GeneratorAbstract
                 $this->{$key} = $val;
             }
             else {
-                $this->{$key} = \null;
+                $this->{$key} = null;
             }
+        }
+
+        if ( is_array( $this->ips_traits ) ) {
+            $this->traits = is_array( $this->traits ) ? array_merge( $this->traits, $this->ips_traits ) : $this->ips_traits;
+
+        }
+
+        if ( is_array( $this->ips_implements ) ) {
+            $this->implements = is_array( $this->implements ) ? array_merge( $this->implements, $this->ips_implements ) : $this->ips_implements;
         }
 
         $this->application = $application;
         $this->app = $this->application->directory;
         $this->type = mb_ucfirst( $this->type );
-        if ( in_array( $this->type, static::$arDescendent, \true ) ) {
-            if ( $this->database === \null ) {
+        if ( in_array( $this->type, static::$arDescendent, true ) ) {
+            if ( $this->database === null ) {
                 $this->database = $this->app . '_' . $this->classname_lower;
             }
             else {
@@ -150,37 +179,36 @@ abstract class _GeneratorAbstract
             $this->database = mb_strtolower( $this->database );
         }
 
-        if ( $this->prefix !== \null ) {
+        if ( $this->prefix !== null ) {
             $this->prefix .= '_';
         }
 
         $this->db = new Database( $this->database, $this->prefix );
 
-        if ( !in_array( $this->type, [ 'Traits', 'Interfacing' ], \true ) ) {
-            $this->generator = new DTClassGenerator;
+        if ( !in_array( $this->type, [ 'Traits', 'Interfacing' ], true ) ) {
+            $this->generator = new ClassGenerator();
         }
         else if ( $this->type === 'Interfacing' ) {
-            $this->generator = new DTInterfaceGenerator;
+            $this->generator = new InterfaceGenerator();
         }
         else if ( $this->type === 'Traits' ) {
-            $this->generator = new DTTraitGenerator;
+            $this->generator = new TraitGenerator();
         }
     }
 
     /**
      * gathers all the info neeed to begin class building.
      */
-    final public function process()
+    final public function process(): void
     {
 
-
-        if ( $this->className !== \null ) {
+        if ( $this->className !== null ) {
             $this->classname = mb_ucfirst( $this->className );
         }
-        else if ( $this->interfaceName !== \null ) {
+        else if ( $this->interfaceName !== null ) {
             $this->classname = mb_ucfirst( $this->interfaceName );
         }
-        else if ( $this->traitName !== \null ) {
+        else if ( $this->traitName !== null ) {
             $this->classname = mb_ucfirst( $this->traitName );
         }
         else {
@@ -189,7 +217,7 @@ abstract class _GeneratorAbstract
 
         $this->classname_lower = mb_strtolower( $this->classname );
 
-        if ( !in_array( $this->type, [ 'Traits', 'Interfacing' ], \true ) ) {
+        if ( !in_array( $this->type, [ 'Traits', 'Interfacing' ], true ) ) {
             $this->_classname = '_' . $this->classname;
         }
         else {
@@ -200,262 +228,178 @@ abstract class _GeneratorAbstract
             $this->namespace = 'IPS\\' . $this->app;
         }
         else {
-            $this->namespace = $this->namespace !== \null ? 'IPS\\' . $this->app . '\\' . mb_ucfirst( $this->namespace ) : 'IPS\\' . $this->app;
+            $this->namespace = $this->namespace !== null ? 'IPS\\' . $this->app . '\\' . mb_ucfirst( $this->namespace ) : 'IPS\\' . $this->app;
         }
 
-        if ( !in_array( $this->type, static::$arDescendent, \true ) && !in_array( $this->type, [
+        if ( $this->type !== 'Api' && !in_array( $this->type, static::$arDescendent, true ) && !in_array( $this->type, [
                 'Traits',
                 'Interfacing',
                 'Singleton',
                 'Form',
-            ], \true ) ) {
-            $methodDocBlock = DocBlockGenerator::fromArray( [
-                'shortDescription' => $this->_classname . ' constructor',
-                'longDescription'  => \null,
-            ] );
+            ], true ) ) {
 
-            $this->methods[] = MethodGenerator::fromArray( [
-                'name'     => '__construct',
-                'body'     => $this->extends ? 'parent::__construct();' : '',
-                'docblock' => $methodDocBlock,
-            ] );
+            $body = $this->extends ? 'parent::__construct();' : '';
+            $config = [
+                'visibility' => T_PUBLIC,
+                'document'   => [
+                    $this->_classname . ' constructor',
+                ],
+            ];
+            $this->generator->addMethod( '__construct', $body, [], $config );
         }
 
-        if ( in_array( $this->type, static::$arDescendent, \true ) ) {
+        if ( in_array( $this->type, static::$arDescendent, true ) ) {
             $this->_arDescendantProps();
         }
 
         $this->bodyGenerator();
 
-        if ( $this->extends !== \null ) {
-            if ( $this->useImports ) {
-                $this->extends = ltrim( $this->extends, '\\' );
-                $this->generator->addUse( $this->extends );
-            }
-            $this->generator->setExtendedClass( $this->extends );
+        if ( $this->extends !== null ) {
+            $this->generator->addExtends( $this->extends );
         }
 
         if ( is_array( $this->implements ) && count( $this->implements ) ) {
-            $new = [];
             foreach ( $this->implements as $int ) {
-                if ( $this->useImports ) {
-                    $int = ltrim( $int, '\\' );
-                    $this->generator->addUse( $int );
-                }
-                $new[] = $int;
+                $this->generator->addInterface( $int );
             }
-
-            $this->generator->setImplementedInterfaces( $new );
         }
 
         if ( is_array( $this->traits ) && count( $this->traits ) ) {
             foreach ( $this->traits as $trait ) {
-                if ( $this->useImports ) {
-                    $trait = ltrim( $trait, '\\' );
-                    $this->generator->addUse( $trait );
-                }
-                $this->generator->addTrait( $trait );
+                $this->generator->addUse( $trait );
             }
         }
 
-        $this->mixin = '\\' . $this->namespace . '\\' . $this->classname;
+        $this->mixin = $this->classname;
 
-        $headerBlock = DocBlockGenerator::fromArray( [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => $this->classname . ' ' . $this->brief ],
-                [ 'name' => 'copyright', 'description' => '-storm_copyright-' ],
-                [ 'name' => 'package', 'description' => 'IPS Social Suite' ],
-                [ 'name' => 'subpackage', 'description' => $this->app ],
-                [ 'name' => 'since', 'description' => '-storm_since_version-' ],
-                [ 'name' => 'version', 'description' => '-storm_version-' ],
-            ],
-        ] );
-
-        $docBlock = DocBlockGenerator::fromArray( [
-            'shortDescription' => $this->classname . ' Class',
-            'longDescription'  => \null,
-            'tags'             => [ [ 'name' => 'mixin', 'description' => $this->mixin ] ],
-        ] );
-
-        $this->generator->setName( $this->_classname )->setDocBlock( $docBlock )->setNamespaceName( $this->namespace );
-
-        if ( $this->abstract ) {
-            $this->generator->setAbstract( \true );
+        if ( $this->type === 'Api' ) {
+            $dir = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/api/';
         }
-
-        if ( !empty( $this->methods ) ) {
-            $this->generator->addMethods( $this->methods );
+        else {
+            $dir = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/sources/' . $this->_getDir();
         }
-
-        $content = new DTFileGenerator;
-        $content->setDocBlock( $headerBlock );
-        $content->setClass( $this->generator );
-        $dir = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/sources/' . $this->_getDir();
         $file = $this->classname . '.php';
+        $this->proxy = true;
 
         if ( !in_array( $this->type, [ 'Interface', 'Traits' ] ) ) {
-            $this->proxy = \true;
+            $this->proxy = false;
+        }
+        $this->generator->addPath( $dir );
+        $this->generator->addFileName( $file );
+        $this->generator->isProxy = $this->proxy;
+        $doc = [
+            '@brief      ' . $this->classname . ' ' . $this->brief,
+            '@copyright  -storm_copyright-',
+            '@package    IPS Social Suite',
+            '@subpackage ' . $this->app,
+            '@since      -storm_since_version-',
+            '@version    -storm_version-',
+        ];
+
+        $this->generator->addDocumentComment( $doc );
+        $this->generator->addDocumentComment( [ $this->classname . ' Class' ], true );
+        $this->generator->addMixin( $this->mixin );
+        $this->generator->addClassName( $this->_classname );
+        $this->generator->addFileName( $this->classname );
+        $this->generator->addNameSpace( $this->namespace );
+
+        if ( $this->abstract ) {
+            $this->generator->addType( 'abstract' );
         }
 
-        $content->setFilename( $dir . '/' . $file );
-
         try {
-            $content->write();
-
-
-            if ( $this->scaffolding_create && in_array( $this->type, static::$arDescendent, \true ) ) {
+            $this->generator->save();
+            if ( $this->scaffolding_create && in_array( $this->type, static::$arDescendent, false ) ) {
                 $this->_createRelation( $file, $dir, $this->database );
-
-                try {
-                    if ( in_array( $this->type, static::$arDescendent, \true ) ) {
+                if ( in_array( 'db', $this->scaffolding_type, false ) ) {
+                    try {
                         $this->db->add( 'bitwise' );
+                        $this->db->createTable()->_buildSchemaFile( $this->database, $this->application );
+                    } catch ( Exception $e ) {
+                        Log::log( $e, 'Devplus database' );
                     }
-                    $this->db->createTable()->_buildSchemaFile( $this->database, $this->application );
-                } catch ( Exception $e ) {
-                    Debug::add( 'DevPlus Database Compiler', $e );
                 }
 
-                try {
-                    $this->_buildModule( $this->application, $this->classname, $this->namespace, $this->type, $this->useImports );
-                } catch ( Exception $e ) {
-                    //@todo maybe we should add a error class?
-                    $this->error = 1;
-                    Debug::add( 'modules', $e );
+                if ( in_array( 'modules', $this->scaffolding_type, false ) ) {
+                    try {
+                        $this->_buildModule( $this->application, $this->classname, $this->namespace, $this->type, $this->useImports );
+                    } catch ( Exception $e ) {
+                        //@todo maybe we should add a error class?
+                        $this->error = 1;
+                    }
                 }
             }
         } catch ( RuntimeException $e ) {
             $this->error = 1;
-            Debug::add( 'modules', $e );
+            Debug::log( $e );
         }
     }
 
     /**
      * builds the $databasePrefix section for AR descendant classes
      */
-    protected function _arDescendantProps()
+    protected function _arDescendantProps(): void
     {
+
         //multitons
-        $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => '[ActiveRecord] Multiton Store' ],
-                [ 'name' => 'var', 'description' => 'array' ],
-            ],
+        $document = [
+            '@brief [ActiveRecrod] Multion Store',
+            '@var  array',
         ];
 
-        $config = [
-            'name'   => 'multitons',
-            'value'  => new PropertyValueGenerator( [], PropertyValueGenerator::TYPE_ARRAY_LONG, PropertyValueGenerator::OUTPUT_SINGLE_LINE ),
-            'vis'    => 'protected',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
-
-        //default values
-        $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => '[ActiveRecord] Default Values' ],
-                [ 'name' => 'var', 'description' => 'null|array' ],
-            ],
-        ];
-
-        //        $config = [
-        //            'name'   => 'defaultValues',
-        //            'value'  => new PropertyValueGenerator( \null, PropertyValueGenerator::TYPE_NULL ),
-        //            'vis'    => 'protected',
-        //            'doc'    => $doc,
-        //            'static' => \true,
-        //        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty( 'multiton', [], [
+            'visibility' => T_PROTECTED,
+            'document'   => $document,
+            'static'     => true,
+        ] );
 
         //prefix
         if ( $this->prefix ) {
             $this->prefix = mb_strtolower( $this->prefix );
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => '[ActiveRecord] Database Prefix' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
+            $document = [
+                '@brief [ActiveRecord] Database Prefix',
+                '@var string',
             ];
 
-            $config = [
-                'name'   => 'databasePrefix',
-                'value'  => $this->prefix,
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
+            $this->generator->addProperty( 'databasePrefix', $this->prefix, [
+                'visibility' => T_PUBLIC,
+                'document'   => $document,
+                'static'     => true,
+            ] );
         }
 
         //databaseTable
-        $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => '[ActiveRecord] Database table' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+        $document = [
+            '@brief [ActiveRecord] Database table',
+            '@var string',
         ];
 
-        $config = [
-            'name'   => 'databaseTable',
-            'value'  => $this->database,
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty( 'databaseTable', $this->database, [
+            'visibility' => T_PUBLIC,
+            'document'   => $document,
+            'static'     => true,
+        ] );
 
         //bitoptions
-        $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Bitwise Keys' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+        $document = [
+            '@brief [ActiveRecord] Bitwise Keys',
+            '@var array',
         ];
 
-        $config = [
-            'name'   => 'bitOptions',
-            'value'  => [ 'bitwise' => [ 'bitwise' => [] ] ],
-            'vis'    => 'protected',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
+        $value = <<<EOF
+array(
+        'bitwise' => array(
+            'bitwise' => array()
+        )
+    )
+EOF;
 
-        $this->addProperty( $config );
-    }
-
-    /**
-     * @param array $config [
-     *                      'name' => 'itemClass', name of the property (required)
-     *                      'value' => 'foo::bar', default value of the property
-     *                      'doc' => [], doc Comment of the property @see
-     *                      \Zend\Code\Generator\DocBlockGenerator::fromArray
-     *                      'vis' => 'protected', the visibility of the prop, public, private, protected
-     *                      'static' => (bool), true or false
-     *                      ]
-     */
-    protected function addProperty( array $config = [] )
-    {
-        try {
-            if ( !isset( $config[ 'name' ] ) ) {
-                throw new InvalidArgumentException( 'array missing name or name value is null' );
-            }
-            $config[ 'defaultvalue' ] = $config[ 'value' ] ?? \null;
-            if ( !empty( $config[ 'doc' ] ) ) {
-                $config[ 'docblock' ] = DocBlockGenerator::fromArray( $config[ 'doc' ] );
-                unset( $config[ 'doc' ] );
-            }
-            $config[ 'visibility' ] = $config[ 'vis' ] ?? \false;
-            $config[ 'static' ] = $config[ 'static' ] ?? \false;
-            $prop = PropertyGenerator::fromArray( $config );
-            $this->generator->addPropertyFromGenerator( $prop );
-        } catch ( \Exception $e ) {
-            Debug::add( 'addProperty', $e );
-        }
+        $this->generator->addProperty( 'bitOptions', $value, [
+            'visibility' => T_PUBLIC,
+            'document'   => $document,
+            'static'     => true,
+            'type'       => 'array',
+        ] );
     }
 
     /**
@@ -470,6 +414,7 @@ abstract class _GeneratorAbstract
      */
     protected function _getDir()
     {
+
         $namespace = explode( '\\', $this->namespace );
         array_shift( $namespace );
         array_shift( $namespace );
@@ -487,108 +432,97 @@ abstract class _GeneratorAbstract
      * @param $dir
      * @param $database
      */
-    protected function _createRelation( $file, $dir, $database )
+    protected function _createRelation( $file, $dir, $database ): void
     {
+
         $relationFile = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/data/';
         $relations = [];
         if ( file_exists( $relationFile . '/arRelations.json' ) ) {
-            $relations = json_decode( file_get_contents( $relationFile . '/arRelations.json' ), \true );
+            $relations = json_decode( file_get_contents( $relationFile . '/arRelations.json' ), true );
         }
         $relations[ $database ] = str_replace( \IPS\ROOT_PATH . '/', '', $dir ) . '/' . $file;
-        $this->_writeFile( 'arRelations.json', json_encode( $relations ), $relationFile, \false );
+        $this->_writeFile( 'arRelations.json', json_encode( $relations ), $relationFile, false );
     }
 
     /**
      * adds the seoTitleColumn property
      */
-    protected function seoTitleColumn()
+    protected function seoTitleColumn(): void
     {
+
         $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'SEO Title Column' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+            '@brief SEO Title Column',
+            '@var string',
         ];
 
-        $config = [
-            'name'   => 'seoTitleColumn',
-            'value'  => new PropertyValueGenerator( 'seoTitle', PropertyValueGenerator::TYPE_STRING, PropertyValueGenerator::OUTPUT_SINGLE_LINE ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
-    }
-
-    /**
-     * adds the URL base property
-     */
-    protected function urlBase()
-    {
-        $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'URL Base' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
-        ];
-
-        $base = 'app=' . $this->app . '&module=' . $this->classname_lower . '&controller=' . $this->classname_lower . '&id=';
-
-        $config = [
-            'name'   => 'urlBase',
-            'value'  => new PropertyValueGenerator( $base, PropertyValueGenerator::TYPE_STRING ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty( 'seoTitleColumn', 'seoTitle', [
+            'visibility' => T_PUBLIC,
+            'document'   => $doc,
+            'static'     => true,
+        ] );
     }
 
     /**
      * adds the _url property
      */
-    protected function _url()
+    protected function _url(): void
     {
+
         $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Cached URL' ],
-                [ 'name' => 'var', 'description' => 'array' ],
-            ],
+            '@brief Cached URL',
+            '@var array',
         ];
-
-        $config = [
-            'name'   => '_url',
-            'value'  => new PropertyValueGenerator( [], PropertyValueGenerator::TYPE_ARRAY_LONG ),
-            'vis'    => 'protected',
-            'doc'    => $doc,
-            'static' => \false,
-        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty( '_url', null, [
+            'visibility' => T_PROTECTED,
+            'document'   => $doc,
+        ] );
     }
 
     /**
      * adds the url template property
      */
-    protected function urlTemplate()
+    protected function urlTemplate(): void
     {
+
+        $value = $this->app . '_' . $this->classname_lower;
+        if ( $this->baseurl === null ) {
+            $this->urlBase();
+        }
+        $this->addFurl( $value, $this->baseurl );
         $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'URL Furl Template' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+            '@brief URL Furl Template',
+            '@var string',
+        ];
+        $this->generator->addProperty( 'urlTemplate', $value, [
+            'visibility' => T_PUBLIC,
+            'document'   => $doc,
+            'static'     => true,
+        ] );
+    }
+
+    /**
+     * adds the URL base property
+     */
+    protected function urlBase(): void
+    {
+
+        $base = 'app=' . $this->app . '&module=' . $this->classname_lower . '&controller=' . $this->classname_lower;
+        $this->baseurl = $base;
+        $doc = [
+            '@brief URL base',
+            '@var string',
         ];
 
-        $config = [
-            'name'   => 'urlTemplate',
-            'value'  => new PropertyValueGenerator( $this->app . '_' . $this->classname_lower, PropertyValueGenerator::TYPE_STRING ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
+        $this->generator->addProperty( 'urlBase', $base . '&id=', [
+            'visibility' => T_PUBLIC,
+            'static'     => true,
+            'document'   => $doc,
+        ] );
 
-        $this->addProperty( $config );
+    }
+
+    protected function addFurl( $value, $url )
+    {
+
     }
 }

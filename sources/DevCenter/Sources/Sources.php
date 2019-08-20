@@ -8,7 +8,6 @@
  * @version    -storm_version-
  */
 
-
 namespace IPS\toolbox\DevCenter;
 
 use InvalidArgumentException;
@@ -49,8 +48,8 @@ use function count;
 use function header;
 use function in_array;
 use function interface_exists;
-use function is_array;
 use function mb_ucfirst;
+use function is_array;
 use function trait_exists;
 
 if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
@@ -70,15 +69,19 @@ class _Sources
      * @var \IPS\Helpers\Form
      */
     public $form;
+
     public $type;
+
     /**
      * @var Application
      */
     protected $application;
+
     /**
      * @var array
      */
     protected $elements = [];
+
     /**
      * @var string
      */
@@ -91,6 +94,7 @@ class _Sources
      */
     public function __construct( Application $application = null )
     {
+
         $this->application = $application;
     }
 
@@ -99,6 +103,7 @@ class _Sources
      */
     public static function menu()
     {
+
         if ( Request::i()->controller === 'sources' || Request::i()->controller === 'devFolder' ) {
             Output::i()->sidebar[ 'actions' ][ 'devcenter' ] = [
                 'icon'  => \null,
@@ -126,19 +131,26 @@ class _Sources
             ],
         ];
 
+        Output::i()->sidebar[ 'mobilenav' ] = static::subMenus();
+    }
+
+    public static function subMenus()
+    {
+
         $types = [
             'standard',
             'cinterface',
             'ctraits',
             'singleton',
             'ar',
+            'api',
             'node',
             'item',
             'comment',
             'review',
             'debug',
             'memory',
-            'form',
+            //            'form',
         ];
 
         $dev = [
@@ -150,7 +162,7 @@ class _Sources
             'jsmixin',
         ];
 
-        Output::i()->sidebar[ 'mobilenav' ] = Theme::i()->getTemplate( 'dtdpmenu', 'toolbox', 'admin' )->menu( $types, $dev, Request::i()->appKey );
+        return Theme::i()->getTemplate( 'dtdpmenu', 'toolbox', 'admin' )->menu( $types, $dev, Request::i()->appKey );
     }
 
     /**
@@ -159,6 +171,7 @@ class _Sources
      */
     public function buildForm( array $config, string $type )
     {
+
         $this->type = $type;
 
         foreach ( $config as $func ) {
@@ -174,6 +187,7 @@ class _Sources
      */
     public function create()
     {
+
         if ( $values = $this->form->values() ) {
             $this->generate( $values );
         }
@@ -181,6 +195,7 @@ class _Sources
 
     public function generate( array $values = [] )
     {
+
         /* @var Application $app */
         foreach ( Application::allExtensions( 'toolbox', 'SourcesFormAbstract' ) as $app ) {
             /* @var SourcesFormAbstract $extension */
@@ -241,6 +256,7 @@ class _Sources
      */
     public function classCheck( $data )
     {
+
         $ns = mb_ucfirst( Request::i()->dtdevplus_class_namespace );
         $class = mb_ucfirst( $data );
         $class = $ns ? '\\IPS\\' . $this->application->directory . '\\' . $ns . '\\' . $class : '\\IPS\\' . $this->application->directory . '\\' . $class;
@@ -257,12 +273,14 @@ class _Sources
     /**
      * checks to see if the trait doesn't exist and the trait name is good!
      *
+     * @param $data
+     *
      * @throws InvalidArgumentException
      *
-     * @param $data
      */
     public function traitClassCheck( $data )
     {
+
         $ns = mb_ucfirst( Request::i()->dtdevplus_class_namespace );
         $class = mb_ucfirst( $data );
         if ( $ns ) {
@@ -284,12 +302,14 @@ class _Sources
     /**
      * checks to see if the interface doesn't exist and the name is good!
      *
+     * @param $data
+     *
      * @throws InvalidArgumentException
      *
-     * @param $data
      */
     public function interfaceClassCheck( $data )
     {
+
         $ns = mb_ucfirst( Request::i()->dtdevplus_class_namespace );
         $class = mb_ucfirst( $data );
         if ( $ns ) {
@@ -311,12 +331,14 @@ class _Sources
     /**
      * checks to see if the Class/Trait/Interface name isn't blank!
      *
+     * @param $data
+     *
      * @throws InvalidArgumentException
      *
-     * @param $data
      */
     public function noBlankCheck( $data )
     {
+
         if ( !$data ) {
             throw new InvalidArgumentException( 'dtdevplus_class_no_blank' );
         }
@@ -325,12 +347,14 @@ class _Sources
     /**
      * checks the parent class exist if one is provided
      *
+     * @param $data
+     *
      * @throws InvalidArgumentException
      *
-     * @param $data
      */
     public function extendsCheck( $data )
     {
+
         if ( $data && !class_exists( $data, \true ) ) {
             throw new InvalidArgumentException( 'dtdevplus_class_extended_class_no_exist' );
         }
@@ -339,12 +363,14 @@ class _Sources
     /**
      * Checks to make sure the interface files exist
      *
+     * @param $data
+     *
      * @throws InvalidArgumentException
      *
-     * @param $data
      */
     public function implementsCheck( $data )
     {
+
         if ( is_array( $data ) && count( $data ) ) {
             foreach ( $data as $implement ) {
 
@@ -360,12 +386,14 @@ class _Sources
     /**
      * checks to make sure the traits being used exists
      *
+     * @param $data
+     *
      * @throws InvalidArgumentException
      *
-     * @param $data
      */
     public function traitsCheck( $data )
     {
+
         if ( \is_array( $data ) && \count( $data ) ) {
             foreach ( $data as $trait ) {
                 if ( !trait_exists( $trait ) ) {
@@ -380,12 +408,14 @@ class _Sources
     /**
      * checks to make sure the node exist for the content item class.
      *
+     * @param $data
+     *
      * @throws InvalidArgumentException
      *
-     * @param $data
      */
     public function itemNodeCheck( $data )
     {
+
         if ( $data ) {
             $class = "IPS\\{$this->application->directory}\\{$data}";
             if ( !class_exists( $class ) ) {
@@ -403,6 +433,7 @@ class _Sources
      */
     protected function elNamespace()
     {
+
         $tabs = [
             'node',
             'item',
@@ -440,6 +471,7 @@ class _Sources
      */
     protected function elClassName()
     {
+
         if ( $this->type === 'interfacing' ) {
             $this->elements[] = [
                 'name'     => 'interfaceName',
@@ -470,6 +502,7 @@ class _Sources
      */
     protected function elAbstract()
     {
+
         $this->elements[] = [
             'class'   => 'yn',
             'name'    => 'abstract',
@@ -482,6 +515,7 @@ class _Sources
      */
     protected function elExtends()
     {
+
         $this->elements[] = [
             'name'       => 'extends',
             'options'    => [
@@ -502,14 +536,17 @@ class _Sources
 
     /**
      * imports element
+     *
+     * @deprecated no longer gonna support non-imports
      */
     protected function elImports()
     {
-        $this->elements[] = [
-            'name'    => 'useImports',
-            'class'   => 'yn',
-            'default' => \true,
-        ];
+
+        //        $this->elements[] = [
+        //            'name'    => 'useImports',
+        //            'class'   => 'yn',
+        //            'default' => \true,
+        //        ];
     }
 
     /**
@@ -517,6 +554,7 @@ class _Sources
      */
     protected function elDatabase()
     {
+
         $this->elements[] = [
             'name'   => 'database',
             'prefix' => $this->application->directory . '_',
@@ -528,6 +566,7 @@ class _Sources
      */
     protected function elPrefix()
     {
+
         $this->elements[] = [
             'name'   => 'prefix',
             'suffix' => '_',
@@ -539,6 +578,7 @@ class _Sources
      */
     protected function elScaffolding()
     {
+
         $this->elements[] = [
             'class'   => 'yn',
             'name'    => 'scaffolding_create',
@@ -552,7 +592,7 @@ class _Sources
 
         $sc[ 'db' ] = 'Database';
 
-        if ( !in_array( $this->type, [ 'ActiveRecord', 'review', 'comment' ] ) ) {
+        if ( !in_array( $this->type, [ 'activerecord', 'review', 'comment' ] ) ) {
             $sc[ 'modules' ] = 'Module';
         }
 
@@ -571,6 +611,7 @@ class _Sources
      */
     protected function elSubNode()
     {
+
         $this->elements[] = [
             'name'    => 'subnode',
             'class'   => 'yn',
@@ -612,10 +653,9 @@ class _Sources
         ];
 
         $this->elements[] = [
-            'name'     => 'subnode_class',
-            'prefix'   => '\\IPS\\' . $this->application->directory . '\\',
-            'required' => \true,
-            'options'  => [
+            'name'    => 'subnode_class',
+            'prefix'  => '\\IPS\\' . $this->application->directory . '\\',
+            'options' => [
                 'autocomplete' => [
                     'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
                     //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
@@ -636,6 +676,7 @@ class _Sources
      */
     protected function elItemClass()
     {
+
         $this->elements[] = [
             'name'    => 'item_class',
             'prefix'  => "IPS\\{$this->application->directory}\\",
@@ -659,6 +700,7 @@ class _Sources
      */
     protected function elNodeInterfaces()
     {
+
         $interfacesNode = [
             Permissions::class => Permissions::class,
             Ratings::class     => Ratings::class,
@@ -666,7 +708,8 @@ class _Sources
 
         $this->elements[] = $e[] = [
             'class'   => 'checkboxset',
-            'name'    => 'interface_implements_node',
+            'name'    => 'ips_implements',
+            'label'   => 'interface_implements_node',
             'default' => array_keys( $interfacesNode ),
             'ops'     => [
                 'options' => $interfacesNode,
@@ -681,6 +724,7 @@ class _Sources
      */
     protected function elInterfaces()
     {
+
         $this->elements[] = [
             'class'      => 'stack',
             'name'       => 'implements',
@@ -693,6 +737,7 @@ class _Sources
      */
     protected function elNodeTraits()
     {
+
         $traitsNode = [
             ClubContainer::class => ClubContainer::class,
             Colorize::class      => Colorize::class,
@@ -700,7 +745,8 @@ class _Sources
 
         $this->elements[] = [
             'class'   => 'checkboxset',
-            'name'    => 'ips_traits_node',
+            'name'    => 'ips_traits',
+            'label'   => 'ips_traits_node',
             'default' => array_keys( $traitsNode ),
             'ops'     => [
                 'options' => $traitsNode,
@@ -717,6 +763,7 @@ class _Sources
      */
     protected function elTraits()
     {
+
         $this->elements[] = [
             'class'      => 'stack',
             'name'       => 'traits',
@@ -729,6 +776,7 @@ class _Sources
      */
     protected function elItemTraits()
     {
+
         $traitsItems = [
             Reactable::class  => Reactable::class,
             Reportable::class => Reportable::class,
@@ -736,7 +784,8 @@ class _Sources
 
         $this->elements[] = [
             'class'   => 'checkboxset',
-            'name'    => 'ips_traits_item',
+            'name'    => 'ips_traits',
+            'label'   => 'ips_traits_item',
             'default' => array_keys( $traitsItems ),
             'ops'     => [
                 'options' => $traitsItems,
@@ -752,6 +801,7 @@ class _Sources
      */
     protected function elItemInterfaces()
     {
+
         $interfacesItem = [
             EditHistory::class              => EditHistory::class,
             Embeddable::class               => Embeddable::class,
@@ -775,7 +825,8 @@ class _Sources
 
         $this->elements[] = [
             'class'   => 'checkboxset',
-            'name'    => 'interface_implements_item',
+            'name'    => 'ips_implements',
+            'label'   => 'interface_implements_item',
             'default' => array_keys( $interfacesItem ),
             'ops'     => [
                 'options' => $interfacesItem,
@@ -791,6 +842,7 @@ class _Sources
      */
     protected function elItemNodeClass()
     {
+
         $this->elements[] = [
             'name'    => 'item_node_class',
             'prefix'  => "IPS\\{$this->application->directory}\\",
@@ -814,6 +866,7 @@ class _Sources
      */
     protected function elItemCommentClass()
     {
+
         $this->elements[] = [
             'name'    => 'comment_class',
             'prefix'  => "IPS\\{$this->application->directory}\\",
@@ -837,6 +890,7 @@ class _Sources
      */
     protected function elItemReviewClass()
     {
+
         $this->elements[] = [
             'name'    => 'review_class',
             'prefix'  => "IPS\\{$this->application->directory}\\",
@@ -860,6 +914,7 @@ class _Sources
      */
     protected function elCommentInterfaces()
     {
+
         $interfacesComment = [
             Hideable::class    => Hideable::class,
             Embeddable::class  => Embeddable::class,
@@ -885,6 +940,7 @@ class _Sources
      */
     protected function elContentItemClass()
     {
+
         $this->elements[] = [
             'name'    => 'content_item_class',
             'prefix'  => "IPS\\{$this->application->directory}\\",
@@ -898,6 +954,23 @@ class _Sources
                     'minAjaxLength'        => 3,
                     'disallowedCharacters' => [],
                     'maxItems'             => 1,
+                ],
+            ],
+        ];
+    }
+
+    protected function elApiType()
+    {
+
+        $this->elements[] = [
+            'name'    => 'apiType',
+            'class'   => 'select',
+            'options' => [
+                'options' => [
+                    's' => 'Standard',
+                    'i' => 'Content/Item',
+                    'c' => 'Comments',
+                    'n' => 'Node',
                 ],
             ],
         ];

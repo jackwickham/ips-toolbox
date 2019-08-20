@@ -12,6 +12,7 @@
 
 namespace IPS\toolbox\extensions\toolbox\ProxyHelpers;
 
+use Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 
@@ -30,20 +31,20 @@ class _code
     /**
      * add property to \IPS\Data\Store DocComment
      *
-     * @param array $classDoc
+     * @param ClassGenerator $classDoc
      */
-    public function store( &$classDoc )
+    public function store( ClassGenerator $classGenerator )
     {
 
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtcode_warnings', 'type' => 'array' ];
+        $classGenerator->addPropertyTag( 'dtcode_warnings', [ 'hint' => 'array' ] );
     }
 
     /**
      * add property to \IPS\Request proxy DocComment
      *
-     * @param array $classDoc
+     * @param ClassGenerator $classGenerator
      */
-    public function request( &$classDoc )
+    public function request( ClassGenerator $classGenerator )
     {
 
     }

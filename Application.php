@@ -12,18 +12,21 @@
 namespace IPS\toolbox;
 
 use IPS\Application;
+use const IPS\ROOT_PATH;
 
 /**
  * Dev Toolbox: Base Application Class
  */
 class _Application extends Application
 {
+
     public static $toolBoxApps = [
         'toolbox',
         'toolbox',
         'dtproxy',
         'dtprofiler',
     ];
+
     /**
      * @var string
      */
@@ -33,14 +36,17 @@ class _Application extends Application
 
     public static function loadAutoLoader(): void
     {
+
         if ( static::$loaded === \false ) {
             static::$loaded = \true;
             require static::$baseDir . '/autoload.php';
+            \IPS\IPS::$PSR0Namespaces[ 'Generator' ] = ROOT_PATH . '/applications/toolbox/sources/Generator/';
         }
     }
 
     public static function templateSlasher( $source )
     {
+
         $replace = [
             'array_slice',
             'boolval',
@@ -85,6 +91,7 @@ class _Application extends Application
             $rep = '\\' . $value;
             $callback = function ( $m ) use ( $rep )
             {
+
                 return $rep;
             };
             $source = preg_replace_callback( "#(?<!\\\\)\b" . $value . '\b#u', $callback, $source );
@@ -106,6 +113,7 @@ class _Application extends Application
      */
     protected function get__icon()
     {
+
         return 'wrench';
     }
 }

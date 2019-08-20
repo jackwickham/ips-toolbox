@@ -13,6 +13,7 @@
 namespace IPS\toolbox\Proxy\Helpers;
 
 use IPS\Application;
+use Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 use function method_exists;
@@ -24,37 +25,42 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class _Store implements HelpersAbstract
 {
+
     /**
      * @inheritdoc
      */
-    public function process( $class, &$classDoc, &$classExtends, &$body )
+    public function process( $class, ClassGenerator $classGenerator, &$classExtends )
     {
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'acpBulletin', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'administrators', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'applications', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'bannedIpAddresses', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'cms_databases', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'cms_fieldids', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'emoticons', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'furl_configuration', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'groups', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'languages', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'maxAllowedPacket', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'moderators', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'modules', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'nexusPackagesWithReviews', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'profileSteps', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'rssFeeds', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'settings', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'storageConfigurations', 'type' => 'array' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'themes', 'type' => 'array' ];
 
+        $classDoc[] = [ 'prop' => 'acpBulletin', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'administrators', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'applications', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'bannedIpAddresses', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'cms_databases', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'cms_fieldids', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'emoticons', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'furl_configuration', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'groups', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'languages', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'maxAllowedPacket', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'moderators', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'modules', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'nexusPackagesWithReviews', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'profileSteps', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'rssFeeds', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'settings', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'storageConfigurations', 'hint' => 'array' ];
+        $classDoc[] = [ 'prop' => 'themes', 'hint' => 'array' ];
+
+        foreach ( $classDoc as $doc ) {
+            $classGenerator->addPropertyTag( $doc[ 'prop' ], [ 'hint' => $doc[ 'hint' ] ] );
+        }
         /* @var Application $app */
         foreach ( Application::appsWithExtension( 'toolbox', 'ProxyHelpers' ) as $app ) {
             $extensions = $app->extensions( 'toolbox', 'ProxyHelpers', \true );
             foreach ( $extensions as $extension ) {
                 if ( method_exists( $extension, 'store' ) ) {
-                    $extension->store( $classDoc );
+                    $extension->store( $classGenerator );
                 }
             }
         }

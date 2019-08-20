@@ -41,7 +41,7 @@ class _GitHooks
         }
     }
 
-    public function writeSpecialHooks()
+    public function writeSpecialHooks(): void
     {
 
         if ( property_exists( IPS::class, 'beenPatched' ) && IPS::$beenPatched ) {
@@ -80,7 +80,7 @@ class _GitHooks
         }
     }
 
-    public function removeSpecialHooks( $precommit = false )
+    public function removeSpecialHooks( $precommit = false ): void
     {
 
         //foo
@@ -114,7 +114,7 @@ class _GitHooks
         }
     }
 
-    public function add( $file, $dir )
+    public function add( $file, $dir ): void
     {
 
         $output = 'Committing file ' . $file;
@@ -122,7 +122,7 @@ class _GitHooks
         $this->exec( $command, $dir, $output );
     }
 
-    public function exec( $command, $dir, &$output = null )
+    public function exec( $command, $dir, &$output = null ): void
     {
 
         if ( function_exists( 'exec' ) === true ) {

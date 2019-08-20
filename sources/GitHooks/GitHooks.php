@@ -83,6 +83,7 @@ class _GitHooks
     public function removeSpecialHooks( $precommit = false )
     {
 
+        //foo
         if ( !is_array( $this->apps ) && !count( $this->apps ) ) {
             return;
         }

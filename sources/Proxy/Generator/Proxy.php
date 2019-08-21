@@ -119,121 +119,121 @@ class _Proxy extends GeneratorAbstract
     public function create( string $file ): void
     {
 
-        try {
+        //        try {
 
-            $currentClass = new StandardTokenizer( $file );
-            $namespace = $currentClass->getNameSpace();
-            $ns2 = explode( '\\', $namespace );
-            array_shift( $ns2 );
-            $app = array_shift( $ns2 );
-            $isApp = false;
-            $appPath = ROOT_PATH . '/applications/' . $app;
-            $ipsClass = $currentClass->getClassName();
-            if ( $app && is_dir( $appPath ) ) {
-                $isApp = true;
-            }
+        $currentClass = new StandardTokenizer( $file );
+        $namespace = $currentClass->getNameSpace();
+        $ns2 = explode( '\\', $namespace );
+        array_shift( $ns2 );
+        $app = array_shift( $ns2 );
+        $isApp = false;
+        $appPath = ROOT_PATH . '/applications/' . $app;
+        $ipsClass = $currentClass->getClassName();
+        if ( $app && is_dir( $appPath ) ) {
+            $isApp = true;
+        }
 
-            if ( ( $namespace === 'IPS' && $ipsClass === '_Settings' ) || mb_strpos( $namespace, 'IPS\convert' ) !== false ) {
+        if ( ( $namespace === 'IPS' && $ipsClass === '_Settings' ) || mb_strpos( $namespace, 'IPS\convert' ) !== false ) {
+            return;
+        }
+
+        $first = mb_substr( $ipsClass, 0, 1 );
+        if ( $first === '_' ) {
+            $class = mb_substr( $ipsClass, 1 );
+
+            if ( ReservedWords::check( $class ) ) {
                 return;
             }
 
-            $first = mb_substr( $ipsClass, 0, 1 );
-            if ( $first === '_' ) {
-                $class = mb_substr( $ipsClass, 1 );
+            $classBlock = null;
+            $props = null;
+            $extraPath = $isApp ? $app : 'system';
+            $path = $this->save . '/class/' . $extraPath . '/';
+            $alt = str_replace( [
+                "\\",
+                ' ',
+                ';',
+            ], '_', $namespace );
+            $file = $alt . '_' . $class . '.php';
 
-                if ( ReservedWords::check( $class ) ) {
-                    return;
-                }
+            $nc = new ClassGenerator();
+            $nc->isProxy = true;
 
-                $classBlock = null;
-                $props = null;
-                $extraPath = $isApp ? $app : 'system';
-                $path = $this->save . '/class/' . $extraPath . '/';
-                $alt = str_replace( [
-                    "\\",
-                    ' ',
-                    ';',
-                ], '_', $namespace );
-                $file = $alt . '_' . $class . '.php';
-
-                $nc = new ClassGenerator();
-                $nc->isProxy = true;
-
-                $nc->addPath( $path );
-                $nc->addFileName( $file );
-                $nc->addNameSpace( $namespace );
-                $nc->addExtends( $namespace . '\\' . $ipsClass );
-                $nc->addClassName( $class );
-                if ( $currentClass->isFinal() ) {
-                    $nc->makeFinal();
-                }
-
-                if ( $currentClass->isAbstract() ) {
-                    $nc->makeAbstract();
-                }
-                foreach ( $currentClass->getImports() as $import ) {
-                    $class = $import[ 'class' ];
-                    $alias = $import[ 'alias' ];
-                    $nc->addImport( $class, $alias );
-                }
-
-                foreach ( $currentClass->getImportFunctions() as $import ) {
-                    $class = $import[ 'class' ];
-                    $alias = $import[ 'alias' ];
-                    $nc->addImportFunction( $class, $alias );
-                }
-
-                foreach ( $currentClass->getImportConstants() as $import ) {
-                    $class = $import[ 'class' ];
-                    $nc->addImportConstant( $class );
-                }
-
-                $this->cache->addClass( $namespace . '\\' . $class );
-                $this->cache->addNamespace( $namespace );
-
-                if ( Proxyclass::i()->doProps ) {
-                    $dbClass = $namespace . '\\' . $class;
-                    try {
-                        $db = \IPS\Db::i();
-                        $databaseTable = $currentClass->getPropertyValue( 'databaseTable' );
-                        if ( $databaseTable !== null && $db->checkForTable( $databaseTable ) ) {
-                            /* @var array $definitions */
-                            $definitions = $db->getTableDefinition( $databaseTable );
-                            if ( isset( $definitions[ 'columns' ] ) ) {
-                                /* @var array $columns */
-                                $columns = $definitions[ 'columns' ];
-                                $prefix = $currentClass->getPropertyValue( 'databasePrefix' );
-                                $len = mb_strlen( $prefix );
-                                foreach ( $columns as $key => $val ) {
-                                    if ( $len && 0 === mb_strpos( $key, $prefix ) ) {
-                                        $key = mb_substr( $key, $len );
-                                    }
-                                    $key = trim( $key );
-                                    $this->buildDbToProperties( $key, $val, $nc );
-                                }
-                            }
-
-                        }
-                    } catch ( Exception $e ) {
-                    }
-                    $bitOptions = $currentClass->getPropertyValue( 'bitOptions' );
-                    if ( $bitOptions !== null && is_array( $bitOptions ) ) {
-                        foreach ( $bitOptions as $key => $value ) {
-                            foreach ( $value as $k => $v ) {
-                                $nc->addPropertyTag( $k, [ 'hint' => 'Bitwise' ] );
-                            }
-                        }
-                        $nc->addImport( Bitwise::class );
-                    }
-                    $this->buildProprties( $currentClass, $nc );
-                    $this->runHelperClasses( $dbClass, $nc, $ipsClass );
-                }
-                $nc->save();
-
+            $nc->addPath( $path );
+            $nc->addFileName( $file );
+            $nc->addNameSpace( $namespace );
+            $nc->addExtends( $namespace . '\\' . $ipsClass );
+            $nc->addClassName( $class );
+            if ( $currentClass->isFinal() ) {
+                $nc->makeFinal();
             }
-        } catch ( Exception $e ) {
-            Debug::log( $e );
+
+            if ( $currentClass->isAbstract() ) {
+                $nc->makeAbstract();
+            }
+            foreach ( $currentClass->getImports() as $import ) {
+                $class = $import[ 'class' ];
+                $alias = $import[ 'alias' ];
+                $nc->addImport( $class, $alias );
+            }
+
+            foreach ( $currentClass->getImportFunctions() as $import ) {
+                $class = $import[ 'class' ];
+                $alias = $import[ 'alias' ];
+                $nc->addImportFunction( $class, $alias );
+            }
+
+            foreach ( $currentClass->getImportConstants() as $import ) {
+                $class = $import[ 'class' ];
+                $nc->addImportConstant( $class );
+            }
+
+            $this->cache->addClass( $namespace . '\\' . $class );
+            $this->cache->addNamespace( $namespace );
+
+            if ( Proxyclass::i()->doProps ) {
+                $dbClass = $namespace . '\\' . $class;
+                try {
+                    $db = \IPS\Db::i();
+                    $databaseTable = $currentClass->getPropertyValue( 'databaseTable' );
+                    if ( $databaseTable !== null && $db->checkForTable( $databaseTable ) ) {
+                        /* @var array $definitions */
+                        $definitions = $db->getTableDefinition( $databaseTable );
+                        if ( isset( $definitions[ 'columns' ] ) ) {
+                            /* @var array $columns */
+                            $columns = $definitions[ 'columns' ];
+                            $prefix = $currentClass->getPropertyValue( 'databasePrefix' );
+                            $len = mb_strlen( $prefix );
+                            foreach ( $columns as $key => $val ) {
+                                if ( $len && 0 === mb_strpos( $key, $prefix ) ) {
+                                    $key = mb_substr( $key, $len );
+                                }
+                                $key = trim( $key );
+                                $this->buildDbToProperties( $key, $val, $nc );
+                            }
+                        }
+
+                    }
+                } catch ( Exception $e ) {
+                }
+                $bitOptions = $currentClass->getPropertyValue( 'bitOptions' );
+                if ( $bitOptions !== null && is_array( $bitOptions ) ) {
+                    foreach ( $bitOptions as $key => $value ) {
+                        foreach ( $value as $k => $v ) {
+                            $nc->addPropertyTag( $k, [ 'hint' => 'Bitwise' ] );
+                        }
+                    }
+                    $nc->addImport( Bitwise::class );
+                }
+                $this->buildProprties( $currentClass, $nc );
+                $this->runHelperClasses( $dbClass, $nc, $ipsClass );
+            }
+            $nc->save();
+
         }
+        //        } catch ( Exception $e ) {
+        //            Debug::log( $e );
+        //        }
     }
 
     /**

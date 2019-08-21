@@ -219,8 +219,9 @@ abstract class GeneratorAbstract
         $this->output( "\n{" );
         $this->writeBody();
         $this->output( "\n}" );
+        $this->toWrite = trim( $this->toWrite );
         $this->writeExtra();
-
+        $this->toWrite = trim( $this->toWrite );
         //file_put_contents( ROOT_PATH . '/foo.php', $this->toWrite );
         file_put_contents( $this->saveFileName(), $this->toWrite );
     }

@@ -18,9 +18,11 @@ use IPS\Application;
 use IPS\Dispatcher;
 use IPS\Dispatcher\Controller;
 use IPS\Helpers\Form;
+use IPS\IPS;
 use IPS\Output;
 use IPS\Request;
 use IPS\Settings;
+use IPS\toolbox\GitHooks;
 use IPS\toolbox\Profiler\Debug;
 use RuntimeException;
 use function defined;
@@ -73,6 +75,22 @@ class _settings extends Controller
                 'link'  => Request::i()->url()->setQueryString( [ 'do' => 'patchInit' ] ),
 
             ];
+
+            if ( property_exists( IPS::class, 'beenPatched' ) && IPS::$beenPatched === true ) {
+                Output::i()->sidebar[ 'actions' ][ 'writeSpecialHooks' ] = [
+                    'icon'  => '',
+                    'title' => 'Add Special Hooks',
+                    'link'  => Request::i()->url()->setQueryString( [ 'do' => 'writeSpecialHooks' ] ),
+
+                ];
+
+                Output::i()->sidebar[ 'actions' ][ 'removeSpecialHooks' ] = [
+                    'icon'  => '',
+                    'title' => 'Remove Special Hooks',
+                    'link'  => Request::i()->url()->setQueryString( [ 'do' => 'removeSpecialHooks' ] ),
+
+                ];
+            }
             Output::i()->sidebar[ 'actions' ][ 'helpers' ] = [
                 'icon'  => 'plus',
                 'title' => 'Patch Helpers',
@@ -106,6 +124,28 @@ class _settings extends Controller
 
         Output::i()->title = 'Settings';
         Output::i()->output = $form;
+
+    }
+
+    protected function writeSpecialHooks()
+    {
+
+        $apps = Application::appsWithExtension( 'toolbox', 'SpecialHooks' );
+
+        ( new GitHooks( $apps ) )->writeSpecialHooks();
+
+        Output::i()->redirect( $this->url->setQueryString( [ 'tab' => '' ] ), 'SpecialHooks Created' );
+
+    }
+
+    protected function removeSpecialHooks()
+    {
+
+        $apps = Application::appsWithExtension( 'toolbox', 'SpecialHooks' );
+
+        ( new GitHooks( $apps ) )->removeSpecialHooks();
+
+        Output::i()->redirect( $this->url->setQueryString( [ 'tab' => '' ] ), 'SpecialHooks Removed' );
 
     }
 

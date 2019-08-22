@@ -557,50 +557,93 @@ EOF;
         parent::_writeJson( $file, $data );
     }
 
-    protected function addExtension()
-    {
+    //    protected function addExtension()
 
-        Output::i()->jsFiles = \array_merge( Output::i()->jsFiles, Output::i()->js( 'admin_query.js', 'toolbox', 'admin' ) );
+    //    {
 
-        $appKey = Request::i()->appKey;
-        $supportedExtensions = [
-            'FileStorage',
-            'ContentRouter',
-            'CreateMenu',
-        ];
+    //
 
-        $supportedApps = [
-            'core',
-        ];
-        $extapp = Request::i()->extapp;
-        $extension = Request::i()->type;
-        $ours = \false;
+    //        Output::i()->jsFiles = \array_merge( Output::i()->jsFiles, Output::i()->js( 'admin_query.js', 'toolbox', 'admin' ) );
 
-        if ( \in_array( $extapp, $supportedApps ) && \in_array( $extension, $supportedExtensions ) ) {
-            try {
-                $application = Application::load( $appKey );
-                $extapp = Application::load( $extapp );
-                $ours = \true;
-            } catch ( \Exception $e ) {
-            }
-        }
+    //
 
-        if ( $ours === \false ) {
-            parent::addExtension();
-        }
-        else {
-            $baseClass = '\\IPS\\toolbox\DevCenter\\Extensions\\';
-            $class = $baseClass . $extension;
-            /* @var IPS\toolbox\DevCenter\Extensions\ExtensionsAbstract $class */
-            $class = new $class( $extapp, $application, $extension );
-            try {
-                Output::i()->output = $class->form();
-            } catch ( ExtensionException $e ) {
-                Request::i()->dev_extensions_classname = Request::i()->dtdevplus_ext_class;
-                parent::addExtension();
-            }
-        }
-    }
+    //        $appKey = Request::i()->appKey;
+
+    //        $supportedExtensions = [
+
+    //            'FileStorage',
+
+    //            'ContentRouter',
+
+    //            'CreateMenu',
+
+    //        ];
+
+    //
+
+    //        $supportedApps = [
+
+    //            'core',
+
+    //        ];
+
+    //        $extapp = Request::i()->extapp;
+
+    //        $extension = Request::i()->type;
+
+    //        $ours = \false;
+
+    //
+
+    //        if ( \in_array( $extapp, $supportedApps ) && \in_array( $extension, $supportedExtensions ) ) {
+
+    //            try {
+
+    //                $application = Application::load( $appKey );
+
+    //                $extapp = Application::load( $extapp );
+
+    //                $ours = \true;
+
+    //            } catch ( \Exception $e ) {
+
+    //            }
+
+    //        }
+
+    //
+
+    //        if ( $ours === \false ) {
+
+    //            parent::addExtension();
+
+    //        }
+
+    //        else {
+
+    //            $baseClass = '\\IPS\\toolbox\DevCenter\\Extensions\\';
+
+    //            $class = $baseClass . $extension;
+
+    //            /* @var IPS\toolbox\DevCenter\Extensions\ExtensionsAbstract $class */
+
+    //            $class = new $class( $extapp, $application, $extension );
+
+    //            try {
+
+    //                Output::i()->output = $class->form();
+
+    //            } catch ( ExtensionException $e ) {
+
+    //                Request::i()->dev_extensions_classname = Request::i()->dtdevplus_ext_class;
+
+    //                parent::addExtension();
+
+    //            }
+
+    //        }
+
+    //    }
 
     // Create new methods with the same name as the 'do' parameter which should execute it
 

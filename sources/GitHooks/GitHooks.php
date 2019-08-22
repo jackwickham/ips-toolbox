@@ -68,7 +68,7 @@ class _GitHooks
 
                                     $proxyFile = new ClassGenerator();
                                     $proxyFile->addPath( ROOT_PATH . '/' . Proxyclass::i()->save . '/hooks/' . $app->directory );
-                                    $proxyFile->addFileName( '_HOOK_CLASS_' . $file );
+                                    $proxyFile->addFileName( '_HOOK_CLASS_' . $app->directory . '_hook_' . $file );
                                     $proxyFile->addExtends( $hook[ 'class' ] );
                                     $proxyFile->isProxy = true;
                                     $proxyFile->addClassName( '_HOOK_CLASS_' . $app->directory . '_hook_' . $file );

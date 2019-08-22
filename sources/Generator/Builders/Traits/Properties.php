@@ -21,7 +21,7 @@ trait Properties
      *
      * @return $this
      */
-    public function addProperty( string $name, $value, array $extra )
+    public function addProperty( string $name, $value, array $extra = [] )
     {
 
         //        if ( $name === 'multitons' ) {

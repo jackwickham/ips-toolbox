@@ -1,6 +1,5 @@
 <?php
 
-
 namespace IPS\toolbox\modules\admin\proxy;
 
 use IPS\Dispatcher\Controller;
@@ -26,6 +25,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _proxy extends Controller
 {
+
     /**
      * Execute
      *
@@ -33,6 +33,7 @@ class _proxy extends Controller
      */
     public function execute()
     {
+
         if ( \IPS\NO_WRITES === \true ) {
             Output::i()->error( 'Proxy generator can not be used atm, NO_WRITES is enabled in the constants.php.', '100foo' );
         }
@@ -48,6 +49,7 @@ class _proxy extends Controller
      */
     protected function manage()
     {
+
         Output::i()->title = Member::loggedIn()->language()->addToStack( 'dtproxy_proxyclass_title' );
         Output::i()->output = new MultipleRedirect( $this->url, function ( $data )
         {
@@ -72,7 +74,7 @@ class _proxy extends Controller
                 if ( in_array( 'current', $run ) ) {
                     $progress = isset( $run[ 'progress' ] ) ? $run[ 'progress' ] : 0;
 
-                    if ( $run[ 'total' ] and $run[ 'current' ] ) {
+                    if ( $run[ 'total' ] && $run[ 'current' ] ) {
                         $progress = ( $run[ 'current' ] / $run[ 'total' ] ) * 100;
                     }
 
@@ -102,6 +104,7 @@ class _proxy extends Controller
                             $run[ 'tot' ],
                         ],
                     ] );
+
                     return [
                         [ 'complete' => $run[ 'complete' ], 'step' => $run[ 'step' ] ],
                         $language,
@@ -111,6 +114,7 @@ class _proxy extends Controller
             }
         }, function ()
         {
+
             if ( defined( '\BYPASSPROXYDT' ) && \BYPASSPROXYDT === \true ) {
                 \IPS\toolbox\Application::loadAutoLoader();
                 $fs = new Filesystem();

@@ -15,6 +15,7 @@ namespace IPS\toolbox\extensions\toolbox\Settings;
 use IPS\Member;
 use IPS\Settings;
 use IPS\toolbox\Forms\Form;
+use IPS\toolbox\Profiler\Debug;
 use function defined;
 use function header;
 use function json_decode;
@@ -41,6 +42,7 @@ class _profiler
      */
     public function elements( &$form ): void
     {
+
         $members = \null;
         if ( Settings::i()->dtprofiler_can_use ) {
             $users = json_decode( Settings::i()->dtprofiler_can_use, \true );
@@ -50,10 +52,7 @@ class _profiler
             }
         }
 
-        $form->element( 'dtprofiler_can_use', 'member' )
-             ->tab( 'dtprofiler' )
-             ->value( $members )
-             ->options( [ 'multiple' => 10 ] );
+        $form->element( 'dtprofiler_can_use', 'member' )->tab( 'dtprofiler' )->value( $members )->options( [ 'multiple' => 10 ] );
         $form->element( 'dtprofiler_show_admin', 'yn' );
         $form->element( 'dtprofiler_enabled_execution', 'yn' )->header( 'dtprofiler_profiler_tabs' );
         $form->element( 'dtprofiler_enabled_executions', 'yn' );
@@ -65,13 +64,15 @@ class _profiler
         $form->element( 'dtprofiler_enabled_css', 'yn' );
         $form->element( 'dtprofiler_enabled_js', 'yn' );
         $form->element( 'dtprofiler_enabled_jsvars', 'yn' );
-        $form->element( 'dtprofiler_enable_debug', 'yn');
+        $form->element( 'dtprofiler_enable_debug', 'yn' )->toggles( [ 'dtprofiler_enable_debug_ajax' ], true );
+        $form->element( 'dtprofiler_enable_debug_ajax', 'yn' );
         $form->element( 'dtprofiler_enabled_logs', 'yn' );
         $form->element( 'dtprofiler_logs_amount', '#' );
         $form->element( 'dtprofiler_git_data', 'yn' );
         $form->element( 'dtprofiler_show_changes', 'yn' );
-    }
+        Debug::log( 'foo' );
 
+    }
 
     /**
      * formValues, format the values before saving as settings
@@ -82,8 +83,9 @@ class _profiler
      */
     public function formatValues( &$values ): void
     {
+
         $new = [];
-        if( is_array( $values['dtprofiler_can_use'] ) ) {
+        if ( is_array( $values[ 'dtprofiler_can_use' ] ) ) {
             foreach ( $values[ 'dtprofiler_can_use' ] as $key => $value ) {
                 $new[] = $value->member_id;
             }

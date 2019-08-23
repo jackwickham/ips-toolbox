@@ -15,6 +15,8 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 */
 class toolbox_hook_Application extends _HOOK_CLASS_
 {
+    public $skip = false;
+
     
     /**
     * @inheritdoc
@@ -45,7 +47,9 @@ class toolbox_hook_Application extends _HOOK_CLASS_
     public function buildHooks()
     {
 
-        ( new \IPS\toolbox\GitHooks( [ $this->directory ] ) )->removeSpecialHooks( true );
+        if ( $this->skip === false ) {
+            ( new \IPS\toolbox\GitHooks( [ $this->directory ] ) )->removeSpecialHooks( true );
+        }
         parent::buildHooks();
     }
 

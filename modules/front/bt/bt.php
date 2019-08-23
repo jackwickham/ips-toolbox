@@ -366,6 +366,12 @@ class _bt extends Controller
         Output::i()->output = $html;
     }
 
+    protected function clearAjax()
+    {
+
+        Db::i()->update( 'toolbox_debug', [ 'debug_viewed' => 1 ] );
+    }
+
     //    protected function checkout(){
     //        $app = Request::i()->dir;
     //        $branch = Request::i()->branch;

@@ -15,6 +15,7 @@ namespace IPS\toolbox\Profiler;
 use Exception;
 use IPS\Db;
 use IPS\Patterns\ActiveRecord;
+use IPS\Settings;
 use IPS\Theme;
 use IPS\toolbox\Editor;
 use function count;
@@ -89,17 +90,34 @@ class _Debug extends ActiveRecord
         }
 
         $debug = new static;
-        $debug->key = $key;
+        $prev = null;
+        $next = null;
         $bt = debug_backtrace();
-        array_shift( $bt );
-        $prev = array_shift( $bt );
-        //        if ( $alias === true ) {
-        //            $prev = array_shift( $bt );
-        //        }
-        $bt = array_shift( $bt );
-        if ( $key === null ) {
-            $key = $bt[ 'function' ];
+        foreach ( $bt as $b ) {
+            $file = str_replace( [ '/', '.' ], '', $b[ 'file' ] );
+            if ( mb_substr( $file, -16 ) === 'ProfilerDebugphp' ) {
+                continue;
+            }
+
+            if ( $prev === null ) {
+                $prev = $b;
+                continue;
+            }
+
+            if ( $prev !== null && $next === null ) {
+                $next = $b;
+                break;
+            }
         }
+        if ( $key === null ) {
+            $next = $next ?? $prev;
+            $key = $next[ 'function' ];
+            if ( !$key ) {
+                $file = new \SplFileInfo( $next[ 'file' ] );
+                $key = $file->getFilename();
+            }
+        }
+        $debug->key = $key;
         $debug->path = $prev[ 'file' ];
         $debug->line = $prev[ 'line' ];
         if ( $message instanceof Exception ) {
@@ -129,6 +147,14 @@ class _Debug extends ActiveRecord
         $debug->log = $message;
         $debug->time = time();
         $debug->save();
+    }
+
+    public function save()
+    {
+
+        if ( Settings::i()->dtprofiler_enable_debug ) {
+            parent::save();
+        }
     }
 
     /**
@@ -210,6 +236,8 @@ class _Debug extends ActiveRecord
     public function url()
     {
 
-        return ( new Editor )->replace( $this->path, $this->line );
+        if ( $this->path !== null ) {
+            return ( new Editor )->replace( $this->path, $this->line );
+        }
     }
 }

@@ -21,7 +21,9 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
     public static function devTable( $url, $appOrPluginId, $hookDir )
     {
 
-        if ( !\is_int( $appOrPluginId ) && Request::i()->plugin_hook_type === 'C' && Request::i()->plugin_hook_class !== null ) {
+        $hookTable = Request::i()->hookTable;
+
+        if ( $hookTable === 'add' && !\is_int( $appOrPluginId ) && Request::i()->plugin_hook_type === 'C' && Request::i()->plugin_hook_class !== null ) {
 
             $class = Request::i()->plugin_hook_class;
             if ( $class !== null && class_exists( 'IPS\\' . $class ) ) {
@@ -38,7 +40,9 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
                 $classname = "{$appOrPluginId}_hook_{$hook->filename}";
                 $hookClass = new ClassGenerator();
                 $hookClass->isHook = true;
-                $hookClass->addDocumentComment( [ '@mixin ' . $hook->class ], true );
+                $classDoc[] = 'Hook For ' . $hook->class;
+                $classDoc[] = '@mixin ' . $hook->class;
+                $hookClass->addDocumentComment( $classDoc, true );
                 $hookClass->addClassName( $classname );
                 $hookClass->addFileName( $hook->filename );
                 $hookClass->addPath( $hookDir );
@@ -61,12 +65,12 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
                 }
 
                 static::writeDataFile();
+                $app->skip = true;
                 $app->buildHooks();
                 Output::i()->redirect( $url );
             }
         }
         $parent = parent::devTable( $url, $appOrPluginId, $hookDir );
-        $hookTable = Request::i()->hookTable;
 
         /** @var Form $parent */
         if ( $hookTable === 'add' ) {

@@ -318,4 +318,6 @@ $lang = [
     'toolbox_lorem_amount'                           => 'Amount',
     'toolbox_lorem_type'                             => 'Type',
     'toolbox_gitcommit_message'                      => 'Message',
+    'dtprofiler_enable_debug_ajax'                   => 'Enable Ajax Debugger',
+    'dtprofiler_enable_debug_ajax_desc'              => 'This will enable the long polling ajax script for debug.',
 ];

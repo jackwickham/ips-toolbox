@@ -92,6 +92,9 @@ class _GitHooks
 
         /** @var Application $app */
         foreach ( $this->apps as $app ) {
+            if ( empty( $app->extensions( 'toolbox', 'SpecialHooks' ) ) === true ) {
+                continue;
+            }
             $hooks = ROOT_PATH . '/applications/' . $app->directory . '/data/hooks.json';
             $dir = ROOT_PATH . '/applications/' . $app->directory . '/hooks/';
             if ( is_file( $hooks ) ) {
@@ -101,6 +104,9 @@ class _GitHooks
                         if ( mb_strtolower( $hook[ 'type' ] ) === 'c' ) {
                             $path = $dir . $file . '.php';
                             $rewriteHook = new StandardTokenizer( $path );
+                            if ( $rewriteHook->getExtends() === '_HOOK_CLASS_' ) {
+                                continue;
+                            }
                             $rewriteHook->isProxy = true;
                             $rewriteHook->isHook = true;
                             $rewriteHook->addFileName( $file );

@@ -1,19 +1,19 @@
 //<?php
 
-use IPS\toolbox\Application;
-use IPS\toolbox\Profiler\Debug;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
+use IPS\toolbox\Application;
+use IPS\toolbox\Profiler\Debug;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 abstract class toolbox_hook_DataStore extends _HOOK_CLASS_
 {
-    protected function removeFiles( $path )
-    {
+
+    protected function removeFiles( $path ){
 
         try {
             $files = new Finder();
@@ -27,5 +27,4 @@ abstract class toolbox_hook_DataStore extends _HOOK_CLASS_
             Debug::add( 'Data Store Clear', $e );
         }
     }
-
 }

@@ -14,7 +14,7 @@ namespace IPS\toolbox\extensions\toolbox\Settings;
 
 use IPS\Member;
 use IPS\Settings;
-use IPS\toolbox\Forms\Form;
+use IPS\toolbox\Form;
 use IPS\toolbox\Profiler\Debug;
 use function defined;
 use function header;
@@ -37,40 +37,39 @@ class _profiler
 
     /**
      * add in array of form helpers
-     *
-     * @param Form $form
+     *     * @param Form $form
      */
     public function elements( &$form ): void
     {
 
         $members = \null;
-        if ( Settings::i()->dtprofiler_can_use ) {
+        if ( empty( Settings::i()->dtprofiler_can_use ) !== true ) {
             $users = json_decode( Settings::i()->dtprofiler_can_use, \true );
-
             foreach ( $users as $user ) {
                 $members[] = Member::load( $user );
             }
         }
 
-        $form->element( 'dtprofiler_can_use', 'member' )->tab( 'dtprofiler' )->value( $members )->options( [ 'multiple' => 10 ] );
-        $form->element( 'dtprofiler_show_admin', 'yn' );
-        $form->element( 'dtprofiler_enabled_execution', 'yn' )->header( 'dtprofiler_profiler_tabs' );
-        $form->element( 'dtprofiler_enabled_executions', 'yn' );
-        $form->element( 'dtprofiler_enabled_memory', 'yn' );
-        $form->element( 'dtprofiler_enabled_memory_summary', 'yn' );
-        $form->element( 'dtprofiler_enabled_files', 'yn' );
-        $form->element( 'dtprofiler_enabled_enivro', 'yn' );
-        $form->element( 'dtprofiler_enabled_templates', 'yn' );
-        $form->element( 'dtprofiler_enabled_css', 'yn' );
-        $form->element( 'dtprofiler_enabled_js', 'yn' );
-        $form->element( 'dtprofiler_enabled_jsvars', 'yn' );
-        $form->element( 'dtprofiler_enable_debug', 'yn' )->toggles( [ 'dtprofiler_enable_debug_ajax' ], true );
-        $form->element( 'dtprofiler_enable_debug_ajax', 'yn' );
-        $form->element( 'dtprofiler_enabled_logs', 'yn' );
-        $form->element( 'dtprofiler_logs_amount', '#' );
-        $form->element( 'dtprofiler_git_data', 'yn' );
-        $form->element( 'dtprofiler_show_changes', 'yn' );
-        Debug::log( 'foo' );
+        $form->tab( 'dtprofiler' );
+        $form->add( 'dtprofiler_can_use', 'member' )->value( $members )->options( [ 'multiple' => 10 ] );
+        $form->add( 'dtprofiler_show_admin', 'yn' );
+        $form->header( 'dtprofiler_profiler_tabs' );
+        $form->add( 'dtprofiler_enabled_execution', 'yn' );
+        $form->add( 'dtprofiler_enabled_executions', 'yn' );
+        $form->add( 'dtprofiler_enabled_memory', 'yn' );
+        $form->add( 'dtprofiler_enabled_memory_summary', 'yn' );
+        $form->add( 'dtprofiler_enabled_files', 'yn' );
+        $form->add( 'dtprofiler_enabled_enivro', 'yn' );
+        $form->add( 'dtprofiler_enabled_templates', 'yn' );
+        $form->add( 'dtprofiler_enabled_css', 'yn' );
+        $form->add( 'dtprofiler_enabled_js', 'yn' );
+        $form->add( 'dtprofiler_enabled_jsvars', 'yn' );
+        $form->add( 'dtprofiler_enable_debug', 'yn' )->toggles( [ 'dtprofiler_enable_debug_ajax' ], true );
+        $form->add( 'dtprofiler_enable_debug_ajax', 'yn' );
+        $form->add( 'dtprofiler_enabled_logs', 'yn' );
+        $form->add( 'dtprofiler_logs_amount', '#' );
+        $form->add( 'dtprofiler_git_data', 'yn' );
+        $form->add( 'dtprofiler_show_changes', 'yn' );
 
     }
 
@@ -85,12 +84,15 @@ class _profiler
     {
 
         $new = [];
-        if ( is_array( $values[ 'dtprofiler_can_use' ] ) ) {
+        if ( empty( $values[ 'dtprofiler_can_use' ] ) !== true ) {
             foreach ( $values[ 'dtprofiler_can_use' ] as $key => $value ) {
                 $new[] = $value->member_id;
             }
 
             $values[ 'dtprofiler_can_use' ] = json_encode( $new );
+        }
+        else {
+            $values[ 'dtprofiler_can_use' ] = null;
         }
     }
 

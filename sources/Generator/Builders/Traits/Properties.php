@@ -144,9 +144,7 @@ trait Properties
                     $this->output( 'static ' );
                 }
                 $this->output( '$' . $property[ 'name' ] );
-                //                if ( $property[ 'name' ] === 'multitons' ) {
-                //                    _d( $property[ 'value' ], $property[ 'value' ] !== 'null' );
-                //                }
+
                 if ( isset( $property[ 'value' ] ) && ( $property[ 'value' ] !== null && $property[ 'value' ] !== 'null' ) ) {
                     $pType = $property[ 'type' ];
                     if ( $pType !== 'string' ) {

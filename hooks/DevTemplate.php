@@ -1,5 +1,11 @@
 //<?php
 
+
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+    exit;
+}
+
 use IPS\Data\Store;
 use IPS\Request;
 use IPS\Settings;
@@ -9,18 +15,12 @@ use IPS\toolbox\Profiler\Memory;
 use IPS\toolbox\Profiler\Time;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
-    exit;
-}
-
 class toolbox_hook_DevTemplate extends _HOOK_CLASS_
 {
     public static $debugFileName = '\null';
 
-    public function __call( $bit, $params )
-    {
+
+    public function __call( $bit, $params ){
 
         static::$debugFileName = \null;
         $template = \null;
@@ -153,8 +153,7 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_
         return $template;
     }
 
-    protected function buildTemplateCache()
-    {
+    protected function buildTemplateCache(){
 
         $cachePath = \IPS\ROOT_PATH . '/toolbox_templates/';
         if ( !\is_dir( $cachePath ) ) {
@@ -224,5 +223,4 @@ EOF;
 
         include_once( $classFileName );
     }
-
 }

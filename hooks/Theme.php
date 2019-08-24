@@ -1,17 +1,17 @@
 //<?php
 
-use IPS\Settings;
-use IPS\Theme\Dev\Template;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
+use IPS\Settings;
+use IPS\Theme\Dev\Template;
 class toolbox_hook_Theme extends _HOOK_CLASS_
 {
-    public static function runProcessFunction( $content, $functionName )
-    {
+
+    public static function runProcessFunction( $content, $functionName ){
 
         /* If it's already been built, we don't need to do it again */
         if ( \function_exists( 'IPS\Theme\\' . $functionName ) ) {
@@ -36,5 +36,4 @@ class toolbox_hook_Theme extends _HOOK_CLASS_
             parent::runProcessFunction( $content, $functionName );
         }
     }
-
 }

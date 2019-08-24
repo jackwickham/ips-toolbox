@@ -261,7 +261,7 @@ class _sources extends Controller
         }
     }
 
-    protected function findClass2()
+    protected function findClassWithApp()
     {
 
         $classes = Cache::i()->getClasses();
@@ -302,7 +302,7 @@ class _sources extends Controller
         }
     }
 
-    protected function findNamespaceHoo()
+    protected function findNamespaceHook()
     {
 
         $ns = Cache::i()->getNamespaces();

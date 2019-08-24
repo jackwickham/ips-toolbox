@@ -99,9 +99,10 @@ class _settings extends Controller
             ];
         }
 
-        $form = \IPS\toolbox\Forms\Form::create()->object( Settings::i() );
+        $form = \IPS\toolbox\Form::create()->object( Settings::i() );
 
-        $form->element( 'toolbox_debug_templates', 'yn' )->tab( 'toolbox' );
+        $form->tab( 'toolbox' );
+        $form->add( 'toolbox_debug_templates', 'yn' );
         /* @var \IPS\toolbox\extensions\toolbox\Settings\settings $extension */
         foreach ( Application::allExtensions( 'toolbox', 'settings' ) as $extension ) {
             $extension->elements( $form );
@@ -111,9 +112,10 @@ class _settings extends Controller
          * @var Form $form
          */
         if ( $values = $form->values() ) {
+            /** @var Application $app */
             foreach ( Application::appsWithExtension( 'toolbox', 'settings' ) as $app ) {
                 $extensions = $app->extensions( 'toolbox', 'settings', \true );
-                /* @var \IPS\toolbox\extensions\toolbox\settings\settings $extension */
+                /* @var \IPS\toolbox\extensions\toolbox\Settings\_settings $extension */
                 foreach ( $extensions as $extension ) {
                     $extension->formatValues( $values );
                 }

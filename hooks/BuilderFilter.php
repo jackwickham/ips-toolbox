@@ -1,18 +1,18 @@
 //<?php
 
-use IPS\Application;
-use IPS\Request;
-use IPS\Settings;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
+use IPS\Application;
+use IPS\Request;
+use IPS\Settings;
 class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
 {
-    public function accept()
-    {
+
+    public function accept(){
 
         if ( $this->isFile() ) {
             $skip = [];
@@ -40,8 +40,7 @@ class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
         return parent::accept();
     }
 
-    protected function getDirectoriesToIgnore()
-    {
+    protected function getDirectoriesToIgnore(){
 
         $skip = parent::getDirectoriesToIgnore();
         $appKey = Request::i()->appKey;
@@ -74,5 +73,4 @@ class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
 
         return $skip;
     }
-
 }

@@ -1,7 +1,8 @@
 {
     "toolbox": {
         "phpToolBoxMeta": {
-            "generators": "IPS\\toolbox\\extensions\\toolbox\\phpToolBoxMeta\\generators"
+            "generators": "IPS\\toolbox\\extensions\\toolbox\\phpToolBoxMeta\\generators",
+            "devcenter": "IPS\\toolbox\\extensions\\toolbox\\phpToolBoxMeta\\devcenter"
         },
         "constants": {
             "toolbox": "IPS\\toolbox\\extensions\\toolbox\\constants\\toolbox"

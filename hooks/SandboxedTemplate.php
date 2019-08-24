@@ -1,19 +1,19 @@
 //<?php
 
-use IPS\Data\Store;
-use IPS\Member;
-use IPS\Request;
-use IPS\Settings;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
+use IPS\Data\Store;
+use IPS\Member;
+use IPS\Request;
+use IPS\Settings;
 class toolbox_hook_SandboxedTemplate extends _HOOK_CLASS_
 {
-    public function __call( $name, $args )
-    {
+
+    public function __call( $name, $args ){
 
         $can = \json_decode( Settings::i()->dtprofiler_can_use, \true );
 
@@ -34,5 +34,4 @@ class toolbox_hook_SandboxedTemplate extends _HOOK_CLASS_
 
         return parent::__call( $name, $args );
     }
-
 }

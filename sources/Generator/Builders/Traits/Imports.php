@@ -62,7 +62,23 @@ trait Imports
     public function addImport( string $import, string $alias = null )
     {
 
+        $skipOn = [
+            'array'    => 1,
+            'self'     => 1,
+            'callable' => 1,
+            'bool'     => 1,
+            'float'    => 1,
+            'int'      => 1,
+            'string'   => 1,
+            'iterable' => 1,
+            'object'   => 1,
+        ];
+
+        if ( isset( $skipOn[ mb_strtolower( $import ) ] ) ) {
+            return $import;
+        }
         $parts = explode( '\\', $import );
+
         $class = array_pop( $parts );
         $hash = $class;
 
@@ -75,10 +91,47 @@ trait Imports
         if ( $this->getNameSpace() . '\\' . $class === $import ) {
             $continue = false;
         }
-
-        if ( $continue === true && $this->checkForImport( $class ) === false && $this->checkForImport( $alias ) === false ) {
+        $return = $this->canMakeImport( $import );
+        if ( $continue === true && $return !== $import && $this->checkForImport( $class ) === false && $this->checkForImport( $alias ) === false ) {
             $this->imports[ $hash ] = [ 'class' => $import, 'alias' => $alias ];
         }
+
+        if ( $return === $import && \count( explode( '\\', $import ) ) >= 2 ) {
+            $check = mb_substr( $return, 0, 1 );
+            if ( $check !== '\\' ) {
+                $return = '\\' . $return;
+            }
+        }
+
+        return $return;
+
+    }
+
+    public function canMakeImport( $class )
+    {
+
+        $nsClass = explode( '\\', $class );
+
+        $newClass = array_pop( $nsClass );
+        $testClass = '\\' . $this->getNameSpace() . '\\' . $newClass;
+
+        if ( class_exists( $testClass ) ) {
+            return $class;
+        }
+        foreach ( $this->imports as $import ) {
+            $nsImport = explode( '\\', $import[ 'class' ] );
+            $importClass = array_pop( $nsImport );
+            if ( $import[ 'class' ] !== $class && $newClass === $importClass ) {
+                if ( $import[ 'alias' ] === null ) {
+                    $newClass = $importClass;
+                }
+                else {
+                    $newClass = $import[ 'alias' ];
+                }
+            }
+        }
+
+        return $newClass;
 
     }
 
@@ -106,27 +159,31 @@ trait Imports
         return $this->imports;
     }
 
-    protected function afterNameSpace()
+    public function wrapUp()
     {
 
+        parent::wrapUp();
+        $replacement = '';
         if ( empty( $this->imports ) !== true ) {
             foreach ( $this->imports as $import ) {
-                $this->buildImport( $import );
+                $replacement .= $this->buildImport( $import );
             }
         }
 
         if ( empty( $this->importsFunctions ) !== true ) {
             foreach ( $this->importsFunctions as $import ) {
-                $this->buildImport( $import, 'function' );
+                $replacement .= $this->buildImport( $import, 'function' );
 
             }
         }
 
         if ( empty( $this->importsConst ) !== true ) {
             foreach ( $this->importsConst as $import ) {
-                $this->buildImport( $import, 'const' );
+                $replacement .= $this->buildImport( $import, 'const' );
             }
         }
+
+        $this->toWrite = str_replace( '#generator_token_imports#', $replacement, $this->toWrite );
     }
 
     /**
@@ -136,15 +193,23 @@ trait Imports
     protected function buildImport( $import, $type = null )
     {
 
-        $this->output( "\nuse " );
+        $output = '';
+        $output .= "\nuse ";
+
         if ( $type !== null ) {
             $this->output( $type . ' ' );
+            $output .= $type . ' ';
         }
-        $this->output( $import[ 'class' ] );
+        $output .= $import[ 'class' ];
+
         if ( isset( $import[ 'alias' ] ) && $import[ 'alias' ] ) {
             $this->output( " as {$import['alias']}" );
+            $output .= ' as ' . $import[ 'alias' ];
         }
-        $this->output( ';' );
+
+        $output .= ';';
+
+        return $output;
     }
 
 }

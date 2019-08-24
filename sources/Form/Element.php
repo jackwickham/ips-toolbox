@@ -11,6 +11,8 @@ use function is_array;
 use function mb_strtolower;
 use function property_exists;
 
+use function header;
+
 /**
  * Class _FormAbstract
  *
@@ -82,7 +84,7 @@ class _Element
         'sg'           => 'SocialGroup',
         'sort'         => 'Sort',
         'stack'        => 'Stack',
-        'Telephone'    => 'Tel',
+        'telephone'    => 'Tel',
         'tel'          => 'Tel',
         'text'         => 'Text',
         'textarea'     => 'TextArea',
@@ -221,6 +223,7 @@ class _Element
      *
      * @param string $name
      * @param string $type
+     * @param string $custom
      */
     public function __construct( string $name, string $type, string $custom = '' )
     {
@@ -324,7 +327,7 @@ class _Element
      *
      * @return self
      */
-    public function prefix( string $prefix ): self
+    public function prefix( ?string $prefix ): self
     {
 
         $this->prefix = $prefix;

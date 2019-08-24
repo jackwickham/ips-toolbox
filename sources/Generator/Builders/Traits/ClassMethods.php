@@ -19,9 +19,8 @@ trait ClassMethods
             if ( isset( $this->removeMethods[ $name ] ) ) {
                 continue;
             }
-            $this->output( "\n{$this->tab}" );
+            $this->output( "\n\n" );
             if ( $method[ 'document' ] && is_array( $method[ 'document' ] ) ) {
-                $this->output( "\n" );
                 $this->output( $this->tab . "/**\n" );
                 $last = false;
                 $returned = false;
@@ -37,7 +36,7 @@ trait ClassMethods
                         $this->output( "{$this->tab}*\n" );
                     }
                 }
-                $this->output( "{$this->tab}*/\n{$this->tab}" );
+                $this->output( "{$this->tab}*/\n" );
 
             }
 
@@ -68,7 +67,7 @@ trait ClassMethods
                 $visibility = 'private';
             }
 
-            $this->output( $abstract . $final . $visibility . $static . ' function ' . $name . '(' );
+            $this->output( $this->tab . $abstract . $final . $visibility . $static . ' function ' . $name . '(' );
 
             if ( empty( $method[ 'params' ] ) !== true && is_array( $method[ 'params' ] ) ) {
                 $this->writeParams( $method[ 'params' ] );
@@ -82,7 +81,6 @@ trait ClassMethods
 
             $body = $this->replaceMethods[ $name ] ?? trim( $method[ 'body' ] );
             if ( $abstract === null ) {
-                $this->output( "\n{$this->tab}" );
                 $wrap = false;
                 if ( mb_strpos( $body, '{' ) !== 0 ) {
                     $wrap = true;
@@ -90,10 +88,10 @@ trait ClassMethods
 
                 $this->output( "{\n\n{$this->tab}{$this->tab}" );
                 $this->output( '' . $body . '' );
-                $this->output( "\n{$this->tab}}\n" );
+                $this->output( "\n{$this->tab}}" );
             }
             else {
-                $this->output( ";\n\n" );
+                $this->output( ";" );
             }
             if ( isset( $this->afterMethod[ $name ] ) ) {
                 $this->output( "\n" );
@@ -121,7 +119,13 @@ trait ClassMethods
                 if ( isset( $param[ 'nullable' ] ) && $param[ 'nullable' ] === true ) {
                     $p .= '?';
                 }
-                $p .= $param[ 'hint' ] . ' ';
+
+                $hint = $param[ 'hint' ];
+                if ( method_exists( $this, 'addImport' ) ) {
+                    $hint = $this->addImport( $hint );
+                }
+
+                $p .= $hint . ' ';
             }
 
             if ( isset( $param[ 'reference' ] ) && $param[ 'reference' ] === true ) {

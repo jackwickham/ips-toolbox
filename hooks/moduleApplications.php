@@ -1,15 +1,15 @@
 //<?php
 
-use IPS\toolbox\Build;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
+use IPS\toolbox\Build;
 class toolbox_hook_moduleApplications extends _HOOK_CLASS_
 {
-    
+
     /**
     * Export an application
     *
@@ -17,8 +17,7 @@ class toolbox_hook_moduleApplications extends _HOOK_CLASS_
     * @return void
     * @note    We have to use a custom RecursiveDirectoryIterator in order to skip the /dev folder
     */
-    public function download()
-    {
+    public function download(){
 
         if ( \defined( '\DTBUILD' ) && \DTBUILD ) {
             Build::i()->export();
@@ -27,5 +26,4 @@ class toolbox_hook_moduleApplications extends _HOOK_CLASS_
             parent::download();
         }
     }
-
 }

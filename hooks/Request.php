@@ -8,10 +8,9 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class toolbox_hook_Request extends _HOOK_CLASS_
 {
-    public function returnData()
-    {
+
+    public function returnData(){
 
         return $this->data;
     }
-
 }

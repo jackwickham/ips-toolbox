@@ -121,6 +121,7 @@ class InterfaceGenerator extends GeneratorAbstract
             $this->output( ';' );
 
         }
+        $this->output( "\n}" );
 
     }
 }

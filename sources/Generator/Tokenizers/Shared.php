@@ -541,6 +541,7 @@ trait Shared
                             'returnType' => trim( $returnType ),
                             'body'       => $body,
                         ];
+                        $abstract = null;
                         $final = null;
                         $static = null;
                         $visibility = null;

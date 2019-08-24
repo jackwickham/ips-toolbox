@@ -216,12 +216,11 @@ abstract class GeneratorAbstract
         }
 
         $this->writeSourceType();
-        $this->output( "\n{" );
         $this->writeBody();
-        $this->output( "\n}" );
         $this->toWrite = trim( $this->toWrite );
         $this->writeExtra();
         $this->toWrite = trim( $this->toWrite );
+        $this->wrapUp();
         //file_put_contents( ROOT_PATH . '/foo.php', $this->toWrite );
         file_put_contents( $this->saveFileName(), $this->toWrite );
     }
@@ -275,39 +274,9 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 EOF;
             $this->output( $headerCatch );
         }
+        $this->toWrite .= '#generator_token_includes#';
+        $this->toWrite .= '#generator_token_imports#';
 
-        if ( empty( $this->required ) !== true ) {
-            $this->output( "\n" );
-            foreach ( $this->required as $required ) {
-                $escaped = null;
-                if ( $required[ 'escape' ] === true ) {
-                    $escaped = '"';
-                }
-                if ( $required[ 'once' ] === true ) {
-
-                    $this->output( 'require_once ' . $escaped . $required[ 'path' ] . $escaped . ";\n" );
-                }
-                else {
-                    $this->output( 'require ' . $escaped . $required[ 'path' ] . $escaped . ";\n" );
-                }
-            }
-        }
-
-        if ( empty( $this->included ) !== true ) {
-            $this->output( "\n" );
-            foreach ( $this->included as $included ) {
-                $escaped = null;
-                if ( $included[ 'escape' ] === true ) {
-                    $escaped = '"';
-                }
-                if ( $included[ 'once' ] === true ) {
-                    $this->output( 'include_once ' . $escaped . $included[ 'path' ] . $escaped . ";\n" );
-                }
-                else {
-                    $this->output( 'include ' . $escaped . $included[ 'path' ] . $escaped . ";\n" );
-                }
-            }
-        }
     }
 
     public function output( string $output )
@@ -339,6 +308,48 @@ EOF;
                 $this->output( $this->extra );
             }
         }
+    }
+
+    protected function wrapUp()
+    {
+
+        $replacement = '';
+        if ( empty( $this->required ) !== true ) {
+
+            $replacement .= "\n";
+
+            foreach ( $this->required as $required ) {
+                $escaped = null;
+                if ( $required[ 'escape' ] === true ) {
+                    $escaped = '"';
+                }
+                if ( $required[ 'once' ] === true ) {
+                    $replacement .= 'require_once ' . $escaped . $required[ 'path' ] . $escaped . ";\n";
+
+                }
+                else {
+                    $replacement .= 'require ' . $escaped . $required[ 'path' ] . $escaped . ";\n";
+                }
+            }
+        }
+
+        if ( empty( $this->included ) !== true ) {
+            $replacement .= "\n";
+            foreach ( $this->included as $included ) {
+                $escaped = null;
+                if ( $included[ 'escape' ] === true ) {
+                    $escaped = '"';
+                }
+                if ( $included[ 'once' ] === true ) {
+                    $replacement .= 'include_once ' . $escaped . $included[ 'path' ] . $escaped . ";\n";
+                }
+                else {
+                    $replacement .= 'include ' . $escaped . $included[ 'path' ] . $escaped . ";\n";
+                }
+            }
+        }
+
+        $this->toWrite = str_replace( '#generator_token_includes#', $replacement, $this->toWrite );
     }
 
     protected function saveFileName()

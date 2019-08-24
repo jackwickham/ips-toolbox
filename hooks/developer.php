@@ -1,5 +1,11 @@
 //<?php
 
+
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+    exit;
+}
+
 use IPS\Application;
 use IPS\Db;
 use IPS\Db\Exception;
@@ -11,31 +17,23 @@ use IPS\toolbox\DevCenter\Extensions\ExtensionException;
 use IPS\toolbox\DevCenter\Schema;
 use IPS\toolbox\DevCenter\Sources;
 use IPS\toolbox\Forms;
-
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
-    exit;
-}
-
 class toolbox_hook_developer extends _HOOK_CLASS_
 {
-    public function execute( $command = 'do' )
-    {
+
+    public function execute( $command = 'do' ){
 
         $appKey = Request::i()->appKey;
         Output::i()->jsVars[ 'dtdevplus_table_url' ] = (string)$this->url->setQueryString( [ 'appKey' => $appKey ] );
         parent::execute( $command );
     }
 
-    public function manage()
-    {
+    public function manage(){
 
         Sources::menu();
         parent::manage();
     }
 
-    public function addVersionQuery()
-    {
+    public function addVersionQuery(){
 
         Output::i()->jsFiles = \array_merge( Output::i()->jsFiles, Output::i()->js( 'admin_query.js', 'toolbox', 'admin' ) );
 
@@ -475,22 +473,19 @@ class toolbox_hook_developer extends _HOOK_CLASS_
         Output::i()->output = $forms;
     }
 
-    protected function _manageDevFolder()
-    {
+    protected function _manageDevFolder(){
 
         return \IPS\toolbox\DevCenter\Dev::i()->form();
     }
 
-    protected function _manageSchemaImports()
-    {
+    protected function _manageSchemaImports(){
 
         $schema = $this->_getSchema();
 
         return Schema::i()->form( $schema, $this->application );
     }
 
-    protected function _manageGitHooks()
-    {
+    protected function _manageGitHooks(){
 
         $app = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/';
         $git = $app . '.git/';
@@ -545,8 +540,7 @@ EOF;
         return $html;
     }
 
-    protected function _writeJson( $file, $data )
-    {
+    protected function _writeJson( $file, $data ){
 
         if ( $file === \IPS\ROOT_PATH . "/applications/{$this->application->directory}/data/settings.json" ) {
             if ( Application::appIsEnabled( 'dtproxy' ) ) {
@@ -556,7 +550,6 @@ EOF;
 
         parent::_writeJson( $file, $data );
     }
-
     //    protected function addExtension()
 
     //    {
@@ -648,8 +641,8 @@ EOF;
     // Create new methods with the same name as the 'do' parameter which should execute it
 
 
-    protected function dtgetFields()
-    {
+
+    protected function dtgetFields(){
 
         $table = Request::i()->table;
         $fields = Db::i()->query( "SHOW COLUMNS FROM " . Db::i()->real_escape_string( Db::i()->prefix . $table ) );
@@ -669,8 +662,7 @@ EOF;
         Output::i()->json( $send );
     }
 
-    protected function dtdevplusImport()
-    {
+    protected function dtdevplusImport(){
 
         $table = Request::i()->table;
         $schema = $this->_getSchema();
@@ -692,5 +684,4 @@ EOF;
 
         Output::i()->redirect( Url::internal( "app=core&module=applications&controller=developer&appKey={$this->application->directory}&tab=SchemaImports" ) );
     }
-
 }

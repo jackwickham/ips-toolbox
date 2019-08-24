@@ -8,12 +8,11 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class toolbox_hook_BuilderIterator extends _HOOK_CLASS_
 {
-    
+
     /**
     * @inheritdoc
     */
-    public function current()
-    {
+    public function current(){
 
         $file = $this->key();
         $file = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/' . $file;
@@ -51,5 +50,4 @@ class toolbox_hook_BuilderIterator extends _HOOK_CLASS_
 
         return $file;
     }
-
 }

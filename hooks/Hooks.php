@@ -1,11 +1,5 @@
 //<?php
 
-
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
-    exit;
-}
-
 use Generator\Builders\ClassGenerator;
 use IPS\Application;
 use IPS\Helpers\Form;
@@ -15,6 +9,12 @@ use IPS\Output;
 use IPS\Request;
 use IPS\toolbox\Proxy\Proxyclass;
 use const IPS\ROOT_PATH;
+
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+    exit;
+}
+
 class toolbox_hook_Hooks extends _HOOK_CLASS_
 {
 
@@ -102,4 +102,4 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
 
         return $parent;
     }
-}const 
+}

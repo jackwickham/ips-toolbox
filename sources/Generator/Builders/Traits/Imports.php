@@ -197,13 +197,11 @@ trait Imports
         $output .= "\nuse ";
 
         if ( $type !== null ) {
-            $this->output( $type . ' ' );
             $output .= $type . ' ';
         }
         $output .= $import[ 'class' ];
 
         if ( isset( $import[ 'alias' ] ) && $import[ 'alias' ] ) {
-            $this->output( " as {$import['alias']}" );
             $output .= ' as ' . $import[ 'alias' ];
         }
 

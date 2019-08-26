@@ -243,6 +243,7 @@ trait Shared
                                 $this->prepImport( $uses, $type, !$beforeClass );
                                 $uses = [];
                                 if ( $value2 === ';' ) {
+                                    $i++;
                                     break;
                                 }
                             }

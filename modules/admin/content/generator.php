@@ -31,7 +31,7 @@ use IPS\toolbox\Content\Generator;
 use IPS\toolbox\Content\Member as Dtmember;
 use IPS\toolbox\Content\Post;
 use IPS\toolbox\Content\Topic;
-use IPS\toolbox\Forms;
+use IPS\toolbox\Form;
 use function defined;
 use function header;
 use function time;
@@ -69,102 +69,60 @@ class _generator extends Controller
             'link'  => $url,
 
         ];
+        $form = Form::create()->formPrefix( 'dtcontent_' );
+        $form->add( 'type', 'select' )->options( [
+            'options' => [
+                'none'   => 'Select Type',
+                'member' => 'Member',
+                'forum'  => 'Forum',
+                'topic'  => 'Topic',
+                'post'   => 'Post',
+                'club'   => 'Club',
+            ],
+        ] )->toggles( [
+            'member' => [
+                'passwords',
+                'group',
+                'club',
+                'rangeStart',
+                'rangeEnd',
+            ],
+            'topic'  => [
+                'rangeStart',
+                'rangeEnd',
+            ],
+        ] )->validation( static function ( $data )
+        {
 
-        $e = [
-            'prefix' => 'dtcontent_',
-            [
-                'class'      => 'select',
-                'name'       => 'type',
-                'options'    => [
-                    'options' => [
-                        'none'   => 'Select Type',
-                        'member' => 'Member',
-                        'forum'  => 'Forum',
-                        'topic'  => 'Topic',
-                        'post'   => 'Post',
-                        'club'   => 'Club',
-                    ],
-                    'toggles' => [
-                        'member' => [
-                            'passwords',
-                            'group',
-                            'club',
-                            'rangeStart',
-                            'rangeEnd',
-                        ],
-                        'topic'  => [
-                            'rangeStart',
-                            'rangeEnd',
-                        ],
-                    ],
-                ],
-                'validation' => function ( $data )
-                {
-
-                    if ( $data === 'none' ) {
-                        throw new InvalidArgumentException( 'dtcontent_gen_none' );
-                    }
-                },
-            ],
-            [
-                'class'   => '#',
-                'name'    => 'limit',
-                'default' => 50,
-                'options' => [
-                    'min' => 1,
-                ],
-            ],
-            [
-                'class'   => 'date',
-                'name'    => 'rangeStart',
-                'default' => Settings::i()->getFromConfGlobal( 'board_start' ),
-            ],
-            [
-                'class'   => 'date',
-                'name'    => 'rangeEnd',
-                'default' => time(),
-            ],
-            [
-                'class' => 'yn',
-                'name'  => 'passwords',
-            ],
-            [
-                'class' => 'yn',
-                'name'  => 'club',
-                'ops'   => [
-                    'disabled' => !Settings::i()->clubs ? \true : \false,
-                ],
-            ],
-            [
-                'class'   => 'select',
-                'name'    => 'group',
-                'default' => Settings::i()->getFromConfGlobal( 'member_group' ),
-                'options' => [
-                    'options' => $groups,
-                ],
-            ],
-        ];
-
-        $form = Forms::execute( [ 'elements' => $e ] );
+            if ( $data === 'none' ) {
+                throw new InvalidArgumentException( 'dtcontent_gen_none' );
+            }
+        } );
+        $form->add( 'limit', 'number' )->empty( 50 )->options( [ 'min' => 1 ] );
+        $form->add( 'rangeStart', 'date' )->empty( Settings::i()->getFromConfGlobal( 'board_start' ) );
+        $form->add( 'rangeEnd', 'date' )->empty( time() );
+        $form->add( 'passwords', 'yn' );
+        $form->add( 'club', 'yn' )->options( [ 'disabled' => !Settings::i()->clubs ] );
+        $form->add( 'group', 'select' )->empty( Settings::i()->getFromConfGlobal( 'member_group' ) )->options( [ 'options' => $groups ] );
 
         if ( $values = $form->values() ) {
             $url = $this->url;
             $query = [
-                'type'  => $values[ 'dtcontent_type' ],
-                'limit' => $values[ 'dtcontent_limit' ],
+                'type'  => $values[ 'type' ],
+                'limit' => $values[ 'limit' ],
             ];
 
-            if ( $values[ 'dtcontent_type' ] === 'members' ) {
-                $query[ 'password' ] = $values[ 'dtcontent_passwords' ];
-                $query[ 'group' ] = $values[ 'dtcontent_group' ];
-                $query[ 'club' ] = $values[ 'dtcontent_club' ];
+            if ( $values[ 'type' ] === 'members' ) {
+                $query[ 'password' ] = $values[ 'passwords' ];
+                $query[ 'group' ] = $values[ 'group' ];
+                $query[ 'club' ] = $values[ 'club' ];
             }
 
-            if ( $values[ 'dtcontent_type' ] === 'topic' ) {
+            if ( $values[ 'type' ] === 'topic' ) {
                 /* @var DateTime $start */
-                $start = $values[ 'dtcontent_rangeStart' ];
+                $start = $values[ 'rangeStart' ];
                 /* @var DateTime $end */
-                $end = $values[ 'dtcontent_rangeEnd' ];
+                $end = $values[ 'rangeEnd' ];
                 $query[ 'start' ] = $start->getTimestamp();
                 $query[ 'end' ] = $end->getTimestamp();
             }

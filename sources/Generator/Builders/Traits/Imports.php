@@ -115,9 +115,13 @@ trait Imports
         $newClass = array_pop( $nsClass );
         $testClass = '\\' . $this->getNameSpace() . '\\' . $newClass;
 
-        if ( class_exists( $testClass ) ) {
-            return $class;
+        try {
+            if ( class_exists( $testClass ) ) {
+                return $class;
+            }
+        } catch ( \Exception $e ) {
         }
+        
         foreach ( $this->imports as $import ) {
             $nsImport = explode( '\\', $import[ 'class' ] );
             $importClass = array_pop( $nsImport );

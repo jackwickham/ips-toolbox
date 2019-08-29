@@ -1,14 +1,14 @@
 //<?php
 
+use IPS\Http\Url;
+use IPS\Output;
+use IPS\Request;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
-use IPS\Http\Url;
-use IPS\Output;
-use IPS\Request;
 class toolbox_hook_MultiRedirect extends _HOOK_CLASS_
 {
 

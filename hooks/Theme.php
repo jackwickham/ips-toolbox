@@ -1,13 +1,13 @@
 //<?php
 
+use IPS\Settings;
+use IPS\Theme\Dev\Template;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
-use IPS\Settings;
-use IPS\Theme\Dev\Template;
 class toolbox_hook_Theme extends _HOOK_CLASS_
 {
 

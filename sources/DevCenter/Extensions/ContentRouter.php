@@ -38,17 +38,9 @@ class _ContentRouter extends ExtensionsAbstract
     public function elements(): array
     {
 
-        $this->elements[] = [
-            'name' => 'module',
-        ];
+        $this->form->add( 'module' );
+        $this->form->add( 'classRouter', 'stack' )->prefix( '\\IPS\\' . $this->application->directory . '\\' );
 
-        $this->elements[] = [
-            'name'   => 'classRouter',
-            'class'  => 'stack',
-            'prefix' => '\\IPS\\' . $this->application->directory . '\\',
-        ];
-
-        return $this->elements;
     }
 
     /**
@@ -67,6 +59,7 @@ class _ContentRouter extends ExtensionsAbstract
         else {
             $this->classRouter = \null;
         }
+
         return $this->_getFile( $this->extension );
     }
 }

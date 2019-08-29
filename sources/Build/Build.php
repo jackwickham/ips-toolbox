@@ -19,7 +19,6 @@ use IPS\Application;
 use IPS\Application\BuilderIterator;
 use IPS\Data\Store;
 use IPS\Http\Url;
-use IPS\Log;
 use IPS\Member;
 use IPS\Output;
 use IPS\Patterns\Singleton;
@@ -27,7 +26,8 @@ use IPS\Request;
 use Phar;
 use PharData;
 use RuntimeException;
-use ZipArchive;
+
+\IPS\toolbox\Application::loadAutoLoader();
 
 class _Build extends Singleton
 {
@@ -47,11 +47,9 @@ class _Build extends Singleton
         }
 
         $app = Request::i()->appKey;
-        \IPS\toolbox\Application::loadAutoLoader();
         $application = Application::load( $app );
         $title = $application->_title;
         Member::loggedIn()->language()->parseOutputForDisplay( $title );
-        $e = [];
 
         $newLong = $application->long_version + 1;
 
@@ -63,37 +61,15 @@ class _Build extends Singleton
             $newShort = '1.0.0';
             $newLong = 10000;
         }
-        $e = [];
 
-        $e[] = [
-            'name'     => 'toolbox_long_version',
-            'class'    => '#',
-            'label'    => 'Long Version',
-            'required' => true,
-            'default'  => $newLong,
-        ];
-        $e[] = [
-            'name'     => 'toolbox_short_version',
-            'label'    => 'Short Version',
-            'required' => true,
-            'default'  => $newShort,
-        ];
-
-        $e[] = [
-            'name'        => 'toolbox_skip_dir',
-            'class'       => 'stack',
-            'label'       => 'Skip Directories',
-            'default'     => [ '3rdparty', 'vendor' ],
-            'description' => 'Folders to skip using slasher on.',
-        ];
-
-        $e[] = [
-            'name'        => 'toolbox_skip_files',
-            'class'       => 'stack',
-            'label'       => 'Skip Files',
-            'description' => 'Files to skip using slasher on.',
-        ];
-        $form = Forms::execute( [ 'elements' => $e ] );
+        $form = Form::create();
+        $form->add( 'toolbox_long_version', 'number' )->label( 'Long Version' )->required()->empty( $newLong );
+        $form->add( 'toolbox_short_version' )->label( 'Short Version' )->required()->empty( $newShort );
+        $form->add( 'toolbox_skip_dir', 'stack' )->label( 'Skip Directories' )->description( 'Folders to skip using slasher on.' )->empty( [
+            '3rdparty',
+            'vendor',
+        ] );
+        $form->add( 'toolbox_skip_files', 'stack' )->label( 'Skip Files' )->description( 'Files to skip using slasher on.' );
 
         if ( $values = $form->values() ) {
             $long = $values[ 'toolbox_long_version' ];
@@ -128,23 +104,6 @@ class _Build extends Singleton
 
             }
 
-            //            $directions = \IPS\ROOT_PATH . '/applications/' . $application->directory . '/data/defaults/instructions.txt';
-            //            $apps = [];
-            //
-            //            if ( is_file( $directions ) ) {
-            //                copy( $directions, $path . 'instructions.txt' );
-            //                $apps[] = 'instructions.txt';
-            //            }
-            //
-            //            $apps[] = $application->directory . '.tar';
-            //
-            //            $zip = new ZipArchive;
-            //            if ( $zip->open( $path . $title . ' - ' . $short . '.zip', ZIPARCHIVE::CREATE ) === \true ) {
-            //                foreach ( $apps as $app ) {
-            //                    $zip->addFile( $path . $app, $app );
-            //                }
-            //                $zip->close();
-            //            }
             unset( Store::i()->applications, $download );
             Phar::unlinkArchive( $pharPath );
             $url = Url::internal( 'app=core&module=applications&controller=applications' );

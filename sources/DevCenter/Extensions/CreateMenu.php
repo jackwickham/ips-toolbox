@@ -34,26 +34,11 @@ class _CreateMenu extends ExtensionsAbstract
      */
     public function elements(): array
     {
-        $this->elements[] = [
-            'name'     => 'key',
-            'required' => \true,
-        ];
 
-        $this->elements[] = [
-            'name'     => 'link',
-            'required' => \true,
-            'prefix'   => 'app=' . $this->application->directory . '&',
-        ];
-
-        $this->elements[] = [
-            'name' => 'seo',
-        ];
-
-        $this->elements[] = [
-            'name' => 'seoTitle',
-        ];
-
-        return $this->elements;
+        $this->form->add( 'key' )->required();
+        $this->form->add( 'link' )->required()->prefix( 'app=' . $this->application->directory . '&' );
+        $this->form->add( 'seo' );
+        $this->form->add( 'seoTitle' );
     }
 
     /**
@@ -61,9 +46,11 @@ class _CreateMenu extends ExtensionsAbstract
      */
     protected function _content()
     {
+
         $this->link = 'app=' . $this->application->directory . '&' . $this->link;
         $this->seo = $this->seo ? "'" . $this->seo . "'" : \null;
         $this->seoTitle = $this->seoTitle ? "'" . $this->seoTitle . "'" : \null;
+
         return $this->_getFile( $this->extension );
     }
 }

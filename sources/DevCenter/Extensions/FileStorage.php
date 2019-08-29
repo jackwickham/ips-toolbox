@@ -61,31 +61,24 @@ class _FileStorage extends ExtensionsAbstract
                 'options' => $tables,
                 'parse'   => 'raw',
             ],
-            'validation' => function ( $data )
-            {
-
-                if ( !$data && !Request::i()->dtdevplus_ext_use_default_checkbox ) {
-                    throw new InvalidArgumentException( 'must select table!' );
-                }
-            },
+            'validation' => ,
         ];
+        $validate = static function ( $data )
+        {
 
-        $this->elements[] = [
-            'name'       => 'field',
-            'class'      => 'select',
-            'ap'         => \true,
-            'ops'        => [
-                'options' => [
+            if ( !$data && !Request::i()->dtdevplus_ext_use_default_checkbox ) {
+                throw new InvalidArgumentException( 'must select table!' );
+            }
+        };
+        $this->form->add( 'table', 'select')->options(['options'=>$tables, 'parse' => 'raw'] )->validation($validate)->appearRequired();
+        $fieldValidate = static function ( $data )
+        {
+            if ( !$data && !Request::i()->dtdevplus_ext_use_default_checkbox ) {
+                throw new InvalidArgumentException( 'must select field!' );
+            }
+        };
+        $this->form->add('field', 'select')->options(['options'=>[]])->validation($fieldValidate)->appearRequired();
 
-                ],
-            ],
-            'validation' => function ( $data )
-            {
-                if ( !$data && !Request::i()->dtdevplus_ext_use_default_checkbox ) {
-                    throw new InvalidArgumentException( 'must select field!' );
-                }
-            },
-        ];
         return $this->elements;
     }
 

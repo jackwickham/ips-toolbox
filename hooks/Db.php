@@ -1,16 +1,16 @@
 //<?php
 
+use IPS\toolbox\Profiler\Memory;
+use IPS\toolbox\Profiler\Time;
+use IPS\toolbox\Proxy\Generator\Db;
+use IPS\toolbox\Proxy\Generator\Proxy;
+use IPS\toolbox\Proxy\Proxyclass;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
-use IPS\toolbox\Profiler\Memory;
-use IPS\toolbox\Profiler\Time;
-use IPS\toolbox\Proxy\Generator\Db;
-use IPS\toolbox\Proxy\Generator\Proxy;
-use IPS\toolbox\Proxy\Proxyclass;
 class toolbox_hook_Db extends _HOOK_CLASS_
 {
     protected $dtkey;

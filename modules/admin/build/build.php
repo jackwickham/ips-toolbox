@@ -11,6 +11,7 @@
  */
 
 namespace IPS\toolbox\modules\admin\build;
+
 use function explode;
 
 use Exception;
@@ -24,7 +25,7 @@ use IPS\Output;
 use IPS\Request;
 use IPS\Task;
 use IPS\toolbox\DevFolder\Applications;
-use IPS\toolbox\Forms;
+use IPS\toolbox\Form;
 use IPS\toolbox\Profiler\Debug;
 use Phar;
 use PharData;
@@ -57,6 +58,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _build extends Controller
 {
+
     const APPS = [
         'toolbox',
         'toolbox',
@@ -69,6 +71,7 @@ class _build extends Controller
      */
     public function execute()
     {
+
         Dispatcher\Admin::i()->checkAcpPermission( 'build_manage' );
         parent::execute();
     }
@@ -82,27 +85,15 @@ class _build extends Controller
      */
     protected function manage()
     {
+
         $apps = static::APPS;
         $application = Application::load( 'toolbox' );
         $exploded = explode( '.', $application->version );
         $human = "{$exploded[0]}.{$exploded[1]}." . ( (int)$exploded[ 2 ] + 1 );
         $long = (int)$application->long_version + 1;
-        $e = [];
-        $e[] = [
-            'name'     => 'long_version',
-            'class'    => '#',
-            'label'    => 'Long Version',
-            'required' => \true,
-            'default'  => $long,
-        ];
-        $e[] = [
-            'name'     => 'short_version',
-            'label'    => 'Short Version',
-            'required' => \true,
-            'default'  => $human,
-        ];
-
-        $form = Forms::execute( [ 'elements' => $e ] );
+        $form = Form::create();
+        $form->add( 'long_version', 'number' )->label( 'Long Version' )->required()->empty( $long );
+        $form->add( 'short_version' )->label( 'Short Version' )->required()->empty( $human );
 
         if ( $values = $form->values() ) {
             $long = $values[ 'long_version' ];
@@ -192,171 +183,6 @@ class _build extends Controller
 
         Output::i()->title = 'Build DevToolbox';
         Output::i()->output = $form;
-    }
-
-    /**
-     * @throws Db\Exception
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
-     * @throws \OverflowException
-     * @throws \UnderflowException
-     * @throws \Exception
-     */
-    protected function install()
-    {
-        $apps = static::APPS;
-        ini_set( 'max_execution_time', 0 );
-        foreach ( $apps as $app ) {
-            $path = \IPS\ROOT_PATH . '/applications/' . $app;
-            if ( !is_dir( $path ) ) {
-                continue;
-            }
-            try {
-                Application::load( $app );
-            } catch ( Exception $e ) {
-                $application = json_decode( file_get_contents( $path . '/data/application.json' ), \true );
-
-                if ( !$application[ 'app_directory' ] ) {
-                    Output::i()->error( 'app_invalid_data', '4C133/5', 403, '' );
-                }
-
-                $application[ 'app_position' ] = Db::i()->select( 'MAX(app_position)', 'core_applications' )->first() + 1;
-                $application[ 'app_added' ] = time();
-                $application[ 'app_protected' ] = 0;
-                $application[ 'app_enabled' ] = 1;
-                unset( $application[ 'application_title' ] );
-                Db::i()->insert( 'core_applications', $application );
-                Application::load( $app )->installDatabaseSchema();
-                Application::load( $app )->installJsonData();
-                Application::load( $app )->installLanguages( 0, 100000 );
-                Application::load( $app )->installEmailTemplates();
-                Application::load( $app )->installExtensions();
-                Application::load( $app )->installThemeSettings();
-                Application::load( $app )->clearTemplates();
-                Application::load( $app )->installTemplates( \false, 0, 10000 );
-                Application::load( $app )->installJavascript();
-                Application::load( $app )->installOther();
-            }
-        }
-
-        $url = Url::internal( 'app=core' );
-        Output::i()->redirect( $url, 'Applications installed' );
-    }
-
-    protected function uninstall()
-    {
-        Request::i()->confirmedDelete();
-        $apps = static::APPS;
-        ini_set( 'max_execution_time', 0 );
-        foreach ( $apps as $app ) {
-            try {
-                $app = Application::load( $app );
-                $app->delete();
-            } catch ( Exception $e ) {
-            }
-        }
-
-        $url = Url::internal( 'app=core' );
-        Output::i()->redirect( $url, 'Applications Uninstalled' );
-    }
-
-    /**
-     * @throws RuntimeException
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
-     * @throws \Symfony\Component\Filesystem\Exception\IOException
-     * @throws Exception
-     */
-    protected function buildDev()
-    {
-        ini_set( 'max_execution_time', 0 );
-        $ipsApps = Application::$ipsApps;
-
-        foreach ( $ipsApps as $app ) {
-            try {
-                $df = ( new Applications( $app ) )->javascript()->email()->language()->templates();
-            } catch ( Exception $e ) {
-
-            }
-        }
-
-        $df->core();
-
-        Task::queue( 'dtproxy', 'dtProxy', [], 5, [ 'dtProxy' ] );
-        $url = Url::internal( 'app=core' );
-        Output::i()->redirect( $url, 'IPS Dev Folders Created' );
-    }
-
-    protected function inDev()
-    {
-        if ( \IPS\NO_WRITES === \true ) {
-            return;
-        }
-        $constants = \IPS\ROOT_PATH . '/constants.php';
-        $content = '';
-        $inDev = \IPS\IN_DEV ? '\false' : '\true';
-        $msg = 'IN_DEV Enabled';
-        if ( \IPS\IN_DEV === \true ) {
-            $msg = 'IN_DEV Disabled';
-        }
-        $replace = 'define( \'IN_DEV\',' . (string)$inDev . ');';
-        if ( is_file( $constants ) ) {
-            $content = file_get_contents( $constants );
-            preg_match( '#define\(\s?[\'|"]IN_DEV[\'|"]\s?,(.*?)\s?\);#', $content, $match );
-
-            if ( empty( $match ) ) {
-                $content .= "\ndefine('IN_DEV',\\true);";
-            }
-            else {
-                $content = preg_replace( '#define\(\s?[\'|"]IN_DEV[\'|"]\s?,(.*?)\s?\);#', $replace, $content );
-            }
-        }
-        else {
-            $content = <<<eof
-<?php
-define( 'IN_DEV', {$inDev} );
-eof;
-
-        }
-
-        \file_put_contents( $constants, $content );
-        $url = Url::internal( 'app=core' );
-        Output::i()->redirect( $url, $msg );
-    }
-
-    protected function devBanner()
-    {
-        $constants = \IPS\ROOT_PATH . '/constants.php';
-        $content = '';
-        $devBanner = \IPS\DEV_HIDE_DEV_TOOLS ? '\false' : '\true';
-        $msg = 'DEV_HIDE_DEV_TOOLS Enabled';
-        if ( \IPS\IN_DEV === \true ) {
-            $msg = 'DEV_HIDE_DEV_TOOLS Disabled';
-        }
-        $replace = 'define( \'DEV_HIDE_DEV_TOOLS\',' . (string)$devBanner . ');';
-        if ( is_file( $constants ) ) {
-            $content = file_get_contents( $constants );
-            preg_match( '#define\(\s?[\'|"]DEV_HIDE_DEV_TOOLS[\'|"]\s?,(.*?)\s?\);#', $content, $match );
-
-            if ( empty( $match ) ) {
-                $content .= "\ndefine('DEV_HIDE_DEV_TOOLS',\\true);";
-            }
-            else {
-                $content = preg_replace( '#define\(\s?[\'|"]DEV_HIDE_DEV_TOOLS[\'|"]\s?,(.*?)\s?\);#', $replace, $content );
-            }
-
-        }
-        else {
-            $content = <<<eof
-<?php
-define( 'DEV_HIDE_DEV_TOOLS', {$devBanner} );
-eof;
-
-        }
-        \file_put_contents( $constants, $content );
-
-        $url = Url::internal( 'app=core' );
-        Output::i()->redirect( $url, $msg );
     }
 
 }

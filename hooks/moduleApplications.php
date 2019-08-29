@@ -1,12 +1,12 @@
 //<?php
 
+use IPS\toolbox\Build;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
 }
 
-use IPS\toolbox\Build;
 class toolbox_hook_moduleApplications extends _HOOK_CLASS_
 {
 

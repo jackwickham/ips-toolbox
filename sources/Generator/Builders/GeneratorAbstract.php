@@ -96,6 +96,14 @@ abstract class GeneratorAbstract
 
     protected $doComments = true;
 
+    protected $extraBeforeClass;
+
+    public function extraBeforeClass( $value )
+    {
+
+        $this->extraBeforeClass .= $value;
+    }
+
     public function doDocuments( bool $data = true )
     {
 
@@ -284,6 +292,9 @@ EOF;
             $this->output( $headerCatch );
         }
 
+        if ( $this->extraBeforeClass !== null ) {
+            $this->output( $this->extraBeforeClass );
+        }
     }
 
     public function output( string $output )

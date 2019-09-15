@@ -87,7 +87,8 @@ trait Shared
             }
             else {
                 switch ( $token ) {
-
+                    case T_OPEN_TAG:
+                        break;
                     case T_COMMENT:
                         $beforeNamespace = false;
 
@@ -554,7 +555,12 @@ trait Shared
                         }
                         break;
                     default:
-                        $this->extra( [ $value ] );
+                        if ( $beforeClass === true ) {
+                            $this->extraBeforeClass( $value );
+                        }
+                        else {
+                            $this->extra( [ $value ] );
+                        }
                         break;
 
                 }

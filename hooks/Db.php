@@ -11,7 +11,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_Db extends _HOOK_CLASS_toolbox_hook_Db
+class toolbox_hook_Db extends _HOOK_CLASS_
 {
     protected $dtkey;
 

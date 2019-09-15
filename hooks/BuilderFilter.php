@@ -9,7 +9,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_BuilderFilter extends _HOOK_CLASS_toolbox_hook_BuilderFilter
+class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
 {
 
     public function accept(){

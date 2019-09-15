@@ -15,7 +15,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_Hooks extends _HOOK_CLASS_toolbox_hook_Hooks
+class toolbox_hook_Hooks extends _HOOK_CLASS_
 {
 
     public static function devTable( $url, $appOrPluginId, $hookDir ){

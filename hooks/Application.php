@@ -13,7 +13,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 * Class toolbox_hook_Application
 * @mixin \IPS\Application
 */
-class toolbox_hook_Application extends _HOOK_CLASS_toolbox_hook_Application
+class toolbox_hook_Application extends _HOOK_CLASS_
 {
     public $skip = false;
 

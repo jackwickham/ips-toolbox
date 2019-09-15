@@ -6,7 +6,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_Output extends _HOOK_CLASS_toolbox_hook_Output
+class toolbox_hook_Output extends _HOOK_CLASS_
 {
     public $dtContentType = '\null';
 

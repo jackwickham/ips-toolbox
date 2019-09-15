@@ -8,7 +8,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_Theme extends _HOOK_CLASS_
+class toolbox_hook_Theme extends _HOOK_CLASS_toolbox_hook_Theme
 {
 
     public static function runProcessFunction( $content, $functionName ){
@@ -18,17 +18,17 @@ class toolbox_hook_Theme extends _HOOK_CLASS_
             return;
         }
 
-        if ( Template::$debugFileName !== \null && \IPS\IN_DEV === \true && \IPS\NO_WRITES === \false && \mb_strpos( $functionName, 'css_' ) === \false && Settings::i()->toolbox_debug_templates ) {
+        if ( Template::$debugFileName !== null && \IPS\IN_DEV === true && \IPS\NO_WRITES === false && mb_strpos( $functionName, 'css_' ) === false && Settings::i()->toolbox_debug_templates ) {
             $path = \IPS\ROOT_PATH . '/toolbox_templates/';
             $filename = $path . Template::$debugFileName;
-            if ( !\is_dir( $path ) ) {
-                \mkdir( $path, 0777, \true );
+            if ( !is_dir( $path ) ) {
+                mkdir( $path, 0777, true );
             }
             //lki
             $content = "<?php\nnamespace IPS\Theme;\n" . $content;
             try {
                 \file_put_contents( $filename, $content );
-            } catch ( \Exception $e ) {
+            } catch ( Exception $e ) {
             }
             include_once( $filename );
         }

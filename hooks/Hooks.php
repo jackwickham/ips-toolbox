@@ -15,11 +15,12 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_Hooks extends _HOOK_CLASS_
+class toolbox_hook_Hooks extends _HOOK_CLASS_toolbox_hook_Hooks
 {
 
     public static function devTable( $url, $appOrPluginId, $hookDir ){
 
+        \IPS\toolbox\Application::loadAutoLoader();
         $hookTable = Request::i()->hookTable;
 
         if ( $hookTable === 'add' && !\is_int( $appOrPluginId ) && Request::i()->plugin_hook_type === 'C' && Request::i()->plugin_hook_class !== null ) {
@@ -35,7 +36,7 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
                 $hook->filename = Request::i()->plugin_hook_location ?: md5( mt_rand() );
                 $hook->save();
 
-                $reflection = new ReflectionClass( $hook->class );
+                $reflection = new \ReflectionClass( $hook->class );
                 $classname = "{$appOrPluginId}_hook_{$hook->filename}";
                 $hookClass = new ClassGenerator();
                 $hookClass->isHook = true;

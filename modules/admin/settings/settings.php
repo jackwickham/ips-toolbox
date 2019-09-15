@@ -102,7 +102,7 @@ class _settings extends Controller
         $form = \IPS\toolbox\Form::create()->object( Settings::i() );
 
         $form->tab( 'toolbox' );
-        $form->add( 'toolbox_debug_templates', 'yn' );
+        $form->add( 'toolbox_debug_templates', 'yn' )->tab( 'toolbox' );
         /* @var \IPS\toolbox\extensions\toolbox\Settings\settings $extension */
         foreach ( Application::allExtensions( 'toolbox', 'settings' ) as $extension ) {
             $extension->elements( $form );

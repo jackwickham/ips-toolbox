@@ -94,6 +94,14 @@ abstract class GeneratorAbstract
 
     protected $fileName;
 
+    protected $doComments = true;
+
+    public function doDocuments( bool $data = true )
+    {
+
+        $this->doComments = $data;
+    }
+
     /**
      * this should be the FULL PATH
      *
@@ -360,6 +368,12 @@ EOF;
         }
 
         return $this->path . '/' . $name . '.php';
+    }
+
+    public function getFilename()
+    {
+
+        return $this->saveFileName();
     }
 
     public function addFileName( string $name )

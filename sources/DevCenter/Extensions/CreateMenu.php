@@ -32,7 +32,7 @@ class _CreateMenu extends ExtensionsAbstract
     /**
      * @inheritdoc
      */
-    public function elements(): array
+    public function elements()
     {
 
         $this->form->add( 'key' )->required();

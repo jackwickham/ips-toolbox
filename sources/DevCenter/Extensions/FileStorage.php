@@ -19,7 +19,6 @@ use function defined;
 use function header;
 use function mb_strpos;
 
-
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
@@ -38,8 +37,9 @@ class _FileStorage extends ExtensionsAbstract
      * @return array
      * @throws \Exception
      */
-    public function elements(): array
+    public function elements()
     {
+
         /* @var array $tablesDb */
         $tablesDb = \IPS\Db::i()->query( 'SHOW TABLES' );
         $tables = [];
@@ -53,16 +53,6 @@ class _FileStorage extends ExtensionsAbstract
             }
         }
 
-        $this->elements[] = [
-            'name'       => 'table',
-            'class'      => 'Select',
-            'ap'         => \true,
-            'ops'        => [
-                'options' => $tables,
-                'parse'   => 'raw',
-            ],
-            'validation' => ,
-        ];
         $validate = static function ( $data )
         {
 
@@ -70,14 +60,18 @@ class _FileStorage extends ExtensionsAbstract
                 throw new InvalidArgumentException( 'must select table!' );
             }
         };
-        $this->form->add( 'table', 'select')->options(['options'=>$tables, 'parse' => 'raw'] )->validation($validate)->appearRequired();
+        $this->form->add( 'table', 'select' )->options( [
+            'options' => $tables,
+            'parse'   => 'raw',
+        ] )->validation( $validate )->appearRequired();
         $fieldValidate = static function ( $data )
         {
+
             if ( !$data && !Request::i()->dtdevplus_ext_use_default_checkbox ) {
                 throw new InvalidArgumentException( 'must select field!' );
             }
         };
-        $this->form->add('field', 'select')->options(['options'=>[]])->validation($fieldValidate)->appearRequired();
+        $this->form->add( 'field', 'select' )->options( [ 'options' => [] ] )->validation( $fieldValidate )->appearRequired();
 
         return $this->elements;
     }
@@ -87,6 +81,7 @@ class _FileStorage extends ExtensionsAbstract
      */
     protected function _content()
     {
+
         return $this->_getFile( $this->extension );
     }
 }

@@ -15,7 +15,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
-class toolbox_hook_DevTemplate extends _HOOK_CLASS_
+class toolbox_hook_DevTemplate extends _HOOK_CLASS_toolbox_hook_DevTemplate
 {
     public static $debugFileName = '\null';
 
@@ -35,13 +35,13 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_
                 $memory = new Memory;
             }
 
-            if ( Settings::i()->dtprofiler_enabled_executions ) {
+            if ( defined( 'DTTEMPLATETIME' ) && DTTEMPLATE && Settings::i()->dtprofiler_enabled_executions ) {
                 $time = new Time;
             }
         }
 
         if ( \IPS\IN_DEV === \true && \IPS\NO_WRITES === \false && Settings::i()->toolbox_debug_templates ) {
-            $functionName = "theme_{$this->app}\_{$this->templateLocation}\_{$this->templateName}\_{$bit}";
+            $functionName = "theme_{$this->app}_{$this->templateLocation}_{$this->templateName}_{$bit}";
             /* Find the file */
             $file = \null;
             if ( $this->sourceFolder === \IPS\ROOT_PATH . '/plugins' ) {
@@ -121,7 +121,7 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_
 
             }
 
-            if ( Settings::i()->dtprofiler_enabled_executions ) {
+            if ( defined( 'DTTEMPLATETIME' ) && DTTEMPLATE && Settings::i()->dtprofiler_enabled_executions ) {
                 $time->end( $url, $name );
             }
 

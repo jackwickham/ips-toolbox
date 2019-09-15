@@ -86,6 +86,8 @@ abstract class _ExtensionsAbstract
         $this->application = $application;
         $this->extension = $extension;
         $this->blanks = \IPS\ROOT_PATH . '/applications/dtdevplus/data/defaults/modExtensions/';
+        $this->form = Form::create()->attributes( [ 'data-controller' => 'ips.admin.dtdevplus.query' ] );
+
         $this->elements = [
             'prefix' => 'dtdevplus_ext_',
             [
@@ -107,7 +109,6 @@ abstract class _ExtensionsAbstract
     public function form()
     {
 
-        $this->form = Form::create()->attributes( [ 'data-controller' => 'ips.admin.dtdevplus.query' ] );
         $this->elements();
         if ( $values = $this->form->values() ) {
             $this->_process( $values );
@@ -121,7 +122,7 @@ abstract class _ExtensionsAbstract
      *
      * @return array
      */
-    abstract public function elements(): array;
+    abstract public function elements();
 
     /**
      * @param array $values

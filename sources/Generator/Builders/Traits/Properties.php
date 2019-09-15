@@ -118,7 +118,7 @@ trait Properties
             foreach ( $this->properties as $property ) {
                 $this->output( "\n{$this->tab}" );
 
-                if ( $property[ 'document' ] ) {
+                if ( $this->doComments === true && $property[ 'document' ] ) {
                     $this->output( "/**\n" );
                     foreach ( $property[ 'document' ] as $item ) {
                         $this->output( "{$this->tab}* {$item}\n" );

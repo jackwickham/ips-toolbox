@@ -50,8 +50,7 @@ class _profiler
             }
         }
 
-        $form->tab( 'dtprofiler' );
-        $form->add( 'dtprofiler_can_use', 'member' )->value( $members )->options( [ 'multiple' => 10 ] );
+        $form->add( 'dtprofiler_can_use', 'member' )->value( $members )->options( [ 'multiple' => 10 ] )->tab( 'dtprofiler' );
         $form->add( 'dtprofiler_show_admin', 'yn' );
         $form->header( 'dtprofiler_profiler_tabs' );
         $form->add( 'dtprofiler_enabled_execution', 'yn' );
@@ -64,7 +63,7 @@ class _profiler
         $form->add( 'dtprofiler_enabled_css', 'yn' );
         $form->add( 'dtprofiler_enabled_js', 'yn' );
         $form->add( 'dtprofiler_enabled_jsvars', 'yn' );
-        $form->add( 'dtprofiler_enable_debug', 'yn' )->toggles( [ 'dtprofiler_enable_debug_ajax' ], true );
+        $form->add( 'dtprofiler_enable_debug', 'yn' )->toggles( [ 'dtprofiler_enable_debug_ajax' ] );
         $form->add( 'dtprofiler_enable_debug_ajax', 'yn' );
         $form->add( 'dtprofiler_enabled_logs', 'yn' );
         $form->add( 'dtprofiler_logs_amount', '#' );

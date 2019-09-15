@@ -85,7 +85,7 @@ class _Debug extends ActiveRecord
     public static function add( $key, $message, $alias = false )
     {
 
-        if ( !\IPS\QUERY_LOG && defined( '\DTPROFILER' ) && !\DTPROFILER ) {
+        if ( !\IPS\QUERY_LOG && defined( 'DTPROFILER' ) && !DTPROFILER ) {
             return;
         }
 

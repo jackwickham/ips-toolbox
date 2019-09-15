@@ -37,7 +37,9 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _Memory
 {
+
     protected static $store = [];
+
     /**
      * start time
      *
@@ -47,6 +49,7 @@ class _Memory
 
     public function __construct()
     {
+
         $this->start = memory_get_usage();
     }
 
@@ -55,6 +58,7 @@ class _Memory
      */
     public static function build()
     {
+
         $list = [];
         /* @var Memory $obj */
         foreach ( static::$store as $obj ) {
@@ -76,6 +80,7 @@ class _Memory
      */
     protected static function total(): string
     {
+
         return static::formatBytes( memory_get_usage() );
     }
 
@@ -85,17 +90,33 @@ class _Memory
      *
      * @return string
      */
-    public static function formatBytes( $size, $precision = 2 ): string
+    public static function formatBytes( $size, $precision = 2, $suffix = true ): string
     {
+
         $base = log( $size, 1024 );
         $suffixes = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
         $expo = 1024 ** ( $base - floor( $base ) );
-        $suffix = (int)floor( $base );
-        return round( $expo, $precision ) . ' ' . $suffixes[ $suffix ];
+        $mem = round( $expo, $precision );
+        if ( $suffix === true ) {
+            $suffix = (int)floor( $base );
+            $mem .= ' ' . $suffixes[ $suffix ];
+        }
+
+        return $mem;
+    }
+
+    public function endWithNoSuffix()
+    {
+
+        $end = memory_get_usage();
+        $memEnd = $end - $this->start;
+
+        return static::formatBytes( $memEnd );
     }
 
     public function end( $key = \null, $name = \null ): string
     {
+
         $end = memory_get_usage();
         $memEnd = $end - $this->start;
         $mem = static::formatBytes( $memEnd );

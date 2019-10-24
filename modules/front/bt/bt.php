@@ -8,6 +8,7 @@ use IPS\Data\Store;
 use IPS\DateTime;
 use IPS\Db;
 use IPS\Dispatcher\Controller;
+use IPS\Helpers\Form\Select;
 use IPS\Log;
 use IPS\Member;
 use IPS\Output;
@@ -365,6 +366,38 @@ class _bt extends Controller
         $html .= '</div>';
         Output::i()->output = $html;
     }
+
+    protected function clearAjax()
+    {
+
+        Db::i()->update( 'toolbox_debug', [ 'debug_viewed' => 1 ] );
+    }
+
+    protected function foo()
+    {
+
+        $form = new \IPS\Helpers\Form();
+        $options = [
+            0 => 'Select',
+            1 => 'One',
+            2 => 'Two',
+            3 => 'Three',
+            4 => 'Four',
+            5 => 'five',
+        ];
+        //        if ( Request::i()->nada !== null ) {
+        //            $form->error = 'there was an error!';
+        //        }
+        $default = isset( Request::i()->cookie[ 'foo' ] ) ? (int)Request::i()->cookie[ 'foo' ] : 2;
+        $select = new Select( 'nada', $default, false, [ 'options' => $options ] );
+        $form->add( $select );
+        if ( $values = $form->values() ) {
+            Request::i()->setCookie( 'foo', $values[ 'nada' ] );
+            Output::i()->redirect( $this->url->setQueryString( [ 'do' => 'foo' ] ) );
+        }
+        Output::i()->output = $form;
+    }
+
 
     //    protected function checkout(){
     //        $app = Request::i()->dir;

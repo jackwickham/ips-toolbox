@@ -46,6 +46,7 @@ class _Time
 
     public function __construct()
     {
+
         $this->start = \microtime( \true );
     }
 
@@ -57,10 +58,12 @@ class _Time
      */
     public static function formatBytes( $size, $precision = 2 ): string
     {
+
         $base = log( $size, 1024 );
         $suffixes = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
         $expo = 1024 ** ( $base - floor( $base ) );
         $suffix = (int)floor( $base );
+
         return round( $expo, $precision ) . ' ' . $suffixes[ $suffix ];
     }
 
@@ -69,6 +72,7 @@ class _Time
      */
     public static function build()
     {
+
         if ( empty( static::$store ) ) {
             return \null;
         }
@@ -89,8 +93,23 @@ class _Time
         return Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->button( 'Executions', 'executions', 'Execution Times.', $list, json_encode( $list ), $count, 'clock-o', \true, \false );
     }
 
+    public function endFormated()
+    {
+
+        return ' : ' . $this->endConvertedToMs() . 'ms';
+    }
+
+    public function endConvertedToMs()
+    {
+
+        $end = \microtime( true ) - $this->start;
+
+        return round( $end, 6 ) * 1000;
+    }
+
     public function end( $key = \null, $name = \null )
     {
+
         $end = \microtime( \true ) - $this->start;
 
         if ( $key !== \null ) {

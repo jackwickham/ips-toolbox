@@ -2,6 +2,8 @@
 
 namespace IPS\toolbox;
 
+Application::loadAutoLoader();;
+
 use Exception;
 use Generator\Tokenizers\StandardTokenizer;
 use IPS\IPS;
@@ -41,7 +43,7 @@ class _GitHooks
         }
     }
 
-    public function writeSpecialHooks()
+    public function writeSpecialHooks(): void
     {
 
         if ( property_exists( IPS::class, 'beenPatched' ) && IPS::$beenPatched ) {
@@ -66,7 +68,7 @@ class _GitHooks
 
                                     $proxyFile = new ClassGenerator();
                                     $proxyFile->addPath( ROOT_PATH . '/' . Proxyclass::i()->save . '/hooks/' . $app->directory );
-                                    $proxyFile->addFileName( '_HOOK_CLASS_' . $file );
+                                    $proxyFile->addFileName( '_HOOK_CLASS_' . $app->directory . '_hook_' . $file );
                                     $proxyFile->addExtends( $hook[ 'class' ] );
                                     $proxyFile->isProxy = true;
                                     $proxyFile->addClassName( '_HOOK_CLASS_' . $app->directory . '_hook_' . $file );
@@ -80,7 +82,7 @@ class _GitHooks
         }
     }
 
-    public function removeSpecialHooks( $precommit = false )
+    public function removeSpecialHooks( $precommit = false ): void
     {
 
         //foo
@@ -90,6 +92,9 @@ class _GitHooks
 
         /** @var Application $app */
         foreach ( $this->apps as $app ) {
+            if ( empty( $app->extensions( 'toolbox', 'SpecialHooks' ) ) === true ) {
+                continue;
+            }
             $hooks = ROOT_PATH . '/applications/' . $app->directory . '/data/hooks.json';
             $dir = ROOT_PATH . '/applications/' . $app->directory . '/hooks/';
             if ( is_file( $hooks ) ) {
@@ -99,6 +104,9 @@ class _GitHooks
                         if ( mb_strtolower( $hook[ 'type' ] ) === 'c' ) {
                             $path = $dir . $file . '.php';
                             $rewriteHook = new StandardTokenizer( $path );
+                            if ( $rewriteHook->getExtends() === '_HOOK_CLASS_' ) {
+                                continue;
+                            }
                             $rewriteHook->isProxy = true;
                             $rewriteHook->isHook = true;
                             $rewriteHook->addFileName( $file );
@@ -114,7 +122,7 @@ class _GitHooks
         }
     }
 
-    public function add( $file, $dir )
+    public function add( $file, $dir ): void
     {
 
         $output = 'Committing file ' . $file;
@@ -122,7 +130,7 @@ class _GitHooks
         $this->exec( $command, $dir, $output );
     }
 
-    public function exec( $command, $dir, &$output = null )
+    public function exec( $command, $dir, &$output = null ): void
     {
 
         if ( function_exists( 'exec' ) === true ) {

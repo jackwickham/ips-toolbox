@@ -58,15 +58,15 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 }
 
 /**
- * Elements Class
+ * Sources Class
  *
- * @mixin \IPS\toolbox\DevCenter\Sources\Elements
+ * @mixin Sources
  */
 class _Sources
 {
 
     /**
-     * @var \IPS\Helpers\Form
+     * @var \IPS\toolbox\Form
      */
     public $form;
 
@@ -87,6 +87,12 @@ class _Sources
      */
     protected $types;
 
+    protected $findClassWithApp = [];
+
+    protected $findClass = [];
+
+    protected $findNameSpace = [];
+
     /**
      * _Elements constructor.
      *
@@ -96,6 +102,25 @@ class _Sources
     {
 
         $this->application = $application;
+        $base = [
+            'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass',
+            'minimized'            => false,
+            'commaTrigger'         => false,
+            'unique'               => true,
+            'minAjaxLength'        => 3,
+            'disallowedCharacters' => [],
+            'maxItems'             => 1,
+        ];
+        $this->findClass = $base;
+
+        $base[ 'source' ] = 'app=toolbox&module=devcenter&controller=sources&do=findClassWithApp&appKey=' . $this->application->directory;
+        $this->findClassWithApp = $base;
+
+        $base[ 'source' ] = 'app=toolbox&module=devcenter&controller=sources&do=findNameSpace&appKey=' . $this->application->directory;
+        $this->findNameSpace = $base;
+
+        $this->form = \IPS\toolbox\Form::create()->formPrefix( 'dtdevplus_class_' );
+
     }
 
     /**
@@ -106,7 +131,7 @@ class _Sources
 
         if ( Request::i()->controller === 'sources' || Request::i()->controller === 'devFolder' ) {
             Output::i()->sidebar[ 'actions' ][ 'devcenter' ] = [
-                'icon'  => \null,
+                'icon'  => null,
                 'title' => 'dtdevplus_devcenter',
                 'link'  => (string)Url::internal( 'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey ),
             ];
@@ -179,7 +204,6 @@ class _Sources
             $this->{$method}();
         }
 
-        $this->form = Form::buildForm( $this->elements, 'dtdevplus_class_' );
     }
 
     /**
@@ -205,7 +229,6 @@ class _Sources
         }
         /* @var GeneratorAbstract $class */
         $class = 'IPS\\toolbox\DevCenter\\Sources\\Generator\\';
-        //$class = 'IPS\\toolbox\DevCenter\\Sources\\Compiler\\';
         $type = $this->type;
         $values[ 'type' ] = mb_ucfirst( $type );
         switch ( $type ) {
@@ -228,7 +251,7 @@ class _Sources
         $class->process();
 
         if ( !$class->error ) {
-            $msg = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_created', \false, [
+            $msg = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_created', false, [
                 'sprintf' => [
                     $type,
                     $class->classname,
@@ -236,7 +259,7 @@ class _Sources
             ] );
         }
         else {
-            $msg = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_db_error', \false, [
+            $msg = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_db_error', false, [
                 'sprintf' => [
                     'type',
                     $class->classname,
@@ -261,7 +284,7 @@ class _Sources
         $class = mb_ucfirst( $data );
         $class = $ns ? '\\IPS\\' . $this->application->directory . '\\' . $ns . '\\' . $class : '\\IPS\\' . $this->application->directory . '\\' . $class;
 
-        if ( $data !== 'Form' && \class_exists( $class ) ) {
+        if ( $data !== 'Form' && class_exists( $class ) ) {
             throw new InvalidArgumentException( 'dtdevplus_class_exists' );
         }
 
@@ -355,7 +378,7 @@ class _Sources
     public function extendsCheck( $data )
     {
 
-        if ( $data && !class_exists( $data, \true ) ) {
+        if ( $data && !class_exists( $data, true ) ) {
             throw new InvalidArgumentException( 'dtdevplus_class_extended_class_no_exist' );
         }
     }
@@ -375,7 +398,7 @@ class _Sources
             foreach ( $data as $implement ) {
 
                 if ( !interface_exists( $implement ) ) {
-                    $lang = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_implemented_no_interface', \false, [ 'sprintf' => $implement ] );
+                    $lang = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_implemented_no_interface', false, [ 'sprintf' => $implement ] );
                     Member::loggedIn()->language()->parseOutputForDisplay( $lang );
                     throw new InvalidArgumentException( $lang );
                 }
@@ -394,10 +417,10 @@ class _Sources
     public function traitsCheck( $data )
     {
 
-        if ( \is_array( $data ) && \count( $data ) ) {
+        if ( is_array( $data ) && count( $data ) ) {
             foreach ( $data as $trait ) {
                 if ( !trait_exists( $trait ) ) {
-                    $lang = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_no_trait', \false, [ 'sprintf' => [ $trait ] ] );
+                    $lang = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_no_trait', false, [ 'sprintf' => [ $trait ] ] );
                     Member::loggedIn()->language()->parseOutputForDisplay( $lang );
                     throw new InvalidArgumentException( $lang );
                 }
@@ -441,29 +464,15 @@ class _Sources
             'review',
         ];
 
-        $elements = [
-            'name'    => 'namespace',
-            'prefix'  => "IPS\\{$this->application->directory}\\",
-            'options' => [
-                'placeholder'  => 'Namespace',
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findNamespace&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-        ];
-
         if ( in_array( $this->type, $tabs ) ) {
-            $elements[ 'tab' ] = 'general';
+            $this->form->tab( 'general' );
         }
 
-        $this->elements[] = $elements;
+        $options = [
+            'placeholder'  => 'Namespace',
+            'autocomplete' => $this->findNameSpace,
+        ];
+        $this->form->add( 'namespace' )->options( $options )->prefix( "IPS\\{$this->application->directory}\\" );
     }
 
     /**
@@ -472,29 +481,25 @@ class _Sources
     protected function elClassName()
     {
 
+        $prefix = null;
         if ( $this->type === 'interfacing' ) {
-            $this->elements[] = [
-                'name'     => 'interfaceName',
-                'validate' => [ $this, 'interfaceClassCheck' ],
-            ];
+            $placeholder = 'Interface Name';
+            $name = 'interfaceName';
+            $validate = [ $this, 'interfaceClassCheck' ];
         }
         else if ( $this->type === 'traits' ) {
-            $this->elements[] = [
-                'name'     => 'traitName',
-                'validate' => [ $this, 'traitClassCheck' ],
-            ];
+            $placeholder = 'Trait Name';
+            $name = 'traitName';
+            $validate = [ $this, 'traitClassCheck' ];
         }
         else {
-            $this->elements[] = [
-                'name'       => 'className',
-                'required'   => \true,
-                'options'    => [
-                    'placeholder' => 'Class Name',
-                ],
-                'validation' => [ $this, 'classCheck' ],
-                'prefix'     => '_',
-            ];
+            $placeholder = 'Class Name';
+            $name = 'className';
+            $validate = [ $this, 'classCheck' ];
+            $prefix = '_';
         }
+
+        $this->form->add( $name )->options( [ 'placeHolder' => $placeholder ] )->prefix( $prefix )->validation( $validate );
     }
 
     /**
@@ -503,11 +508,7 @@ class _Sources
     protected function elAbstract()
     {
 
-        $this->elements[] = [
-            'class'   => 'yn',
-            'name'    => 'abstract',
-            'default' => \false,
-        ];
+        $this->form->add( 'abstract', 'yn' );
     }
 
     /**
@@ -516,22 +517,12 @@ class _Sources
     protected function elExtends()
     {
 
-        $this->elements[] = [
-            'name'       => 'extends',
-            'options'    => [
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-            'validation' => [ $this, 'extendsCheck' ],
+        $options = [
+            'autocomplete' => $this->findClass,
         ];
+
+        $this->form->add( 'extends', 'yn' )->options( $options )->validation( [ $this, 'extendsCheck' ] );
+
     }
 
     /**
@@ -542,11 +533,6 @@ class _Sources
     protected function elImports()
     {
 
-        //        $this->elements[] = [
-        //            'name'    => 'useImports',
-        //            'class'   => 'yn',
-        //            'default' => \true,
-        //        ];
     }
 
     /**
@@ -555,10 +541,7 @@ class _Sources
     protected function elDatabase()
     {
 
-        $this->elements[] = [
-            'name'   => 'database',
-            'prefix' => $this->application->directory . '_',
-        ];
+        $this->form->add( 'database' )->prefix( $this->application->directory . '_' );
     }
 
     /**
@@ -567,10 +550,8 @@ class _Sources
     protected function elPrefix()
     {
 
-        $this->elements[] = [
-            'name'   => 'prefix',
-            'suffix' => '_',
-        ];
+        $this->form->add( 'prefix' )->suffix( '_' );
+
     }
 
     /**
@@ -579,16 +560,7 @@ class _Sources
     protected function elScaffolding()
     {
 
-        $this->elements[] = [
-            'class'   => 'yn',
-            'name'    => 'scaffolding_create',
-            'default' => \true,
-            'options' => [
-                'togglesOn' => [
-                    'scaffolding_type',
-                ],
-            ],
-        ];
+        $this->form->add( 'scaffolding_create', 'yn' )->empty( true )->toggles( [ 'scaffolding_type' ] );
 
         $sc[ 'db' ] = 'Database';
 
@@ -596,14 +568,8 @@ class _Sources
             $sc[ 'modules' ] = 'Module';
         }
 
-        $this->elements[] = [
-            'class'   => 'checkboxset',
-            'name'    => 'scaffolding_type',
-            'default' => array_keys( $sc ),
-            'ops'     => [
-                'options' => $sc,
-            ],
-        ];
+        $this->form->add( 'scaffolding_type', 'checkboxset' )->value( array_keys( $sc ) )->options( [ 'options' => $sc ] );
+
     }
 
     /**
@@ -612,62 +578,9 @@ class _Sources
     protected function elSubNode()
     {
 
-        $this->elements[] = [
-            'name'    => 'subnode',
-            'class'   => 'yn',
-            'options' => [
-                'togglesOn'    => [
-                    'subnode_class',
-                ],
-                'togglesOff'   => [
-                    'parentnode_class',
-                ],
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-        ];
-
-        $this->elements[] = [
-            'name'    => 'parentnode_class',
-            'prefix'  => '\\IPS\\' . $this->application->directory . '\\',
-            'options' => [
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-        ];
-
-        $this->elements[] = [
-            'name'    => 'subnode_class',
-            'prefix'  => '\\IPS\\' . $this->application->directory . '\\',
-            'options' => [
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-        ];
+        $this->form->add( 'subnode', 'yn' )->toggles( [ 'subnode_class' ] )->toggles( [ 'parentnode_class' ], true );
+        $this->form->add( 'parentnode_class' )->prefix( '\\IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
+        $this->form->add( 'subnode_class' )->prefix( '\\IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
 
     }
 
@@ -677,22 +590,8 @@ class _Sources
     protected function elItemClass()
     {
 
-        $this->elements[] = [
-            'name'    => 'item_class',
-            'prefix'  => "IPS\\{$this->application->directory}\\",
-            'options' => [
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-        ];
+        $this->form->add( 'item_class' )->prefix( 'IPS\\' . $this->application->directory )->options( [ 'autocomplete' => $this->findClassWithApp ] );
+
     }
 
     /**
@@ -706,16 +605,8 @@ class _Sources
             Ratings::class     => Ratings::class,
         ];
 
-        $this->elements[] = $e[] = [
-            'class'   => 'checkboxset',
-            'name'    => 'ips_implements',
-            'label'   => 'interface_implements_node',
-            'default' => array_keys( $interfacesNode ),
-            'ops'     => [
-                'options' => $interfacesNode,
-            ],
-            'tab'     => 'interfaces',
-        ];
+        $this->form->tab( 'interfaces' );
+        $this->form->add( 'ips_implements', 'checkboxset' )->label( 'interface_implements_node' )->empty( array_keys( $interfacesNode ) )->options( [ 'options' => $interfacesNode ] );
         $this->elInterfaces();
     }
 
@@ -725,11 +616,7 @@ class _Sources
     protected function elInterfaces()
     {
 
-        $this->elements[] = [
-            'class'      => 'stack',
-            'name'       => 'implements',
-            'validation' => [ $this, 'implementsCheck' ],
-        ];
+        $this->form->add( 'implements', 'stack' )->validation( [ $this, 'implementsCheck' ] );
     }
 
     /**
@@ -743,16 +630,8 @@ class _Sources
             Colorize::class      => Colorize::class,
         ];
 
-        $this->elements[] = [
-            'class'   => 'checkboxset',
-            'name'    => 'ips_traits',
-            'label'   => 'ips_traits_node',
-            'default' => array_keys( $traitsNode ),
-            'ops'     => [
-                'options' => $traitsNode,
-            ],
-            'tab'     => 'traits',
-        ];
+        $this->form->tab( 'traits' );
+        $this->form->add( 'ips_traits', 'checkboxset' )->label( 'ips_traits_node' )->empty( array_keys( $traitsNode ) )->options( [ 'options' => $traitsNode ] );
 
         $this->elTraits();
 
@@ -764,11 +643,7 @@ class _Sources
     protected function elTraits()
     {
 
-        $this->elements[] = [
-            'class'      => 'stack',
-            'name'       => 'traits',
-            'validation' => [ $this, 'traitsCheck' ],
-        ];
+        $this->form->add( 'traits', 'stack' )->validation( [ $this, 'traitsCheck' ] );
     }
 
     /**
@@ -782,16 +657,8 @@ class _Sources
             Reportable::class => Reportable::class,
         ];
 
-        $this->elements[] = [
-            'class'   => 'checkboxset',
-            'name'    => 'ips_traits',
-            'label'   => 'ips_traits_item',
-            'default' => array_keys( $traitsItems ),
-            'ops'     => [
-                'options' => $traitsItems,
-            ],
-            'tab'     => 'traits',
-        ];
+        $this->form->tab( 'traits' );
+        $this->form->add( 'ips_traits', 'checkboxset' )->label( 'ips_traits_item' )->empty( array_keys( $traitsItems ) )->options( [ 'options' => $traitsItems ] );
 
         $this->elTraits();
     }
@@ -823,16 +690,8 @@ class _Sources
             Views::class                    => Views::class,
         ];
 
-        $this->elements[] = [
-            'class'   => 'checkboxset',
-            'name'    => 'ips_implements',
-            'label'   => 'interface_implements_item',
-            'default' => array_keys( $interfacesItem ),
-            'ops'     => [
-                'options' => $interfacesItem,
-            ],
-            'tab'     => 'interfaces',
-        ];
+        $this->form->tab( 'interfaces' );
+        $this->form->add( 'ips_implements', 'checkboxset' )->label( 'interface_implements_item' )->empty( array_keys( $interfacesItem ) )->options( [ 'options' => $interfacesItem ] );
 
         $this->elInterfaces();
     }
@@ -843,22 +702,7 @@ class _Sources
     protected function elItemNodeClass()
     {
 
-        $this->elements[] = [
-            'name'    => 'item_node_class',
-            'prefix'  => "IPS\\{$this->application->directory}\\",
-            'options' => [
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-        ];
+        $this->form->add( 'item_node_class' )->prefix( 'IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
     }
 
     /**
@@ -867,22 +711,8 @@ class _Sources
     protected function elItemCommentClass()
     {
 
-        $this->elements[] = [
-            'name'    => 'comment_class',
-            'prefix'  => "IPS\\{$this->application->directory}\\",
-            'options' => [
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-        ];
+        $this->form->add( 'comment_class' )->prefix( 'IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
+
     }
 
     /**
@@ -891,22 +721,8 @@ class _Sources
     protected function elItemReviewClass()
     {
 
-        $this->elements[] = [
-            'name'    => 'review_class',
-            'prefix'  => "IPS\\{$this->application->directory}\\",
-            'options' => [
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-        ];
+        $this->form->add( 'review_class' )->prefix( 'IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
+
     }
 
     /**
@@ -922,15 +738,8 @@ class _Sources
             Lockable::class    => Lockable::class,
             EditHistory::class => EditHistory::class,
         ];
-        $this->elements[] = [
-            'class'   => 'checkboxset',
-            'name'    => 'interface_implements_comment',
-            'default' => array_keys( $interfacesComment ),
-            'ops'     => [
-                'options' => $interfacesComment,
-            ],
-            'tab'     => 'interfaces',
-        ];
+        $this->form->tab( 'interfaces' );
+        $this->form->add( 'interface_implements_comment', 'checkboxset' )->empty( array_keys( $interfacesComment ) )->options( [ 'options' => $interfacesComment ] );
 
         $this->elInterfaces();
     }
@@ -941,39 +750,21 @@ class _Sources
     protected function elContentItemClass()
     {
 
-        $this->elements[] = [
-            'name'    => 'content_item_class',
-            'prefix'  => "IPS\\{$this->application->directory}\\",
-            'options' => [
-                'autocomplete' => [
-                    'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass2&appKey=' . $this->application->directory,
-                    //                    'resultItemTemplate'   => 'core.autocomplete.memberItem',
-                    'minimized'            => \false,
-                    'commaTrigger'         => \false,
-                    'unique'               => \true,
-                    'minAjaxLength'        => 3,
-                    'disallowedCharacters' => [],
-                    'maxItems'             => 1,
-                ],
-            ],
-        ];
+        $this->form->add( 'content_item_class' )->prefix( 'IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
+
     }
 
     protected function elApiType()
     {
 
-        $this->elements[] = [
-            'name'    => 'apiType',
-            'class'   => 'select',
+        $this->form->add( 'apiType', 'select' )->options( [
             'options' => [
-                'options' => [
-                    's' => 'Standard',
-                    'i' => 'Content/Item',
-                    'c' => 'Comments',
-                    'n' => 'Node',
-                ],
+                's' => 'Standard',
+                'i' => 'Content/Item',
+                'c' => 'Comment',
+                'n' => 'Node',
             ],
-        ];
+        ] );
     }
 }
 

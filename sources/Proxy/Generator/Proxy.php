@@ -17,6 +17,7 @@ use Generator\Tokenizers\StandardTokenizer;
 use IPS\Data\Store;
 use IPS\IPS;
 use IPS\Patterns\Bitwise;
+use IPS\Theme;
 use IPS\toolbox\Application;
 
 use IPS\toolbox\Profiler\Debug;
@@ -144,7 +145,8 @@ class _Proxy extends GeneratorAbstract
                 if ( ReservedWords::check( $class ) ) {
                     return;
                 }
-
+                $this->cache->addClass( $namespace . '\\' . $class );
+                $this->cache->addNamespace( $namespace );
                 $classBlock = null;
                 $props = null;
                 $extraPath = $isApp ? $app : 'system';
@@ -164,6 +166,7 @@ class _Proxy extends GeneratorAbstract
                 $nc->addNameSpace( $namespace );
                 $nc->addExtends( $namespace . '\\' . $ipsClass );
                 $nc->addClassName( $class );
+
                 if ( $currentClass->isFinal() ) {
                     $nc->makeFinal();
                 }
@@ -187,9 +190,6 @@ class _Proxy extends GeneratorAbstract
                     $class = $import[ 'class' ];
                     $nc->addImportConstant( $class );
                 }
-
-                $this->cache->addClass( $namespace . '\\' . $class );
-                $this->cache->addNamespace( $namespace );
 
                 if ( Proxyclass::i()->doProps ) {
                     $dbClass = $namespace . '\\' . $class;

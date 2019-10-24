@@ -1,6 +1,6 @@
 <?php
 
-namespace IPS\toolbox\extensions\toolbox\SpecialHooks;
+namespace IPS\{app}\extensions\toolbox\phpToolBoxMeta;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )
@@ -10,9 +10,9 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 }
 
 /**
- * toolbox
+ * {class}
  */
-class _toolbox
+class _{class}
 {
-    public function notneededbutipssaysitneedstobehere(){}
+    public function addJsonMeta( &$jsonMeta ){}
 }

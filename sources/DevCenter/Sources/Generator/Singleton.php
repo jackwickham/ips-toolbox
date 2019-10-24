@@ -34,7 +34,7 @@ class _Singleton extends GeneratorAbstract
 
         $this->brief = 'Singleton';
         $this->extends = 'Singleton';
-        $this->generator->addUse( Singleton::class );
+        $this->generator->addImport( Singleton::class );
         $extra = [
             'document' => [
                 '@brief Singleton Instance',

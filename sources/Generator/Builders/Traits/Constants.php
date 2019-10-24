@@ -42,7 +42,7 @@ trait Constants
             foreach ( $this->const as $const ) {
                 $this->output( "\n{$this->tab}" );
 
-                if ( $const[ 'document' ] ) {
+                if ( $this->doComments === true && $const[ 'document' ] ) {
                     $this->output( "/**\n" );
                     foreach ( $const[ 'document' ] as $item ) {
                         $this->output( "{$this->tab}* {$item}\n" );
@@ -57,7 +57,7 @@ trait Constants
                 $this->output( 'CONST ' );
 
                 $this->output( $const[ 'name' ] );
-                if ( $const[ 'value' ] ) {
+                if ( $const[ 'value' ] || $const[ 'value' ] == 0 ) {
                     $this->output( ' = ' . trim( $const[ 'value' ] ) );
                 }
                 $this->output( ";\n" );

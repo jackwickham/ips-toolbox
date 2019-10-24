@@ -50,7 +50,7 @@ trait Shared
         $tokens = token_get_all( $source );
         $count = count( $tokens );
         $beforeClass = true;
-        $beforeNamespace = $this->isHook ? false : true;
+        $beforeNamespace = true;
         $document = null;
         $visibility = null;
         $static = null;
@@ -87,7 +87,8 @@ trait Shared
             }
             else {
                 switch ( $token ) {
-
+                    case T_OPEN_TAG:
+                        break;
                     case T_COMMENT:
                         $beforeNamespace = false;
 
@@ -176,7 +177,6 @@ trait Shared
                         }
                         break;
                     case T_DOC_COMMENT:
-                        $beforeNamespace = false;
 
                         if ( $beforeNamespace === true ) {
                             $this->addDocumentComment( $this->prepDocument( $value ) );
@@ -187,6 +187,7 @@ trait Shared
                         else {
                             $document = $this->prepDocument( $value );
                         }
+
                         break;
                     case T_NAMESPACE:
                         $beforeNamespace = false;
@@ -243,6 +244,7 @@ trait Shared
                                 $this->prepImport( $uses, $type, !$beforeClass );
                                 $uses = [];
                                 if ( $value2 === ';' ) {
+                                    $i++;
                                     break;
                                 }
                             }
@@ -271,6 +273,7 @@ trait Shared
                                 $value2 = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
                                 $start2 = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
                                 if ( $token2 === T_VARIABLE || $value2 === '=' || $value2 === '"' || $value2 === "'" ) {
+                                    $i++;
                                     continue;
                                 }
                                 if ( $value2 === ';' ) {
@@ -333,6 +336,9 @@ trait Shared
                             $start2 = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
                             if ( $value2 === '{' ) {
                                 if ( $extendsClass !== null ) {
+                                    if ( count( $extendsClass ) >= 2 ) {
+                                        $extendsClass = '\\' . implode( '\\', $extendsClass );
+                                    }
                                     $this->addExtends( $extendsClass, false );
                                 }
                                 if ( empty( $interfaceClass ) !== true ) {
@@ -351,6 +357,9 @@ trait Shared
 
                             if ( $token2 === T_IMPLEMENTS ) {
                                 if ( $extends === true ) {
+                                    if ( count( $extendsClass ) >= 2 ) {
+                                        $extendsClass = '\\' . implode( '\\', $extendsClass );
+                                    }
                                     $this->addExtends( $extendsClass, false );
                                     $extendsClass = null;
                                 }
@@ -534,6 +543,7 @@ trait Shared
                             'returnType' => trim( $returnType ),
                             'body'       => $body,
                         ];
+                        $abstract = null;
                         $final = null;
                         $static = null;
                         $visibility = null;
@@ -545,7 +555,12 @@ trait Shared
                         }
                         break;
                     default:
-                        $this->extra( [ $value ] );
+                        if ( $beforeClass === true ) {
+                            $this->extraBeforeClass( $value );
+                        }
+                        else {
+                            $this->extra( [ $value ] );
+                        }
                         break;
 
                 }

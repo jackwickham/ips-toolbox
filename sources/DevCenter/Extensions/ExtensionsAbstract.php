@@ -15,7 +15,7 @@ namespace IPS\toolbox\DevCenter\Extensions;
 use IPS\Application;
 use IPS\Http\Url;
 use IPS\Output;
-use IPS\toolbox\Forms;
+use IPS\toolbox\Form;
 use IPS\toolbox\Shared\Magic;
 use IPS\toolbox\Shared\Read;
 use IPS\toolbox\Shared\Replace;
@@ -40,6 +40,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 abstract class _ExtensionsAbstract
 {
+
     use Read, Write, Replace, Magic;
 
     /**
@@ -67,6 +68,11 @@ abstract class _ExtensionsAbstract
     protected $elements = [];
 
     /**
+     * @var Form
+     */
+    protected $form;
+
+    /**
      * _ExtensionsAbstract constructor.
      *
      * @param Application $extApp
@@ -75,10 +81,13 @@ abstract class _ExtensionsAbstract
      */
     public function __construct( Application $extApp, Application $application, $extension )
     {
+
         $this->extApp = $extApp;
         $this->application = $application;
         $this->extension = $extension;
         $this->blanks = \IPS\ROOT_PATH . '/applications/dtdevplus/data/defaults/modExtensions/';
+        $this->form = Form::create()->attributes( [ 'data-controller' => 'ips.admin.dtdevplus.query' ] );
+
         $this->elements = [
             'prefix' => 'dtdevplus_ext_',
             [
@@ -100,16 +109,12 @@ abstract class _ExtensionsAbstract
     public function form()
     {
 
-        $form = Forms::execute( [
-            'elements'   => $this->elements(),
-            'attributes' => [ 'data-controller' => 'ips.admin.dtdevplus.query' ],
-        ] );
-
-        if ( $values = $form->values() ) {
+        $this->elements();
+        if ( $values = $this->form->values() ) {
             $this->_process( $values );
         }
 
-        return $form;
+        return $this->form;
     }
 
     /**
@@ -117,7 +122,7 @@ abstract class _ExtensionsAbstract
      *
      * @return array
      */
-    abstract public function elements(): array;
+    abstract public function elements();
 
     /**
      * @param array $values
@@ -127,6 +132,7 @@ abstract class _ExtensionsAbstract
      */
     protected function _process( array $values )
     {
+
         if ( !empty( $values[ 'dtdevplus_ext_use_default' ] ) ) {
             throw new ExtensionException();
         }

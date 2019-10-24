@@ -11,6 +11,8 @@ use function is_array;
 use function mb_strtolower;
 use function property_exists;
 
+use function header;
+
 /**
  * Class _FormAbstract
  *
@@ -82,7 +84,7 @@ class _Element
         'sg'           => 'SocialGroup',
         'sort'         => 'Sort',
         'stack'        => 'Stack',
-        'Telephone'    => 'Tel',
+        'telephone'    => 'Tel',
         'tel'          => 'Tel',
         'text'         => 'Text',
         'textarea'     => 'TextArea',
@@ -219,33 +221,40 @@ class _Element
     /**
      * FormAbstract constructor.
      *
-     * @param string $name
-     * @param string $type
+     * @param string              $name
+     * @param string|FormAbstract $type
+     * @param string              $custom
      */
-    public function __construct( string $name, string $type, string $custom = '' )
+    public function __construct( ?string $name, string $type, string $custom = '' )
     {
 
         $class = null;
         $type = mb_strtolower( $type );
+        $this->name = $name;
+        $this->changeType( $type, $custom );
+
+    }
+
+    public function changeType( string $type, $custom = '' )
+    {
+
         if ( !isset( static::$nonHelpers[ $type ] ) ) {
-            if ( !( $name instanceof FormAbstract ) && isset( static::$helpers[ $type ] ) ) {
-                $class = '\\IPS\\Helpers\\Form\\' . static::$helpers[ $type ] ?? 'Text';
-                $type = 'helper';
+            if ( !( $this->name instanceof FormAbstract ) && isset( static::$helpers[ $type ] ) ) {
+                $this->class = '\\IPS\\Helpers\\Form\\' . static::$helpers[ $type ] ?? 'Text';
+                $this->type = 'helper';
             }
-            else if ( $name instanceof FormAbstract ) {
-                $class = $name;
-                $type = 'helper';
+            else if ( $this->name instanceof FormAbstract ) {
+                $this->class = $this->name;
+                $this->type = 'helper';
             }
         }
         else if ( $type === 'custom' ) {
-            $class = $custom;
-            $type = 'helper';
+            $this->class = $custom;
+            $this->type = 'helper';
             $this->custom = true;
         }
 
-        $this->name = $name;
-        $this->type = $type;
-        $this->class = $class;
+        return $this;
     }
 
     public function __get( $name )
@@ -324,7 +333,7 @@ class _Element
      *
      * @return self
      */
-    public function prefix( string $prefix ): self
+    public function prefix( ?string $prefix ): self
     {
 
         $this->prefix = $prefix;

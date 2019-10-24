@@ -13,10 +13,14 @@
 namespace IPS\toolbox\Proxy;
 
 use Exception;
+use Generator\Builders\ClassGenerator;
+use Generator\Tokenizers\StandardTokenizer;
+use IPS\Application;
 use IPS\Data\Store;
 use IPS\Patterns\Singleton;
 use IPS\Settings;
 use IPS\toolbox\GitHooks;
+use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Proxy\Generator\Applications;
 use IPS\toolbox\Proxy\Generator\Db as GeneratorDb;
 use IPS\toolbox\Proxy\Generator\Extensions;
@@ -45,6 +49,8 @@ use function json_decode;
 use function json_encode;
 use function mkdir;
 use function preg_match;
+
+\IPS\toolbox\Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -137,7 +143,6 @@ class _Proxyclass extends Singleton
         if ( defined( '\BYPASSPROXYDT' ) && \BYPASSPROXYDT === \true ) {
             $this->save = 'dtProxy2';
         }
-        \IPS\toolbox\Application::loadAutoLoader();
         $this->blanks = \IPS\ROOT_PATH . '/applications/toolbox/data/defaults/';
         if ( !Settings::i()->dtproxy_do_props ) {
             $this->doProps = \false;
@@ -275,24 +280,74 @@ class _Proxyclass extends Singleton
     {
 
         $finder = new \SplFileInfo( $file );
-        $content = $this->_getFileByFullPath( $file );
-
-        if ( $finder->getExtension() === 'phtml' ) {
-            $methodName = $finder->getBasename( '.' . $finder->getExtension() );
-            preg_match( '/^<ips:template parameters="(.+?)?"(.+?)?\/>(\r\n?|\n)/', $content, $params );
-
-            if ( isset( $params[ 0 ] ) ) {
-                $parameters = \null;
-                if ( isset( $params[ 1 ] ) ) {
-                    $parameters = $params[ 1 ];
-                }
-
-                $this->templates[ $file ] = [ 'method' => $methodName, 'params' => $parameters ];
-            }
-        }
-        else if ( $finder->getExtension() === 'php' ) {
+        if ( $finder->getExtension() === 'php' ) {
             Proxy::i()->create( $file );
         }
+        else {
+            $this->makeTemplateClass( $finder );
+        }
+    }
+
+    /**
+     * @param array $classes
+     */
+    public function makeTemplateClass( $file )
+    {
+
+        if ( $file instanceof \SplFileInfo ) {
+            $finder = $file;
+            $file = $finder->getRealPath();
+        }
+        else {
+            $finder = new \SplFileInfo( $file );
+        }
+        $methodName = $finder->getBasename( '.' . $finder->getExtension() );
+        $key = str_replace( \IPS\ROOT_PATH . '/applications/', '', $file );
+        $tpl = explode( DIRECTORY_SEPARATOR, $key );
+        array_pop( $tpl );
+        $temp = array_pop( $tpl );
+        $ori = $temp;
+        $this->templates[ $ori ] = [
+            'lookup_string' => $ori,
+            'type'          => 'dtProxy\\Templates\\' . $temp,
+        ];
+        //
+        //        Store::i()->dtproxy_templates = $tempStore;
+
+        $content = $this->_getFileByFullPath( $file );
+        preg_match( '/^<ips:template parameters="(.+?)?"(.+?)?\/>(\r\n?|\n)/', $content, $params );
+        $parameters = $params[ 1 ] ?? null;
+
+        if ( $temp === 'global' ) {
+            $temp = 'nglobal';
+        }
+
+        $fileName = str_replace( [ '\\', '/' ], '', $temp );
+        $path = \IPS\ROOT_PATH . '/' . $this->save . '/templates/' . $fileName . '.php';
+
+        try {
+            if ( file_exists( $path ) ) {
+                $class = new StandardTokenizer( $path );
+            }
+            else {
+                $class = new ClassGenerator;
+                $class->addPath( \IPS\ROOT_PATH . '/' . $this->save . '/templates/' );
+                $class->addFileName( $fileName );
+                $class->addNameSpace( 'dtProxy\Templates' );
+                $class->addClassName( $temp );
+            }
+            $params = [];
+            if ( $parameters !== null ) {
+
+                $params = ClassGenerator::paramsFromString( $parameters );
+            }
+
+            $class->addMethod( $methodName, 'return "";', $params );
+            $class->save();
+        } catch ( \Exception $e ) {
+            Debug::log( $e );
+        }
+
     }
 
     /**
@@ -360,7 +415,17 @@ class _Proxyclass extends Singleton
     {
 
         if ( isset( Store::i()->dt_json ) ) {
-            $content = json_encode( Store::i()->dt_json, \JSON_PRETTY_PRINT );
+            $jsonMeta = Store::i()->dt_json;
+
+            /* @var Application $app */
+            foreach ( Application::appsWithExtension( 'toolbox', 'phpToolBoxMeta' ) as $app ) {
+                $extensions = $app->extensions( 'toolbox', 'phpToolBoxMeta', \true );
+                /* @var \IPS\toolbox\extensions\toolbox\phpToolBoxMeta $extension */
+                foreach ( $extensions as $extension ) {
+                    $extension->addJsonMeta( $jsonMeta );
+                }
+            }
+            $content = json_encode( $jsonMeta, \JSON_PRETTY_PRINT );
             $this->_writeFile( '.ide-toolbox.metadata.json', $content, \IPS\ROOT_PATH . '/' . $this->save );
             unset( Store::i()->dt_json );
         }
@@ -437,46 +502,6 @@ class _Proxyclass extends Singleton
         }
 
         unset( Store::i()->dtproxy_proxy_files, Store::i()->dtproxy_templates );
-    }
-
-    /**
-     * adds a # for percents (10%)
-     *
-     * @param $total
-     * @param $done
-     */
-    public function bump( $total, $done )
-    {
-
-        $old = $total;
-        $total /= 10;
-
-        if ( $done % $total === 0 ) {
-            if ( static::$fe === \null ) {
-                static::$fe = \fopen( 'php://stdout', 'wb' );
-            }
-            \fwrite( static::$fe, '#' );
-        }
-
-        if ( $old === $done ) {
-            $this->console( \PHP_EOL . 'File Processing Done!' );
-        }
-    }
-
-    /**
-     * prints to console
-     *
-     * @param $msg
-     */
-    public function console( $msg )
-    {
-
-        if ( $this->console ) {
-            if ( static::$fe === \null ) {
-                static::$fe = \fopen( 'php://stdout', 'wb' );
-            }
-            \fwrite( static::$fe, $msg . \PHP_EOL );
-        }
     }
 
     /**
@@ -558,7 +583,6 @@ class _Proxyclass extends Singleton
             $files = array_keys( iterator_to_array( $finder ) );
             asort( $files );
             Store::i()->dtproxy_proxy_files = $files;
-            $this->console( 'Folder processing done.' );
 
             return $finder->count();
         } catch ( Exception $e ) {
@@ -654,6 +678,46 @@ class _Proxyclass extends Singleton
             'test.php',
 
         ];
+    }
+
+    /**
+     * adds a # for percents (10%)
+     *
+     * @param $total
+     * @param $done
+     */
+    public function bump( $total, $done )
+    {
+
+        $old = $total;
+        $total /= 10;
+
+        if ( $done % $total === 0 ) {
+            if ( static::$fe === \null ) {
+                static::$fe = \fopen( 'php://stdout', 'wb' );
+            }
+            \fwrite( static::$fe, '#' );
+        }
+
+        if ( $old === $done ) {
+            $this->console( \PHP_EOL . 'File Processing Done!' );
+        }
+    }
+
+    /**
+     * prints to console
+     *
+     * @param $msg
+     */
+    public function console( $msg )
+    {
+
+        if ( $this->console ) {
+            if ( static::$fe === \null ) {
+                static::$fe = \fopen( 'php://stdout', 'wb' );
+            }
+            \fwrite( static::$fe, $msg . \PHP_EOL );
+        }
     }
 
     /**

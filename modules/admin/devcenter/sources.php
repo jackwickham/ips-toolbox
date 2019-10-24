@@ -3,6 +3,8 @@
 namespace IPS\toolbox\modules\admin\devcenter;
 
 use IPS\Application;
+use IPS\Dispatcher;
+use IPS\Dispatcher\Controller;
 use IPS\Http\Url;
 use IPS\Output;
 use IPS\Request;
@@ -10,6 +12,7 @@ use IPS\toolbox\DevCenter\Sources;
 use IPS\toolbox\Proxy\Generator\Cache;
 use function defined;
 use function header;
+use function mb_strtoupper;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 
@@ -21,7 +24,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 /**
  * sources
  */
-class _sources extends \IPS\Dispatcher\Controller
+class _sources extends Controller
 {
 
     /**
@@ -37,7 +40,7 @@ class _sources extends \IPS\Dispatcher\Controller
     public function execute()
     {
 
-        \IPS\Dispatcher::i()->checkAcpPermission( 'sources_manage' );
+        Dispatcher::i()->checkAcpPermission( 'sources_manage' );
         Sources::menu();
         $this->application = Application::load( Request::i()->appKey );
         $this->elements = new Sources( $this->application );
@@ -72,9 +75,9 @@ class _sources extends \IPS\Dispatcher\Controller
         $url = (string)Url::internal( 'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey );
         Output::i()->breadcrumb[] = [ $url, 'Developer Ceneter' ];
         Output::i()->breadcrumb[] = [ $url, $this->application->directory ];
-        Output::i()->breadcrumb[] = [ \null, $title ];
+        Output::i()->breadcrumb[] = [ null, $title ];
 
-        Output::i()->title = \mb_strtoupper( $this->application->directory ) . ': ' . $title;
+        Output::i()->title = mb_strtoupper( $this->application->directory ) . ': ' . $title;
 
         //        $form = $this->elements->form->customTemplate( [
         //            call_user_func( [ Theme::i(), 'getTemplate' ], 'forms', 'core', 'front' ),
@@ -240,22 +243,25 @@ class _sources extends \IPS\Dispatcher\Controller
         $classes = Cache::i()->getClasses();
 
         if ( empty( $classes ) !== true ) {
-            $input = ltrim( Request::i()->input, '\\' );
+            $input = 'IPS\\' . ltrim( Request::i()->input, '\\' );
 
             $root = preg_quote( $input, '#' );
             $foo = preg_grep( '#^' . $root . '#i', $classes );
             $return = [];
             foreach ( $foo as $f ) {
+                $ogClass = explode( '\\', $f );
+                array_shift( $ogClass );
+                $f = implode( '\\', $ogClass );
                 $return[] = [
-                    'value' => '\\' . $f,
-                    'html'  => '\\' . $f,
+                    'value' => $f,
+                    'html'  => '\\IPS\\' . $f,
                 ];
             }
             Output::i()->json( $return );
         }
     }
 
-    protected function findClass2()
+    protected function findClassWithApp()
     {
 
         $classes = Cache::i()->getClasses();
@@ -277,6 +283,26 @@ class _sources extends \IPS\Dispatcher\Controller
     }
 
     protected function findNamespace()
+    {
+
+        $ns = Cache::i()->getNamespaces();
+
+        if ( empty( $ns ) !== true ) {
+            $input = 'IPS\\' . Request::i()->appKey . '\\' . ltrim( Request::i()->input, '\\' );
+            $root = preg_quote( $input, '#' );
+            $foo = preg_grep( '#^' . $root . '#i', $ns );
+            $return = [];
+            foreach ( $foo as $f ) {
+                $return[] = [
+                    'value' => str_replace( 'IPS\\' . Request::i()->appKey . '\\', '', $f ),
+                    'html'  => '\\' . $f,
+                ];
+            }
+            Output::i()->json( $return );
+        }
+    }
+
+    protected function findNamespaceHook()
     {
 
         $ns = Cache::i()->getNamespaces();

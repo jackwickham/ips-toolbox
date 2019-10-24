@@ -21,7 +21,7 @@ trait Properties
      *
      * @return $this
      */
-    public function addProperty( string $name, $value, array $extra )
+    public function addProperty( string $name, $value, array $extra = [] )
     {
 
         //        if ( $name === 'multitons' ) {
@@ -118,7 +118,7 @@ trait Properties
             foreach ( $this->properties as $property ) {
                 $this->output( "\n{$this->tab}" );
 
-                if ( $property[ 'document' ] ) {
+                if ( $this->doComments === true && $property[ 'document' ] ) {
                     $this->output( "/**\n" );
                     foreach ( $property[ 'document' ] as $item ) {
                         $this->output( "{$this->tab}* {$item}\n" );
@@ -144,9 +144,7 @@ trait Properties
                     $this->output( 'static ' );
                 }
                 $this->output( '$' . $property[ 'name' ] );
-                //                if ( $property[ 'name' ] === 'multitons' ) {
-                //                    _d( $property[ 'value' ], $property[ 'value' ] !== 'null' );
-                //                }
+
                 if ( isset( $property[ 'value' ] ) && ( $property[ 'value' ] !== null && $property[ 'value' ] !== 'null' ) ) {
                     $pType = $property[ 'type' ];
                     if ( $pType !== 'string' ) {

@@ -301,9 +301,8 @@ EOF;
         else {
             $og = explode( '\\', $class );
         }
-        if ( $this->doImports === true && \count( $og ) >= 2 ) {
-            $this->addImport( $class );
-            $class = array_pop( $og );
+        if ( \count( $og ) >= 2 ) {
+            $class = $this->addImport( $class );
 
         }
         $hash = $this->hash( $class );
@@ -338,6 +337,7 @@ EOF;
         if ( empty( $this->interfaces ) !== true ) {
             $this->output( " implements \n" . implode( ",\n", $this->interfaces ) );
         }
+        $this->output( "\n{" );
 
     }
 
@@ -412,6 +412,7 @@ EOF;
     {
 
         $tab = $this->tab;
+
         if ( is_array( $this->classUses ) && count( $this->classUses ) ) {
             $this->output( "\n\n{$tab}use " );
             $this->output( implode( ',', $this->classUses ) );
@@ -420,6 +421,8 @@ EOF;
         $this->writeConst();
         $this->writeProperties();
         $this->writeMethods();
+        $this->output( "\n}" );
+
     }
 
     protected function tab2space( $line )

@@ -29,6 +29,7 @@ class TraitGenerator extends GeneratorAbstract
     {
 
         $this->output( "\ntrait {$this->className}" );
+        $this->output( "\n{" );
 
     }
 
@@ -38,6 +39,8 @@ class TraitGenerator extends GeneratorAbstract
         $this->writeConst();
         $this->writeProperties();
         $this->writeMethods();
+        $this->output( "\n}" );
+
     }
 
 }

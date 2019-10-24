@@ -8,19 +8,20 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
+
 /**
- * Class toolbox_hook_Application
- *
- * @mixin \IPS\Application
- */
+* Class toolbox_hook_Application
+* @mixin \IPS\Application
+*/
 class toolbox_hook_Application extends _HOOK_CLASS_
 {
+    public $skip = false;
+
 
     /**
-     * @inheritdoc
-     */
-    public function assignNewVersion( $long, $human )
-    {
+    * @inheritdoc
+    */
+    public function assignNewVersion( $long, $human ){
 
         parent::assignNewVersion( $long, $human );
         if ( static::appIsEnabled( 'toolbox' ) ) {
@@ -30,10 +31,9 @@ class toolbox_hook_Application extends _HOOK_CLASS_
     }
 
     /**
-     * @inheritdoc
-     */
-    public function build()
-    {
+    * @inheritdoc
+    */
+    public function build(){
 
         if ( static::appIsEnabled( 'toolbox' ) ) {
             Headerdoc::i()->addIndexHtml( $this );
@@ -41,11 +41,18 @@ class toolbox_hook_Application extends _HOOK_CLASS_
         parent::build();
     }
 
+    public function buildHooks(){
+
+        if ( $this->skip === false ) {
+            ( new \IPS\toolbox\GitHooks( [ $this->directory ] ) )->removeSpecialHooks( true );
+        }
+        parent::buildHooks();
+    }
+
     /**
-     * @inheritdoc
-     */
-    public function installOther()
-    {
+    * @inheritdoc
+    */
+    public function installOther(){
 
         if ( \IPS\IN_DEV ) {
             $dir = \IPS\ROOT_PATH . '/applications/' . $this->directory . '/dev/';
@@ -64,9 +71,4 @@ class toolbox_hook_Application extends _HOOK_CLASS_
 
         parent::installOther();
     }
-
 }
-
-
-
-

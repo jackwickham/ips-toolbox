@@ -68,7 +68,7 @@ class _devplus
         $this->loop( ( new FileStorage( $app, $app, 'foo' ) )->elements(), $classGenerator );
     }
 
-    protected function loop( array $elements, ClassGenerator $classGenerator )
+    protected function loop( ?array $elements, ClassGenerator $classGenerator )
     {
 
         $prefix = \null;

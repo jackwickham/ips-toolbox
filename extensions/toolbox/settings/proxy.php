@@ -12,7 +12,7 @@
 
 namespace IPS\toolbox\extensions\toolbox\Settings;
 
-use IPS\toolbox\Forms\Form;
+use IPS\toolbox\Form;
 use function defined;
 use function header;
 
@@ -35,9 +35,10 @@ class _proxy
      */
     public function elements( &$form ): void
     {
-        $form->element( 'dtproxy_do_props', 'yn' )->tab( 'dtproxy' )->toggles( [ 'do_props_doc' ] );
-        $form->element( 'dtproxy_do_constants', 'yn' );
-        $form->element( 'dtproxy_do_proxies', 'yn' );
+
+        $form->add( 'dtproxy_do_props', 'yn' )->toggles( [ 'do_props_doc' ] )->tab( 'dtproxy' );
+        $form->add( 'dtproxy_do_constants', 'yn' );
+        $form->add( 'dtproxy_do_proxies', 'yn' );
     }
 
     /**

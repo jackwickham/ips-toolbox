@@ -16,6 +16,10 @@
         "default": ""
     },
     {
+        "key": "dtprofiler_enable_debug_ajax",
+        "default": "1"
+    },
+    {
         "key": "dtprofiler_enabled_css",
         "default": "1"
     },

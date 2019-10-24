@@ -13,8 +13,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 class toolbox_hook_SandboxedTemplate extends _HOOK_CLASS_
 {
 
-    public function __call( $name, $args )
-    {
+    public function __call( $name, $args ){
 
         $can = \json_decode( Settings::i()->dtprofiler_can_use, \true );
 
@@ -35,8 +34,4 @@ class toolbox_hook_SandboxedTemplate extends _HOOK_CLASS_
 
         return parent::__call( $name, $args );
     }
-
 }
-
-
-

@@ -1,5 +1,6 @@
 //<?php
 
+
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;
@@ -9,10 +10,9 @@ class toolbox_hook_BuilderIterator extends _HOOK_CLASS_
 {
 
     /**
-     * @inheritdoc
-     */
-    public function current()
-    {
+    * @inheritdoc
+    */
+    public function current(){
 
         $file = $this->key();
         $file = \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/' . $file;
@@ -50,7 +50,4 @@ class toolbox_hook_BuilderIterator extends _HOOK_CLASS_
 
         return $file;
     }
-
 }
-
-

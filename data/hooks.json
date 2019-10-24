@@ -74,5 +74,9 @@
     "Dispatcher": {
         "type": "C",
         "class": "\\IPS\\Dispatcher"
+    },
+    "Hooks": {
+        "type": "C",
+        "class": "\\IPS\\Plugin\\Hook"
     }
 }

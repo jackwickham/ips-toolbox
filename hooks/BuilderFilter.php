@@ -12,8 +12,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
 {
 
-    public function accept()
-    {
+    public function accept(){
 
         if ( $this->isFile() ) {
             $skip = [];
@@ -41,8 +40,7 @@ class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
         return parent::accept();
     }
 
-    protected function getDirectoriesToIgnore()
-    {
+    protected function getDirectoriesToIgnore(){
 
         $skip = parent::getDirectoriesToIgnore();
         $appKey = Request::i()->appKey;
@@ -75,7 +73,4 @@ class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
 
         return $skip;
     }
-
 }
-
-

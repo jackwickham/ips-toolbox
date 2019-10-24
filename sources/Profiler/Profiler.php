@@ -209,7 +209,7 @@ class _Profiler extends Singleton
         foreach ( $this->plugins() as $plugin ) {
             $name = $plugin->_title;
             $title = $name;
-            $title .= $app->enabled ? ' (Enabled)' : ' (Disabled)';
+            $title .= $plugin->enabled ? ' (Enabled)' : ' (Disabled)';
             Member::loggedIn()->language()->parseOutputForDisplay( $name );
             Member::loggedIn()->language()->parseOutputForDisplay( $title );
             $info[ 'apps' ][ 'app' ][ $name ] = [

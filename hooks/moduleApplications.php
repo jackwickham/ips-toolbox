@@ -11,14 +11,13 @@ class toolbox_hook_moduleApplications extends _HOOK_CLASS_
 {
 
     /**
-     * Export an application
-     *
-     *
-     * @return void
-     * @note    We have to use a custom RecursiveDirectoryIterator in order to skip the /dev folder
-     */
-    public function download()
-    {
+    * Export an application
+    *
+    *
+    * @return void
+    * @note    We have to use a custom RecursiveDirectoryIterator in order to skip the /dev folder
+    */
+    public function download(){
 
         if ( \defined( '\DTBUILD' ) && \DTBUILD ) {
             Build::i()->export();
@@ -27,8 +26,4 @@ class toolbox_hook_moduleApplications extends _HOOK_CLASS_
             parent::download();
         }
     }
-
 }
-
-
-

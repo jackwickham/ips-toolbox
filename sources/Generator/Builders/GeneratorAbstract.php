@@ -94,6 +94,22 @@ abstract class GeneratorAbstract
 
     protected $fileName;
 
+    protected $doComments = true;
+
+    protected $extraBeforeClass;
+
+    public function extraBeforeClass( $value )
+    {
+
+        $this->extraBeforeClass .= $value;
+    }
+
+    public function doDocuments( bool $data = true )
+    {
+
+        $this->doComments = $data;
+    }
+
     /**
      * this should be the FULL PATH
      *
@@ -216,11 +232,11 @@ abstract class GeneratorAbstract
         }
 
         $this->writeSourceType();
-        $this->output( "\n{" );
         $this->writeBody();
-        $this->output( "\n}" );
+        $this->toWrite = trim( $this->toWrite );
         $this->writeExtra();
-
+        $this->toWrite = trim( $this->toWrite );
+        $this->wrapUp();
         //file_put_contents( ROOT_PATH . '/foo.php', $this->toWrite );
         file_put_contents( $this->saveFileName(), $this->toWrite );
     }
@@ -261,7 +277,8 @@ EOF;
         }
 
         $this->afterNameSpace();
-
+        $this->toWrite .= '#generator_token_includes#';
+        $this->toWrite .= '#generator_token_imports#';
         if ( $this->headerCatch === true ) {
             $headerCatch = <<<'EOF'
 
@@ -275,37 +292,8 @@ EOF;
             $this->output( $headerCatch );
         }
 
-        if ( empty( $this->required ) !== true ) {
-            $this->output( "\n" );
-            foreach ( $this->required as $required ) {
-                $escaped = null;
-                if ( $required[ 'escape' ] === true ) {
-                    $escaped = '"';
-                }
-                if ( $required[ 'once' ] === true ) {
-
-                    $this->output( 'require_once ' . $escaped . $required[ 'path' ] . $escaped . ";\n" );
-                }
-                else {
-                    $this->output( 'require ' . $escaped . $required[ 'path' ] . $escaped . ";\n" );
-                }
-            }
-        }
-
-        if ( empty( $this->included ) !== true ) {
-            $this->output( "\n" );
-            foreach ( $this->included as $included ) {
-                $escaped = null;
-                if ( $included[ 'escape' ] === true ) {
-                    $escaped = '"';
-                }
-                if ( $included[ 'once' ] === true ) {
-                    $this->output( 'include_once ' . $escaped . $included[ 'path' ] . $escaped . ";\n" );
-                }
-                else {
-                    $this->output( 'include ' . $escaped . $included[ 'path' ] . $escaped . ";\n" );
-                }
-            }
+        if ( $this->extraBeforeClass !== null ) {
+            $this->output( $this->extraBeforeClass );
         }
     }
 
@@ -340,6 +328,48 @@ EOF;
         }
     }
 
+    protected function wrapUp()
+    {
+
+        $replacement = '';
+        if ( empty( $this->required ) !== true ) {
+
+            $replacement .= "\n";
+
+            foreach ( $this->required as $required ) {
+                $escaped = null;
+                if ( $required[ 'escape' ] === true ) {
+                    $escaped = '"';
+                }
+                if ( $required[ 'once' ] === true ) {
+                    $replacement .= 'require_once ' . $escaped . $required[ 'path' ] . $escaped . ";\n";
+
+                }
+                else {
+                    $replacement .= 'require ' . $escaped . $required[ 'path' ] . $escaped . ";\n";
+                }
+            }
+        }
+
+        if ( empty( $this->included ) !== true ) {
+            $replacement .= "\n";
+            foreach ( $this->included as $included ) {
+                $escaped = null;
+                if ( $included[ 'escape' ] === true ) {
+                    $escaped = '"';
+                }
+                if ( $included[ 'once' ] === true ) {
+                    $replacement .= 'include_once ' . $escaped . $included[ 'path' ] . $escaped . ";\n";
+                }
+                else {
+                    $replacement .= 'include ' . $escaped . $included[ 'path' ] . $escaped . ";\n";
+                }
+            }
+        }
+
+        $this->toWrite = str_replace( '#generator_token_includes#', $replacement, $this->toWrite );
+    }
+
     protected function saveFileName()
     {
 
@@ -349,6 +379,12 @@ EOF;
         }
 
         return $this->path . '/' . $name . '.php';
+    }
+
+    public function getFilename()
+    {
+
+        return $this->saveFileName();
     }
 
     public function addFileName( string $name )

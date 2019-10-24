@@ -17,11 +17,10 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class toolbox_hook_DevTemplate extends _HOOK_CLASS_
 {
-
     public static $debugFileName = '\null';
 
-    public function __call( $bit, $params )
-    {
+
+    public function __call( $bit, $params ){
 
         static::$debugFileName = \null;
         $template = \null;
@@ -36,13 +35,13 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_
                 $memory = new Memory;
             }
 
-            if ( Settings::i()->dtprofiler_enabled_executions ) {
+            if ( defined( 'DTTEMPLATETIME' ) && DTTEMPLATE && Settings::i()->dtprofiler_enabled_executions ) {
                 $time = new Time;
             }
         }
 
         if ( \IPS\IN_DEV === \true && \IPS\NO_WRITES === \false && Settings::i()->toolbox_debug_templates ) {
-            $functionName = "theme_{$this->app}\_{$this->templateLocation}\_{$this->templateName}\_{$bit}";
+            $functionName = "theme_{$this->app}_{$this->templateLocation}_{$this->templateName}_{$bit}";
             /* Find the file */
             $file = \null;
             if ( $this->sourceFolder === \IPS\ROOT_PATH . '/plugins' ) {
@@ -122,7 +121,7 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_
 
             }
 
-            if ( Settings::i()->dtprofiler_enabled_executions ) {
+            if ( defined( 'DTTEMPLATETIME' ) && DTTEMPLATE && Settings::i()->dtprofiler_enabled_executions ) {
                 $time->end( $url, $name );
             }
 
@@ -154,8 +153,7 @@ class toolbox_hook_DevTemplate extends _HOOK_CLASS_
         return $template;
     }
 
-    protected function buildTemplateCache()
-    {
+    protected function buildTemplateCache(){
 
         $cachePath = \IPS\ROOT_PATH . '/toolbox_templates/';
         if ( !\is_dir( $cachePath ) ) {
@@ -225,7 +223,4 @@ EOF;
 
         include_once( $classFileName );
     }
-
 }
-
-

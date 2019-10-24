@@ -13,8 +13,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 abstract class toolbox_hook_DataStore extends _HOOK_CLASS_
 {
 
-    protected function removeFiles( $path )
-    {
+    protected function removeFiles( $path ){
 
         try {
             $files = new Finder();
@@ -28,7 +27,4 @@ abstract class toolbox_hook_DataStore extends _HOOK_CLASS_
             Debug::add( 'Data Store Clear', $e );
         }
     }
-
 }
-
-

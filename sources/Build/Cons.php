@@ -8,7 +8,6 @@
  * @version    -storm_version-
  */
 
-
 namespace IPS\toolbox\Build;
 
 use function function_exists;
@@ -18,7 +17,7 @@ use IPS\Member;
 use IPS\Output;
 use IPS\Patterns\Singleton;
 use IPS\Request;
-use IPS\toolbox\Forms;
+use IPS\toolbox\Form;
 use function array_merge;
 use function constant;
 use function defined;
@@ -53,15 +52,16 @@ class _Cons extends Singleton
     protected static $instance;
 
     protected static $importantIPS = [];
+
     protected static $devTools = [];
+
     protected $constants;
 
     public function form()
     {
+
         $constants = $this->buildConstants();
-        $e = [];
-
-
+        $form = Form::create();
         foreach ( $constants as $key => $value ) {
             $tab = mb_ucfirst( mb_substr( $key, 0, 1 ) );
 
@@ -74,37 +74,29 @@ class _Cons extends Singleton
             }
 
             Member::loggedIn()->language()->words[ $tab . '_tab' ] = $tab;
-            $e[ $key ] = [
-                'name'        => $key,
-                'label'       => $key,
-                'default'     => $value[ 'current' ],
-                'description' => $value[ 'description' ] ?? \null,
-                'tab'         => $tab,
-            ];
+            $form->add( $key )->label( $key )->empty( $value[ 'current' ] )->description( $value[ 'description' ] ?? null )->tab( $tab );
 
             switch ( gettype( $value[ 'current' ] ) ) {
                 case 'boolean':
-                    $e[ $key ][ 'class' ] = 'yn';
-                    $e[ $key ][ 'default' ] = (bool)$value[ 'current' ];
+                    $form->element( $key )->changeType( 'yn' )->empty( (bool)$value[ 'current' ] );
                     break;
                 case 'int':
-                    $e[ $key ][ 'class' ] = 'number';
+                    $form->element( $key )->changeType( 'number' );
                     break;
             }
         }
 
-        $forms = Forms::execute( [ 'elements' => $e ] );
-
-        if ( $values = $forms->values() ) {
+        if ( $values = $form->values() ) {
             $this->save( $values, $constants );
             Output::i()->redirect( Request::i()->url(), 'Constants.php Updated!' );
         }
 
-        return $forms;
+        return $form;
     }
 
     protected function buildConstants()
     {
+
         if ( $this->constants === \null ) {
             $cons = IPS::defaultConstants();
             $first = [];
@@ -146,7 +138,6 @@ class _Cons extends Singleton
             }
             ksort( $constants );
 
-
             $this->constants = array_merge( $first, $constants );
 
         }
@@ -156,6 +147,7 @@ class _Cons extends Singleton
 
     public function save( array $values, array $constants )
     {
+
         $toWrite = [];
 
         foreach ( Application::allExtensions( 'toolbox', 'constants' ) as $extension ) {
@@ -198,7 +190,7 @@ class _Cons extends Singleton
 EOF;
         if ( \IPS\NO_WRITES !== \true ) {
             \file_put_contents( \IPS\ROOT_PATH . '/constants.php', $fileData );
-            if( function_exists( 'opcache_reset' ) ){
+            if ( function_exists( 'opcache_reset' ) ) {
                 opcache_reset();
             }
             sleep( 2 );

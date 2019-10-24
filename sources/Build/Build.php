@@ -105,7 +105,7 @@ class _Build extends Singleton
             }
 
             unset( Store::i()->applications, $download );
-            Phar::unlinkArchive( $pharPath );
+            //Phar::unlinkArchive( $pharPath );
             $url = Url::internal( 'app=core&module=applications&controller=applications' );
             Output::i()->redirect( $url, $application->_title . ' successfully built!' );
         }

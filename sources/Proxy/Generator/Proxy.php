@@ -14,6 +14,7 @@ use Exception;
 use Generator\Builders\ClassGenerator;
 use Generator\Builders\FileGenerator;
 use Generator\Tokenizers\StandardTokenizer;
+use Generator\Tokenizers\Tokenizer;
 use IPS\Data\Store;
 use IPS\IPS;
 use IPS\Patterns\Bitwise;
@@ -121,8 +122,7 @@ class _Proxy extends GeneratorAbstract
     {
 
         try {
-
-            $currentClass = new StandardTokenizer( $file );
+            $currentClass = new \Generator\Tokenizers\Tokenizer( $file );
             $namespace = $currentClass->getNameSpace();
             $ns2 = explode( '\\', $namespace );
             array_shift( $ns2 );
@@ -167,32 +167,29 @@ class _Proxy extends GeneratorAbstract
                 $nc->addExtends( $namespace . '\\' . $ipsClass );
                 $nc->addClassName( $class );
 
-                if ( $currentClass->isFinal() ) {
-                    $nc->makeFinal();
-                }
-
                 if ( $currentClass->isAbstract() ) {
                     $nc->makeAbstract();
                 }
-                foreach ( $currentClass->getImports() as $import ) {
-                    $class = $import[ 'class' ];
-                    $alias = $import[ 'alias' ];
-                    $nc->addImport( $class, $alias );
-                }
-
-                foreach ( $currentClass->getImportFunctions() as $import ) {
-                    $class = $import[ 'class' ];
-                    $alias = $import[ 'alias' ];
-                    $nc->addImportFunction( $class, $alias );
-                }
-
-                foreach ( $currentClass->getImportConstants() as $import ) {
-                    $class = $import[ 'class' ];
-                    $nc->addImportConstant( $class );
-                }
+                //                foreach ( $currentClass->getImports() as $import ) {
+                //                    $class = $import[ 'class' ];
+                //                    $alias = $import[ 'alias' ];
+                //                    $nc->addImport( $class, $alias );
+                //                }
+                //
+                //                foreach ( $currentClass->getImportFunctions() as $import ) {
+                //                    $class = $import[ 'class' ];
+                //                    $alias = $import[ 'alias' ];
+                //                    $nc->addImportFunction( $class, $alias );
+                //                }
+                //
+                //                foreach ( $currentClass->getImportConstants() as $import ) {
+                //                    $class = $import[ 'class' ];
+                //                    $nc->addImportConstant( $class );
+                //                }
 
                 if ( Proxyclass::i()->doProps ) {
                     $dbClass = $namespace . '\\' . $class;
+
                     try {
                         $db = \IPS\Db::i();
                         $databaseTable = $currentClass->getPropertyValue( 'databaseTable' );
@@ -287,7 +284,7 @@ class _Proxy extends GeneratorAbstract
      * @param ClassGenerator $oldClass
      * @param ClassGenerator $newClass
      */
-    public function buildProprties( ClassGenerator $oldClass, ClassGenerator $newClass ): void
+    public function buildProprties( Tokenizer $oldClass, ClassGenerator $newClass ): void
     {
 
         try {
@@ -298,6 +295,7 @@ class _Proxy extends GeneratorAbstract
                     $type = trim( mb_substr( $name, 0, 4 ) );
                     $key = trim( mb_substr( $name, 4, mb_strlen( $name ) ) );
                     if ( $type === 'set_' || $type === 'get_' ) {
+
                         $pt = null;
                         if ( !isset( $data[ $key ] ) && $newClass->getPropertyTag( $key ) === null ) {
                             if ( $type === 'set_' ) {

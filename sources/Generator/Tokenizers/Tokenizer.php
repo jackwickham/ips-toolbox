@@ -79,7 +79,7 @@ class Tokenizer
                                     break;
                                 }
                                 $t = $tokens[ $x ];
-                                if ( ( is_array( $t ) && ( $t[ 0 ] === T_EXTENDS || $t[ 0 ] === T_INTERFACE ) ) || ( !is_array( $t ) && ( $t === '{' ) ) ) {
+                                if ( ( is_array( $t ) && ( $t[ 0 ] === T_EXTENDS || $t[ 0 ] === T_IMPLEMENTS ) ) || ( !is_array( $t ) && ( $t === '{' ) ) ) {
                                     break;
                                 }
                                 $t = trim( $t[ 1 ] ?? $t );
@@ -98,7 +98,7 @@ class Tokenizer
                                 break;
                             }
                             $t = $tokens[ $x ];
-                            if ( ( is_array( $t ) && ( $t[ 0 ] === T_CURLY_OPEN || $t[ 0 ] === T_INTERFACE ) ) || ( !is_array( $t ) && ( $t === '{' ) ) ) {
+                            if ( ( is_array( $t ) && ( $t[ 0 ] === T_CURLY_OPEN || $t[ 0 ] === T_IMPLEMENTS ) ) || ( !is_array( $t ) && ( $t === '{' ) ) ) {
                                 break;
                             }
                             $t = trim( $t[ 1 ] ?? $t );
@@ -108,7 +108,7 @@ class Tokenizer
                         }
                         $after = true;
                         break;
-                    case T_INTERFACE:
+                    case T_IMPLEMENTS:
                         $interfaces = [];
                         for ( $x = $i; $x <= $max; $x++ ) {
                             if ( !isset( $tokens[ $x ] ) ) {
@@ -237,7 +237,7 @@ class Tokenizer
     public function getNameSpace()
     {
 
-        return implode( '', $this->namespace );
+        return \is_array( $this->namespace ) ? implode( '', $this->namespace ) : $this->namespace;
     }
 
     public function getClassName()

@@ -31,8 +31,8 @@ use function mb_ucfirst;
 use function opcache_reset;
 use function sleep;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!\defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -59,36 +59,37 @@ class _Cons extends Singleton
 
     public function form()
     {
-
         $constants = $this->buildConstants();
         $form = Form::create();
-        foreach ( $constants as $key => $value ) {
-            $tab = mb_ucfirst( mb_substr( $key, 0, 1 ) );
+        foreach ($constants as $key => $value) {
+            $tab = mb_ucfirst(mb_substr($key, 0, 1));
 
-            if ( in_array( $key, static::$importantIPS, \true ) ) {
+            if (in_array($key, static::$importantIPS, \true)) {
                 $tab = 'Important';
             }
 
-            if ( isset( $value[ 'tab' ] ) ) {
+            if (isset($value[ 'tab' ])) {
                 $tab = $value[ 'tab' ];
             }
 
             Member::loggedIn()->language()->words[ $tab . '_tab' ] = $tab;
-            $form->add( $key )->label( $key )->empty( $value[ 'current' ] )->description( $value[ 'description' ] ?? null )->tab( $tab );
+            $form->add($key)->label($key)->empty($value[ 'current' ])->description($value[ 'description' ] ?? '')->tab(
+                $tab
+            );
 
-            switch ( gettype( $value[ 'current' ] ) ) {
+            switch (gettype($value[ 'current' ])) {
                 case 'boolean':
-                    $form->element( $key )->changeType( 'yn' )->empty( (bool)$value[ 'current' ] );
+                    $form->element($key)->changeType('yn')->empty((bool)$value[ 'current' ]);
                     break;
                 case 'int':
-                    $form->element( $key )->changeType( 'number' );
+                    $form->element($key)->changeType('number');
                     break;
             }
         }
 
-        if ( $values = $form->values() ) {
-            $this->save( $values, $constants );
-            Output::i()->redirect( Request::i()->url(), 'Constants.php Updated!' );
+        if ($values = $form->values()) {
+            $this->save($values, $constants);
+            Output::i()->redirect(Request::i()->url(), 'Constants.php Updated!');
         }
 
         return $form;
@@ -96,67 +97,62 @@ class _Cons extends Singleton
 
     protected function buildConstants()
     {
-
-        if ( $this->constants === \null ) {
+        if ($this->constants === \null) {
             $cons = IPS::defaultConstants();
             $first = [];
             $constants = [];
             $important[] = static::$importantIPS;
 
-            foreach ( Application::allExtensions( 'toolbox', 'constants' ) as $extension ) {
+            foreach (Application::allExtensions('toolbox', 'constants') as $extension) {
                 $important[] = $extension->add2Important();
                 $extra = $extension->getConstants();
                 $first[] = $extra;
 
-                foreach ( $extra as $k => $v ) {
+                foreach ($extra as $k => $v) {
                     static::$devTools[ $k ] = $v[ 'name' ];
                 }
-
             }
 
-            $first = array_merge( ...$first );
-            static::$importantIPS = array_merge( ... $important );
-            foreach ( $cons as $key => $con ) {
-                if ( $key === 'READ_WRITE_SEPARATION' || $key === 'REPORT_EXCEPTIONS' ) {
+            $first = array_merge(...$first);
+            static::$importantIPS = array_merge(... $important);
+            foreach ($cons as $key => $con) {
+                if ($key === 'READ_WRITE_SEPARATION' || $key === 'REPORT_EXCEPTIONS') {
                     continue;
                 }
-                $current = constant( '\\IPS\\' . $key );
+                $current = constant('\\IPS\\' . $key);
 
                 $data = [
-                    'name'    => $key,
+                    'name' => $key,
                     'default' => $con,
                     'current' => $current,
-                    'type'    => gettype( constant( '\\IPS\\' . $key ) ),
+                    'type' => gettype(constant('\\IPS\\' . $key)),
                 ];
 
-                if ( in_array( $key, static::$importantIPS, \true ) ) {
+                if (in_array($key, static::$importantIPS, \true)) {
                     $first[ $key ] = $data;
-                }
-                else {
+                } else {
                     $constants[ $key ] = $data;
                 }
             }
-            ksort( $constants );
+            ksort($constants);
 
-            $this->constants = array_merge( $first, $constants );
-
+            $this->constants = array_merge($first, $constants);
         }
 
         return $this->constants;
     }
 
-    public function save( array $values, array $constants )
+    public function save(array $values, array $constants)
     {
-
         $toWrite = [];
 
-        foreach ( Application::allExtensions( 'toolbox', 'constants' ) as $extension ) {
-            $extension->formateValues( $values );
+        foreach (Application::allExtensions('toolbox', 'constants') as $extension) {
+            $extension->formateValues($values);
         }
 
-        foreach ( $constants as $key => $val ) {
+        foreach ($constants as $key => $val) {
             $data = $values[ $key ];
-            switch ( $val[ 'type' ] ) {
+            switch ($val[ 'type' ]) {
                 case 'integer':
                 case 'boolean':
                     $check = (int)$data;
@@ -167,11 +163,10 @@ class _Cons extends Singleton
                     $check = (string)$data;
                     break;
             }
-            if ( ( defined( '\\IPS\\' . $key ) && $check !== $check2 ) || in_array( $key, static::$devTools, \true ) ) {
-
+            if ((defined('\\IPS\\' . $key) && $check !== $check2) || in_array($key, static::$devTools, \true)) {
                 $dataType = "'" . $data . "'";
 
-                switch ( $val[ 'type' ] ) {
+                switch ($val[ 'type' ]) {
                     case 'integer':
                         $dataType = (int)$data;
                         break;
@@ -183,17 +178,17 @@ class _Cons extends Singleton
                 $toWrite[] = "\\define('" . $key . "'," . $dataType . ');';
             }
         }
-        $toWrite = implode( "\n", $toWrite );
+        $toWrite = implode("\n", $toWrite);
         $fileData = <<<EOF
 <?php
 {$toWrite}
 EOF;
-        if ( \IPS\NO_WRITES !== \true ) {
-            \file_put_contents( \IPS\ROOT_PATH . '/constants.php', $fileData );
-            if ( function_exists( 'opcache_reset' ) ) {
+        if (\IPS\NO_WRITES !== \true) {
+            \file_put_contents(\IPS\ROOT_PATH . '/constants.php', $fileData);
+            if (function_exists('opcache_reset')) {
                 opcache_reset();
             }
-            sleep( 2 );
+            sleep(2);
         }
     }
 }

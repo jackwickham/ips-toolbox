@@ -13,4 +13,5 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 class _sources extends Controller
 {
 
+    use Sources;
 }

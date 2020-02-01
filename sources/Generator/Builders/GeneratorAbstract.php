@@ -94,22 +94,6 @@ abstract class GeneratorAbstract
 
     protected $fileName;
 
-    protected $doComments = true;
-
-    protected $extraBeforeClass;
-
-    public function extraBeforeClass( $value )
-    {
-
-        $this->extraBeforeClass .= $value;
-    }
-
-    public function doDocuments( bool $data = true )
-    {
-
-        $this->doComments = $data;
-    }
-
     /**
      * this should be the FULL PATH
      *
@@ -292,9 +276,6 @@ EOF;
             $this->output( $headerCatch );
         }
 
-        if ( $this->extraBeforeClass !== null ) {
-            $this->output( $this->extraBeforeClass );
-        }
     }
 
     public function output( string $output )
@@ -379,12 +360,6 @@ EOF;
         }
 
         return $this->path . '/' . $name . '.php';
-    }
-
-    public function getFilename()
-    {
-
-        return $this->saveFileName();
     }
 
     public function addFileName( string $name )

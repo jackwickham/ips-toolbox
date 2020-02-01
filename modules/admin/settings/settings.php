@@ -241,5 +241,4 @@ eof;
 
         Output::i()->redirect( $this->url, 'init.php patched' );
     }
-
 }

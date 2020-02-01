@@ -54,7 +54,7 @@ class InterfaceGenerator extends GeneratorAbstract
                 continue;
             }
             $this->output( "\n{$tab}" );
-            if ( $this->doComments === true && $method[ 'document' ] && is_array( $method[ 'document' ] ) ) {
+            if ( $method[ 'document' ] && is_array( $method[ 'document' ] ) ) {
                 $this->output( "\n" );
                 $this->output( $tab . "/**\n" );
                 foreach ( $method[ 'document' ] as $item ) {

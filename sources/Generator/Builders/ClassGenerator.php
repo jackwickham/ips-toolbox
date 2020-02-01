@@ -335,7 +335,7 @@ EOF;
         }
 
         if ( empty( $this->interfaces ) !== true ) {
-            $this->output( "  implements \n" . implode( ",\n", $this->interfaces ) );
+            $this->output( " implements \n" . implode( ",\n", $this->interfaces ) );
         }
         $this->output( "\n{" );
 

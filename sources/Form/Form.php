@@ -296,7 +296,7 @@ class _Form
     }
 
     /**
-     * @return \IPS\Helpers\Form|string
+     * @return \IPS\Helpers\Form
      */
     public function build()
     {
@@ -608,7 +608,7 @@ class _Form
         }
 
         if ($this->dialogForm === true) {
-            return $this->form->customTemplate([Theme::i()->getTemplate('forms', 'core'), 'popupTemplate']);
+            return $this->form->customTemplate([Theme::i()->getTemplate('forms', 'core', 'front'), 'popupTemplate']);
         }
 
         return $this->form;

@@ -77,7 +77,6 @@ class _Templates extends Singleton
      */
     public function __construct()
     {
-
         if ( isset( Store::i()->dtprofiler_templates ) ) {
             $this->templates = Store::i()->dtprofiler_templates;
         }
@@ -106,13 +105,11 @@ class _Templates extends Singleton
      */
     public function build(): string
     {
-
         $store = [];
         $this->buildTemplates( $store );
         $this->buildCss( $store );
         $this->buildJs( $store );
         $this->buildJsVars( $store );
-
         return implode( "\n", $store );
     }
 
@@ -125,7 +122,6 @@ class _Templates extends Singleton
      */
     protected function buildTemplates( &$store )
     {
-
         if ( !Settings::i()->dtprofiler_enabled_templates ) {
             return;
         }
@@ -158,7 +154,6 @@ class _Templates extends Singleton
      */
     protected function buildCss( &$store )
     {
-
         if ( !Settings::i()->dtprofiler_enabled_css ) {
             return;
         }
@@ -183,6 +178,7 @@ class _Templates extends Singleton
                 $list[ $path ] = [ 'url' => $url, 'name' => $path ];
             }
 
+
         }
 
         ksort( $list );
@@ -198,7 +194,6 @@ class _Templates extends Singleton
      */
     protected function buildJs( &$store )
     {
-
         if ( !Settings::i()->dtprofiler_enabled_js ) {
             return;
         }
@@ -230,7 +225,6 @@ class _Templates extends Singleton
      */
     protected function buildJsVars( &$store )
     {
-
         if ( !Settings::i()->dtprofiler_enabled_jsvars ) {
             return;
         }
@@ -243,10 +237,7 @@ class _Templates extends Singleton
 
         $list = [];
         foreach ( $js as $key => $val ) {
-            if ( \is_object( $val ) ) {
-                continue;
-            }
-            if ( \is_string( $val ) ) {
+            if ( !is_array( $val ) ) {
                 $v = json_decode( $val, \true ) ?? $val;
             }
             else {

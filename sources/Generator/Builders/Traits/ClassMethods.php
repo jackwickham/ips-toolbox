@@ -20,7 +20,7 @@ trait ClassMethods
                 continue;
             }
             $this->output( "\n\n" );
-            if ( $this->doComments === true && $method[ 'document' ] && is_array( $method[ 'document' ] ) ) {
+            if ( $method[ 'document' ] && is_array( $method[ 'document' ] ) ) {
                 $this->output( $this->tab . "/**\n" );
                 $last = false;
                 $returned = false;

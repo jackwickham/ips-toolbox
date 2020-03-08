@@ -12,13 +12,12 @@
 
 namespace IPS\toolbox\extensions\toolbox\ProxyHelpers;
 
-use Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header((isset($_SERVER[ 'SERVER_PROTOCOL' ]) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -31,32 +30,25 @@ class _profiler
     /**
      * add property to \IPS\Data\Store DocComment
      *
-     * @param ClassGenerator $classGenerator
+     * @param array $classDoc
      */
-    public function store( ClassGenerator $classGenerator )
+    public function store(&$classDoc)
     {
-
-        $classDoc[] = [ 'prop' => 'dtprofiler_css', 'hint' => 'array' ];
-        $classDoc[] = [ 'prop' => 'dtprofiler_js', 'hint' => 'array' ];
-        $classDoc[] = [ 'prop' => 'dtprofiler_js_vars', 'hint' => 'array' ];
-        $classDoc[] = [ 'prop' => 'dtprofiler_templates', 'hint' => 'array' ];
-        $classDoc[] = [ 'prop' => 'dtprofiler_bt_cache', 'hint' => 'array' ];
-        $classDoc[] = [ 'prop' => 'dtprofiler_bt', 'hint' => 'array' ];
-
-        foreach ( $classDoc as $doc ) {
-            $classGenerator->addPropertyTag( $doc[ 'prop' ], [ 'hint' => $doc[ 'hint' ] ] );
-
-        }
+        $classDoc[] = ['pt' => 'p', 'prop' => 'dtprofiler_css', 'type' => 'array'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'dtprofiler_js', 'type' => 'array'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'dtprofiler_js_vars', 'type' => 'array'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'dtprofiler_templates', 'type' => 'array'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'dtprofiler_bt_cache', 'type' => 'array'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'dtprofiler_bt', 'type' => 'array'];
     }
 
     /**
      * add property to \IPS\Request proxy DocComment
      *
-     * @param ClassGenerator $classGenerator
+     * @param attay $classDoc
      */
-    public function request( ClassGenerator $classGenerator )
+    public function request(&$classDoc)
     {
-
-        $classGenerator->addPropertyTag( 'bt', [ 'hint' => 'string' ] );
+        $classDoc[] = ['pt' => 'p', 'prop' => 'bt', 'type' => 'string'];
     }
 }

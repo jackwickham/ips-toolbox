@@ -11,6 +11,7 @@
  */
 
 namespace IPS\toolbox\DevCenter\Dev\Compiler;
+
 use function implode;
 
 class _Javascript extends CompilerAbstract
@@ -20,59 +21,53 @@ class _Javascript extends CompilerAbstract
      */
     public function content(): string
     {
-
         $module = \null;
         $fname = \null;
         $tsn = \null;
         $replace = \true;
-        $data = $this->_getFile( $this->type );
-        if ( $this->type === 'widget' ) {
+        $data = $this->_getFile($this->type);
+        if ($this->type === 'widget') {
             $module = 'ips.ui.' . $this->app . '.' . $this->filename;
-        }
-        else if ( $this->type === 'controller' ) {
+        } elseif ($this->type === 'controller') {
             $module = $this->app . '.' . $this->location . '.' . $this->group . '.' . $this->filename;
             $fname = 'ips.' . $module;
-        }
-        else if ( $this->type === 'module' ) {
+        } elseif ($this->type === 'module') {
             $module = 'ips.' . $this->app . '.' . $this->filename;
-        }
-        else if ( $this->type === 'jstemplate' ) {
+        } elseif ($this->type === 'jstemplate') {
             $module = 'ips.templates.' . $this->filename;
             $store = [];
-            foreach ( $this->templateName as $name ) {
+            foreach ($this->templateName as $name) {
                 $tsn = 'templates.' . $this->filename . '.' . $name;
-                $content = $this->_getFile( $this->type );
-                $store[] = $this->_replace( '{tsn}', $tsn, $content );
+                $content = $this->_getFile($this->type);
+                $store[] = $this->_replace('{tsn}', $tsn, $content);
             }
 
             $replace = \false;
-            $data = implode( "\n", $store );
-        }
-        else if ( $this->type === 'jsmixin' ) {
+            $data = implode("\n", $store);
+        } elseif ($this->type === 'jsmixin') {
             $module = $this->app . '.' . $this->filename;
             $fname = 'ips.' . $module;
         }
 
-        if ( $fname === \null ) {
+        if ($fname === \null) {
             $fname = $module;
         }
 
         $this->filename = $fname . '.js';
-        if ( $this->type === 'jstemplate' ) {
+        if ($this->type === 'jstemplate') {
             $type = 'templates';
-        }
-        else if ( $this->type === 'jsmixin' ) {
+        } elseif ($this->type === 'jsmixin') {
             $type = 'mixin';
-        }
-        else {
+        } else {
             $type = 'controllers';
         }
         $this->location .= '/' . $type;
 
-        if ( $replace === \true ) {
-            $find = [ '{module}', '{widgetname}', '{tsn}', '{controller}' ];
-            $replace = [ $module, $this->widgetname, $tsn, $this->mixin ];
-            return $this->_replace( $find, $replace, $data );
+        if ($replace === \true) {
+            $find = ['{module}', '{widgetname}', '{tsn}', '{controller}'];
+            $replace = [$module, $this->widgetname, $tsn, $this->mixin];
+
+            return $this->_replace($find, $replace, $data);
         }
 
         return $data;

@@ -4,6 +4,7 @@ namespace Generator\Builders;
 
 use InvalidArgumentException;
 use RuntimeException;
+
 use function count;
 use function file_put_contents;
 use function is_array;
@@ -99,9 +100,8 @@ abstract class GeneratorAbstract
      *
      * @param $path
      */
-    public function addPath( $path )
+    public function addPath($path)
     {
-
         $this->path = $path;
     }
 
@@ -111,26 +111,22 @@ abstract class GeneratorAbstract
      *
      * @return $this
      */
-    public function addDocumentComment( array $comment, bool $class = false )
+    public function addDocumentComment(array $comment, bool $class = false)
     {
-
-        if ( $class === false ) {
+        if ($class === false) {
             $this->docComment = $comment;
-        }
-        else {
+        } else {
             $this->classComment = $comment;
         }
     }
 
     public function getDocumentComment()
     {
-
         return $this->docComment;
     }
 
     public function getClassComment()
     {
-
         return $this->classComment;
     }
 
@@ -139,19 +135,16 @@ abstract class GeneratorAbstract
      *
      * @return $this
      */
-    public function addNameSpace( $namespace )
+    public function addNameSpace($namespace)
     {
-
-        if ( is_array( $namespace ) ) {
-            $namespace = implode( '\\', $namespace );
+        if (is_array($namespace)) {
+            $namespace = implode('\\', $namespace);
         }
         $this->nameSpace = $namespace;
-
     }
 
     public function getNameSpace()
     {
-
         return $this->nameSpace;
     }
 
@@ -160,9 +153,7 @@ abstract class GeneratorAbstract
      */
     public function addHeaderCatch()
     {
-
         $this->headerCatch = true;
-
     }
 
     /**
@@ -170,15 +161,13 @@ abstract class GeneratorAbstract
      *
      * @return $this
      */
-    public function addClassName( string $class )
+    public function addClassName(string $class)
     {
-
         $this->className = $class;
     }
 
     public function getClassName()
     {
-
         return $this->className;
     }
 
@@ -187,7 +176,6 @@ abstract class GeneratorAbstract
      */
     public function write()
     {
-
         $this->save();
     }
 
@@ -196,74 +184,72 @@ abstract class GeneratorAbstract
      */
     public function save()
     {
-
-        if ( static::HASCLASS === true && $this->className === null ) {
-            throw new InvalidArgumentException( 'Classname is not set!' );
+        if (static::HASCLASS === true && $this->className === null) {
+            throw new InvalidArgumentException('Classname is not set!');
         }
 
-        if ( !is_dir( $this->path ) && !mkdir( $this->path, 0777, true ) && !is_dir( $this->path ) ) {
-            throw new RuntimeException( sprintf( 'Directory "%s" was not created', $this->path ) );
+        if (!is_dir($this->path) && !mkdir($this->path, 0777, true) && !is_dir($this->path)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $this->path));
         }
         $this->writeHead();
 
-        if ( $this->classComment ) {
-            $this->output( "\n\n" );
-            $this->output( "/**\n" );
-            foreach ( $this->classComment as $item ) {
-                $this->output( '* ' . $item . "\n" );
+        if ($this->classComment) {
+            $this->output("\n\n");
+            $this->output("/**\n");
+            foreach ($this->classComment as $item) {
+                $this->output('* ' . $item . "\n");
             }
-            $this->output( '*/' );
+            $this->output('*/');
         }
 
         $this->writeSourceType();
         $this->writeBody();
-        $this->toWrite = trim( $this->toWrite );
+        $this->toWrite = trim($this->toWrite);
         $this->writeExtra();
-        $this->toWrite = trim( $this->toWrite );
+        $this->toWrite = trim($this->toWrite);
         $this->wrapUp();
         //file_put_contents( ROOT_PATH . '/foo.php', $this->toWrite );
-        file_put_contents( $this->saveFileName(), $this->toWrite );
+
+        file_put_contents($this->saveFileName(), $this->toWrite);
     }
 
     protected function writeHead()
     {
-
-        if ( $this->isHook === true ) {
+        if ($this->isHook === true) {
             $openTag = <<<'EOF'
 //<?php
 
 EOF;
-        }
-        else {
+        } else {
             $openTag = <<<'EOF'
 <?php
 
 EOF;
         }
-        $this->output( $openTag );
-        if ( $this->docComment ) {
-            $this->output( "\n" );
-            $this->output( "/**\n" );
-            foreach ( $this->docComment as $item ) {
-                $this->output( '* ' . $item . "\n" );
+        $this->output($openTag);
+        if ($this->docComment) {
+            $this->output("\n");
+            $this->output("/**\n");
+            foreach ($this->docComment as $item) {
+                $this->output('* ' . $item . "\n");
             }
-            $this->output( '*/' );
-            $this->output( "\n" );
+            $this->output('*/');
+            $this->output("\n");
         }
 
-        if ( $this->nameSpace ) {
+        if ($this->nameSpace) {
             $ns = <<<EOF
 
 namespace {$this->nameSpace};
 
 EOF;
-            $this->output( $ns );
+            $this->output($ns);
         }
 
         $this->afterNameSpace();
         $this->toWrite .= '#generator_token_includes#';
         $this->toWrite .= '#generator_token_imports#';
-        if ( $this->headerCatch === true ) {
+        if ($this->headerCatch === true) {
             $headerCatch = <<<'EOF'
 
 
@@ -273,20 +259,18 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 }
 
 EOF;
-            $this->output( $headerCatch );
-        }
 
+            $this->output($headerCatch);
+        }
     }
 
-    public function output( string $output )
+    public function output(string $output)
     {
-
         $this->toWrite .= $output;
     }
 
     protected function afterNameSpace()
     {
-
     }
 
     abstract protected function writeSourceType();
@@ -295,77 +279,68 @@ EOF;
 
     protected function writeExtra()
     {
-
-        if ( $this->extra !== null ) {
-            $this->output( "\n" );
-            if ( is_array( $this->extra ) && count( $this->extra ) ) {
-                foreach ( $this->extra as $extra ) {
-                    $this->output( $extra );
+        if ($this->extra !== null) {
+            $this->output("\n");
+            if (is_array($this->extra) && count($this->extra)) {
+                foreach ($this->extra as $extra) {
+                    $this->output($extra);
                 }
-            }
-            else {
-                $this->output( $this->extra );
+            } else {
+                $this->output($this->extra);
             }
         }
     }
 
     protected function wrapUp()
     {
-
         $replacement = '';
-        if ( empty( $this->required ) !== true ) {
-
+        if (empty($this->required) !== true) {
             $replacement .= "\n";
 
-            foreach ( $this->required as $required ) {
+            foreach ($this->required as $required) {
                 $escaped = null;
-                if ( $required[ 'escape' ] === true ) {
+                if ($required[ 'escape' ] === true) {
                     $escaped = '"';
                 }
-                if ( $required[ 'once' ] === true ) {
+                if ($required[ 'once' ] === true) {
                     $replacement .= 'require_once ' . $escaped . $required[ 'path' ] . $escaped . ";\n";
-
-                }
-                else {
+                } else {
                     $replacement .= 'require ' . $escaped . $required[ 'path' ] . $escaped . ";\n";
                 }
             }
         }
 
-        if ( empty( $this->included ) !== true ) {
+        if (empty($this->included) !== true) {
             $replacement .= "\n";
-            foreach ( $this->included as $included ) {
+            foreach ($this->included as $included) {
                 $escaped = null;
-                if ( $included[ 'escape' ] === true ) {
+                if ($included[ 'escape' ] === true) {
                     $escaped = '"';
                 }
-                if ( $included[ 'once' ] === true ) {
+                if ($included[ 'once' ] === true) {
                     $replacement .= 'include_once ' . $escaped . $included[ 'path' ] . $escaped . ";\n";
-                }
-                else {
+                } else {
                     $replacement .= 'include ' . $escaped . $included[ 'path' ] . $escaped . ";\n";
                 }
             }
         }
 
-        $this->toWrite = str_replace( '#generator_token_includes#', $replacement, $this->toWrite );
+        $this->toWrite = str_replace('#generator_token_includes#', $replacement, $this->toWrite);
     }
 
     protected function saveFileName()
     {
-
         $name = $this->fileName;
-        if ( $name === null ) {
+        if ($name === null) {
             $name = $this->className;
         }
 
         return $this->path . '/' . $name . '.php';
     }
 
-    public function addFileName( string $name )
+    public function addFileName(string $name)
     {
-
-        $info = pathinfo( $name );
+        $info = pathinfo($name);
         $this->fileName = $info[ 'filename' ] ?? null;
     }
 
@@ -374,15 +349,13 @@ EOF;
      *
      * @return $this
      */
-    public function extra( array $extra )
+    public function extra(array $extra)
     {
-
         $this->extra = $extra;
     }
 
     public function getExtra()
     {
-
         return $this->extra;
     }
 
@@ -391,12 +364,11 @@ EOF;
      * @param bool $once
      * @param bool $escape
      */
-    public function addRequire( $path, $once = false, $escape = true )
+    public function addRequire($path, $once = false, $escape = true)
     {
+        $hash = $this->hash($path);
 
-        $hash = $this->hash( $path );
-
-        $this->required[ $hash ] = [ 'path' => $path, 'once' => $once, 'escape' => $escape ];
+        $this->required[ $hash ] = ['path' => $path, 'once' => $once, 'escape' => $escape];
     }
 
     /**
@@ -404,21 +376,18 @@ EOF;
      *
      * @return string
      */
-    protected function hash( $value )
+    protected function hash($value)
     {
-
-        return md5( trim( $value ) );
+        return md5(trim($value));
     }
 
     public function getRequired()
     {
-
         return $this->required;
     }
 
     public function getIncluded()
     {
-
         return $this->included;
     }
 
@@ -427,10 +396,9 @@ EOF;
      * @param bool $once
      * @param bool $escape
      */
-    public function addInclude( $path, $once = false, $escape = true )
+    public function addInclude($path, $once = false, $escape = true)
     {
-
-        $hash = $this->hash( $path );
-        $this->included[ $hash ] = [ 'path' => $path, 'once' => $once, 'escape' => $escape ];
+        $hash = $this->hash($path);
+        $this->included[ $hash ] = ['path' => $path, 'once' => $once, 'escape' => $escape];
     }
 }

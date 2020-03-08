@@ -93,7 +93,7 @@ class _Build extends Singleton
                         }
                         chmod( $path, \IPS\IPS_FOLDER_PERMISSION );
                     }
-                    $pharPath = $path . $application->directory . '.tar';
+                    $pharPath = $path . $application->directory . ' - ' . $application->version . '.tar';
                     $download = new PharData( $pharPath, 0, $application->directory . '.tar', Phar::TAR );
                     $download->buildFromIterator( new BuilderIterator( $application ) );
                 } catch ( Exception $e ) {

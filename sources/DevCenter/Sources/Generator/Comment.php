@@ -14,12 +14,13 @@ namespace IPS\toolbox\DevCenter\Sources\Generator;
 
 use IPS\Content\Comment;
 use IPS\Content\Review;
+
 use function defined;
 use function header;
 use function mb_strtolower;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -31,7 +32,6 @@ class _Comment extends Item
      */
     protected function bodyGenerator()
     {
-
         $dbColumns = [
             'item_id',
             'author',
@@ -50,12 +50,11 @@ class _Comment extends Item
             'ip_address'  => 'ip_address',
         ];
 
-        if ( mb_strtolower( $this->type ) === 'comment' ) {
+        if (mb_strtolower($this->type) === 'comment') {
             $this->brief = 'Content Comment Class';
             $this->extends = 'Comment';
-            $this->generator->addUse( Comment::class );
-        }
-        else if ( mb_strtolower( $this->type ) === 'review' ) {
+            $this->generator->addUse(Comment::class);
+        } elseif (mb_strtolower($this->type) === 'review') {
             $dbColumns[] = 'rating';
             $dbColumns[] = 'votes_total';
             $dbColumns[] = 'votes_helpful';
@@ -64,7 +63,7 @@ class _Comment extends Item
 
             $this->brief = 'Content Review Class';
             $this->extends = 'Review';
-            $this->generator->addUse( Review::class );
+            $this->generator->addUse(Review::class);
 
             $columnMap[ 'rating' ] = 'rating';
             $columnMap[ 'votes_total' ] = 'votes_total';
@@ -75,11 +74,11 @@ class _Comment extends Item
 
         $this->application();
         $this->module();
-        $this->title( '_comments' );
+        $this->title('_comments');
         $this->contentItemClass();
-        $this->buildImplementsAndTraits( $dbColumns, $columnMap );
-        $this->columnMap( $columnMap );
-        $this->db->addBulk( $dbColumns );
+        $this->buildImplementsAndTraits($dbColumns, $columnMap);
+        $this->columnMap($columnMap);
+        $this->db->addBulk($dbColumns);
     }
 
     /**
@@ -87,11 +86,10 @@ class _Comment extends Item
      */
     protected function contentItemClass()
     {
-
-        if ( $this->content_item_class !== \null ) {
-            $this->content_item_class = mb_ucfirst( $this->content_item_class );
+        if ($this->content_item_class !== \null) {
+            $this->content_item_class = mb_ucfirst($this->content_item_class);
             $itemClass = '\\IPS\\' . $this->app . '\\' . $this->content_item_class;
-            $this->generator->addUse( $itemClass );
+            $this->generator->addUse($itemClass);
             $itemClass = $this->content_item_class;
             $itemClass .= '::class';
             $doc = [
@@ -99,12 +97,15 @@ class _Comment extends Item
                 '@Var ' . $this->content_item_class,
             ];
 
-            $this->generator->addProperty( 'itemClass', $itemClass, [
-                'visibility' => T_PUBLIC,
-                'static'     => true,
-                'document'   => $doc,
-            ] );
-
+            $this->generator->addProperty(
+                'itemClass',
+                $itemClass,
+                [
+                    'visibility' => T_PUBLIC,
+                    'static'     => true,
+                    'document'   => $doc,
+                ]
+            );
         }
     }
 }

@@ -8,16 +8,17 @@
  * @version    -storm_version-
  */
 
+
 namespace IPS\toolbox\DevCenter\Helpers;
 
 use IPS\toolbox\DevCenter\Dev;
-use Generator\Builders\ClassGenerator;
 use IPS\toolbox\Proxy\Helpers\HelpersAbstract;
+
 use function header;
 use function mb_strtolower;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!\defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -28,13 +29,22 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _HelperCompilerAbstract implements HelpersAbstract
 {
-
-    public function process( $class, ClassGenerator $classGenerator, &$classExtends )
+    public function process($class, &$classDoc, &$classExtends, &$body)
     {
+//        $el = Dev::i()->elements();
+//        foreach ( $el as $val ) {
+//            if ( isset( $val[ 'name' ] ) ) {
+//                $type = 'string';
+//                if ( isset( $val[ 'class' ] ) && 'stack' === mb_strtolower( $val[ 'class' ] ) ) {
+//                    $type = 'array';
+//                }
+//
+//                $classDoc[] = [ 'pt' => 'p', 'prop' => $val[ 'name' ], 'type' => $type ];
+//            }
+//        }
 
-        $classGenerator->addPropertyTag( 'location', [ 'hint' => 'string' ] );
-        $classGenerator->addPropertyTag( 'group', [ 'hint' => 'string' ] );
-
+        $classDoc[] = ['pt' => 'p', 'prop' => 'location', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'group', 'type' => 'string'];
     }
 }
 

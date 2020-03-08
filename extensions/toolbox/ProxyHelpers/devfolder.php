@@ -12,9 +12,14 @@
 
 namespace IPS\toolbox\extensions\toolbox\ProxyHelpers;
 
-use Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
+
+/* To prevent PHP errors (extending class does not exist) revealing path */
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header((isset($_SERVER[ 'SERVER_PROTOCOL' ]) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0') . ' 403 Forbidden');
+    exit;
+}
 
 /**
  * devfolder
@@ -25,23 +30,20 @@ class _devfolder
     /**
      * add property to \IPS\Data\Store DocComment
      *
-     * @param ClassGenerator $classGenerator
+     * @param array $classDoc
      */
-    public function store( ClassGenerator $classGenerator )
+    public function store(&$classDoc)
     {
-
     }
 
     /**
      * add property to \IPS\Request proxy DocComment
      *
-     * @param ClassGenerator $classDoc
+     * @param array $classDoc
      */
-    public function request( ClassGenerator $classGenerator )
+    public function request(&$classDoc)
     {
-
-        $classGenerator->addPropertyTag( 'dtdevfolder_app', [ 'hint' => 'string' ] );
-        $classGenerator->addPropertyTag( 'storm', [ 'hint' => 'string' ] );
-
+        $classDoc[] = ['pt' => 'p', 'prop' => 'dtdevfolder_app', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'storm', 'type' => 'string'];
     }
 }

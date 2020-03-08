@@ -4,6 +4,7 @@ namespace IPS\toolbox\Form;
 
 use InvalidArgumentException;
 use IPS\Helpers\Form\FormAbstract;
+
 use function array_merge;
 use function array_pop;
 use function explode;
@@ -225,30 +226,25 @@ class _Element
      * @param string|FormAbstract $type
      * @param string              $custom
      */
-    public function __construct( ?string $name, string $type, string $custom = '' )
+    public function __construct(?string $name, string $type, string $custom = '')
     {
-
         $class = null;
-        $type = mb_strtolower( $type );
+        $type = mb_strtolower($type);
         $this->name = $name;
-        $this->changeType( $type, $custom );
-
+        $this->changeType($type, $custom);
     }
 
-    public function changeType( string $type, $custom = '' )
+    public function changeType(string $type, $custom = '')
     {
-
-        if ( !isset( static::$nonHelpers[ $type ] ) ) {
-            if ( !( $this->name instanceof FormAbstract ) && isset( static::$helpers[ $type ] ) ) {
+        if (!isset(static::$nonHelpers[ $type ])) {
+            if (!($this->name instanceof FormAbstract) && isset(static::$helpers[ $type ])) {
                 $this->class = '\\IPS\\Helpers\\Form\\' . static::$helpers[ $type ] ?? 'Text';
                 $this->type = 'helper';
-            }
-            else if ( $this->name instanceof FormAbstract ) {
+            } elseif ($this->name instanceof FormAbstract) {
                 $this->class = $this->name;
                 $this->type = 'helper';
             }
-        }
-        else if ( $type === 'custom' ) {
+        } elseif ($type === 'custom') {
             $this->class = $custom;
             $this->type = 'helper';
             $this->custom = true;
@@ -257,10 +253,9 @@ class _Element
         return $this;
     }
 
-    public function __get( $name )
+    public function __get($name)
     {
-
-        if ( property_exists( $this, $name ) ) {
+        if (property_exists($this, $name)) {
             return $this->{$name};
         }
 
@@ -272,9 +267,8 @@ class _Element
      *
      * @return Element
      */
-    public function value( $value ): self
+    public function value($value): self
     {
-
         $this->value = $value;
 
         return $this;
@@ -285,7 +279,6 @@ class _Element
      */
     public function required(): self
     {
-
         $this->required = true;
 
         return $this;
@@ -296,21 +289,21 @@ class _Element
      *
      * @return self
      */
-    public function options( array $options ): self
+    public function options(array $options): self
     {
-
-        if ( isset( $options[ 'toggles' ], $options[ 'togglesOff' ], $options[ 'togglesOn' ] ) ) {
-            throw new InvalidArgumentException( 'Your options array contains toggles/togglesOn/togglesOff, use the toggles() method instead' );
+        if (isset($options[ 'toggles' ], $options[ 'togglesOff' ], $options[ 'togglesOn' ])) {
+            throw new InvalidArgumentException(
+                'Your options array contains toggles/togglesOn/togglesOff, use the toggles() method instead'
+            );
         }
-        $this->options = array_merge( $this->options, $options );
+        $this->options = array_merge($this->options, $options);
 
         return $this;
     }
 
-    public function disabled( bool $disabled )
+    public function disabled(bool $disabled)
     {
-
-        $this->options = array_merge( $this->options, [ 'disabled' => $disabled ] );
+        $this->options = array_merge($this->options, ['disabled' => $disabled]);
 
         return $this;
     }
@@ -320,9 +313,8 @@ class _Element
      *
      * @return self
      */
-    public function validation( callable $validation ): self
+    public function validation(callable $validation): self
     {
-
         $this->validationCallback = $validation;
 
         return $this;
@@ -333,9 +325,8 @@ class _Element
      *
      * @return self
      */
-    public function prefix( ?string $prefix ): self
+    public function prefix(?string $prefix): self
     {
-
         $this->prefix = $prefix;
 
         return $this;
@@ -346,9 +337,8 @@ class _Element
      *
      * @return self
      */
-    public function suffix( string $suffix ): self
+    public function suffix(string $suffix): self
     {
-
         $this->suffix = $suffix;
 
         return $this;
@@ -359,9 +349,8 @@ class _Element
      *
      * @return self
      */
-    public function id( string $id ): self
+    public function id(string $id): self
     {
-
         $this->id = $id;
 
         return $this;
@@ -372,9 +361,8 @@ class _Element
      *
      * @return self
      */
-    public function tab( string $tab ): self
+    public function tab(string $tab): self
     {
-
         $this->tab = $tab;
 
         return $this;
@@ -385,7 +373,6 @@ class _Element
      */
     public function skip(): self
     {
-
         $this->skip = true;
 
         return $this;
@@ -396,9 +383,8 @@ class _Element
      *
      * @return self
      */
-    public function header( string $header ): self
+    public function header(string $header): self
     {
-
         $this->header = $header;
 
         return $this;
@@ -409,9 +395,8 @@ class _Element
      *
      * @return self
      */
-    public function appearRequired( bool $off = false ): self
+    public function appearRequired(bool $off = false): self
     {
-
         $this->appearRequired = $off ? false : true;
 
         return $this;
@@ -424,9 +409,8 @@ class _Element
      *
      * @return self
      */
-    public function label( string $label, array $sprintf = [] ): self
+    public function label(string $label, array $sprintf = []): self
     {
-
         $this->label = [
             'key'     => $label,
             'sprintf' => $sprintf,
@@ -442,9 +426,8 @@ class _Element
      *
      * @return self
      */
-    public function description( string $description, array $sprintf = [] ): self
+    public function description(?string $description, array $sprintf = []): self
     {
-
         $this->description = [
             'key'     => $description,
             'sprintf' => $sprintf,
@@ -460,25 +443,24 @@ class _Element
      *
      * @return self
      */
-    public function toggles( array $toggles, bool $off = false, bool $na = false ): self
+    public function toggles(array $toggles, bool $off = false, bool $na = false): self
     {
-
         $key = 'togglesOff';
-        if ( $off === false ) {
+        if ($off === false) {
             $key = 'toggles';
             $togglesOn = [
                 'Checkbox' => 1,
                 'YesNo'    => 1,
             ];
 
-            $class = explode( '\\', $this->class );
-            $class = is_array( $class ) ? array_pop( $class ) : null;
-            if ( isset( $togglesOn[ $class ] ) ) {
+            $class = explode('\\', $this->class);
+            $class = is_array($class) ? array_pop($class) : null;
+            if (isset($togglesOn[ $class ])) {
                 $key = 'togglesOn';
             }
         }
 
-        if ( $na === true ) {
+        if ($na === true) {
             $key = 'na' . $key;
         }
 
@@ -495,9 +477,8 @@ class _Element
      *
      * @return self
      */
-    public function extra( array $extra ): self
+    public function extra(array $extra): self
     {
-
         $this->extra = $extra;
 
         return $this;
@@ -508,9 +489,8 @@ class _Element
      *
      * @return self
      */
-    public function sidebar( string $sidebar ): self
+    public function sidebar(string $sidebar): self
     {
-
         $this->sidebar = $sidebar;
 
         return $this;
@@ -521,9 +501,8 @@ class _Element
      *
      * @return self
      */
-    public function empty( $empty ): self
+    public function empty($empty): self
     {
-
         $this->empty = $empty;
 
         return $this;

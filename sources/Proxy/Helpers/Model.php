@@ -12,12 +12,11 @@
 
 namespace IPS\toolbox\Proxy\Helpers;
 
-use Generator\Builders\ClassGenerator;
 use function defined;
 use function header;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header((isset($_SERVER[ 'SERVER_PROTOCOL' ]) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -27,10 +26,9 @@ class _Model implements HelpersAbstract
     /**
      * @inheritdoc
      */
-    public function process( $class, ClassGenerator $classGenerator, &$classExtends )
+    public function process($class, &$classDoc, &$classExtends, &$body)
     {
-
-        $classGenerator->addPropertyTag( '_id', [ 'hint' => 'int' ] );
-        $classGenerator->addPropertyTag( '_title', [ 'hint' => 'string' ] );
+        $classDoc[] = ['pt' => 'p', 'prop' => '_id', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => '_title', 'type' => 'string'];
     }
 }

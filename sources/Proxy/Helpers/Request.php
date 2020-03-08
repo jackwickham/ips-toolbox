@@ -13,13 +13,13 @@
 namespace IPS\toolbox\Proxy\Helpers;
 
 use IPS\Application;
-use Generator\Builders\ClassGenerator;
+
 use function defined;
 use function header;
 use function method_exists;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header((isset($_SERVER[ 'SERVER_PROTOCOL' ]) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -29,54 +29,51 @@ class _Request implements HelpersAbstract
     /**
      * @inheritdoc
      */
-    public function process( $class, ClassGenerator $classGenerator, &$classExtends )
+    public function process($class, &$classDoc, &$classExtends, &$body)
     {
+        $classDoc[] = ['pt' => 'p', 'prop' => 'app', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'module', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'controller', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'id', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'pid', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'do', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'appKey', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'tab', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'adsess', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'group', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'new', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => '_new', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'path', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'c', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'd', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'application', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'type', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'limit', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'password', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'club', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'page', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'perPage', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'value', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'sortby', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'sortdirection', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'parent', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'filter', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'params', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'input', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'action', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'chunk', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'chunks', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'last', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'enabled', 'type' => 'int'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'gitApp', 'type' => 'string'];
 
-        $classDoc[] = [ 'prop' => 'app', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'module', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'controller', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'id', 'hint' => 'int' ];
-        $classDoc[] = [ 'prop' => 'pid', 'hint' => 'int' ];
-        $classDoc[] = [ 'prop' => 'do', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'appKey', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'tab', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'adsess', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'group', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'new', 'hint' => 'int' ];
-        $classDoc[] = [ 'prop' => '_new', 'hint' => 'int' ];
-        $classDoc[] = [ 'prop' => 'path', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'c', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'd', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'application', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'hint', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'limit', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'password', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'club', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'page', 'hint' => 'int' ];
-        $classDoc[] = [ 'prop' => 'perPage', 'hint' => 'int' ];
-        $classDoc[] = [ 'prop' => 'value', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'sortby', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'sortdirection', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'parent', 'hint' => 'int' ];
-        $classDoc[] = [ 'prop' => 'filter', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'params', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'input', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'action', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'chunk', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'chunks', 'hint' => 'string' ];
-        $classDoc[] = [ 'prop' => 'last', 'hint' => 'int' ];
-        $classDoc[] = [ 'prop' => 'enabled', 'hint' => 'int' ];
-        $classDoc[] = [ 'prop' => 'gitApp', 'hint' => 'string' ];
-        foreach ( $classDoc as $doc ) {
-            $classGenerator->addPropertyTag( $doc[ 'prop' ], [ 'hint' => $doc[ 'hint' ] ] );
-        }
         /* @var Application $app */
-        foreach ( Application::appsWithExtension( 'toolbox', 'ProxyHelpers' ) as $app ) {
-            $extensions = $app->extensions( 'toolbox', 'ProxyHelpers', \true );
-            /* @var \IPS\toolbox\extensions\toolbox\ProxyHelpers $extension */
-            foreach ( $extensions as $extension ) {
-                if ( method_exists( $extension, 'request' ) ) {
-                    $extension->request( $classGenerator );
+        foreach (Application::appsWithExtension('toolbox', 'ProxyHelpers') as $app) {
+            $extensions = $app->extensions('toolbox', 'ProxyHelpers', \true);
+            /* @var \IPS\toolbox\Proxy\extensions\toolbox\Proxy\ProxyHelpers\ProxyHelpers $extension */
+            foreach ($extensions as $extension) {
+                if (method_exists($extension, 'request')) {
+                    $extension->request($classDoc);
                 }
             }
         }

@@ -4,11 +4,13 @@ namespace Generator\Tokenizers;
 
 use InvalidArgumentException;
 use IPS\Log;
+
 use function count;
 use function file_exists;
 use function file_get_contents;
 use function in_array;
 use function token_get_all;
+
 use const IPS\ROOT_PATH;
 
 trait Shared
@@ -23,18 +25,17 @@ trait Shared
      */
     protected $file;
 
-    public function __construct( $file, $hook = false )
+    public function __construct($file, $hook = false)
     {
-
         $this->isHook = $hook;
 
-        if ( !file_exists( $file ) ) {
+        if (!file_exists($file)) {
             $file = ROOT_PATH . '/' . $file;
-            if ( !file_exists( $file ) ) {
-                throw new InvalidArgumentException( 'Path is invalid: ' . $this->path );
+            if (!file_exists($file)) {
+                throw new InvalidArgumentException('Path is invalid: ' . $this->path);
             }
         }
-        $this->file = new \SplFileInfo( $file );
+        $this->file = new \SplFileInfo($file);
         $this->path = $this->file->getPath();
         $this->compile();
     }
@@ -44,11 +45,10 @@ trait Shared
      */
     protected function compile()
     {
-
         $this->compiled = true;
-        $source = file_get_contents( $this->file->getRealPath() );
-        $tokens = token_get_all( $source );
-        $count = count( $tokens );
+        $source = file_get_contents($this->file->getRealPath());
+        $tokens = token_get_all($source);
+        $count = count($tokens);
         $beforeClass = true;
         $beforeNamespace = true;
         $document = null;
@@ -64,78 +64,72 @@ trait Shared
         $classEnded = false;
         $firstExtra = true;
         $lastMethod = null;
-        for ( $i = 0; $i < $count; $i++ ) {
+        for ($i = 0; $i < $count; $i++) {
             $token = $tokens[ $i ][ 0 ] ?? $tokens[ $i ];
             $value = $tokens[ $i ][ 1 ] ?? $tokens[ $i ];
             $start = $tokens[ $i ][ 2 ] ?? $tokens[ $i ];
-            if ( $beforeClass === false ) {
-                if ( $value === '{' ) {
+            if ($beforeClass === false) {
+                if ($value === '{') {
                     $classStart++;
                 }
-                if ( $value === '}' ) {
+                if ($value === '}') {
                     $classEnd++;
-                    if ( $classEnd === $classStart ) {
+                    if ($classEnd === $classStart) {
                         $classEnded = true;
                         continue;
                     }
                 }
-
             }
 
-            if ( $classEnded === true ) {
-                $this->addToExtra( $value );
-            }
-            else {
-                switch ( $token ) {
-
+            if ($classEnded === true) {
+                $this->addToExtra($value);
+            } else {
+                switch ($token) {
                     case T_COMMENT:
                         $beforeNamespace = false;
 
-                        if ( $beforeClass === false && $insideMethod === false && $lastMethod !== null ) {
-                            $this->afterMethod( $lastMethod, $value );
+                        if ($beforeClass === false && $insideMethod === false && $lastMethod !== null) {
+                            $this->afterMethod($lastMethod, $value);
                         }
                         break;
                     case T_CONST:
                         $beforeNamespace = false;
 
-                        if ( $beforeClass === false && $insideMethod === false ) {
+                        if ($beforeClass === false && $insideMethod === false) {
                             $constName = null;
                             $constVal = null;
                             $first = true;
-                            for ( $ii = $i; $ii < $count; $ii++ ) {
+                            for ($ii = $i; $ii < $count; $ii++) {
                                 $token2 = $tokens[ $ii ][ 0 ] ?? $tokens[ $ii ];
                                 $value2 = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
                                 $start2 = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
-                                if ( $value2 === '=' || $token2 === T_CONST ) {
+                                if ($value2 === '=' || $token2 === T_CONST) {
                                     continue;
                                 }
-                                if ( $value2 === ';' ) {
+                                if ($value2 === ';') {
                                     break;
                                 }
-                                if ( $first === true && $token2 === T_STRING ) {
-                                    $constName = trim( $value2 );
+                                if ($first === true && $token2 === T_STRING) {
+                                    $constName = trim($value2);
                                     $first = false;
-                                }
-                                else {
+                                } else {
                                     $constVal .= $value2;
                                 }
                                 $i++;
                             }
                             $vis = null;
-                            if ( $visibility === T_PRIVATE ) {
+                            if ($visibility === T_PRIVATE) {
                                 $vis = 'private';
-                            }
-                            else if ( $visibility === T_PROTECTED ) {
+                            } elseif ($visibility === T_PROTECTED) {
                                 $vis = 'protected';
-                            }
-                            else if ( $visibility === T_PUBLIC ) {
+                            } elseif ($visibility === T_PUBLIC) {
                                 $vis = 'public';
                             }
                             $extra = [
                                 'document'   => $document,
                                 'visibility' => $vis,
                             ];
-                            $this->addConst( $constName, trim( $constVal ), $extra );
+                            $this->addConst($constName, trim($constVal), $extra);
                             $visibility = null;
                             $document = null;
                         }
@@ -146,65 +140,62 @@ trait Shared
                     case T_INCLUDE_ONCE:
                         $beforeNamespace = false;
 
-                        if ( $beforeClass === true ) {
+                        if ($beforeClass === true) {
                             $once = false;
-                            if ( $token === T_REQUIRE_ONCE || $token === T_INCLUDE_ONCE ) {
+                            if ($token === T_REQUIRE_ONCE || $token === T_INCLUDE_ONCE) {
                                 $once = true;
                             }
                             $require = [];
-                            for ( $ii = $i; $ii < $count; $ii++ ) {
+                            for ($ii = $i; $ii < $count; $ii++) {
                                 $token2 = $tokens[ $ii ][ 0 ] ?? $tokens[ $ii ];
                                 $value2 = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
 
-                                if ( $token2 === T_REQUIRE || $token2 === T_REQUIRE_ONCE || $token2 === T_INCLUDE || $token2 === T_INCLUDE_ONCE ) {
+                                if ($token2 === T_REQUIRE || $token2 === T_REQUIRE_ONCE || $token2 === T_INCLUDE || $token2 === T_INCLUDE_ONCE) {
                                     continue;
                                 }
 
-                                if ( $value2 === ';' ) {
+                                if ($value2 === ';') {
                                     break;
                                 }
                                 $require[] = $value2;
                                 $i++;
                             }
 
-                            if ( $token === T_REQUIRE_ONCE || $token === T_REQUIRE ) {
-                                $this->addRequire( implode( '', $require ), $once, false );
-                            }
-                            else {
-                                $this->addInclude( implode( '', $require ), $once, false );
+                            if ($token === T_REQUIRE_ONCE || $token === T_REQUIRE) {
+                                $this->addRequire(implode('', $require), $once, false);
+                            } else {
+                                $this->addInclude(implode('', $require), $once, false);
                             }
                         }
                         break;
                     case T_DOC_COMMENT:
 
-                        if ( $beforeNamespace === true ) {
-                            $this->addDocumentComment( $this->prepDocument( $value ) );
-                        }
-                        else if ( $beforeNamespace === false && $beforeClass === true ) {
-                            $this->addDocumentComment( $this->prepDocument( $value ), true );
-                        }
-                        else {
-                            $document = $this->prepDocument( $value );
+                        if ($beforeNamespace === true) {
+                            $this->addDocumentComment($this->prepDocument($value));
+                        } elseif ($beforeNamespace === false && $beforeClass === true) {
+                            $this->addDocumentComment($this->prepDocument($value), true);
+                        } else {
+                            $document = $this->prepDocument($value);
                         }
 
                         break;
                     case T_NAMESPACE:
                         $beforeNamespace = false;
                         $nameSpace = [];
-                        for ( $ii = $i; $ii < $count; $ii++ ) {
+                        for ($ii = $i; $ii < $count; $ii++) {
                             $tokenNs = $tokens[ $ii ][ 0 ] ?? $tokens[ $ii ];
                             $valueNs = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
                             $startNs = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
-                            if ( $tokenNs === T_STRING ) {
+                            if ($tokenNs === T_STRING) {
                                 $nameSpace[] = $valueNs;
                             }
 
-                            if ( $valueNs === ';' ) {
+                            if ($valueNs === ';') {
                                 break;
                             }
                             $i++;
                         }
-                        $this->addNameSpace( $nameSpace );
+                        $this->addNameSpace($nameSpace);
                         break;
                     case T_PUBLIC:
                     case T_PROTECTED:
@@ -215,70 +206,68 @@ trait Shared
                         $static = true;
                         break;
                     case T_ABSTRACT:
-                        if ( $beforeClass === true ) {
+                        if ($beforeClass === true) {
                             $this->makeAbstract();
-                        }
-                        else {
+                        } else {
                             $abstract = true;
                         }
                         break;
                     case T_FINAL:
-                        if ( $beforeClass === true ) {
+                        if ($beforeClass === true) {
                             $this->makeFinal();
-                        }
-                        else {
+                        } else {
                             $final = true;
                         }
                         break;
                     case T_USE:
-                        $beforeNamespace = false;
+                        if ($beforeClass) {
+                            $beforeNamespace = false;
 
-                        $uses = [];
-                        $type = 'use';
-                        for ( $ii = $i; $ii < $count; $ii++ ) {
-                            $token2 = $tokens[ $ii ][ 0 ] ?? $tokens[ $ii ];
-                            $value2 = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
-                            $start2 = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
-                            if ( $value2 === ';' || $value2 === ',' ) {
-                                $this->prepImport( $uses, $type, !$beforeClass );
-                                $uses = [];
-                                if ( $value2 === ';' ) {
-                                    $i++;
-                                    break;
+                            $uses = [];
+                            $type = 'use';
+                            for ($ii = $i; $ii < $count; $ii++) {
+                                $token2 = $tokens[ $ii ][ 0 ] ?? $tokens[ $ii ];
+                                $value2 = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
+                                $start2 = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
+                                if ($value2 === ';' || $value2 === ',') {
+                                    $this->prepImport($uses, $type, !$beforeClass);
+                                    $uses = [];
+                                    if ($value2 === ';') {
+                                        $i++;
+                                        break;
+                                    }
                                 }
-                            }
-                            if ( $token2 === T_FUNCTION ) {
-                                $type = 'function';
-                            }
-                            else if ( $token2 === T_CONST ) {
-                                $type = 'const';
-                            }
-                            if ( $token2 === T_STRING || $value2 === 'as' ) {
-                                $uses[] = $value2;
-                            }
+                                if ($token2 === T_FUNCTION) {
+                                    $type = 'function';
+                                } elseif ($token2 === T_CONST) {
+                                    $type = 'const';
+                                }
+                                if ($token2 === T_STRING || $value2 === 'as') {
+                                    $uses[] = $value2;
+                                }
 
-                            $i++;
+                                $i++;
+                            }
                         }
-
                         break;
                     case T_VARIABLE:
                         $beforeNamespace = false;
 
-                        if ( $beforeClass === false && $insideMethod === false ) {
-                            $propName = ltrim( trim( $value ), '$' );
+                        if ($beforeClass === false && $insideMethod === false) {
+                            $propName = ltrim(trim($value), '$');
                             $propValue = null;
-                            for ( $ii = $i; $ii < $count; $ii++ ) {
+                            for ($ii = $i; $ii < $count; $ii++) {
                                 $token2 = $tokens[ $ii ][ 0 ] ?? $tokens[ $ii ];
                                 $value2 = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
                                 $start2 = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
-                                if ( $token2 === T_VARIABLE || $value2 === '=' || $value2 === '"' || $value2 === "'" ) {
+                                if ($token2 === T_VARIABLE || $value2 === '=' || $value2 === '"' || $value2 === "'") {
                                     $i++;
                                     continue;
                                 }
-                                if ( $value2 === ';' ) {
+                                if ($value2 === ';') {
                                     break;
                                 }
-                                if ( $value2 === ')' && ( $tokens[ $ii + 1 ] === '{' || $tokens[ $ii + 2 ] === '{' ) ) {
+                                if ($value2 === ')' && ($tokens[ $ii + 1 ] === '{' || $tokens[ $ii + 2 ] === '{')) {
                                     break;
                                 }
 
@@ -297,10 +286,9 @@ trait Shared
                             //                        }
 
                             $vis = 'public';
-                            if ( $visibility === T_PRIVATE ) {
+                            if ($visibility === T_PRIVATE) {
                                 $vis = 'private';
-                            }
-                            else if ( $visibility === T_PROTECTED ) {
+                            } elseif ($visibility === T_PROTECTED) {
                                 $vis = 'protected';
                             }
                             $extra = [
@@ -308,14 +296,14 @@ trait Shared
                                 'document'   => $document,
                                 'visibility' => $vis,
                             ];
-                            $this->addProperty( $propName, trim( $propValue ), $extra );
+                            $this->addProperty($propName, trim($propValue), $extra);
                             $visibility = null;
                             $static = null;
                             $document = null;
                         }
                         break;
                     case T_CONSTANT_ENCAPSED_STRING:
-                        if ( mb_strpos( $value, 'SUITE_UNIQUE_KEY' ) !== false && $beforeClass === true ) {
+                        if (mb_strpos($value, 'SUITE_UNIQUE_KEY') !== false && $beforeClass === true) {
                             $beforeNamespace = false;
                             $this->addHeaderCatch();
                         }
@@ -329,37 +317,37 @@ trait Shared
                         $implements = false;
                         $implementsList = null;
                         $interfaceClass = [];
-                        for ( $ii = $i; $ii < $count; $ii++ ) {
+                        for ($ii = $i; $ii < $count; $ii++) {
                             $token2 = $tokens[ $ii ][ 0 ] ?? $tokens[ $ii ];
                             $value2 = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
                             $start2 = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
-                            if ( $value2 === '{' ) {
-                                if ( $extendsClass !== null ) {
-                                    if ( count( $extendsClass ) >= 2 ) {
-                                        $extendsClass = '\\' . implode( '\\', $extendsClass );
+                            if ($value2 === '{') {
+                                if ($extendsClass !== null) {
+                                    if (count($extendsClass) >= 2) {
+                                        $extendsClass = '\\' . implode('\\', $extendsClass);
                                     }
-                                    $this->addExtends( $extendsClass, false );
+                                    $this->addExtends($extendsClass, false);
                                 }
-                                if ( empty( $interfaceClass ) !== true ) {
-                                    $this->addInterface( $interfaceClass );
+                                if (empty($interfaceClass) !== true) {
+                                    $this->addInterface($interfaceClass);
                                     $interfaceClass = [];
                                 }
                                 $classStart++;
                                 break;
                             }
 
-                            if ( $token2 === T_EXTENDS ) {
+                            if ($token2 === T_EXTENDS) {
                                 $extends = true;
                                 $class = false;
                                 $implements = false;
                             }
 
-                            if ( $token2 === T_IMPLEMENTS ) {
-                                if ( $extends === true ) {
-                                    if ( count( $extendsClass ) >= 2 ) {
-                                        $extendsClass = '\\' . implode( '\\', $extendsClass );
+                            if ($token2 === T_IMPLEMENTS) {
+                                if ($extends === true) {
+                                    if (count($extendsClass) >= 2) {
+                                        $extendsClass = '\\' . implode('\\', $extendsClass);
                                     }
-                                    $this->addExtends( $extendsClass, false );
+                                    $this->addExtends($extendsClass, false);
                                     $extendsClass = null;
                                 }
                                 $implements = true;
@@ -367,20 +355,18 @@ trait Shared
                                 $class = false;
                             }
 
-                            if ( $value2 === ',' && empty( $interfaceClass ) !== true && $implements === true ) {
-                                $this->addInterface( $interfaceClass );
+                            if ($value2 === ',' && empty($interfaceClass) !== true && $implements === true) {
+                                $this->addInterface($interfaceClass);
                                 $interfaceClass = [];
                             }
 
-                            if ( $token2 === T_STRING ) {
-                                if ( $class === true ) {
+                            if ($token2 === T_STRING) {
+                                if ($class === true) {
                                     $class = false;
-                                    $this->addClassName( $value2 );
-                                }
-                                else if ( $extends === true && $implements === false ) {
+                                    $this->addClassName($value2);
+                                } elseif ($extends === true && $implements === false) {
                                     $extendsClass[] = $value2;
-                                }
-                                else if ( $implements === true ) {
+                                } elseif ($implements === true) {
                                     $interfaceClass[] = $value2;
                                 }
                             }
@@ -412,114 +398,101 @@ trait Shared
                             T_STATIC,
                             T_ABSTRACT,
                         ];
-                        for ( $ii = $i; $ii < $count; $ii++ ) {
+                        for ($ii = $i; $ii < $count; $ii++) {
                             $token2 = $tokens[ $ii ][ 0 ] ?? $tokens[ $ii ];
                             $value2 = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
                             $start2 = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
-                            if ( (int)$start2 ) {
+                            if ((int)$start2) {
                                 $last = $start2;
                             }
-                            if ( $value2 === '{' ) {
+                            if ($value2 === '{') {
                                 $startTags++;
-
                             }
 
-                            if ( $value2 === '}' ) {
+                            if ($value2 === '}') {
                                 $closeTags++;
 
-                                if ( $closeTags === $startTags ) {
+                                if ($closeTags === $startTags) {
                                     $classEnd--;
 
                                     $methodEnd = true;
                                 }
                             }
 
-                            if ( $methodEnd === true ) {
+                            if ($methodEnd === true) {
                                 $insideMethod = false;
                                 break;
                             }
 
-                            if ( $token2 === T_FUNCTION && $first === true ) {
+                            if ($token2 === T_FUNCTION && $first === true) {
                                 $i++;
                                 $first = false;
                                 $onMethodName = true;
                                 continue;
                             }
 
-                            if ( $onMethodName === true ) {
-                                if ( $value2 === '(' ) {
+                            if ($onMethodName === true) {
+                                if ($value2 === '(') {
                                     $onParams = true;
                                     $onMethodName = false;
                                     continue;
                                 }
                                 $method = $value2;
-
-                            }
-
-                            else if ( $onParams === true ) {
-
-                                if ( $params === null && $value2 === '(' ) {
+                            } elseif ($onParams === true) {
+                                if ($params === null && $value2 === '(') {
                                     continue;
                                 }
 
-                                if ( $value2 === ')' && ( $tokens[ $ii + 1 ] === ':' || $tokens[ $ii + 2 ] === ':' ) ) {
+                                if ($value2 === ')' && ($tokens[ $ii + 1 ] === ':' || $tokens[ $ii + 2 ] === ':')) {
                                     $onParams = false;
                                     $onReturn = true;
                                 }
 
-                                if ( $value2 === ')' && ( $tokens[ $ii + 1 ] === '{' || $tokens[ $ii + 2 ] === '{' ) ) {
+                                if ($value2 === ')' && ($tokens[ $ii + 1 ] === '{' || $tokens[ $ii + 2 ] === '{')) {
                                     $onParams = false;
                                 }
 
-                                if ( $value2 === ')' && ( $tokens[ $ii + 1 ] === ';' || $tokens[ $ii + 2 ] === ';' ) ) {
+                                if ($value2 === ')' && ($tokens[ $ii + 1 ] === ';' || $tokens[ $ii + 2 ] === ';')) {
                                     $methodEnd = true;
                                     continue;
                                 }
 
-                                if ( $onParams === true ) {
+                                if ($onParams === true) {
                                     $params .= $value2;
                                 }
-                            }
-
-                            else if ( $onReturn === true ) {
-                                if ( $value2 === '{' ) {
+                            } elseif ($onReturn === true) {
+                                if ($value2 === '{') {
                                     $onReturn = false;
                                     continue;
                                 }
 
-                                if ( $value2 === ':' ) {
+                                if ($value2 === ':') {
                                     continue;
                                 }
                                 $returnType .= $value2;
-                            }
-
-                            else if ( $method !== null && $onReturn === false && $onParams === false ) {
-
-                                if ( isset( $tokens[ $ii ][ 2 ] ) ) {
-                                    if ( isset( $body[ $start2 ] ) ) {
+                            } elseif ($method !== null && $onReturn === false && $onParams === false) {
+                                if (isset($tokens[ $ii ][ 2 ])) {
+                                    if (isset($body[ $start2 ])) {
                                         $content = $body[ $start2 ];
                                         $body[ $start2 ] = [
                                             'line'    => $start2,
                                             'content' => $content[ 'content' ] . $value2,
                                         ];
-                                    }
-                                    else {
+                                    } else {
                                         $body[ $start2 ] = [
                                             'line'    => $start2,
                                             'content' => $value2,
                                         ];
                                     }
-                                }
-                                else {
+                                } else {
                                     //we assume this value is a special non-token character and gets added the "last line"
-                                    if ( isset( $body[ $last ] ) ) {
+                                    if (isset($body[ $last ])) {
                                         $content = $body[ $last ];
                                         $body[ $last ] = [
                                             'line'    => $last,
                                             'content' => $content[ 'content' ] . $value2,
                                         ];
-                                    }
-                                    else {
+                                    } else {
                                         $body[ $last ] = [
                                             'line'    => $last,
                                             'content' => $value2,
@@ -528,18 +501,17 @@ trait Shared
                                 }
                             }
                             $i++;
-
                         }
 
                         $extra = [
-                            'name'       => trim( $method ),
+                            'name'       => trim($method),
                             'static'     => $static,
                             'visibility' => $visibility,
                             'final'      => $final,
                             'abstract'   => $abstract,
                             'document'   => $document,
                             'params'     => $params,
-                            'returnType' => trim( $returnType ),
+                            'returnType' => trim($returnType),
                             'body'       => $body,
                         ];
                         $abstract = null;
@@ -547,31 +519,29 @@ trait Shared
                         $static = null;
                         $visibility = null;
                         $document = null;
-                        $lastMethod = trim( $method );
+                        $lastMethod = trim($method);
                         try {
-                            $this->prepMethod( $extra );
-                        } catch ( \Exception $e ) {
+                            $this->prepMethod($extra);
+                        } catch (\Exception $e) {
                         }
                         break;
                     default:
-                        $this->extra( [ $value ] );
+                        //$this->extra([$value]);
                         break;
-
                 }
             }
         }
     }
 
-    protected function prepDocument( $document )
+    protected function prepDocument($document)
     {
-
-        $sliced = explode( "\n", $document );
-        array_shift( $sliced );
-        array_pop( $sliced );
+        $sliced = explode("\n", $document);
+        array_shift($sliced);
+        array_pop($sliced);
         $dc = [];
-        foreach ( $sliced as $slice ) {
-            $slice = trim( str_replace( '*', '', $slice ) );
-            if ( $slice ) {
+        foreach ($sliced as $slice) {
+            $slice = trim(str_replace('*', '', $slice));
+            if ($slice) {
                 $dc[] = $slice;
             }
         }
@@ -581,63 +551,58 @@ trait Shared
 
     public function noMethods()
     {
-
         $this->doMethods = false;
     }
 
     public function backup()
     {
-
         $path = ROOT_PATH . '/' . $this->path;
-        if ( $this->path !== null && file_exists( $path ) ) {
-            $contents = \file_get_contents( $path );
-            \file_put_contents( ROOT_PATH . '/' . $this->backUpName(), $contents );
+        if ($this->path !== null && file_exists($path)) {
+            $contents = \file_get_contents($path);
+            \file_put_contents(ROOT_PATH . '/' . $this->backUpName(), $contents);
         }
     }
 
     protected function backUpName()
     {
-
-        return str_replace( '.php', '.backup.php', $this->path );
+        return str_replace('.php', '.backup.php', $this->path);
     }
 
     public function hasBackup()
     {
-
         $path = ROOT_PATH . '/' . $this->backUpName();
 
-        return file_exists( $path );
+        return file_exists($path);
     }
 
     protected function reflection()
     {
-
-        $source = file_get_contents( $this->file->getRealPath() );
-        $tokens = token_get_all( $source );
-        $count = count( $tokens );
+        $source = file_get_contents($this->file->getRealPath());
+        $tokens = token_get_all($source);
+        $count = count($tokens);
         $setNamespace = false;
         $i = 0;
-        for ( $i = 0; $i < $count; $i++ ) {
+        for ($i = 0; $i < $count; $i++) {
             $token = $tokens[ $i ][ 0 ] ?? $tokens[ $i ];
             $value = $tokens[ $i ][ 1 ] ?? $tokens[ $i ];
             $start = $tokens[ $i ][ 2 ] ?? $tokens[ $i ];
-            if ( $token === T_NAMESPACE ) {
+            if ($token === T_NAMESPACE) {
                 $setNamespace = true;
                 $nameSpace = [];
-                for ( $ii = $i; $ii < $count; $ii++ ) {
+                for ($ii = $i; $ii < $count; $ii++) {
                     $tokenNs = $tokens[ $ii ][ 0 ] ?? $tokens[ $ii ];
                     $valueNs = $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
                     $startNs = $tokens[ $ii ][ 2 ] ?? $tokens[ $ii ];
-                    if ( $tokenNs === T_STRING ) {
+                    if ($tokenNs === T_STRING) {
                         $nameSpace[] = $valueNs;
                     }
 
-                    if ( $valueNs === ';' ) {
+                    if ($valueNs === ';') {
                         break;
                     }
                     $i++;
                 }
-                $this->addNameSpace( $nameSpace );
+                $this->addNameSpace($nameSpace);
             }
 
             $i++;

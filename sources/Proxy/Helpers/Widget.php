@@ -12,7 +12,6 @@
 
 namespace IPS\toolbox\Proxy\Helpers;
 
-use IPS\Http\Request\Curl;
 use Zend\Code\Generator\DocBlock\Tag\ParamTag;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
 use Zend\Code\Generator\DocBlockGenerator;
@@ -28,7 +27,7 @@ if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     exit;
 }
 
-class _Url implements HelpersAbstract
+class _Widget implements HelpersAbstract
 {
 
     /**
@@ -37,26 +36,21 @@ class _Url implements HelpersAbstract
     public function process($class, &$classDoc, &$classExtends, &$body)
     {
         $methodDocBlock = new DocBlockGenerator(
-            '@inheritdoc', \null, [
-            new ParamTag('timeout', null),
-            new ParamTag('httpVersion', null),
-            new ParamTag('followRedirects', null),
-            new ParamTag('skipLocalhostRedirects', null),
-            new ReturnTag(['dataType' => '\\' . Curl::class]),
+            '@inheritdoc', null, [
+            new ParamTag('callback', 'array'),
+            new ReturnTag(['dataType' => 'string']),
+
         ]
         );
 
         try {
             $body[] = MethodGenerator::fromArray(
                 [
-                    'name'       => 'request',
+                    'name'       => 'template',
                     'parameters' => [
-                        new ParameterGenerator('timeout', \null, 'null', 0),
-                        new ParameterGenerator('httpVersion', \null, 'null', 1),
-                        new ParameterGenerator('followRedirects', \null, 'null', 2),
-                        new ParameterGenerator('skipLocalhostRedirects', \null, 'null', 4),
+                        new ParameterGenerator('callback', null, null, 0),
                     ],
-                    'body'       => 'return parent::request(... func_get_arguments());',
+                    'body'       => 'return parent::template(... func_get_arguments());',
                     'docblock'   => $methodDocBlock,
                     'static'     => \false,
                 ]

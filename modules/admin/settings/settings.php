@@ -25,8 +25,12 @@ use IPS\Settings;
 use IPS\toolbox\GitHooks;
 use IPS\toolbox\Profiler\Debug;
 use RuntimeException;
+
 use function defined;
+use function function_exists;
 use function header;
+use function property_exists;
+
 use const IPS\NO_WRITES;
 use const IPS\ROOT_PATH;
 
@@ -34,8 +38,8 @@ use const IPS\ROOT_PATH;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -53,10 +57,9 @@ class _settings extends Controller
      */
     public function execute()
     {
-
         \IPS\toolbox\Application::loadAutoLoader();
 
-        Dispatcher\Admin::i()->checkAcpPermission( 'settings_manage' );
+        Dispatcher\Admin::i()->checkAcpPermission('settings_manage');
         parent::execute();
     }
 
@@ -67,118 +70,124 @@ class _settings extends Controller
      */
     protected function manage()
     {
-
-        if ( NO_WRITES === \false ) {
-            Output::i()->sidebar[ 'actions' ][ 'init' ] = [
-                'icon'  => 'plus',
-                'title' => 'Patch init.php',
-                'link'  => Request::i()->url()->setQueryString( [ 'do' => 'patchInit' ] ),
-
-            ];
-
-            if ( property_exists( IPS::class, 'beenPatched' ) && IPS::$beenPatched === true ) {
-                Output::i()->sidebar[ 'actions' ][ 'writeSpecialHooks' ] = [
-                    'icon'  => '',
-                    'title' => 'Add Special Hooks',
-                    'link'  => Request::i()->url()->setQueryString( [ 'do' => 'writeSpecialHooks' ] ),
-
-                ];
-
-                Output::i()->sidebar[ 'actions' ][ 'removeSpecialHooks' ] = [
-                    'icon'  => '',
-                    'title' => 'Remove Special Hooks',
-                    'link'  => Request::i()->url()->setQueryString( [ 'do' => 'removeSpecialHooks' ] ),
+        if (NO_WRITES === \false) {
+            if (!property_exists(IPS::class, 'beenPatched')) {
+                Output::i()->sidebar[ 'actions' ][ 'init' ] = [
+                    'icon'  => 'plus',
+                    'title' => 'Patch init.php',
+                    'link'  => Request::i()->url()->setQueryString(['do' => 'patchInit']),
 
                 ];
             }
-            Output::i()->sidebar[ 'actions' ][ 'helpers' ] = [
-                'icon'  => 'plus',
-                'title' => 'Patch Helpers',
-                'link'  => Request::i()->url()->setQueryString( [ 'do' => 'patchHelpers' ] ),
 
-            ];
+//            if (property_exists(IPS::class, 'beenPatched') && IPS::$beenPatched === true) {
+//                Output::i()->sidebar[ 'actions' ][ 'writeSpecialHooks' ] = [
+//                    'icon'  => '',
+//                    'title' => 'Add Special Hooks',
+//                    'link'  => Request::i()->url()->setQueryString(['do' => 'writeSpecialHooks']),
+//
+//                ];
+//
+//                Output::i()->sidebar[ 'actions' ][ 'removeSpecialHooks' ] = [
+//                    'icon'  => '',
+//                    'title' => 'Remove Special Hooks',
+//                    'link'  => Request::i()->url()->setQueryString(['do' => 'removeSpecialHooks']),
+//
+//                ];
+//            }
+
+            if (!function_exists('_p')) {
+                Output::i()->sidebar[ 'actions' ][ 'helpers' ] = [
+                    'icon'  => 'plus',
+                    'title' => 'Patch Helpers',
+                    'link'  => Request::i()->url()->setQueryString(['do' => 'patchHelpers']),
+
+                ];
+            }
         }
 
-        $form = \IPS\toolbox\Form::create()->object( Settings::i() );
+        $form = \IPS\toolbox\Form::create()->object(Settings::i());
 
-        $form->tab( 'toolbox' );
-        $form->add( 'toolbox_debug_templates', 'yn' )->tab( 'toolbox' );
+        $form->tab('toolbox');
+        $form->add('toolbox_debug_templates', 'yn')->tab('toolbox');
         /* @var \IPS\toolbox\extensions\toolbox\Settings\settings $extension */
-        foreach ( Application::allExtensions( 'toolbox', 'settings' ) as $extension ) {
-            $extension->elements( $form );
+        foreach (Application::allExtensions('toolbox', 'settings') as $extension) {
+            $extension->elements($form);
         }
 
         /**
          * @var Form $form
          */
-        if ( $values = $form->values() ) {
+        if ($values = $form->values()) {
             /** @var Application $app */
-            foreach ( Application::appsWithExtension( 'toolbox', 'settings' ) as $app ) {
-                $extensions = $app->extensions( 'toolbox', 'settings', \true );
+            foreach (Application::appsWithExtension('toolbox', 'settings') as $app) {
+                $extensions = $app->extensions('toolbox', 'settings', \true);
                 /* @var \IPS\toolbox\extensions\toolbox\Settings\_settings $extension */
-                foreach ( $extensions as $extension ) {
-                    $extension->formatValues( $values );
+                foreach ($extensions as $extension) {
+                    $extension->formatValues($values);
                 }
             }
-            $form->saveAsSettings( $values );
-            Output::i()->redirect( $this->url->setQueryString( [ 'tab' => '' ] ), 'foo' );
+            $form->saveAsSettings($values);
+            Output::i()->redirect($this->url->setQueryString(['tab' => '']), 'foo');
         }
 
         Output::i()->title = 'Settings';
         Output::i()->output = $form;
-
     }
 
     protected function writeSpecialHooks()
     {
+        $apps = Application::appsWithExtension('toolbox', 'SpecialHooks');
 
-        $apps = Application::appsWithExtension( 'toolbox', 'SpecialHooks' );
+        (new GitHooks($apps))->writeSpecialHooks();
 
-        ( new GitHooks( $apps ) )->writeSpecialHooks();
-
-        Output::i()->redirect( $this->url->setQueryString( [ 'tab' => '' ] ), 'SpecialHooks Created' );
-
+        Output::i()->redirect($this->url->setQueryString(['tab' => '']), 'SpecialHooks Created');
     }
 
     protected function removeSpecialHooks()
     {
+        $apps = Application::appsWithExtension('toolbox', 'SpecialHooks');
 
-        $apps = Application::appsWithExtension( 'toolbox', 'SpecialHooks' );
+        (new GitHooks($apps))->removeSpecialHooks();
 
-        ( new GitHooks( $apps ) )->removeSpecialHooks();
-
-        Output::i()->redirect( $this->url->setQueryString( [ 'tab' => '' ] ), 'SpecialHooks Removed' );
-
+        Output::i()->redirect($this->url->setQueryString(['tab' => '']), 'SpecialHooks Removed');
     }
 
     protected function patchHelpers()
     {
+        if (\IPS\NO_WRITES === \false && !function_exists('_p')) {
+            $path = \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR;
+            $init = $path . 'init.php';
+            $content = \file_get_contents($init);
 
-        if ( NO_WRITES === \false ) {
-
-            try {
-                $tokenizer = new StandardTokenizer( ROOT_PATH . '/init.php' );
-                $helpers = '__DIR__ . \'/applications/toolbox/sources/Debug/Helpers.php\'';
-                if ( $tokenizer->hasBackup() === false ) {
-                    $tokenizer->backup();
-                }
-                $tokenizer->addRequire( $helpers, true, false );
-                $tokenizer->write();
-            } catch ( Exception $e ) {
-                Debug::log( $e );
+            if (!is_file(\IPS\ROOT_PATH . \DIRECTORY_SEPARATOR . 'init.bu.php')) {
+                \file_put_contents(\IPS\ROOT_PATH . \DIRECTORY_SEPARATOR . 'init.bu.php', $content);
             }
+            $r = <<<EOF
+require __DIR__ . '/applications/toolbox/sources/Debug/Helpers.php';
+class IPS
+EOF;
+            $content = \str_replace('class IPS', $r, $content);
+            \file_put_contents($init, $content);
         }
 
-        Output::i()->redirect( $this->url, 'init.php patched with Debug Helpers' );
+        Output::i()->redirect($this->url, 'init.php patched with Debug Helpers');
     }
 
     protected function patchInit()
     {
-
-        if ( NO_WRITES === \false ) {
-
+        if (\IPS\NO_WRITES === \false && !property_exists(IPS::class, 'beenPatched')) {
+            $path = \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR;
+            $init = $path . 'init.php';
+            $content = \file_get_contents($init);
+            if (!is_file(\IPS\ROOT_PATH . \DIRECTORY_SEPARATOR . 'init.bu.php')) {
+                \file_put_contents(\IPS\ROOT_PATH . \DIRECTORY_SEPARATOR . 'init.bu.php', $content);
+            }
+            $preg = "#public static function monkeyPatch\((.*?)public#msu";
             $before = <<<'eof'
-
+    public static $beenPatched = true;
+    public static function monkeyPatch($namespace, $finalClass, $extraCode = '')
+    {
         $realClass = "_{$finalClass}";
         if (isset(self::$hooks[ "\\{$namespace}\\{$finalClass}" ]) AND \IPS\RECOVERY_MODE === false) {
             $path = ROOT_PATH . '/hook_temp/';
@@ -221,24 +230,19 @@ class _settings extends Controller
         if (eval("namespace {$namespace}; " . $extraCode . ($reflection->isAbstract() ? 'abstract' : '') . " class {$finalClass} extends {$realClass} {}") === false) {
             trigger_error("There was an error initiating the class {$namespace}\\{$finalClass}.", E_USER_ERROR);
         }
-    
+    }
 eof;
-            try {
-                $tokenizer = new StandardTokenizer( ROOT_PATH . '/init.php' );
-                $tokenizer->addPath( ROOT_PATH );
-                $tokenizer->addFileName( 'init' );
-                $tokenizer->replaceMethod( 'monkeyPatch', $before );
-                $tokenizer->addProperty( 'beenPatched', 'true', [ 'static' => true ] );
-                if ( $tokenizer->hasBackup() === false ) {
-                    $tokenizer->backup();
-                }
+            $content = preg_replace_callback(
+                $preg,
+                function ($e) use ($before) {
+                    return $before . "\n\n  public";
+                },
+                $content
+            );
 
-                $tokenizer->save();
-            } catch ( Exception $e ) {
-                Debug::log( $e );
-            }
+            \file_put_contents($init, $content);
         }
 
-        Output::i()->redirect( $this->url, 'init.php patched' );
+        Output::i()->redirect($this->url, 'init.php patched');
     }
 }

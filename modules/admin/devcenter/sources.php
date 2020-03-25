@@ -42,7 +42,11 @@ class _sources extends Controller
 
         Dispatcher::i()->checkAcpPermission( 'sources_manage' );
         Sources::menu();
-        $this->application = Application::load( Request::i()->appKey );
+        $app = (string) Request::i()->appKey;
+        if( !$app ){
+            $app = 'core';
+        }
+        $this->application = Application::load( $app );
         $this->elements = new Sources( $this->application );
         parent::execute();
     }

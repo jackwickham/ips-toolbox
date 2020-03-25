@@ -272,7 +272,7 @@ class _Dev extends Singleton
             ]
         )->toggles(['_group'], true);
 
-        $this->form->add('group_manual_location', 'select')->options(['options' => ['admin', 'front', 'global']]);
+        $this->form->add('group_manual_location', 'select')->options(['options' => ['admin' => 'admin', 'front' => 'front', 'global' => 'global']]);
         $this->form->add('group_manual_folder')->required();
     }
 

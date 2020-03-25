@@ -13,10 +13,13 @@
 namespace IPS\toolbox\DevCenter\Dev\Compiler;
 
 use IPS\Application;
+use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Shared\Magic;
 use IPS\toolbox\Shared\Read;
 use IPS\toolbox\Shared\Replace;
 use IPS\toolbox\Shared\Write;
+
+use function _p;
 use function explode;
 use function is_array;
 use function str_replace;

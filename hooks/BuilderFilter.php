@@ -1,4 +1,4 @@
-//<?php
+//<?php namespace abe8f1db70814021211675f521bf726ba;
 
 use IPS\Application;
 use IPS\Request;
@@ -8,6 +8,12 @@ if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
+/**
+ * @mixin \RecursiveFilterIterator
+ * @mixin _HOOK_CLASS_
+ * @mixin \IPS\Applicaiton\BuildFilter
+ * @mixin \SplFileInfo
+ */
 
 class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
 {

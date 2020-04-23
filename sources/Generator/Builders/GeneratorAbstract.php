@@ -49,6 +49,9 @@ abstract class GeneratorAbstract
      */
     protected $headerCatch = false;
 
+    public $hookClass;
+
+    public $hookNamespace;
     /**
      * class comment
      *
@@ -216,8 +219,12 @@ abstract class GeneratorAbstract
     protected function writeHead()
     {
         if ($this->isHook === true) {
-            $openTag = <<<'EOF'
-//<?php
+            $ns = '';
+            // if( $this->hookNamespace !== null){
+            //     $ns = ' namespace '.$this->hookNamespace.';';
+            // }
+            $openTag = <<<EOF
+//<?php {$ns}
 
 EOF;
         } else {
@@ -251,7 +258,6 @@ EOF;
         $this->toWrite .= '#generator_token_imports#';
         if ($this->headerCatch === true) {
             $headerCatch = <<<'EOF'
-
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );

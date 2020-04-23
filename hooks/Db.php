@@ -1,4 +1,5 @@
-//<?php
+//<?php namespace afd9423391fcea6f085246c5f41cdb702;
+
 
 use IPS\toolbox\Profiler\Memory;
 use IPS\toolbox\Profiler\Time;

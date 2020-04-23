@@ -1,26 +1,29 @@
 {
-  "toolbox": {
-    "phpToolBoxMeta": {
-      "generators": "IPS\\toolbox\\extensions\\toolbox\\phpToolBoxMeta\\generators",
-      "devcenter": "IPS\\toolbox\\extensions\\toolbox\\phpToolBoxMeta\\devcenter"
-    },
-    "constants": {
-      "toolbox": "IPS\\toolbox\\extensions\\toolbox\\constants\\toolbox"
-    },
-    "ProxyHelpers": {
-      "devplus": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\devplus",
-      "proxy": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\proxy",
-      "devfolder": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\devfolder",
-      "dtcontent": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\dtcontent",
-      "code": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\code",
-      "profiler": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\profiler"
-    },
-    "settings": {
-      "proxy": "IPS\\toolbox\\extensions\\toolbox\\settings\\proxy",
-      "profiler": "IPS\\toolbox\\extensions\\toolbox\\settings\\profiler"
-    },
-    "Headerdoc": {
-      "header": "IPS\\toolbox\\extensions\\toolbox\\Headerdoc\\header"
+    "toolbox": {
+        "phpToolBoxMeta": {
+            "devcenter": "IPS\\toolbox\\extensions\\toolbox\\phpToolBoxMeta\\devcenter",
+            "generators": "IPS\\toolbox\\extensions\\toolbox\\phpToolBoxMeta\\generators"
+        },
+        "Headerdoc": {
+            "header": "IPS\\toolbox\\extensions\\toolbox\\Headerdoc\\header"
+        },
+        "SpecialHooks": {
+            "toolbox": "IPS\\toolbox\\extensions\\toolbox\\SpecialHooks\\toolbox"
+        },
+        "settings": {
+            "proxy": "IPS\\toolbox\\extensions\\toolbox\\settings\\proxy",
+            "profiler": "IPS\\toolbox\\extensions\\toolbox\\settings\\profiler"
+        },
+        "ProxyHelpers": {
+            "code": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\code",
+            "proxy": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\proxy",
+            "dtcontent": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\dtcontent",
+            "profiler": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\profiler",
+            "devfolder": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\devfolder",
+            "devplus": "IPS\\toolbox\\extensions\\toolbox\\ProxyHelpers\\devplus"
+        },
+        "constants": {
+            "toolbox": "IPS\\toolbox\\extensions\\toolbox\\constants\\toolbox"
+        }
     }
-  }
 }

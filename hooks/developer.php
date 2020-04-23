@@ -1,4 +1,5 @@
-//<?php
+//<?php namespace afe6fdaa5c696a1b068602a1cd4743f0c;
+
 
 use IPS\Application;
 use IPS\Db;

@@ -1,7 +1,8 @@
-//<?php
+//<?php namespace a20543394f642f8f626737a5c80da9f87;
 
 use IPS\toolbox\DevCenter\Headerdoc;
 use IPS\toolbox\DevFolder\Applications;
+use Exception;
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');

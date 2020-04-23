@@ -1,5 +1,4 @@
-//<?php
-
+//<?php namespace a03f7b3d0b96b3b71f524f3044f59e230;
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');

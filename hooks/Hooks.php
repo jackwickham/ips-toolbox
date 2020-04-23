@@ -1,15 +1,18 @@
-//<?php
+//<?php namespace ad4ce72351d07d412fe530d3249c333ef;
 
-use Generator\Builders\ClassGenerator;
-use IPS\Application;
-use IPS\Helpers\Form;
-use IPS\Helpers\Form\Text;
 use IPS\Output;
 use IPS\Request;
-
+use IPS\Application;
+use DomainException; 
+use IPS\Helpers\Form;
 use const IPS\ROOT_PATH;
+use IPS\Helpers\Form\Text;
+
+use Generator\Builders\ClassGenerator;
+use IPS\toolbox\Proxy\Generator\Proxy;
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    class _HOOK_CLASS_ extends \IPS\Plugin\Hook{}
     header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
@@ -37,6 +40,8 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
                 $classname = "{$appOrPluginId}_hook_{$hook->filename}";
                 $hookClass = new ClassGenerator();
                 $hookClass->isHook = true;
+                // $hookClass->hookClass = $hook->class;
+                // $hookClass->hookNamespace = 'a'.md5(time());
                 $hookClass->addHeaderCatch();
                 $classDoc[] = 'Hook For ' . $hook->class;
                 $classDoc[] = '@mixin ' . $hook->class;
@@ -52,6 +57,9 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
                 static::writeDataFile();
                 $app->skip = true;
                 $app->buildHooks();
+                
+                Proxy::i()->buildAppHooks($app );
+
                 Output::i()->redirect($url);
             }
         }

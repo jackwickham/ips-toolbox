@@ -1,4 +1,4 @@
-//<?php
+//<?php namespace a789ff08d519d591cf90b60af8817b80e;
 
 use IPS\toolbox\Build;
 

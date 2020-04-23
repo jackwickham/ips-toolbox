@@ -78,7 +78,6 @@ if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
  */
 class _Proxy extends GeneratorAbstract
 {
-
     use Write;
 
     /**
@@ -211,20 +210,22 @@ class _Proxy extends GeneratorAbstract
                         $reflect = new ReflectionClass(
                             $data['namespace'] . '\\' . str_replace('_', '', $data['class'])
                         );
-                        $bits = $reflect->getProperty('bitOptions');
-                        $bits->setAccessible(true);
+                        if ($reflect->hasProperty('bitOptions')) {
+                            $bits = $reflect->getProperty('bitOptions');
+                            $bits->setAccessible(true);
 
-                        if ($bits->isStatic()) {
-                            $bt = $bits->getValue();
+                            if ($bits->isStatic()) {
+                                $bt = $bits->getValue();
 
-                            if (is_array($bt)) {
-                                foreach ($bt as $key => $value) {
-                                    foreach ($value as $k => $v) {
-                                        $classDefinition[] = [
+                                if (is_array($bt)) {
+                                    foreach ($bt as $key => $value) {
+                                        foreach ($value as $k => $v) {
+                                            $classDefinition[] = [
                                             'pt'   => 'p',
                                             'prop' => $k,
                                             'type' => Bitwise::class,
                                         ];
+                                        }
                                     }
                                 }
                             }
@@ -288,7 +289,7 @@ class _Proxy extends GeneratorAbstract
                         $new->setDocBlock($classBlock);
                     }
 
-                    $proxyFile = new DTFileGenerator;
+                    $proxyFile = new DTFileGenerator();
                     $proxyFile->isProxy = true;
                     $proxyFile->setClass($new);
                     $proxyFile->setFilename($path . '/' . $file);
@@ -296,6 +297,7 @@ class _Proxy extends GeneratorAbstract
                 }
             }
         } catch (Exception $e) {
+            // throw $e;
             //            Debug::add( 'Proxy Create', $e );
         }
     }
@@ -498,7 +500,7 @@ class _Proxy extends GeneratorAbstract
             if (isset($this->helperClasses[$class]) && is_array($this->helperClasses[$class])) {
                 /* @var HelpersAbstract $helperClass */
                 foreach ($this->helperClasses[$class] as $helper) {
-                    $helperClass = new $helper;
+                    $helperClass = new $helper();
                     $helperClass->process($class, $classDoc, $classExtends, $body);
                 }
             }
@@ -582,7 +584,7 @@ class _Proxy extends GeneratorAbstract
             $class->setName('Settings');
             $class->setExtendedClass('IPS\_Settings');
             $class->setDocBlock($header);
-            $file = new DTFileGenerator;
+            $file = new DTFileGenerator();
             $file->setClass($class);
             $file->setFilename($this->save . '/IPS_Settings.php');
             $file->write();
@@ -613,7 +615,6 @@ class _Proxy extends GeneratorAbstract
 
                 $extra .= 'define( "\\IPS\\' . $key . '",' . $val . ");\n";
                 $extra .= 'define( "IPS\\' . $key . '",' . $val . ");\n";
-
             }
             $extra .= <<<eof
 /**
@@ -626,9 +627,61 @@ function mb_ucfirst(\$text)
 }
 eof;
 
-            $file = new DTFileGenerator;
+            $file = new DTFileGenerator();
             $file->setBody($extra);
             $this->_writeFile('IPS_Constants.php', $file->generate(), $this->save, false);
+            $this->buildHooks();
+        }
+    }
+
+    protected function buildHooks()
+    {
+        /** @var Application $app */
+        foreach (Application::appsWithExtension('toolbox', 'SpecialHooks') as $app) {
+            $this->buildAppHooks($app);
+        }
+    }
+    public function buildAppHooks( \IPS\Application $app ){        
+            $appDir = \IPS\ROOT_PATH . '/applications/' . $app->directory;
+            $dir = $appDir . '/data/hooks.json';
+            $hooks = json_decode(\file_get_contents($dir), true);
+            foreach ($hooks as $file => $data) {
+                if (isset($data['type']) && $data['type'] === 'C') {
+                    $this->buildHookProxy($appDir . '/hooks/' . $file . '.php', $data['class']);
+                }
+            }
+
+    }
+    public function buildHookProxy($hookFile, $class)
+    {
+        $path = $this->save . '/class/hooks/';
+        if (file_exists($hookFile)) {
+            $ns = 'a' . md5(random_int(1, 10000) . time());
+            $newContent = '';
+            $contents = \fopen($hookFile, 'r');
+            if ($contents) {
+                $i = 0;
+                while (($line = \fgets($contents)) !== false) {
+                    if ($i=== 0) {
+                        $newContent .= '//<?php namespace ' . $ns . ';'.PHP_EOL;
+                        $i++;
+                    } else {
+                        $newContent .= $line;
+                    }
+                }
+
+                \fclose($contents);
+                \file_put_contents($hookFile, $newContent);
+                $new = new ClassGenerator();
+                $new->setName('_HOOK_CLASS_');
+                $new->setNamespaceName($ns);
+                $new->setExtendedClass($class);
+                $proxyFile = new DTFileGenerator();
+                $proxyFile->isProxy = true;
+                $proxyFile->setClass($new);
+                $proxyFile->setFilename($path . '/f' . $ns . '.php');
+                $proxyFile->write();
+            }
         }
     }
 }

@@ -1,41 +1,36 @@
-//<?php
+//<?php namespace a913a16629a0f16d89b80d289d58e5f71;
 
-use IPS\Settings; 
-use IPS\toolbox\Application; 
+use IPS\Settings;
+use IPS\toolbox\Application;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
-    class _HOOK_CLASS_ extends \IPS\Theme {}
     header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
 class toolbox_hook_Theme extends _HOOK_CLASS_
 {
-
     public static function runProcessFunction($content, $functionName)
     {
         $path = \IPS\ROOT_PATH . '/toolbox_templates/';
 
-        $filename = $path . $functionName.md5($content).'.php';
+        $filename = $path . $functionName . md5($content) . '.php';
         /* If it's already been built, we don't need to do it again */
         if (\function_exists('IPS\Theme\\' . $functionName)) {
             return;
         }
 
-        if (  \IPS\IN_DEV === true && \IPS\NO_WRITES === false && mb_strpos(
-                $functionName,
-                'css_'
-            ) === false && Settings::i()->toolbox_debug_templates) {
-
-                
-             if (!is_dir($path)) {
+        if (\IPS\IN_DEV === true && \IPS\NO_WRITES === false && mb_strpos(
+            $functionName,
+            'css_'
+        ) === false && Settings::i()->toolbox_debug_templates) {
+            if (!is_dir($path)) {
                 mkdir($path, 0777, true);
             }
-            
-            if (!file_exists($filename)) {
 
+            if (!file_exists($filename)) {
                 try {
                     Application::loadAutoLoader();
                     $finder = new Finder();
@@ -62,7 +57,7 @@ EOF;
 
                 try {
                     \file_put_contents($filename, $content);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                 }
             }
 

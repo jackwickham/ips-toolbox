@@ -152,10 +152,12 @@ class _Headerdoc extends Singleton
 
         /* @var \IPS\toolbox\DevCenter\extensions\toolbox\DevCenter\Headerdoc\Headerdoc $class */
         foreach ($app->extensions('toolbox', 'Headerdoc', \true) as $class) {
-            if (method_exists($class, 'exclude')) {
-                $class->exclude($exclude);
+            if( method_exists($class, 'filesSkip')){
+                $class->filesSkip($files);
             }
-
+            if( method_exists($class,'dirSkip')){
+                $class->dirSkip($directory);
+            }
             try {
                 $reflector = new ReflectionMethod($class, 'since');
                 $isProto = ($reflector->getDeclaringClass()->getName() !== get_class($class));
@@ -202,7 +204,7 @@ class _Headerdoc extends Singleton
         $continue = \false;
 
         /* @var \IPS\toolbox\DevCenter\extensions\toolbox\DevCenter\Headerdoc\Headerdoc $class */
-        foreach ($app->extensions('toolbox', 'Headerdoc', \true) as $class) {
+        foreach ($app->extensions('toolbox', 'Headerdoc', true) as $class) {
             if (method_exists($class, 'enabled')) {
                 $continue = $class->enabled();
             }

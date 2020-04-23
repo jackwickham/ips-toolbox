@@ -1,4 +1,4 @@
-//<?php
+//<?php namespace a3c9ebf4675f0f54ebaa56e5fdd606e13;
 
 use IPS\Http\Url;
 use IPS\Output;

@@ -1,4 +1,5 @@
-//<?php
+//<?php namespace a0183c97591470ab8ff1b51830ba98079;
+
 
 use IPS\Data\Store;
 use IPS\Member;

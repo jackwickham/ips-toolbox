@@ -1,4 +1,5 @@
-//<?php
+//<?php namespace ac0f96738a46b89aad87dc98a16c38bb9;
+
 
 use IPS\toolbox\Application;
 use IPS\toolbox\Profiler\Debug;

@@ -1,9 +1,12 @@
 //<?php
 
-use IPS\Settings;
-use IPS\Theme\Dev\Template;
+use IPS\Settings; 
+use IPS\toolbox\Application; 
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    class _HOOK_CLASS_ extends \IPS\Theme {}
     header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
@@ -13,26 +16,56 @@ class toolbox_hook_Theme extends _HOOK_CLASS_
 
     public static function runProcessFunction($content, $functionName)
     {
+        $path = \IPS\ROOT_PATH . '/toolbox_templates/';
+
+        $filename = $path . $functionName.md5($content).'.php';
         /* If it's already been built, we don't need to do it again */
         if (\function_exists('IPS\Theme\\' . $functionName)) {
             return;
         }
 
-        if (Template::$debugFileName !== null && \IPS\IN_DEV === true && \IPS\NO_WRITES === false && mb_strpos(
+        if (  \IPS\IN_DEV === true && \IPS\NO_WRITES === false && mb_strpos(
                 $functionName,
                 'css_'
             ) === false && Settings::i()->toolbox_debug_templates) {
-            $path = \IPS\ROOT_PATH . '/toolbox_templates/';
-            $filename = $path . Template::$debugFileName;
-            if (!is_dir($path)) {
+
+                
+             if (!is_dir($path)) {
                 mkdir($path, 0777, true);
             }
-            //lki
-            $content = "<?php\nnamespace IPS\Theme;\n" . $content;
-            try {
-                \file_put_contents($filename, $content);
-            } catch (Exception $e) {
+            
+            if (!file_exists($filename)) {
+
+                try {
+                    Application::loadAutoLoader();
+                    $finder = new Finder();
+                    $finder->in($path)->files()->name($functionName . '*.php');
+                    $fs = new Filesystem();
+                    foreach ($finder as $f) {
+                        $fs->remove($f->getRealPath());
+                    }
+                } catch (\Exception $e) {
+                }
+
+                $content = <<<EOF
+<?php
+
+namespace IPS\Theme;
+use function count;
+use function in_array;
+use function is_array;
+use function is_object;
+
+{$content}
+EOF;
+
+
+                try {
+                    \file_put_contents($filename, $content);
+                } catch (Exception $e) {
+                }
             }
+
             include_once($filename);
         } else {
             parent::runProcessFunction($content, $functionName);

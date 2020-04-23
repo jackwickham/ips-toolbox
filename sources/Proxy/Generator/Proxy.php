@@ -612,6 +612,8 @@ class _Proxy extends GeneratorAbstract
                 }
 
                 $extra .= 'define( "\\IPS\\' . $key . '",' . $val . ");\n";
+                $extra .= 'define( "IPS\\' . $key . '",' . $val . ");\n";
+
             }
             $extra .= <<<eof
 /**

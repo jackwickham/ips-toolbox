@@ -87,7 +87,6 @@ class ClassGenerator extends GeneratorAbstract
 
     public static function convertValue($value)
     {
-        $value = trim($value);
         if (is_array($value)) {
             $return = var_export($value, true);
 
@@ -108,6 +107,9 @@ class ClassGenerator extends GeneratorAbstract
             }
 
             return $return;
+        }
+        else{
+            $value = trim($value);
         }
 
         if ((int)$value || is_numeric($value)) {

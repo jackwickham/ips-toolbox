@@ -331,7 +331,7 @@ abstract class _GeneratorAbstract
                     }
                 }
             }
-        } catch (RuntimeException $e) {
+        } catch (\RuntimeException $e) {
             $this->error = 1;
             Debug::log($e);
         }

@@ -5,11 +5,12 @@ use IPS\Request;
 use IPS\Application;
 use DomainException; 
 use IPS\Helpers\Form;
-use const IPS\ROOT_PATH;
 use IPS\Helpers\Form\Text;
 
 use Generator\Builders\ClassGenerator;
 use IPS\toolbox\Proxy\Generator\Proxy;
+
+use const IPS\ROOT_PATH;
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     class _HOOK_CLASS_ extends \IPS\Plugin\Hook{}
@@ -59,7 +60,6 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
                 $app->buildHooks();
                 
                 Proxy::i()->buildAppHooks($app );
-
                 Output::i()->redirect($url);
             }
         }

@@ -1,18 +1,18 @@
-//<?php namespace abe8a5bd4b6fb1238a3d0800d4b35efbe;
+//<?php namespace a07c1956658b900e092b61bceece595ab;
 
 use IPS\Settings;
 use IPS\toolbox\Application;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
-if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+if (!\defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
 class toolbox_hook_Theme extends _HOOK_CLASS_
 {
-    public static function runProcessFunction($content, $functionName)
+    public static function runProcessFunction($content, $functionName):void
     {
         $path = \IPS\ROOT_PATH . '/toolbox_templates/';
 
@@ -23,9 +23,9 @@ class toolbox_hook_Theme extends _HOOK_CLASS_
         }
 
         if (\IPS\IN_DEV === true && \IPS\NO_WRITES === false && mb_strpos(
-            $functionName,
-            'css_'
-        ) === false && Settings::i()->toolbox_debug_templates) {
+                $functionName,
+                'css_'
+            ) === false && Settings::i()->toolbox_debug_templates) {
             if (!is_dir($path)) {
                 mkdir($path, 0777, true);
             }

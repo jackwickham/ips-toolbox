@@ -8,6 +8,7 @@ use IPS\Data\Store;
 use IPS\DateTime;
 use IPS\Db;
 use IPS\Dispatcher\Controller;
+use IPS\Http\Url;
 use IPS\Log;
 use IPS\Member;
 use IPS\Output;
@@ -370,6 +371,11 @@ class _bt extends Controller
     {
 
         Db::i()->update( 'toolbox_debug', [ 'debug_viewed' => 1 ] );
+    }
+
+    protected function adminer(){
+        $url =  Url::baseUrl().'/applications/toolbox/sources/Profiler/Adminer/db.php';
+        Output::i()->output = '<iframe id="toolboxAdminer"  width="100%" height="600px" marginheight="0" frameborder="0" src="'.$url.'"></iframe>';
     }
 
     //    protected function checkout(){

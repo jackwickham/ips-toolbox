@@ -12,6 +12,8 @@
 namespace IPS\toolbox;
 
 use IPS\Application;
+use IPS\Output;
+use IPS\Theme;
 use const IPS\ROOT_PATH;
 
 /**
@@ -107,7 +109,26 @@ class _Application extends Application
 
         return $source;
     }
+    public static function addCss($css, $location = 'front', $app = 'toolbox'): void
+    {
+        if (!is_array($css)) {
+            $css = [$css];
+        }
 
+        $cssFiles[] = Output::i()->cssFiles;
+        foreach ($css as $file) {
+            $file .= '.css';
+            $cssFiles[] = Theme::i()->css($file, $app, $location);
+        }
+        Output::i()->cssFiles = array_merge(...$cssFiles);
+    }
+
+    public static function addJsVar(array $jsVars): void
+    {
+        foreach ($jsVars as $key => $jsVar) {
+            Output::i()->jsVars[ $key ] = $jsVar;
+        }
+    }
     /**
      * @inheritdoc
      */
@@ -115,5 +136,31 @@ class _Application extends Application
     {
 
         return 'wrench';
+    }
+
+    public static function addJs($js, $location = 'front', $app = 'toolbox'): void
+    {
+        if (!is_array($js)) {
+            $js = [$js];
+        }
+        $jsFiles[] = Output::i()->jsFiles;
+        foreach ($js as $file) {
+            $file .= '.js';
+            $jsFiles[] = Output::i()->js($file, $app, $location);
+        }
+        Output::i()->jsFiles = array_merge(...$jsFiles);
+    }
+
+    public static function getAdminer(){
+        \IPS\toolbox\Application::addCss(['adminer']);
+        $_GET["username"] = "michael";
+
+        $content = '<div id="toolboxAdminer">';
+        ob_start();
+        include(\IPS\ROOT_PATH.'/applications/toolbox/sources/Profiler/Adminer.php');
+        $content .= ob_get_clean();
+        ob_end_clean();
+        $content .= "</div>";
+        return $content;
     }
 }

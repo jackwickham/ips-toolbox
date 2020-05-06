@@ -20,14 +20,6 @@ class _toolbox
     public function getConstants()
     {
         return [
-            'BYPASSPROXYDT' => [
-                'name'        => 'BYPASSPROXYDT',
-                'default'     => \false,
-                'current'     => defined( '\BYPASSPROXYDT' ) ? \BYPASSPROXYDT : \null,
-                'description' => 'This is a very special use case, if defined, will create dtproxy2 and copy the contents of dtproxy2 to dtproxy when building proxy files.',
-                'type'        => 'boolean',
-                'tab'         => 'DevTools',
-            ],
             'DTBUILD'       => [
                 'name'        => 'DTBUILD',
                 'default'     => \false,

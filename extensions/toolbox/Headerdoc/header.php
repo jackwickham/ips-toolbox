@@ -63,6 +63,5 @@ class _header extends HeaderdocAbstract
      **/
     public function exclude( &$skip )
     {
-
     }
 }

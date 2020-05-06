@@ -8,37 +8,30 @@
  * @version    -storm_version-
  */
 
+
 namespace IPS\toolbox\Proxy\Generator;
+use function random_int;
+use function md5;
+use function time;
+use function rand;
 
 use Exception;
-use Generator\Builders\ClassGenerator;
-use Generator\Tokenizers\StandardTokenizer;
 use IPS\Data\Store;
 use IPS\Log;
 use IPS\Theme;
-use IPS\toolbox\Application;
-use IPS\toolbox\Content\Data;
-use IPS\toolbox\Shared\Read;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
-use function array_pop;
-use function array_values;
-use function count;
+use ReflectionException;
+use ReflectionFunction;
+use Zend\Code\Generator\ClassGenerator;
+use Zend\Code\Generator\FileGenerator;
+use Zend\Code\Generator\MethodGenerator;
+use Zend\Code\Generator\ParameterGenerator;
 use function defined;
-use function explode;
 use function function_exists;
 use function header;
-use function ksort;
-use function md5;
-use function rand;
-use function random_int;
+use function mb_strtolower;
 use function str_replace;
-use function time;
-use const DIRECTORY_SEPARATOR;
-use const IPS\ROOT_PATH;
+use function trim;
 
-Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -53,8 +46,6 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 class _Templates extends GeneratorAbstract
 {
 
-    use Read;
-
     /**
      * @brief Singleton Instances
      * @note  This needs to be declared in any child class.
@@ -67,8 +58,10 @@ class _Templates extends GeneratorAbstract
      */
     public function create()
     {
-
-        $jsonMeta = Store::i()->dt_json ?? [];
+        $jsonMeta = [];
+        if ( isset( Store::i()->dt_json ) ) {
+            $jsonMeta = Store::i()->dt_json;
+        }
         $jsonMeta[ 'registrar' ][] = [
             'signature' => [
                 "IPS\\Theme::getTemplate:0",
@@ -109,16 +102,121 @@ class _Templates extends GeneratorAbstract
             'provider'   => 'templateClass',
             'language'   => 'php',
         ];
+        $templates = [];
+        $tempStore = [];
+        $tempClass = [];
 
-        $templates = Store::i()->dtproxy_templates ?? [];
-        $tempStore = array_values( $templates );
+        if ( isset( Store::i()->dtproxy_templates ) ) {
+            $templates = Store::i()->dtproxy_templates;
+        }
+        if ( \count( $templates ) ) {
+            foreach ( $templates as $key => $template ) {
+                $key = str_replace( \IPS\ROOT_PATH . '/applications/', '', $key );
+                $tpl = \explode( \DIRECTORY_SEPARATOR, $key );
+                //                \array_pop($tpl);
+                \array_pop( $tpl );
+                $temp = \array_pop( $tpl );
+                $ori = $temp;
+                $newParams = [];
+                if ( $temp === 'global' ) {
+                    $temp = 'nglobal';
+                }
+
+                $tempStore[ $ori ] = [
+                    'lookup_string' => $ori,
+                    'type'          => 'dtProxy\\Templates\\' . $temp,
+                ];
+
+                if ( !empty( $template[ 'params' ] ) ) {
+
+                    $rand = \trim( $template[ 'method' ] ) . random_int( 1, 20000 ) . random_int( 1, 30000 ) . md5( time() + rand( 1, 10000 ) );
+                    $fun = 'function ' . $rand . '( ' . $template[ 'params' ] . ' ) {}';
+
+                    $continue = \true;
+
+                    if ( !function_exists( 'function ' . $rand ) ) {
+                        if ( eval( $fun ) === \false ) {
+                            $continue = \false;
+                        }
+                    }
+
+                    if ( $continue ) {
+                        $reflection = new ReflectionFunction( $rand );
+                        $params = $reflection->getParameters();
+                        /** @var \ReflectionParameter $param */
+                        foreach ( $params as $param ) {
+                            $prop = $param->getName();
+                            $type = \null;
+                            $bypass = \false;
+                            $position = $param->getPosition();
+
+                            if ( $param->getType() ) {
+                                $type = $param->getType();
+                            }
+
+                            try {
+                                $value = $param->getDefaultValue();
+                                if ( $value === \null ) {
+                                    $bypass = \true;
+                                }
+                            } catch ( ReflectionException $e ) {
+                                $value = \null;
+                            }
+
+                            try {
+                                $pg = new ParameterGenerator( $prop, $type, $value, $position );
+                                if ( $bypass === \true ) {
+                                    $pg->setDefaultValue( \null );
+                                }
+                                $newParams[] = $pg;
+                            } catch ( \Exception $e ) {
+                                Log::log( $e );
+                            }
+                        }
+                    }
+                }
+                try {
+                    $mn = mb_strtolower( trim( $template[ 'method' ] ) );
+                    $tempClass[ $temp ][ $mn ] = MethodGenerator::fromArray( [
+                        'name'       => $template[ 'method' ],
+                        'parameters' => $newParams,
+                        'static'     => \false,
+                    ] );
+                } catch ( Exception $e ) {
+                    Log::log( $e );
+                }
+            }
+        }
+
+        \ksort( $tempStore );
+        $tempStore = \array_values( $tempStore );
         $jsonMeta[ 'providers' ][] = [
             'name'  => 'templateClass',
             'items' => $tempStore,
         ];
         Store::i()->dt_json = $jsonMeta;
-
+        $this->makeTempClasses( $tempClass );
     }
 
-}
+    /**
+     * @param array $classes
+     */
+    public function makeTempClasses( array $classes )
+    {
+        foreach ( $classes as $key => $templates ) {
+            try {
 
+                $newClass = new ClassGenerator;
+                $newClass->setNamespaceName( 'dtProxy\Templates' );
+                $newClass->setName( $key );
+                $newClass->addMethods( $templates );
+                $content = new FileGenerator;
+                $content->setClass( $newClass );
+                $content->setFilename( $this->save . '/templates/' . $key . '.php' );
+                $content->write();
+            } catch ( Exception $e ) {
+                Log::log( $e );
+            }
+        }
+    }
+}

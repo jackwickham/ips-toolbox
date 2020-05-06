@@ -16,7 +16,6 @@ class toolbox_hook_Db extends _HOOK_CLASS_
 {
     protected $dtkey;
 
-
     /**
      * @inheritdoc
      */

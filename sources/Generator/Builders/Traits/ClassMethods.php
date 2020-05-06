@@ -156,10 +156,10 @@ trait ClassMethods
                 }
                 else if ( is_string( $param[ 'value' ] ) ) {
 
-                    $val = $param[ 'value' ];
+                    $val = empty($param[ 'value' ]) ? "''" : $param['value'];
                 }
                 else {
-                    $val = $param[ 'value' ];
+                    $val = empty($param[ 'value' ]) ? "''" : $param['value'];
                 }
                 $p .= ' = ' . $val;
             }

@@ -1,4 +1,4 @@
-//<?php namespace acdd1bdfd2e7062f1195bab0730e7ae73;
+//<?php namespace toolbox_IPS_Application_a9c79968882bc47948bd3964ea259cdf0;
 
 use IPS\toolbox\DevCenter\Headerdoc;
 use IPS\toolbox\DevFolder\Applications;
@@ -40,14 +40,6 @@ class toolbox_hook_Application extends _HOOK_CLASS_
             Headerdoc::i()->addIndexHtml($this);
         }
         parent::build();
-    }
-
-    public function buildHooks()
-    {
-        if ($this->skip === false) {
-            (new \IPS\toolbox\GitHooks([$this->directory]))->removeSpecialHooks(true);
-        }
-        parent::buildHooks();
     }
 
     /**

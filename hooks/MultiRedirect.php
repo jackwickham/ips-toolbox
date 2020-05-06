@@ -1,4 +1,4 @@
-//<?php namespace a6bd4a716f7faef2cf79965f96aa68522;
+//<?php namespace toolbox_IPS_Helpers_MultipleRedirect_a6686d854c00b2c733602dd71d52c7dfd;
 
 use IPS\Http\Url;
 use IPS\Output;

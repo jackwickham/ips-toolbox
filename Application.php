@@ -163,4 +163,21 @@ class _Application extends Application
         $content .= "</div>";
         return $content;
     }
+
+    public static function specialHooks()
+    {
+        $apps	= array();
+
+        foreach( static::applications() as $application )
+        {
+
+                if( \count( $application->extensions( 'toolbox', 'SpecialHooks' ) ) )
+                {
+                    $apps[ $application->directory ] = $application;
+                }
+
+        }
+
+        return $apps;
+    }
 }

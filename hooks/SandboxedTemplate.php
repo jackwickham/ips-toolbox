@@ -1,4 +1,4 @@
-//<?php namespace a8547bd7770d08bb45d640d4ba9847f72;
+//<?php namespace toolbox_IPS_Theme_SandboxedTemplate_a255600c4edc2363065fe126601cf37f4;
 
 
 use IPS\Data\Store;

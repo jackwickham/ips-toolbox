@@ -1,4 +1,4 @@
-//<?php namespace ae4136e796b9861a49406a88014a3c2c4;
+//<?php namespace toolbox_IPS_core_modules_admin_applications_applications_aa1a93e0b9169cbfa98b32190845b4cb5;
 
 use IPS\toolbox\Build;
 

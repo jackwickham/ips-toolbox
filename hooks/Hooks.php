@@ -1,4 +1,4 @@
-//<?php namespace a5cd66a85bc8e27e626fbbdfd77b1dc51;
+//<?php namespace toolbox_IPS_Plugin_Hook_ab9712a0d65901062b22f5262a724bd72;
 
 use IPS\Output;
 use IPS\Request;
@@ -9,6 +9,8 @@ use IPS\Helpers\Form\Text;
 
 use Generator\Builders\ClassGenerator;
 use IPS\toolbox\Proxy\Generator\Proxy;
+
+use IPS\toolbox\Proxy\Proxyclass;
 
 use const IPS\ROOT_PATH;
 
@@ -59,7 +61,7 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
                 $app->skip = true;
                 $app->buildHooks();
                 
-                Proxy::i()->buildAppHooks($app );
+                Proxyclass::i()->buildHooks();
                 Output::i()->redirect($url);
             }
         }

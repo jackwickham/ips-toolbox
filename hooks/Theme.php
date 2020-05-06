@@ -1,4 +1,4 @@
-//<?php namespace a07c1956658b900e092b61bceece595ab;
+//<?php namespace toolbox_IPS_Theme_a76f8f4fb56ebd68f14c8a15e8155b55b;
 
 use IPS\Settings;
 use IPS\toolbox\Application;

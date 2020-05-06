@@ -15,16 +15,17 @@ use Generator\Builders\ClassGenerator;
 use IPS\Patterns\Singleton;
 use IPS\toolbox\Proxy\Proxyclass;
 
-//use Zend\Code\Generator\ClassGenerator;
-//use Zend\Code\Generator\FileGenerator;
-//use Zend\Code\Generator\MethodGenerator;
 use function header;
 use function implode;
 
+//use Zend\Code\Generator\ClassGenerator;
+//use Zend\Code\Generator\FileGenerator;
+//use Zend\Code\Generator\MethodGenerator;
+
 \IPS\toolbox\Application::loadAutoLoader();
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!\defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -52,31 +53,27 @@ class _GeneratorAbstract extends Singleton
 
     public function __construct()
     {
-
         $this->cache = Cache::i();
-        $this->save = \IPS\ROOT_PATH . '/' . Proxyclass::i()->save;
+        $this->save = Proxyclass::i()->save;
     }
 
-    protected function writeClass( $class, $implements, $body, $ns = 'dtProxy', $funcName = 'get' )
+    protected function writeClass($class, $implements, $body, $ns = 'dtProxy', $funcName = 'get')
     {
-
         try {
             $newClass = new ClassGenerator();
-            $newClass->addNameSpace( $ns );
-            $newClass->addClassName( $class );
-            if ( $body ) {
-                $newClass->addInterface( [ 'dtProxy', $implements ] );
-                $newClass->addMethod( $funcName, 'return [\'' . implode( "','", $body ) . '\'];', [], [ 'static' => true ] );
-
-            }
-            else {
-                $newClass->addExtends( [ $ns, $implements ] );
+            $newClass->addNameSpace($ns);
+            $newClass->addClassName($class);
+            if ($body) {
+                $newClass->addInterface(['dtProxy', $implements]);
+                $newClass->addMethod($funcName, 'return [\'' . implode("','", $body) . '\'];', [], ['static' => true]);
+            } else {
+                $newClass->addExtends([$ns, $implements]);
             }
 
-            $newClass->addPath( $this->save );
-            $newClass->addFileName( $implements );
+            $newClass->addPath($this->save);
+            $newClass->addFileName($implements);
             $newClass->save();
-        } catch ( Exception $e ) {
+        } catch (Exception $e) {
         }
     }
 }

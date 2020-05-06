@@ -13,10 +13,13 @@
 namespace IPS\toolbox\Proxy;
 
 use Exception;
+use InvalidArgumentException;
 use IPS\Data\Store;
+use IPS\Db;
 use IPS\Patterns\Singleton;
 use IPS\Settings;
-use IPS\toolbox\GitHooks;
+use IPS\toolbox\Application;
+use IPS\toolbox\Generator\DTFileGenerator;
 use IPS\toolbox\Proxy\Generator\Applications;
 use IPS\toolbox\Proxy\Generator\Db as GeneratorDb;
 use IPS\toolbox\Proxy\Generator\Extensions;
@@ -28,15 +31,25 @@ use IPS\toolbox\Proxy\Generator\Url;
 use IPS\toolbox\Shared\Read;
 use IPS\toolbox\Shared\Replace;
 use IPS\toolbox\Shared\Write;
+use OutOfRangeException;
+use SplFileInfo;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Zend\Code\Generator\ClassGenerator;
 
 use function array_keys;
 use function asort;
 use function chmod;
 use function count;
 use function defined;
+use function fclose;
+use function fgets;
+use function file_exists;
 use function file_get_contents;
+use function file_put_contents;
+use function fopen;
+use function fwrite;
 use function header;
 use function in_array;
 use function is_array;
@@ -44,11 +57,17 @@ use function is_dir;
 use function iterator_to_array;
 use function json_decode;
 use function json_encode;
+use function md5;
 use function mkdir;
 use function preg_match;
+use function time;
+
+use const DIRECTORY_SEPARATOR;
+use const JSON_PRETTY_PRINT;
+use const PHP_EOL;
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
-    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -86,28 +105,28 @@ class _Proxyclass extends Singleton
      *
      * @var bool
      */
-    public $doProps = \true;
+    public $doProps = true;
 
     /**
      * build the header info
      *
      * @var bool
      */
-    public $doHeader = \true;
+    public $doHeader = true;
 
     /**
      * build the proxy constants
      *
      * @var bool
      */
-    public $doConstants = \true;
+    public $doConstants = true;
 
     /**
      * builds the metadata
      *
      * @var bool
      */
-    public $doProxies = \true;
+    public $doProxies = true;
 
     /**
      * stores templates data
@@ -119,7 +138,7 @@ class _Proxyclass extends Singleton
     /**
      * @var bool
      */
-    public $console = \false;
+    public $console = false;
 
     /**
      * @var string
@@ -131,25 +150,24 @@ class _Proxyclass extends Singleton
      *
      * @param bool $console
      */
-    public function __construct(bool $console = \null)
+    public function __construct(bool $console = null)
     {
         $this->console = $console ?? false;
-        if (defined('\BYPASSPROXYDT') && \BYPASSPROXYDT === \true) {
-            $this->save = 'dtProxy2';
-        }
-        \IPS\toolbox\Application::loadAutoLoader();
+
+        Application::loadAutoLoader();
         $this->blanks = \IPS\ROOT_PATH . '/applications/toolbox/data/defaults/';
         if (!Settings::i()->dtproxy_do_props) {
-            $this->doProps = \false;
+            $this->doProps = false;
         }
 
         if (!Settings::i()->dtproxy_do_constants) {
-            $this->doConstants = \false;
+            $this->doConstants = false;
         }
 
         if (!Settings::i()->dtproxy_do_proxies) {
-            $this->doProxies = \false;
+            $this->doProxies = false;
         }
+        $this->save = \IPS\ROOT_PATH . '/' . $this->save;
     }
 
     /**
@@ -158,8 +176,8 @@ class _Proxyclass extends Singleton
      * @param array $data
      *
      * @return array|null
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
+     * @throws InvalidArgumentException
+     * @throws OutOfRangeException
      */
     public function run(array $data = [])
     {
@@ -175,9 +193,9 @@ class _Proxyclass extends Singleton
              * @var $iterator array
              */
             $iterator = Store::i()->dtproxy_proxy_files;
-            $totalFiles = $data[ 'total' ] ?? 0;
+            $totalFiles = $data['total'] ?? 0;
             $limit = 1;
-            if (!isset($data[ 'firstRun' ])) {
+            if (!isset($data['firstRun'])) {
                 $limit = 250;
             }
 
@@ -185,7 +203,7 @@ class _Proxyclass extends Singleton
                 $i++;
                 $filePath = $file;
                 $this->build($filePath);
-                unset($iterator[ $key ]);
+                unset($iterator[$key]);
                 if ($i === $limit) {
                     break;
                 }
@@ -203,24 +221,24 @@ class _Proxyclass extends Singleton
                 Store::i()->dtproxy_templates = $this->templates;
             }
 
-            if ($data[ 'current' ]) {
-                $offset = $data[ 'current' ] + $i;
+            if ($data['current']) {
+                $offset = $data['current'] + $i;
             } else {
                 $offset = $i;
             }
 
-            return ['total' => $totalFiles, 'current' => $offset, 'progress' => $data[ 'progress' ]];
+            return ['total' => $totalFiles, 'current' => $offset, 'progress' => $data['progress']];
         }
 
         /**
          * @todo this is ugly, we should improve this!
          */
         $steps = 0;
-        $step = $data[ 'step' ] ?? \null;
+        $step = $data['step'] ?? null;
         $lastStep = $step;
-        $complete = $data[ 'complete' ] ?? 0;
+        $complete = $data['complete'] ?? 0;
         if ($this->doConstants) {
-            if ($step === \null) {
+            if ($step === null) {
                 $step = 'constants';
             }
             $steps++;
@@ -232,7 +250,7 @@ class _Proxyclass extends Singleton
         if ($this->doProxies) {
             $steps += 7;
         } elseif ($step === 'apps') {
-            $step = \null;
+            $step = null;
         }
 
         if ($step === 'constants') {
@@ -248,16 +266,16 @@ class _Proxyclass extends Singleton
             $step = $this->makeToolboxMeta($step);
             $complete++;
         } else {
-            $step = \null;
+            $step = null;
         }
 
-        if ($step === \null) {
+        if ($step === null) {
 //            (new GitHooks(\IPS\Application::applications()))->writeSpecialHooks();
             Proxy::i()->generateSettings();
 
             unset(Store::i()->dtproxy_proxy_files, Store::i()->dtproxy_templates);
 
-            return \null;
+            return null;
         }
 
         return ['step' => $step, 'lastStep' => $lastStep, 'tot' => $steps, 'complete' => $complete];
@@ -270,20 +288,20 @@ class _Proxyclass extends Singleton
      */
     public function build($file)
     {
-        $finder = new \SplFileInfo($file);
+        $finder = new SplFileInfo($file);
         $content = $this->_getFileByFullPath($file);
 
         if ($finder->getExtension() === 'phtml') {
             $methodName = $finder->getBasename('.' . $finder->getExtension());
             preg_match('/^<ips:template parameters="(.+?)?"(.+?)?\/>(\r\n?|\n)/', $content, $params);
 
-            if (isset($params[ 0 ])) {
-                $parameters = \null;
-                if (isset($params[ 1 ])) {
-                    $parameters = $params[ 1 ];
+            if (isset($params[0])) {
+                $parameters = null;
+                if (isset($params[1])) {
+                    $parameters = $params[1];
                 }
 
-                $this->templates[ $file ] = ['method' => $methodName, 'params' => $parameters];
+                $this->templates[$file] = ['method' => $methodName, 'params' => $parameters];
             }
         } elseif ($finder->getExtension() === 'php') {
             Proxy::i()->create($content);
@@ -303,8 +321,8 @@ class _Proxyclass extends Singleton
             switch ($step) {
                 default:
                     $path = \IPS\ROOT_PATH . '/applications/toolbox/data/defaults/';
-                    $jsonMeta = json_decode(file_get_contents($path . 'defaults.json'), \true);
-                    $jsonMeta2 = json_decode(file_get_contents($path . 'defaults2.json'), \true);
+                    $jsonMeta = json_decode(file_get_contents($path . 'defaults.json'), true);
+                    $jsonMeta2 = json_decode(file_get_contents($path . 'defaults2.json'), true);
                     $jsonMeta += $jsonMeta2;
                     Store::i()->dt_json = $jsonMeta;
                     Applications::i()->create();
@@ -336,11 +354,11 @@ class _Proxyclass extends Singleton
                     break;
                 case 'json':
                     $this->makeJsonFile();
-                    $step = \null;
+                    $step = null;
                     break;
             }
         } else {
-            $step = \null;
+            $step = null;
         }
 
         return $step;
@@ -352,7 +370,7 @@ class _Proxyclass extends Singleton
     public function makeJsonFile()
     {
         if (isset(Store::i()->dt_json)) {
-            $content = json_encode(Store::i()->dt_json, \JSON_PRETTY_PRINT);
+            $content = json_encode(Store::i()->dt_json, JSON_PRETTY_PRINT);
             $this->_writeFile('.ide-toolbox.metadata.json', $content, \IPS\ROOT_PATH . '/' . $this->save);
             unset(Store::i()->dt_json);
         }
@@ -364,21 +382,21 @@ class _Proxyclass extends Singleton
     public function consoleClose()
     {
         if (static::$fe) {
-            \fclose(static::$fe);
+            fclose(static::$fe);
         }
     }
 
     /**
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
+     * @throws InvalidArgumentException
+     * @throws OutOfRangeException
      */
     public function cli($fp)
     {
         if (is_array($this->templates) && count($this->templates)) {
             Store::i()->dtproxy_templates = $this->templates;
         }
-        Proxyclass::i()->console = \true;
-        $files = Proxyclass::i()->dirIterator($fp, \true);
+        Proxyclass::i()->console = true;
+        $files = Proxyclass::i()->dirIterator($fp, true);
         $total = $files->count();
 
         $processed = 0;
@@ -397,8 +415,8 @@ class _Proxyclass extends Singleton
         $this->console('Settings 2/10');
         if ($this->doProxies) {
             $path = \IPS\ROOT_PATH . '/applications/toolbox/data/defaults/';
-            $jsonMeta = json_decode(file_get_contents($path . 'defaults.json'), \true);
-            $jsonMeta2 = json_decode(file_get_contents($path . 'defaults2.json'), \true);
+            $jsonMeta = json_decode(file_get_contents($path . 'defaults.json'), true);
+            $jsonMeta2 = json_decode(file_get_contents($path . 'defaults2.json'), true);
             $jsonMeta += $jsonMeta2;
             Store::i()->dt_json = $jsonMeta;
 
@@ -438,14 +456,14 @@ class _Proxyclass extends Singleton
      *
      * @return int|Finder
      */
-    public function dirIterator($dir = \null, $returnIterator = \false)
+    public function dirIterator($dir = null, $returnIterator = false)
     {
-        $ds = \DIRECTORY_SEPARATOR;
+        $ds = DIRECTORY_SEPARATOR;
         $root = \IPS\ROOT_PATH;
         $save = $root . $ds . $this->save . $ds;
         $finder = new Finder();
         try {
-            if ($dir === \null) {
+            if ($dir === null) {
                 if (is_dir($save)) {
                     $this->emptyDirectory($save);
                 }
@@ -483,12 +501,12 @@ class _Proxyclass extends Singleton
                 $finder->notName($file);
             }
 
-            $filter = function (\SplFileInfo $file) {
+            $filter = function (SplFileInfo $file) {
                 if (!in_array($file->getExtension(), ['php', 'phtml'])) {
-                    return \false;
+                    return false;
                 }
 
-                return \true;
+                return true;
             };
 
             if (isset(Store::i()->dtproxy_proxy_files)) {
@@ -517,7 +535,7 @@ class _Proxyclass extends Singleton
      *
      * @param $dir
      *
-     * @throws \Symfony\Component\Filesystem\Exception\IOException
+     * @throws IOException
      */
     public function emptyDirectory($dir)
     {
@@ -532,7 +550,7 @@ class _Proxyclass extends Singleton
      */
     protected function lookIn(): array
     {
-        $ds = \DIRECTORY_SEPARATOR;
+        $ds = DIRECTORY_SEPARATOR;
 
         return [
             \IPS\ROOT_PATH . $ds . 'applications',
@@ -606,10 +624,10 @@ class _Proxyclass extends Singleton
     public function console($msg)
     {
         if ($this->console) {
-            if (static::$fe === \null) {
-                static::$fe = \fopen('php://stdout', 'wb');
+            if (static::$fe === null) {
+                static::$fe = fopen('php://stdout', 'wb');
             }
-            \fwrite(static::$fe, $msg . \PHP_EOL);
+            fwrite(static::$fe, $msg . PHP_EOL);
         }
     }
 
@@ -625,14 +643,14 @@ class _Proxyclass extends Singleton
         $total /= 10;
 
         if ($done % $total === 0) {
-            if (static::$fe === \null) {
-                static::$fe = \fopen('php://stdout', 'wb');
+            if (static::$fe === null) {
+                static::$fe = fopen('php://stdout', 'wb');
             }
-            \fwrite(static::$fe, '#');
+            fwrite(static::$fe, '#');
         }
 
         if ($old === $done) {
-            $this->console(\PHP_EOL . 'File Processing Done!');
+            $this->console(PHP_EOL . 'File Processing Done!');
         }
     }
 
@@ -640,9 +658,127 @@ class _Proxyclass extends Singleton
      * @param      $file
      * @param bool $isTemplate
      */
-    public function buildAndMake($file, $isTemplate = \false)
+    public function buildAndMake($file, $isTemplate = false)
     {
         $this->build($file);
     }
 
+    public function buildHooks()
+    {
+        $this->emptyDirectory($this->save . '/class/hooks/');
+        /** @var Application $app */
+        foreach (Application::specialHooks() as $app) {
+            $this->buildAppHooks($app);
+        }
+    }
+
+    protected function buildAppHooks(\IPS\Application $app)
+    {
+        $appDir = \IPS\ROOT_PATH . '/applications/' . $app->directory;
+        $dir = $appDir . '/data/hooks.json';
+        $hooks = json_decode(file_get_contents($dir), true);
+        foreach ($hooks as $file => $data) {
+            if (isset($data['type']) && $data['type'] === 'C') {
+                $this->buildHookProxy($appDir . '/hooks/' . $file . '.php', $data['class'], $app->directory);
+            }
+        }
+    }
+
+    protected function buildHookProxy($hookFile, $class, $app)
+    {
+        $path = $this->save . '/class/hooks/';
+        if (file_exists($hookFile)) {
+            $add = true;
+            $ns = $app . str_replace('\\', '_', $class) . '_a' . md5($path . $hookFile . time());
+            $content = file_get_contents($hookFile);
+            $tokenize = $this->tokenize($content);
+
+            if (isset($tokenize['namespace']) && $tokenize['namespace'] !== null) {
+                $add = false;
+                $ns = $tokenize['namespace'];
+            }
+            if ($add === true) {
+                $file = fopen($hookFile, 'rb');
+                $i = 0;
+                if ($file) {
+                    $content = '';
+                    while (($line = fgets($file)) !== false) {
+                        if ($i === 0) {
+                            $content .= '//<?php namespace ' . $ns . ';' . PHP_EOL;
+                            $i++;
+                        } else {
+                            $content .= $line;
+                        }
+                    }
+                }
+                fclose($file);
+            }
+
+            file_put_contents($hookFile, $content);
+            $new = new ClassGenerator();
+            $new->setName('_HOOK_CLASS_');
+            $new->setNamespaceName($ns);
+            $new->setExtendedClass($class);
+            $proxyFile = new DTFileGenerator();
+            $proxyFile->isProxy = true;
+            $proxyFile->setClass($new);
+            $proxyFile->setFilename($path . '/' . $ns . '.php');
+            $proxyFile->write();
+        }
+    }
+
+
+    /**
+     * returns the class and namespace
+     *
+     * @param $source
+     *
+     * @return array|null
+     */
+    public function tokenize($source)
+    {
+        $namespace = null;
+        $tokens = token_get_all($source);
+        $count = count($tokens);
+        $dlm = false;
+        $final = false;
+        $abstract = false;
+
+        for ($i = 2; $i < $count; $i++) {
+            if ((isset($tokens[$i - 2][1]) && ($tokens[$i - 2][1] === 'phpnamespace' || $tokens[$i - 2][1] === 'namespace')) || ($dlm && $tokens[$i - 1][0] === T_NS_SEPARATOR && $tokens[$i][0] === T_STRING)) {
+                if (!$dlm) {
+                    $namespace = 0;
+                }
+                if (isset($tokens[$i][1])) {
+                    $namespace = $namespace ? $namespace . "\\" . $tokens[$i][1] : $tokens[$i][1];
+                    $dlm = true;
+                }
+            } else {
+                if ($dlm && ($tokens[$i][0] !== T_NS_SEPARATOR) && ($tokens[$i][0] !== T_STRING)) {
+                    $dlm = false;
+                }
+            }
+
+            if ($tokens[$i][0] === T_FINAL) {
+                $final = true;
+            }
+
+            if ($tokens[$i][0] === T_ABSTRACT) {
+                $abstract = true;
+            }
+
+            if (($tokens[$i - 2][0] === T_CLASS || (isset($tokens[$i - 2][1]) && $tokens[$i - 2][1] === 'phpclass')) && $tokens[$i - 1][0] === T_WHITESPACE && $tokens[$i][0] === T_STRING) {
+                $class = $tokens[$i][1];
+
+                return [
+                    'namespace' => $namespace,
+                    'class' => $class,
+                    'abstract' => $abstract,
+                    'final' => $final,
+                ];
+            }
+        }
+
+        return null;
+    }
 }

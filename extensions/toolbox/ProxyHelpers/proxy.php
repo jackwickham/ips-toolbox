@@ -17,7 +17,9 @@ use IPS\Data\Store;
 use IPS\Http\Url;
 use IPS\Node\Model;
 use IPS\Output;
+use IPS\Patterns\Singleton;
 use IPS\Request;
+use IPS\Theme;
 use IPS\toolbox\DevCenter\Sources\Generator\GeneratorAbstract as devPlusGeneratorAbstract;
 use IPS\toolbox\Proxy\Helpers\GeneratorAbstract;
 use IPS\toolbox\Proxy\Helpers\Request as HelpersRequest;
@@ -77,5 +79,9 @@ class _proxy
         $helpers[ Url::class ][] = \IPS\toolbox\Proxy\Helpers\Url::class;
         $helpers[ Widget::class ][] = \IPS\toolbox\Proxy\Helpers\Widget::class;
         $helpers[ Item::class ][] = \IPS\toolbox\Proxy\Helpers\Item::class;
+        $helpers[ Singleton::class ][] = \IPS\toolbox\Proxy\Helpers\Singleton::class;
+        $helpers[ Theme::class ][] = \IPS\toolbox\Proxy\Helpers\Theme::class;
+
+
     }
 }

@@ -36,7 +36,8 @@ class _proxy
     public function elements( &$form ): void
     {
 
-        $form->add( 'dtproxy_do_props', 'yn' )->toggles( [ 'do_props_doc' ] )->tab( 'dtproxy' );
+        $form->tab('dtproxy');
+        $form->add( 'dtproxy_do_props', 'yn' )->toggles( [ 'do_props_doc' ] );
         $form->add( 'dtproxy_do_constants', 'yn' );
         $form->add( 'dtproxy_do_proxies', 'yn' );
     }

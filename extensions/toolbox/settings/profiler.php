@@ -49,8 +49,8 @@ class _profiler
                 $members[] = Member::load( $user );
             }
         }
-
-        $form->add( 'dtprofiler_can_use', 'member' )->value( $members )->options( [ 'multiple' => 10 ] )->tab( 'dtprofiler' );
+        $form->tab( 'dtprofiler' );
+        $form->add( 'dtprofiler_can_use', 'member' )->value( $members )->options( [ 'multiple' => 10 ] );
         $form->add( 'dtprofiler_show_admin', 'yn' );
         $form->header( 'dtprofiler_profiler_tabs' );
         $form->add( 'dtprofiler_enabled_execution', 'yn' );

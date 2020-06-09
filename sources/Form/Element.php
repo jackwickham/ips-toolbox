@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @brief       Element Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Babble
+ * @since       2.8.12
+ * @version     -storm_version-
+ */
+
+
 namespace IPS\toolbox\Form;
 
 use InvalidArgumentException;
@@ -12,10 +23,10 @@ use function is_array;
 use function mb_strtolower;
 use function property_exists;
 
-use function header;
+
 
 /**
- * Class _FormAbstract
+ * Class _Element
  *
  * @package Forms
  * @mixin  Element
@@ -59,6 +70,7 @@ class _Element
         'cm'           => 'Codemirror',
         'color'        => 'Color',
         'custom'       => 'Custom',
+        'cs' => 'Custom',
         'date'         => 'Date',
         'daterange'    => 'DateRange',
         'dr'           => 'DateRange',
@@ -85,7 +97,7 @@ class _Element
         'sg'           => 'SocialGroup',
         'sort'         => 'Sort',
         'stack'        => 'Stack',
-        'telephone'    => 'Tel',
+        'Telephone'    => 'Tel',
         'tel'          => 'Tel',
         'text'         => 'Text',
         'textarea'     => 'TextArea',
@@ -222,35 +234,35 @@ class _Element
     /**
      * FormAbstract constructor.
      *
-     * @param string              $name
-     * @param string|FormAbstract $type
-     * @param string              $custom
+     * @param string $name
+     * @param string $type
+     * @param string $custom
      */
-    public function __construct(?string $name, string $type, string $custom = '')
+    public function __construct(string $name, string $type, string $custom = '')
     {
         $class = null;
         $type = mb_strtolower($type);
-        $this->name = $name;
-        $this->changeType($type, $custom);
-    }
-
-    public function changeType(string $type, $custom = '')
-    {
         if (!isset(static::$nonHelpers[ $type ])) {
-            if (!($this->name instanceof FormAbstract) && isset(static::$helpers[ $type ])) {
-                $this->class = '\\IPS\\Helpers\\Form\\' . static::$helpers[ $type ] ?? 'Text';
-                $this->type = 'helper';
-            } elseif ($this->name instanceof FormAbstract) {
-                $this->class = $this->name;
-                $this->type = 'helper';
+            if (!($name instanceof FormAbstract) && isset(static::$helpers[ $type ])) {
+                $class = '\\IPS\\Helpers\\Form\\' . static::$helpers[ $type ] ?? 'Text';
+                $type = 'helper';
+            } else {
+                if ($name instanceof FormAbstract) {
+                    $class = $name;
+                    $type = 'helper';
+                }
             }
-        } elseif ($type === 'custom') {
-            $this->class = $custom;
-            $this->type = 'helper';
-            $this->custom = true;
+        } else {
+            if ($type === 'custom') {
+                $class = $custom;
+                $type = 'helper';
+                $this->custom = true;
+            }
         }
 
-        return $this;
+        $this->name = $name;
+        $this->type = $type;
+        $this->class = $class;
     }
 
     public function __get($name)
@@ -325,7 +337,7 @@ class _Element
      *
      * @return self
      */
-    public function prefix(?string $prefix): self
+    public function prefix(string $prefix): self
     {
         $this->prefix = $prefix;
 
@@ -446,6 +458,8 @@ class _Element
     public function toggles(array $toggles, bool $off = false, bool $na = false): self
     {
         $key = 'togglesOff';
+        $class = explode('\\', $this->class);
+        $class = is_array($class) ? array_pop($class) : null;
         if ($off === false) {
             $key = 'toggles';
             $togglesOn = [
@@ -453,11 +467,14 @@ class _Element
                 'YesNo'    => 1,
             ];
 
-            $class = explode('\\', $this->class);
-            $class = is_array($class) ? array_pop($class) : null;
             if (isset($togglesOn[ $class ])) {
                 $key = 'togglesOn';
             }
+            if ($class === 'Node') {
+                $key = 'toggleIds';
+            }
+        } elseif ($class === 'Node') {
+            $key = 'toggleIdsOff';
         }
 
         if ($na === true) {

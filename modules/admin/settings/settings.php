@@ -12,18 +12,15 @@
 
 namespace IPS\toolbox\modules\admin\settings;
 
-use Exception;
-use Generator\Tokenizers\StandardTokenizer;
 use IPS\Application;
 use IPS\Dispatcher;
 use IPS\Dispatcher\Controller;
-use IPS\Helpers\Form;
 use IPS\IPS;
 use IPS\Output;
 use IPS\Request;
 use IPS\Settings;
+use IPS\toolbox\Form;
 use IPS\toolbox\GitHooks;
-use IPS\toolbox\Profiler\Debug;
 use RuntimeException;
 
 use function defined;
@@ -32,7 +29,6 @@ use function header;
 use function property_exists;
 
 use const IPS\NO_WRITES;
-use const IPS\ROOT_PATH;
 
 \IPS\toolbox\Application::loadAutoLoader();
 
@@ -106,10 +102,10 @@ class _settings extends Controller
             }
         }
 
-        $form = \IPS\toolbox\Form::create()->object(Settings::i());
-
+        $form = Form::create()->object(Settings::i());
         $form->tab('toolbox');
-        $form->add('toolbox_debug_templates', 'yn')->tab('toolbox');
+        $form->add('toolbox_debug_templates', 'yn');
+
         /* @var \IPS\toolbox\extensions\toolbox\Settings\settings $extension */
         foreach (Application::allExtensions('toolbox', 'settings') as $extension) {
             $extension->elements($form);
@@ -130,7 +126,6 @@ class _settings extends Controller
             $form->saveAsSettings($values);
             Output::i()->redirect($this->url->setQueryString(['tab' => '']), 'foo');
         }
-
         Output::i()->title = 'Settings';
         Output::i()->output = $form;
     }

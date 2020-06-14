@@ -187,17 +187,9 @@ class _bt extends Controller
         phpinfo();
         $content = ob_get_clean();
         ob_end_clean();
-        $content = preg_replace( '/<(\/)?(html|head|body)(>| (.+?))/', '<$1temp$2$3', $content );
-        $content = str_replace( '<!DOCTYPE html>', '<tempdoctype></tempdoctype>', $content );
 
-        /* Load phpQuery  */
-        require_once ROOT_PATH . '/system/3rd_party/phpQuery/phpQuery.php';
-        libxml_use_internal_errors( true );
-        $phpQuery = phpQuery::newDocumentHTML( $content );
-
-        $content = $phpQuery->find( 'tempbody' )->html();
         Output::i()->title = 'phpinfo()';
-        Output::i()->output = Theme::i()->getTemplate( 'bt', 'toolbox', 'front' )->phpinfo( $content );
+        Output::i()->output = Theme::i()->getTemplate('bt', 'toolbox', 'front')->phpinfo($content);
     }
 
     protected function clearCaches(): void

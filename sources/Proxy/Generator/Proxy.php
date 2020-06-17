@@ -18,6 +18,7 @@ use IPS\Patterns\Bitwise;
 use IPS\toolbox\Application;
 use IPS\toolbox\Generator\DTClassGenerator;
 use IPS\toolbox\Generator\DTFileGenerator;
+use IPS\toolbox\Proxy\Helpers\Theme;
 use IPS\toolbox\Proxy\Proxyclass;
 use IPS\toolbox\ReservedWords;
 use IPS\toolbox\Shared\Write;
@@ -537,6 +538,21 @@ class _Proxy extends GeneratorAbstract
             $file->setClass($class);
             $file->setFilename($this->save . '/IPS_Settings.php');
             $file->write();
+
+            if( method_exists(\IPS\Theme::i(), 'get_css_vars')) {
+                $css = \IPS\Theme::i()->get_css_vars();
+                $body = <<<eof
+:root {
+{$css}
+}
+eof;
+
+
+                $file2 = new DTFileGenerator();
+                $file2->setBody($body);
+                $file2->setFilename($this->save . '/IPSVars.css');
+                $file2->write();
+            }
         } catch (Exception $e) {
         }
     }
@@ -579,6 +595,7 @@ eof;
             $file = new DTFileGenerator();
             $file->setBody($extra);
             $this->_writeFile('IPS_Constants.php', $file->generate(), $this->save, false);
+
         }
     }
 

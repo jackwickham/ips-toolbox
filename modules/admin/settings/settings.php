@@ -124,7 +124,7 @@ class _settings extends Controller
                 }
             }
             $form->saveAsSettings($values);
-            Output::i()->redirect($this->url->setQueryString(['tab' => '']), 'foo');
+            Output::i()->redirect($this->url->setQueryString(['tab' => ''])->csrf(), 'foo');
         }
         Output::i()->title = 'Settings';
         Output::i()->output = $form;
@@ -136,7 +136,7 @@ class _settings extends Controller
 
         (new GitHooks($apps))->writeSpecialHooks();
 
-        Output::i()->redirect($this->url->setQueryString(['tab' => '']), 'SpecialHooks Created');
+        Output::i()->redirect($this->url->setQueryString(['tab' => ''])->csrf(), 'SpecialHooks Created');
     }
 
     protected function removeSpecialHooks()
@@ -145,7 +145,7 @@ class _settings extends Controller
 
         (new GitHooks($apps))->removeSpecialHooks();
 
-        Output::i()->redirect($this->url->setQueryString(['tab' => '']), 'SpecialHooks Removed');
+        Output::i()->redirect($this->url->setQueryString(['tab' => ''])->csrf(), 'SpecialHooks Removed');
     }
 
     protected function patchHelpers()
@@ -166,7 +166,7 @@ EOF;
             \file_put_contents($init, $content);
         }
 
-        Output::i()->redirect($this->url, 'init.php patched with Debug Helpers');
+        Output::i()->redirect($this->url->csrf(), 'init.php patched with Debug Helpers');
     }
 
     protected function patchInit()
@@ -238,6 +238,6 @@ eof;
             \file_put_contents($init, $content);
         }
 
-        Output::i()->redirect($this->url, 'init.php patched');
+        Output::i()->redirect($this->url->csrf(), 'init.php patched');
     }
 }

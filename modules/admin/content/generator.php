@@ -128,7 +128,7 @@ class _generator extends Controller
             }
 
             $query[ 'do' ] = 'queue';
-            Output::i()->redirect( $url->setQueryString( $query ) );
+            Output::i()->redirect( $url->setQueryString( $query )->csrf() );
         }
 
         Output::i()->title = 'Generate Dummy Data';
@@ -143,7 +143,7 @@ class _generator extends Controller
 
         Output::i()->title = 'Delete Content';
 
-        $url = $this->url->setQueryString( [ 'do' => 'delete', 'oldDo' => Request::i()->oldDo ] );
+        $url = $this->url->setQueryString( [ 'do' => 'delete', 'oldDo' => Request::i()->oldDo ] )->csrf();
         Output::i()->output = new MultipleRedirect( $url, static function ( $data )
         {
 
@@ -200,7 +200,7 @@ class _generator extends Controller
 
             /* And redirect back to the overview screen */
             $url = Url::internal( 'app=toolbox&module=content&controller=generator' );
-            Output::i()->redirect( $url, 'dtcontent_generation_delete_done' );
+            Output::i()->redirect( $url->csrf(), 'dtcontent_generation_delete_done' );
         } );
     }
 
@@ -226,7 +226,7 @@ class _generator extends Controller
             'club'     => $club,
         ] );
 
-        Output::i()->output = new MultipleRedirect( $url, function ( $data )
+        Output::i()->output = new MultipleRedirect( $url->csrf(), function ( $data )
         {
 
             $offset = 0;
@@ -342,7 +342,7 @@ class _generator extends Controller
             $url = Url::internal( 'app=toolbox&module=content&controller=generator' );
             $lang = Member::loggedIn()->language()->addToStack( 'dtcontent_completed', \false, [ 'sprintf' => [ mb_ucfirst( Request::i()->type ) ] ] );
             Member::loggedIn()->language()->parseOutputForDisplay( $lang );
-            Output::i()->redirect( $url, $lang );
+            Output::i()->redirect( $url->csrf(), $lang );
         } );
     }
 }

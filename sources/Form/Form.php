@@ -24,7 +24,7 @@ use IPS\Login;
 use IPS\Member;
 use IPS\Request;
 use IPS\Session;
-use IPS\babble\Form\Element;
+use IPS\toolbox\Form\Element;
 use IPS\Theme;
 
 use function array_merge;

@@ -54,7 +54,7 @@ class _proxy extends Controller
     {
         Output::i()->title = Member::loggedIn()->language()->addToStack('dtproxy_proxyclass_title');
         Output::i()->output = new MultipleRedirect(
-            $this->url, static function ($data) {
+            $this->url->csrf(), static function ($data) {
             if (!$data || !count($data)) {
                 $data = [];
                 $data['total'] = Proxyclass::i()->dirIterator();
@@ -121,13 +121,8 @@ class _proxy extends Controller
                 }
             }
         }, function () {
-            if (defined('\BYPASSPROXYDT') && \BYPASSPROXYDT === \true) {
-                \IPS\toolbox\Application::loadAutoLoader();
-                $fs = new Filesystem();
-                $fs->mirror(\IPS\ROOT_PATH . '/dtProxy2', \IPS\ROOT_PATH . '/dtProxy');
-            }
             /* And redirect back to the overview screen */
-            $url = Url::internal('app=core&module=overview&controller=dashboard');
+            $url = Url::internal('app=core&module=overview&controller=dashboard')->csrf();
             Output::i()->redirect($url, 'dtproxy_done');
         }
         );

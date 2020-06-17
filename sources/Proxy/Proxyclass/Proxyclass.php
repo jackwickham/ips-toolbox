@@ -588,6 +588,7 @@ class _Proxyclass extends Singleton
             'oauth',
             'app',
             'web',
+            'GraphQL'
         ];
     }
 
@@ -612,6 +613,7 @@ class _Proxyclass extends Singleton
             '404error.php',
             'error.php',
             'test.php',
+            'HtmlPurifierHttpsImages.php'
 
         ];
     }

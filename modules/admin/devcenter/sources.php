@@ -76,7 +76,7 @@ class _sources extends Controller
 
         $this->elements->buildForm( $config, $type );
         $this->elements->create();
-        $url = (string)Url::internal( 'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey );
+        $url = (string)Url::internal( 'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey )->csrf();
         Output::i()->breadcrumb[] = [ $url, 'Developer Ceneter' ];
         Output::i()->breadcrumb[] = [ $url, $this->application->directory ];
         Output::i()->breadcrumb[] = [ null, $title ];
@@ -96,7 +96,7 @@ class _sources extends Controller
         $this->elements->type = 'Debug';
         $this->elements->generate();
         $url = Url::internal( 'app=core&module=applications&controller=developer&appKey=' . $this->application->directory );
-        Output::i()->redirect( $url, 'Profiler Debug Class Generated' );
+        Output::i()->redirect( $url->csrf(), 'Profiler Debug Class Generated' );
     }
 
     protected function memory()
@@ -105,7 +105,7 @@ class _sources extends Controller
         $this->elements->type = 'Memory';
         $this->elements->generate();
         $url = Url::internal( 'app=core&module=applications&controller=developer&appKey=' . $this->application->directory );
-        Output::i()->redirect( $url, 'Profiler Memory Class Generated' );
+        Output::i()->redirect( $url->csrf(), 'Profiler Memory Class Generated' );
     }
 
     protected function form()
@@ -114,7 +114,7 @@ class _sources extends Controller
         $this->elements->type = 'Form';
         $this->elements->generate();
         $url = Url::internal( 'app=core&module=applications&controller=developer&appKey=' . $this->application->directory );
-        Output::i()->redirect( $url, 'Form Class Generated' );
+        Output::i()->redirect( $url->csrf(), 'Form Class Generated' );
     }
 
     protected function cinterface()

@@ -133,7 +133,7 @@ class _Sources
             Output::i()->sidebar[ 'actions' ][ 'devcenter' ] = [
                 'icon'  => null,
                 'title' => 'dtdevplus_devcenter',
-                'link'  => (string)Url::internal( 'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey ),
+                'link'  => (string)Url::internal( 'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey )->csrf(),
             ];
         }
         Output::i()->sidebar[ 'actions' ][ 'sources' ] = [

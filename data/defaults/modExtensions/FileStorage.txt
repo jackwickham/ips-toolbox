@@ -11,10 +11,20 @@
 
 namespace IPS\{app}\extensions\core\FileStorage;
 
+use IPS\Db;
+use IPS\File;
+use UnderflowException;
+use RuntimeException;
+use Exception;
+use OutOfRangeException;
+
+use function defined;
+use function header;
+
 /* To prevent PHP errors (extending class does not exist) revealing path */
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 {
-    header( ( isset( $_SERVER['SERVER_PROTOCOL'] ) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+    header( ($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden' );
     exit;
 }
 
@@ -30,7 +40,11 @@ class _{class}
      */
     public function count()
     {
-        return \IPS\Db::i()->select( 'COUNT(*)', '{table}', '{field} IS NOT NULL' )->first();
+        try{
+            return Db::i()->select( 'COUNT(*)', '{table}', '{field} IS NOT NULL' )->first();
+        }catch(UnderflowException $e){
+            return 0;
+        }
     }
 
     /**
@@ -39,17 +53,17 @@ class _{class}
      * @param	int			$offset					This will be sent starting with 0, increasing to get all files stored by this extension
      * @param	int			$storageConfiguration	New storage configuration ID
      * @param	int|NULL	$oldConfiguration		Old storage configuration ID
-     * @throws	\UnderflowException					When file record doesn't exist. Indicating there are no more files to move
+     * @throws	UnderflowException					When file record doesn't exist. Indicating there are no more files to move
      * @return	void|int							An offset integer to use on the next cycle, or nothing
      */
     public function move( $offset, $storageConfiguration, $oldConfiguration=NULL )
     {
-	    $sql = \IPS\Db::i()->select('*', '{table}', '{field} IS NOT NULL', 'id', [$offset, 1])->first();
+	    $sql = Db::i()->select('*', '{table}', '{field} IS NOT NULL', 'id', [$offset, 1])->first();
 
 	    try {
-            $img = \IPS\File::get($oldConfiguration ?: '{app}_{class}', $sql['{field}'])->move($storageConfiguration);
-            \IPS\Db::i()->update( {table}, array( '{field}', $img ), array( 'id=?', $sql['id'] ) );
-        } catch( \Exception $e ){}
+            $img = File::get($oldConfiguration ?: '{app}_{class}', $sql['{field}'])->move($storageConfiguration);
+            Db::i()->update( '{table}', array( '{field}', $img ), ['id=?', $sql['id'] ] );
+        } catch( RuntimeException | Exception $e ){}
 	}
 
     /**
@@ -61,10 +75,10 @@ class _{class}
     public function isValidFile( $file )
     {
         try{
-            \IPS\Db::i()->select('*', '{table}', array('{field} = ?', (string) $file) )->first();
+            Db::i()->select('*', '{table}', array('{field} = ?', (string) $file) )->first();
             return true;
         }
-        catch( \Exception $e ){
+        catch( UnderflowException $e ){
             return false;
         }
     }
@@ -76,13 +90,13 @@ class _{class}
      */
     public function delete()
     {
-        foreach( \IPS\Db::i()->select( '*', '{table}', '{field} IS NOT NULL' ) as $img )
+        foreach( Db::i()->select( '*', '{table}', '{field} IS NOT NULL' ) as $img )
         {
             try
             {
-                \IPS\File::get( '{app}_{class}', $img['{field}'] )->delete();
+                File::get( '{app}_{class}', $img['{field}'] )->delete();
             }
-            catch( \Exception $e ){}
+            catch( OutOfRangeException $e ){}
         }
     }
 }

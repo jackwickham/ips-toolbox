@@ -1,11 +1,47 @@
 {
-    "Hooks": {
+    "Singleton": {
         "type": "C",
-        "class": "\\IPS\\Plugin\\Hook"
+        "class": "\\IPS\\Patterns\\Singleton"
     },
-    "DataStore": {
+    "HelpersTableCustom": {
         "type": "C",
-        "class": "\\IPS\\Data\\Store"
+        "class": "\\IPS\\Helpers\\Table\\Custom"
+    },
+    "sitemapGenerator": {
+        "type": "C",
+        "class": "\\IPS\\core\\tasks\\sitemapgenerator"
+    },
+    "Dispatcher": {
+        "type": "C",
+        "class": "\\IPS\\Dispatcher"
+    },
+    "ActiveRecord": {
+        "type": "C",
+        "class": "\\IPS\\Patterns\\ActiveRecord"
+    },
+    "Settings": {
+        "type": "C",
+        "class": "\\IPS\\Settings"
+    },
+    "Request": {
+        "type": "C",
+        "class": "\\IPS\\Request"
+    },
+    "ipsLog": {
+        "type": "C",
+        "class": "\\IPS\\Log"
+    },
+    "coreFrontGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_front_global"
+    },
+    "SandboxedTemplate": {
+        "type": "C",
+        "class": "\\IPS\\Theme\\SandboxedTemplate"
+    },
+    "coreGlobalGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_global_global"
     },
     "adminGlobal": {
         "type": "S",
@@ -47,44 +83,12 @@
         "type": "C",
         "class": "\\IPS\\Application\\BuilderIterator"
     },
-    "coreGlobalGlobalTheme": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_global_global"
-    },
-    "SandboxedTemplate": {
+    "Hooks": {
         "type": "C",
-        "class": "\\IPS\\Theme\\SandboxedTemplate"
+        "class": "\\IPS\\Plugin\\Hook"
     },
-    "coreFrontGlobalTheme": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_front_global"
-    },
-    "Request": {
+    "DataStore": {
         "type": "C",
-        "class": "\\IPS\\Request"
-    },
-    "ipsLog": {
-        "type": "C",
-        "class": "\\IPS\\Log"
-    },
-    "Settings": {
-        "type": "C",
-        "class": "\\IPS\\Settings"
-    },
-    "Dispatcher": {
-        "type": "C",
-        "class": "\\IPS\\Dispatcher"
-    },
-    "ActiveRecord": {
-        "type": "C",
-        "class": "\\IPS\\Patterns\\ActiveRecord"
-    },
-    "Singleton": {
-        "type": "C",
-        "class": "\\IPS\\Patterns\\Singleton"
-    },
-    "HelpersTableCustom": {
-        "type": "C",
-        "class": "\\IPS\\Helpers\\Table\\Custom"
+        "class": "\\IPS\\Data\\Store"
     }
 }

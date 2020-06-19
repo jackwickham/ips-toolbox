@@ -15,11 +15,14 @@ namespace IPS\toolbox\DevCenter;
 use Exception;
 use InvalidArgumentException;
 use IPS\Application;
+use IPS\Http\Url;
+use IPS\Output;
 use IPS\Patterns\Singleton;
 use IPS\Request;
 use IPS\toolbox\DevCenter\Dev\Compiler\Javascript;
 use IPS\toolbox\DevCenter\Dev\Compiler\Template;
 use IPS\toolbox\Form;
+use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\ReservedWords;
 use IPS\Xml\XMLReader;
 use LogicException;
@@ -27,7 +30,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 use function array_pop;
-use function count;
 use function defined;
 use function explode;
 use function header;
@@ -40,14 +42,14 @@ use function preg_match;
 \IPS\toolbox\Application::loadAutoLoader();
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
-    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
 
 /**
  * @brief      _Dev Class
- * @mixin \IPS\toolbox\DevCenter\Dev
+ * @mixin Dev
  */
 class _Dev extends Singleton
 {
@@ -56,7 +58,7 @@ class _Dev extends Singleton
      */
     protected static $instance;
     /**
-     * @var \IPS\toolbox\Form
+     * @var Form
      */
     public $form;
     /**
@@ -84,11 +86,11 @@ class _Dev extends Singleton
             $this->application = $application;
             $this->app = $this->application->directory;
         }
-        $this->form = Form::create()->dialogForm()->formPrefix('dtdevplus_dev_');
+        $this->form = Form::create()->formPrefix('dtdevplus_dev_');
     }
 
     /**
-     * @param array  $config
+     * @param array $config
      * @param string $type
      */
     public function buildForm(array $config, string $type)
@@ -107,19 +109,20 @@ class _Dev extends Singleton
     public function create()
     {
         if ($values = $this->form->values()) {
-            /**
-             * @var \IPS\toolbox\Dev\Compiler\CompilerAbstract $class ;
-             */
-            $type = $this->type;
-            $values[ 'type' ] = $type;
-            if ($type === 'template') {
+            if ($this->type === 'template') {
                 $class = Template::class;
             } else {
                 $class = Javascript::class;
             }
-
-            $class = new $class($values, $this->application);
+            /**
+             * @var \IPS\toolbox\Dev\Compiler\CompilerAbstract $class ;
+             */
+            $class = new $class($values, $this->application, $this->type);
             $class->process();
+            $url = Url::internal('&app=core&module=applications&controller=developer')->setQueryString(
+                ['appKey' => $this->app]
+            )->csrf();
+            Output::i()->redirect($url, 'File Created');
         }
     }
 
@@ -127,13 +130,15 @@ class _Dev extends Singleton
      * @param $data
      *
      * @throws InvalidArgumentException
-     * @throws \Exception
+     * @throws Exception
      */
     public function validateFilename($data)
     {
-        $location = \null;
-        $group = \null;
-        if (Request::i()->dtdevplus_dev_group_manual_checkbox === 0) {
+        $location = null;
+        $group = null;
+        if (!Request::i()->dtdevplus_dev_group_manual && !isset(
+                Request::i()->dtdevplus_dev_group_manual_checkbox
+            )) {
             $locationGroup = Request::i()->dtdevplus_dev__group;
             [$location, $group] = explode(':', $locationGroup);
         } else {
@@ -143,13 +148,33 @@ class _Dev extends Singleton
         $dir = \IPS\ROOT_PATH . '/applications/' . $this->app . '/dev/';
         if ($this->type === 'template') {
             $dir .= 'html/';
+            $file = $dir . '/' . $data;
         } else {
             $dir .= 'js/';
+            $file = '';
+            if ($this->type === 'widget') {
+                $file = 'ips.ui.' . $this->app . '.' . $data;
+            } elseif ($this->type === 'controller') {
+                $file = 'ips.' . $this->app . '.' . $location . '.' . $group . '.' . $data;
+            } elseif ($this->type === 'module') {
+                $file = 'ips.' . $this->app . '.' . $data;
+            } elseif ($this->type === 'jstemplate') {
+                $file = 'ips.templates.' . $data;
+            } elseif ($this->type === 'jsmixin') {
+                $file = 'ips.' . $this->app . '.' . $data;
+            }
+
+
+            if ($this->type === 'jstemplate') {
+                $type = 'templates';
+            } elseif ($this->type === 'jsmixin') {
+                $type = 'mixin';
+            } else {
+                $type = 'controllers';
+            }
+            $dir .= $location . '/' . $type . '/' . $group;
+            $file = $dir . '/' . $file;
         }
-
-        $dir .= $location . '/' . $group;
-
-        $file = $dir . '/' . $data;
 
         if ($this->type === 'template') {
             $file .= '.phtml';
@@ -183,7 +208,7 @@ class _Dev extends Singleton
     protected function elArguments()
     {
         $this->elements[] = [
-            'name'  => 'arguments',
+            'name' => 'arguments',
             'class' => 'stack',
         ];
         $this->form->add('arguments', 'stack');
@@ -191,7 +216,7 @@ class _Dev extends Singleton
 
     protected function elWidgetName()
     {
-        $this->form->add('widgetname');
+        $this->form->add('widgetname')->prefix($this->app);
     }
 
     protected function elMixin()
@@ -200,7 +225,7 @@ class _Dev extends Singleton
         foreach (Application::applications() as $app) {
             $file = \IPS\ROOT_PATH . '/applications/' . $app->directory . '/data/javascript.xml';
             if (is_file($file)) {
-                $xml = new XMLReader;
+                $xml = new XMLReader();
                 $xml->open($file);
                 $xml->read();
                 while ($xml->read()) {
@@ -212,8 +237,8 @@ class _Dev extends Singleton
                         if ($xml->getAttribute('javascript_type') === 'controller') {
                             $content = $xml->readString();
                             preg_match("#ips.controller.register\('(.*?)'#", $content, $match);
-                            if (isset($match[ 1 ]) && $match[ 1 ]) {
-                                $controllers[ $app->directory ][ $match[ 1 ] ] = $match[ 1 ];
+                            if (isset($match[1]) && $match[1]) {
+                                $controllers[$app->directory][$match[1]] = $match[1];
                             }
                         }
                     }
@@ -240,20 +265,21 @@ class _Dev extends Singleton
 
     protected function elGroup()
     {
-        $groupManual = \true;
+        $groupManual = true;
 
         if ($this->type === 'template') {
             try {
                 $this->_getGroups();
-                $groupManual = \false;
-            } catch (Exception $e) {
+                $groupManual = false;
+            } catch (InvalidArgumentException $e) {
+                Debug::log($e);
             }
         }
 
         if (in_array($this->type, ['controller', 'module', 'widget'])) {
             try {
                 $this->_getGroups('js');
-                $groupManual = \false;
+                $groupManual = false;
             } catch (Exception $e) {
             }
         }
@@ -261,8 +287,8 @@ class _Dev extends Singleton
         if ($this->type === 'jstemplate') {
             try {
                 $this->_getGroups('js', 'templates');
-                $groupManual = \false;
-            } catch (\Exception $e) {
+                $groupManual = false;
+            } catch (Exception $e) {
             }
         }
         $this->form->add('group_manual', 'yn')->value($groupManual)->toggles(
@@ -272,7 +298,9 @@ class _Dev extends Singleton
             ]
         )->toggles(['_group'], true);
 
-        $this->form->add('group_manual_location', 'select')->options(['options' => ['admin' => 'admin', 'front' => 'front', 'global' => 'global']]);
+        $this->form->add('group_manual_location', 'select')->options(
+            ['options' => ['admin' => 'admin', 'front' => 'front', 'global' => 'global']]
+        );
         $this->form->add('group_manual_folder')->required();
     }
 
@@ -292,8 +320,8 @@ class _Dev extends Singleton
             $base = \IPS\ROOT_PATH . \DIRECTORY_SEPARATOR . 'applications' . \DIRECTORY_SEPARATOR . $this->app . \DIRECTORY_SEPARATOR . 'dev' . \DIRECTORY_SEPARATOR . $path . \DIRECTORY_SEPARATOR;
 
             /* @var Finder $groups */
-            $groups = new Finder;
-            $fs = new Filesystem;
+            $groups = new Finder();
+            $fs = new Filesystem();
             $extended = '';
             if ($path === 'js') {
                 $extended = \DIRECTORY_SEPARATOR . $altPath;
@@ -318,25 +346,30 @@ class _Dev extends Singleton
                 if ($path === 'js') {
                     $location = array_pop($paths);
                 }
-                if (\in_array($location, ['front', 'global', 'admin'], \true)) {
+                if (in_array($location, ['front', 'global', 'admin'], true)) {
                     $name = $location . ':' . $group->getFilename();
-                    $options[ $name ] = $name;
+                    $options[$name] = $name;
                 }
             }
         } catch (LogicException $es) {
         }
 
-        if (is_array($options) && count($options)) {
-            $this->elements[] = [
-                'class' => 'select',
-                'name'  => '_group',
-                'ops'   => [
-                    'options' => $options,
-                ],
-            ];
-            $this->form->add('_group', 'select')->options(['options' => $options]);
-        } else {
-            throw new InvalidArgumentException;
+        if (empty($options) !== false) {
+            throw new InvalidArgumentException('meh');
         }
+
+        $this->elements[] = [
+            'class' => 'select',
+            'name' => '_group',
+            'ops' => [
+                'options' => $options,
+            ],
+        ];
+        $this->form->add('_group', 'select')->options(['options' => $options]);
+    }
+
+    protected function elOptions()
+    {
+        $this->form->add('options', 'stack');
     }
 }

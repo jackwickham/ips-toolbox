@@ -198,6 +198,17 @@ $lang = [
     'dtdevplus_ext_table_desc' => 'Select the table that contains the information for the filestorage file/img',
     'dtdevplus_ext_title_FileStorage_header' => 'Create FileStorage Extension',
     'dtdevplus_ext_title_ContentRouter_header' => 'Create ContentRouter Extension',
+    'dtdevplus_ext_title_Headerdoc_header' => 'Create Headerdoc Extensions',
+    'dtdevplus_ext_enabled' => 'Enabled',
+    'dtdevplus_ext_enabled_desc' => 'Enable headerdoc building on files',
+    'dtdevplus_ext_indexEnabled' => 'Index Enabled',
+    'dtdevplus_ext_indexEnabled_desc' => 'this will create a index.html in all the subfolders of your app if enabled.',
+    'dtdevplus_ext_dirSkip' => 'Dir Skip',
+    'dtdevplus_ext_dirSkip_desc' => 'Directories to skip during building of your applications tar.',
+    'dtdevplus_ext_fileSkip' => 'Files Skip',
+    'dtdevplus_ext_fileSkip_desc' => 'Files to skip during the buidling of your applications tar.',
+    'dtdevplus_ext_exclude' => 'Exclude',
+    'dtdevplus_ext_exclude_desc' => 'Files and Folders to exclude from running headerdoc on. (this is different than the two above, this only applies to files/folders for adding a \'headerdoc\' on.',
     'dtdevplus_ext_module' => 'Module',
     'dtdevplus_ext_classRouter' => 'Router Classes',
     'dtdevplus_ext_classRouter_desc' => 'Only provide the class name, no need to provide the full FQN.',
@@ -319,5 +330,7 @@ $lang = [
     'toolbox_gitcommit_message' => 'Message',
     'dtprofiler_enable_debug_ajax' => 'Enable Ajax Debugger',
     'dtprofiler_enable_debug_ajax_desc' => 'This will enable the long polling ajax script for debug.',
-    'toolbox_dev_center_missin_multion' => 'you are missing protected static $multions=[]; property in your class %s'
+    'toolbox_dev_center_missin_multion' => 'you are missing protected static $multions=[]; property in your class %s',
+    'dtdevplus_dev_options' => 'Options',
+    'dtdevplus_dev_options_desc' => 'Options for the widget.'
 ];

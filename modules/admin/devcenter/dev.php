@@ -4,25 +4,29 @@
 namespace IPS\toolbox\modules\admin\devcenter;
 
 use IPS\Application;
+use IPS\Dispatcher;
+use IPS\Dispatcher\Controller;
 use IPS\Http\Url;
 use IPS\Output;
 use IPS\Request;
 use IPS\toolbox\DevCenter\Dev;
 use IPS\toolbox\DevCenter\Sources;
+
 use function defined;
 use function header;
+use function mb_strtoupper;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header((isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
 /**
  * sources
  */
-class _dev extends \IPS\Dispatcher\Controller
+class _dev extends Controller
 {
 
     /**
@@ -37,10 +41,10 @@ class _dev extends \IPS\Dispatcher\Controller
 
     public function execute()
     {
-        \IPS\Dispatcher::i()->checkAcpPermission( 'sources_manage' );
+        Dispatcher::i()->checkAcpPermission('sources_manage');
         Sources::menu();
-        $this->application = Application::load( Request::i()->appKey );
-        $this->elements = new Dev( $this->application );
+        $this->application = Application::load(Request::i()->appKey);
+        $this->elements = new Dev($this->application);
         parent::execute();
     }
 
@@ -56,24 +60,20 @@ class _dev extends \IPS\Dispatcher\Controller
             'arguments',
         ];
 
-        $this->doOutput( $config, 'template', 'Template' );
+        $this->doOutput($config, 'template', 'Template');
     }
 
-    protected function doOutput( $config, $type, $title )
+    protected function doOutput($config, $type, $title)
     {
-        $this->elements->buildForm( $config, $type );
+        $this->elements->buildForm($config, $type);
         $this->elements->create();
-        $url = (string)Url::internal( 'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey );
-        Output::i()->breadcrumb[] = [ $url, 'Developer Ceneter' ];
-        Output::i()->breadcrumb[] = [ $url, $this->application->directory ];
-        Output::i()->breadcrumb[] = [ \null, $title ];
-
-        Output::i()->title = \mb_strtoupper( $this->application->directory ) . ': ' . $title;
-
-        //        $form = $this->elements->form->customTemplate( [
-        //            call_user_func( [ Theme::i(), 'getTemplate' ], 'forms', 'core', 'front' ),
-        //            'popupTemplate',
-        //        ] );
+        $url = (string)Url::internal(
+            'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey
+        )->csrf();
+        Output::i()->breadcrumb[] = [$url, 'Developer Ceneter'];
+        Output::i()->breadcrumb[] = [$url, $this->application->directory];
+        Output::i()->breadcrumb[] = [null, $title];
+        Output::i()->title = mb_strtoupper($this->application->directory) . ': ' . $title;
         Output::i()->output = $this->elements->form;
     }
 
@@ -84,7 +84,7 @@ class _dev extends \IPS\Dispatcher\Controller
             'group',
         ];
 
-        $this->doOutput( $config, 'controller', 'Controller' );
+        $this->doOutput($config, 'controller', 'Controller');
     }
 
     protected function module()
@@ -94,7 +94,7 @@ class _dev extends \IPS\Dispatcher\Controller
             'group',
         ];
 
-        $this->doOutput( $config, 'module', 'Module' );
+        $this->doOutput($config, 'module', 'Module');
     }
 
     protected function widget()
@@ -103,9 +103,10 @@ class _dev extends \IPS\Dispatcher\Controller
             'name',
             'group',
             'WidgetName',
+            'Options'
         ];
 
-        $this->doOutput( $config, 'widget', 'Widget' );
+        $this->doOutput($config, 'widget', 'Widget');
     }
 
     protected function jstemplate()
@@ -116,7 +117,7 @@ class _dev extends \IPS\Dispatcher\Controller
             'templateName',
         ];
 
-        $this->doOutput( $config, 'jstemplate', 'jstemplate' );
+        $this->doOutput($config, 'jstemplate', 'jstemplate');
     }
 
     protected function jsmixin()
@@ -127,6 +128,6 @@ class _dev extends \IPS\Dispatcher\Controller
             'mixin',
         ];
 
-        $this->doOutput( $config, 'jsmixin', 'jsmixin' );
+        $this->doOutput($config, 'jsmixin', 'jsmixin');
     }
 }

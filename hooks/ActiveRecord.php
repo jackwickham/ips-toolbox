@@ -19,7 +19,7 @@ class toolbox_hook_ActiveRecord extends _HOOK_CLASS_
 {
     public function __construct()
     {
-        if( \IPS\IN_DEV === true && DTPROFILER === true){
+        if( \IPS\IN_DEV === true && defined('TOOLBOXDEV') && TOOLBOXDEV === true){
             $r = new \ReflectionClass($this);
             if ( $r->getProperty('multitons')->getDeclaringClass()->getName() === 'IPS\Patterns\_ActiveRecord') {
 

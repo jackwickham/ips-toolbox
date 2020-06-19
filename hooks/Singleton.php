@@ -14,7 +14,7 @@ class toolbox_hook_Singleton extends _HOOK_CLASS_
 {
     public function __construct()
     {
-        if( \IPS\IN_DEV === true && DTPROFILER === true){
+        if( \IPS\IN_DEV === true && defined('TOOLBOXDEV') && TOOLBOXDEV === true){
             $r = new \ReflectionClass($this);
             if ( $r->getProperty('instance')->getDeclaringClass()->getName() === 'IPS\Patterns\_Singleton') {
 

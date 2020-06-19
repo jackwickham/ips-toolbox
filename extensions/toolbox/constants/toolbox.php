@@ -3,8 +3,8 @@
 namespace IPS\toolbox\extensions\toolbox\constants;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header((isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -20,26 +20,34 @@ class _toolbox
     public function getConstants()
     {
         return [
-            'DTBUILD'       => [
-                'name'        => 'DTBUILD',
-                'default'     => \false,
-                'current'     => defined( '\DTBUILD' ) ? \DTBUILD : \null,
+            'DTBUILD' => [
+                'name' => 'DTBUILD',
+                'default' => \false,
+                'current' => defined('\DTBUILD') ? \DTBUILD : \null,
                 'description' => 'This enables special app build features for toolbox, use with caution.',
-                'type'        => 'boolean',
-                'tab'         => 'DevTools',
+                'type' => 'boolean',
+                'tab' => 'DevTools',
 
             ],
-            'DTPROFILER'    => [
-                'name'        => 'DTPROFILER',
-                'default'     => \false,
-                'current'     => defined( '\DTPROFILER' ) ? \DTPROFILER : \null,
+            'DTPROFILER' => [
+                'name' => 'DTPROFILER',
+                'default' => \false,
+                'current' => defined('\DTPROFILER') ? \DTPROFILER : \null,
                 'description' => 'this will enable/disable extra features for the profiler.',
-                'type'        => 'boolean',
-                'tab'         => 'DevTools',
+                'type' => 'boolean',
+                'tab' => 'DevTools',
 
             ],
-        ];
+            'TOOLBOXDEV' => [
+                'name' => 'TOOLBOXDEV',
+                'default' => \false,
+                'current' => defined('\TOOLBOXDEV') ? \TOOLBOXDEV : \false,
+                'description' => 'this will enable/disable extra features for toolbox..',
+                'type' => 'boolean',
+                'tab' => 'DevTools',
 
+            ]
+        ];
     }
 
     /**
@@ -75,8 +83,7 @@ class _toolbox
      *
      * @return void
      */
-    public function formateValues( &$values )
+    public function formateValues(&$values)
     {
-
     }
 }

@@ -73,4 +73,5 @@ class toolbox_hook_Hooks extends _HOOK_CLASS_
 
         return $parent;
     }
+
 }

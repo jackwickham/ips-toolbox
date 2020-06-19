@@ -1,0 +1,62 @@
+<?php
+
+namespace IPS\{app}\extensions\toolbox\Headerdoc;
+
+use IPS\toolbox\DevCenter\Headerdoc\HeaderdocAbstract;
+
+use function defined;
+use function header;
+
+/* To prevent PHP errors (extending class does not exist) revealing path */
+if ( !defined('\IPS\SUITE_UNIQUE_KEY' ) )
+{
+	header( ($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden2' );
+	exit;
+}
+
+/**
+ * _{class}
+ */
+class _{class} extends HeaderdocAbstract
+{
+
+    /**
+    * enable headerdoc
+    **/
+    public function enabled()
+    {
+        return {enabled};
+    }
+
+    /**
+    * if enabled, will add a blank index.html to each folder
+    **/
+    public function indexEnabled()
+    {
+        return {indexEnabled};
+    }
+
+    /**
+    * files to skip during building of the tar
+    **/
+    public function filesSkip(&$skip)
+    {
+{fileSkip}
+    }
+
+    /**
+    * directories to skip during building of the tar
+    **/
+    public function dirSkip(&$skip)
+    {
+{dirSkip}
+    }
+
+    /**
+    * an array of files/folders to exclude in the headerdoc
+    **/
+    public function exclude(&$skip)
+    {
+{exclude}
+    }
+}

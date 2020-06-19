@@ -15,8 +15,8 @@ namespace IPS\toolbox\DevCenter\Extensions;
 use function defined;
 use function header;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -34,11 +34,11 @@ class _CreateMenu extends ExtensionsAbstract
      */
     public function elements()
     {
-
-        $this->form->add( 'key' )->required();
-        $this->form->add( 'link' )->required()->prefix( 'app=' . $this->application->directory . '&' );
-        $this->form->add( 'seo' );
-        $this->form->add( 'seoTitle' );
+        $this->form->element('use_default')->toggles(['key', 'link', 'seo', 'seoTitle'], true);
+        $this->form->add('key')->required();
+        $this->form->add('link')->required()->prefix('app=' . $this->application->directory . '&');
+        $this->form->add('seo');
+        $this->form->add('seoTitle');
     }
 
     /**
@@ -46,11 +46,10 @@ class _CreateMenu extends ExtensionsAbstract
      */
     protected function _content()
     {
-
         $this->link = 'app=' . $this->application->directory . '&' . $this->link;
         $this->seo = $this->seo ? "'" . $this->seo . "'" : \null;
         $this->seoTitle = $this->seoTitle ? "'" . $this->seoTitle . "'" : \null;
 
-        return $this->_getFile( $this->extension );
+        return $this->_getFile($this->extension);
     }
 }

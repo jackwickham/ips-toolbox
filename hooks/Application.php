@@ -1,8 +1,10 @@
 //<?php namespace toolbox_IPS_Application_a9c79968882bc47948bd3964ea259cdf0;
 
+use IPS\Settings;
 use IPS\toolbox\DevCenter\Headerdoc;
 use IPS\toolbox\DevFolder\Applications;
 use Exception;
+use IPS\toolbox\Proxy\Generator\Proxy;
 use IPS\toolbox\Proxy\Proxyclass;
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
@@ -68,7 +70,17 @@ class toolbox_hook_Application extends _HOOK_CLASS_
 
     public function buildHooks()
     {
-        Proxyclass::i()->buildHooks();
+
         parent::buildHooks();
+        Proxyclass::i()->buildHooks();
+    }
+
+    public static function writeJson($file, $data)
+    {
+        parent::writeJson($file, $data);
+        if (mb_strpos($file,'settings.json') !== false) {
+            Settings::i()->clearCache();
+            Proxy::i()->generateSettings();
+        }
     }
 }

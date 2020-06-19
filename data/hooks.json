@@ -1,39 +1,31 @@
 {
-    "Settings": {
+    "Hooks": {
         "type": "C",
-        "class": "\\IPS\\Settings"
+        "class": "\\IPS\\Plugin\\Hook"
     },
-    "ipsLog": {
+    "DataStore": {
         "type": "C",
-        "class": "\\IPS\\Log"
+        "class": "\\IPS\\Data\\Store"
     },
-    "Request": {
-        "type": "C",
-        "class": "\\IPS\\Request"
-    },
-    "coreFrontGlobalTheme": {
+    "adminGlobal": {
         "type": "S",
-        "class": "\\IPS\\Theme\\class_core_front_global"
+        "class": "\\IPS\\Theme\\class_core_admin_global"
     },
-    "SandboxedTemplate": {
+    "moduleApplications": {
         "type": "C",
-        "class": "\\IPS\\Theme\\SandboxedTemplate"
+        "class": "\\IPS\\core\\modules\\admin\\applications\\applications"
     },
-    "coreGlobalGlobalTheme": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_global_global"
-    },
-    "BuilderIterator": {
+    "Output": {
         "type": "C",
-        "class": "\\IPS\\Application\\BuilderIterator"
+        "class": "\\IPS\\Output"
     },
-    "BuilderFilter": {
+    "Application": {
         "type": "C",
-        "class": "\\IPS\\Application\\BuilderFilter"
+        "class": "\\IPS\\Application"
     },
-    "developer": {
+    "Db": {
         "type": "C",
-        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
+        "class": "\\IPS\\Db"
     },
     "MultiRedirect": {
         "type": "C",
@@ -43,36 +35,56 @@
         "type": "C",
         "class": "\\IPS\\Theme"
     },
-    "Db": {
+    "BuilderFilter": {
         "type": "C",
-        "class": "\\IPS\\Db"
+        "class": "\\IPS\\Application\\BuilderFilter"
     },
-    "Application": {
+    "developer": {
         "type": "C",
-        "class": "\\IPS\\Application"
+        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
     },
-    "Output": {
+    "BuilderIterator": {
         "type": "C",
-        "class": "\\IPS\\Output"
+        "class": "\\IPS\\Application\\BuilderIterator"
+    },
+    "coreGlobalGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_global_global"
+    },
+    "SandboxedTemplate": {
+        "type": "C",
+        "class": "\\IPS\\Theme\\SandboxedTemplate"
+    },
+    "coreFrontGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_front_global"
+    },
+    "Request": {
+        "type": "C",
+        "class": "\\IPS\\Request"
+    },
+    "ipsLog": {
+        "type": "C",
+        "class": "\\IPS\\Log"
+    },
+    "Settings": {
+        "type": "C",
+        "class": "\\IPS\\Settings"
     },
     "Dispatcher": {
         "type": "C",
         "class": "\\IPS\\Dispatcher"
     },
-    "moduleApplications": {
+    "ActiveRecord": {
         "type": "C",
-        "class": "\\IPS\\core\\modules\\admin\\applications\\applications"
+        "class": "\\IPS\\Patterns\\ActiveRecord"
     },
-    "adminGlobal": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_admin_global"
-    },
-    "DataStore": {
+    "Singleton": {
         "type": "C",
-        "class": "\\IPS\\Data\\Store"
+        "class": "\\IPS\\Patterns\\Singleton"
     },
-    "Hooks": {
+    "HelpersTableCustom": {
         "type": "C",
-        "class": "\\IPS\\Plugin\\Hook"
+        "class": "\\IPS\\Helpers\\Table\\Custom"
     }
 }

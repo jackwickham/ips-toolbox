@@ -15,7 +15,6 @@ namespace IPS\toolbox\Proxy;
 use Exception;
 use InvalidArgumentException;
 use IPS\Data\Store;
-use IPS\Db;
 use IPS\Patterns\Singleton;
 use IPS\Settings;
 use IPS\toolbox\Application;

@@ -3,6 +3,7 @@
 use IPS\toolbox\DevCenter\Headerdoc;
 use IPS\toolbox\DevFolder\Applications;
 use Exception;
+use IPS\toolbox\Proxy\Proxyclass;
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
@@ -63,5 +64,11 @@ class toolbox_hook_Application extends _HOOK_CLASS_
         }
 
         parent::installOther();
+    }
+
+    public function buildHooks()
+    {
+        Proxyclass::i()->buildHooks();
+        parent::buildHooks();
     }
 }

@@ -303,7 +303,7 @@ class _Proxyclass extends Singleton
                 $this->templates[$file] = ['method' => $methodName, 'params' => $parameters];
             }
         } elseif ($finder->getExtension() === 'php') {
-            Proxy::i()->create($content);
+            Proxy::i()->create($content, $file);
         }
     }
 
@@ -370,7 +370,7 @@ class _Proxyclass extends Singleton
     {
         if (isset(Store::i()->dt_json)) {
             $content = json_encode(Store::i()->dt_json, JSON_PRETTY_PRINT);
-            $this->_writeFile('.ide-toolbox.metadata.json', $content, \IPS\ROOT_PATH . '/' . $this->save);
+            $this->_writeFile('.ide-toolbox.metadata.json', $content,  $this->save);
             unset(Store::i()->dt_json);
         }
     }
@@ -459,7 +459,7 @@ class _Proxyclass extends Singleton
     {
         $ds = DIRECTORY_SEPARATOR;
         $root = \IPS\ROOT_PATH;
-        $save = $root . $ds . $this->save . $ds;
+        $save =  $this->save . $ds;
         $finder = new Finder();
         try {
             if ($dir === null) {

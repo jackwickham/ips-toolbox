@@ -19,9 +19,11 @@ use IPS\Settings;
 use IPS\toolbox\Application;
 use IPS\toolbox\Generator\DTClassGenerator;
 use IPS\toolbox\Generator\DTFileGenerator;
+use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Proxy\Proxyclass;
 use IPS\toolbox\ReservedWords;
 use IPS\toolbox\Shared\Write;
+use ParseError;
 use ReflectionClass;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\GenericTag;
@@ -118,7 +120,7 @@ class _Proxy extends GeneratorAbstract
     /**
      * @param $content
      */
-    public function create(string $content)
+    public function create(string $content, string $originalFilePath = null)
     {
         try {
             $proxied = Store::i()->dt_cascade_proxy ?? [];
@@ -262,6 +264,11 @@ class _Proxy extends GeneratorAbstract
                                 }
                             }
                         } catch (Exception $e) {
+                            Debug::log($e, 'ProxyClass');
+                        }
+                        catch (ParseError $e){
+                            Debug::log($e, 'ParseError');
+                            Debug::log($originalFilePath, 'ParseErrorFile');
                         }
 
                         $this->runHelperClasses($dbClass, $classDefinition, $ipsClass, $body);

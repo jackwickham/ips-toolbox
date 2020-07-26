@@ -9,7 +9,6 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 abstract class toolbox_hook_DispatcherStandard extends _HOOK_CLASS_ // \IPS\Dispatcher\Standard
 {
 	public function __construct() {
-		parent::__construct();
 		// Override the base url host to whatever the current requested host is, for easier testing on other devices
 		if (isset($_SERVER['HTTP_HOST'])) {
 			\IPS\Settings::i()->base_url = (string) (new \IPS\Http\Url(\IPS\Settings::i()->base_url))->setHost($_SERVER['HTTP_HOST']);

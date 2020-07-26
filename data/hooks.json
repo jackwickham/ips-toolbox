@@ -114,5 +114,13 @@
     "Hooks": {
         "type": "C",
         "class": "\\IPS\\Plugin\\Hook"
+    },
+    "SessionAdmin": {
+        "type": "C",
+        "class": "\\IPS\\Session\\Admin"
+    },
+    "DispatcherStandard": {
+        "type": "C",
+        "class": "\\IPS\\Dispatcher\\Standard"
     }
 }

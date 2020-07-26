@@ -66,5 +66,13 @@
     "Settings": {
         "type": "C",
         "class": "\\IPS\\Settings"
+    },
+    "SessionAdmin": {
+        "type": "C",
+        "class": "\\IPS\\Session\\Admin"
+    },
+    "DispatcherStandard": {
+        "type": "C",
+        "class": "\\IPS\\Dispatcher\\Standard"
     }
 }

@@ -1,11 +1,63 @@
 {
-    "Singleton": {
+    "DataStore": {
         "type": "C",
-        "class": "\\IPS\\Patterns\\Singleton"
+        "class": "\\IPS\\Data\\Store"
     },
-    "HelpersTableCustom": {
+    "Hooks": {
         "type": "C",
-        "class": "\\IPS\\Helpers\\Table\\Custom"
+        "class": "\\IPS\\Plugin\\Hook"
+    },
+    "BuilderIterator": {
+        "type": "C",
+        "class": "\\IPS\\Application\\BuilderIterator"
+    },
+    "developer": {
+        "type": "C",
+        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
+    },
+    "Theme": {
+        "type": "C",
+        "class": "\\IPS\\Theme"
+    },
+    "Output": {
+        "type": "C",
+        "class": "\\IPS\\Output"
+    },
+    "BuilderFilter": {
+        "type": "C",
+        "class": "\\IPS\\Application\\BuilderFilter"
+    },
+    "moduleApplications": {
+        "type": "C",
+        "class": "\\IPS\\core\\modules\\admin\\applications\\applications"
+    },
+    "adminGlobal": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_admin_global"
+    },
+    "coreGlobalGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_global_global"
+    },
+    "SandboxedTemplate": {
+        "type": "C",
+        "class": "\\IPS\\Theme\\SandboxedTemplate"
+    },
+    "coreFrontGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_front_global"
+    },
+    "Settings": {
+        "type": "C",
+        "class": "\\IPS\\Settings"
+    },
+    "ipsLog": {
+        "type": "C",
+        "class": "\\IPS\\Log"
+    },
+    "Request": {
+        "type": "C",
+        "class": "\\IPS\\Request"
     },
     "sitemapGenerator": {
         "type": "C",
@@ -15,80 +67,40 @@
         "type": "C",
         "class": "\\IPS\\Dispatcher"
     },
+    "HelpersTableCustom": {
+        "type": "C",
+        "class": "\\IPS\\Helpers\\Table\\Custom"
+    },
+    "Singleton": {
+        "type": "C",
+        "class": "\\IPS\\Patterns\\Singleton"
+    },
     "ActiveRecord": {
         "type": "C",
         "class": "\\IPS\\Patterns\\ActiveRecord"
-    },
-    "Settings": {
-        "type": "C",
-        "class": "\\IPS\\Settings"
-    },
-    "Request": {
-        "type": "C",
-        "class": "\\IPS\\Request"
-    },
-    "ipsLog": {
-        "type": "C",
-        "class": "\\IPS\\Log"
-    },
-    "coreFrontGlobalTheme": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_front_global"
-    },
-    "SandboxedTemplate": {
-        "type": "C",
-        "class": "\\IPS\\Theme\\SandboxedTemplate"
-    },
-    "coreGlobalGlobalTheme": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_global_global"
-    },
-    "adminGlobal": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_admin_global"
-    },
-    "moduleApplications": {
-        "type": "C",
-        "class": "\\IPS\\core\\modules\\admin\\applications\\applications"
-    },
-    "Output": {
-        "type": "C",
-        "class": "\\IPS\\Output"
-    },
-    "Application": {
-        "type": "C",
-        "class": "\\IPS\\Application"
-    },
-    "Db": {
-        "type": "C",
-        "class": "\\IPS\\Db"
     },
     "MultiRedirect": {
         "type": "C",
         "class": "\\IPS\\Helpers\\MultipleRedirect"
     },
-    "Theme": {
+    "Db": {
         "type": "C",
-        "class": "\\IPS\\Theme"
+        "class": "\\IPS\\Db"
     },
-    "BuilderFilter": {
+    "DevTheme": {
         "type": "C",
-        "class": "\\IPS\\Application\\BuilderFilter"
+        "class": "\\IPS\\Theme\\Dev\\Theme"
     },
-    "developer": {
+    "Application": {
         "type": "C",
-        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
+        "class": "\\IPS\\Application"
     },
-    "BuilderIterator": {
+    "DevTemplate": {
         "type": "C",
-        "class": "\\IPS\\Application\\BuilderIterator"
+        "class": "\\IPS\\Theme\\Dev\\Template"
     },
-    "Hooks": {
+    "AdvancedTheme": {
         "type": "C",
-        "class": "\\IPS\\Plugin\\Hook"
-    },
-    "DataStore": {
-        "type": "C",
-        "class": "\\IPS\\Data\\Store"
+        "class": "\\IPS\\Theme\\Advanced\\Theme"
     }
 }

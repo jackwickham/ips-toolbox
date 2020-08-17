@@ -169,6 +169,19 @@ class _Application extends Application
         return $apps;
     }
 
+    public static function getThemeId()
+    {
+        $location = \IPS\Dispatcher::hasInstance() ? \IPS\Dispatcher::i()->controllerLocation : null;
+        if (isset(\IPS\Request::i()->admin) && \IPS\Request::i()->admin === 1) {
+            $location = 'admin';
+        }
+        if ($location === 'admin' && \defined('DT_THEME_ID_ADMIN') && DT_THEME_ID_ADMIN !== 0) {
+            return DT_THEME_ID_ADMIN;
+        }
+
+        return DT_THEME_ID;
+    }
+
     /**
      * @inheritdoc
      */

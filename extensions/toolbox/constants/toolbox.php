@@ -46,6 +46,33 @@ class _toolbox
                 'type' => 'boolean',
                 'tab' => 'DevTools',
 
+            ],
+            'DT_THEME' => [
+                'name' => 'DT_THEME',
+                'default' => \false,
+                'current' => defined('\DT_THEME') ? \DT_THEME : \false,
+                'description' => 'this will enable/disable designer mode templates to be used with IN_DEV. check out the HowToUseDesignerDevMode.txt.',
+                'type' => 'boolean',
+                'tab' => 'DevTools',
+
+            ],
+            'DT_THEME_ID' => [
+                'name' => 'DT_THEME_ID',
+                'default' => 0,
+                'current' => defined('\DT_THEME_ID') ? \DT_THEME_ID : 0,
+                'description' => 'enter the theme ID number to use.',
+                'type' => 'int',
+                'tab' => 'DevTools',
+
+            ],
+            'DT_THEME_ID_ADMIN' => [
+                'name' => 'DT_THEME_ID_ADMIN',
+                'default' => 0,
+                'current' => defined('\DT_THEME_ID_ADMIN') ? \DT_THEME_ID_ADMIN : 0,
+                'description' => 'if you want to use a different theme for the ACP than on the front end, enter theme ID number here, leave 0 to keep disabled.',
+                'type' => 'int',
+                'tab' => 'DevTools',
+
             ]
         ];
     }

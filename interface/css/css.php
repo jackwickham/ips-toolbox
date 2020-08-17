@@ -57,8 +57,13 @@ else
 
 }
 
+    $id = DT_THEME_ID;
 
-    \IPS\Theme::$memberTheme = \IPS\Theme\Advanced\Theme::load( DT_THEME_ID );
+if( isset( \IPS\Request::i()->admin) && \IPS\Request::i()->admin === 1){
+    $id = DT_THEME_ID_ADMIN;
+}
+
+    \IPS\Theme::$memberTheme = \IPS\Theme\Advanced\Theme::load( $id );
 
     $functionName = 'css_' . mt_rand();
     $contents = str_replace( '\\', '\\\\', $contents );

@@ -1,39 +1,75 @@
 {
+    "cmsDesignerMode": {
+        "type": "C",
+        "class": "\\IPS\\cms\\extensions\\core\\DesignersMode\\Cms"
+    },
+    "cmsTheme": {
+        "type": "C",
+        "class": "\\IPS\\cms\\Theme"
+    },
+    "cmsThemeTemplate": {
+        "type": "C",
+        "class": "\\IPS\\cms\\Theme\\Template"
+    },
     "DataStore": {
         "type": "C",
         "class": "\\IPS\\Data\\Store"
     },
-    "Hooks": {
+    "AdvancedTheme": {
         "type": "C",
-        "class": "\\IPS\\Plugin\\Hook"
+        "class": "\\IPS\\Theme\\Advanced\\Theme"
     },
-    "BuilderIterator": {
+    "Application": {
         "type": "C",
-        "class": "\\IPS\\Application\\BuilderIterator"
+        "class": "\\IPS\\Application"
     },
-    "developer": {
+    "DevTheme": {
         "type": "C",
-        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
+        "class": "\\IPS\\Theme\\Dev\\Theme"
     },
-    "Theme": {
+    "DevTemplate": {
         "type": "C",
-        "class": "\\IPS\\Theme"
+        "class": "\\IPS\\Theme\\Dev\\Template"
     },
-    "Output": {
+    "HelpersTableCustom": {
         "type": "C",
-        "class": "\\IPS\\Output"
+        "class": "\\IPS\\Helpers\\Table\\Custom"
     },
-    "BuilderFilter": {
+    "Dispatcher": {
         "type": "C",
-        "class": "\\IPS\\Application\\BuilderFilter"
+        "class": "\\IPS\\Dispatcher"
     },
-    "moduleApplications": {
+    "MultiRedirect": {
         "type": "C",
-        "class": "\\IPS\\core\\modules\\admin\\applications\\applications"
+        "class": "\\IPS\\Helpers\\MultipleRedirect"
     },
-    "adminGlobal": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_admin_global"
+    "Request": {
+        "type": "C",
+        "class": "\\IPS\\Request"
+    },
+    "Singleton": {
+        "type": "C",
+        "class": "\\IPS\\Patterns\\Singleton"
+    },
+    "Db": {
+        "type": "C",
+        "class": "\\IPS\\Db"
+    },
+    "ActiveRecord": {
+        "type": "C",
+        "class": "\\IPS\\Patterns\\ActiveRecord"
+    },
+    "Settings": {
+        "type": "C",
+        "class": "\\IPS\\Settings"
+    },
+    "sitemapGenerator": {
+        "type": "C",
+        "class": "\\IPS\\core\\tasks\\sitemapgenerator"
+    },
+    "ipsLog": {
+        "type": "C",
+        "class": "\\IPS\\Log"
     },
     "coreGlobalGlobalTheme": {
         "type": "S",
@@ -47,60 +83,36 @@
         "type": "S",
         "class": "\\IPS\\Theme\\class_core_front_global"
     },
-    "Settings": {
-        "type": "C",
-        "class": "\\IPS\\Settings"
+    "adminGlobalTemplate": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_admin_global"
     },
-    "ipsLog": {
+    "moduleApplications": {
         "type": "C",
-        "class": "\\IPS\\Log"
+        "class": "\\IPS\\core\\modules\\admin\\applications\\applications"
     },
-    "Request": {
+    "Output": {
         "type": "C",
-        "class": "\\IPS\\Request"
+        "class": "\\IPS\\Output"
     },
-    "sitemapGenerator": {
+    "BuilderFilter": {
         "type": "C",
-        "class": "\\IPS\\core\\tasks\\sitemapgenerator"
+        "class": "\\IPS\\Application\\BuilderFilter"
     },
-    "Dispatcher": {
+    "Theme": {
         "type": "C",
-        "class": "\\IPS\\Dispatcher"
+        "class": "\\IPS\\Theme"
     },
-    "HelpersTableCustom": {
+    "BuilderIterator": {
         "type": "C",
-        "class": "\\IPS\\Helpers\\Table\\Custom"
+        "class": "\\IPS\\Application\\BuilderIterator"
     },
-    "Singleton": {
+    "developer": {
         "type": "C",
-        "class": "\\IPS\\Patterns\\Singleton"
+        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
     },
-    "ActiveRecord": {
+    "Hooks": {
         "type": "C",
-        "class": "\\IPS\\Patterns\\ActiveRecord"
-    },
-    "MultiRedirect": {
-        "type": "C",
-        "class": "\\IPS\\Helpers\\MultipleRedirect"
-    },
-    "Db": {
-        "type": "C",
-        "class": "\\IPS\\Db"
-    },
-    "DevTheme": {
-        "type": "C",
-        "class": "\\IPS\\Theme\\Dev\\Theme"
-    },
-    "Application": {
-        "type": "C",
-        "class": "\\IPS\\Application"
-    },
-    "DevTemplate": {
-        "type": "C",
-        "class": "\\IPS\\Theme\\Dev\\Template"
-    },
-    "AdvancedTheme": {
-        "type": "C",
-        "class": "\\IPS\\Theme\\Advanced\\Theme"
+        "class": "\\IPS\\Plugin\\Hook"
     }
 }

@@ -265,6 +265,8 @@ class _Proxy extends GeneratorAbstract
                             }
                         } catch (Exception $e) {
                             Debug::log($e, 'ProxyClass');
+                            Debug::log($originalFilePath, 'ProxyClassFile');
+
                         }
                         catch (ParseError $e){
                             Debug::log($e, 'ParseError');

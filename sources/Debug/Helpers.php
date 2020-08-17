@@ -189,7 +189,7 @@ EOF;
 
         foreach ( $backtrace as $bt ) {
             if ( isset( $bt[ 'file' ] ) && $not !== $bt[ 'file' ] ) {
-                $file = $bt[ 'file' ];
+                $file = '<a href="' . (new Editor)->replace( $bt[ 'file' ], $bt[ 'line' ] ) . '">' . $bt[ 'file' ] . '</a>';
                 $line = $bt[ 'line' ];
                 break;
             }
@@ -241,7 +241,7 @@ EOF;
                             'val' => $val,
                         ];
                     }
-                    else if ( $key === 'Line' ) {
+                    elseif ( $key === 'Line' ) {
                         $file = $quickStore;
                         $quickStore = [];
                         $a = '<a href="' . $this->editor->replace( $file[ 'val' ], $val ) . '">' . $file[ 'val' ] . '</a>';

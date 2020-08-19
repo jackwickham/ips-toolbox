@@ -19,7 +19,7 @@ use IPS\Helpers\Form\TextArea;
 use IPS\Output;
 use IPS\Patterns\Singleton;
 use IPS\Request;
-use IPS\toolbox\Forms;
+use IPS\toolbox\Form;
 use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Shared\Read;
 use IPS\toolbox\Shared\Replace;
@@ -31,6 +31,7 @@ use function var_export;
 
 class _Langs extends Singleton
 {
+
     use Write, Replace, Read;
 
     /**
@@ -44,26 +45,29 @@ class _Langs extends Singleton
     public function form()
     {
 
-
         $base = \IPS\ROOT_PATH . '/applications/' . Request::i()->appKey . '/dev/';
 
         $matrix = new Matrix;
         $matrix->columns = [
             'dtdevplus_lang_key'   => function ( $key, $value )
             {
+
                 return new Text( $key, $value );
             },
             'dtdevplus_lang_val'   => function ( $key, $value )
             {
+
                 return new TextArea( $key, $value );
             },
             'dtdevplus_lang_no_js' => function ( $key, $value )
             {
+
                 $options = [
                     0 => 'lang.php',
                     1 => 'jslang.php',
                     2 => 'lang.php and jslang.php',
                 ];
+
                 return new Select( $key, $value, \false, [ 'options' => $options ] );
             },
         ];

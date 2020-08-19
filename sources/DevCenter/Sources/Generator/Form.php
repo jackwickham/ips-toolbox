@@ -10,9 +10,7 @@
  * @version     -storm_version-
  */
 
-
 namespace IPS\toolbox\DevCenter\Sources\Generator;
-
 
 use Zend\Code\Generator\DocBlock\Tag\ParamTag;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
@@ -21,10 +19,15 @@ use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\PropertyValueGenerator;
 
+use function header;
+
+
 class _Form extends GeneratorAbstract
 {
+
     public function bodyGenerator()
     {
+
         $this->brief = 'Class';
         $this->instance();
         $this->classMap();
@@ -49,17 +52,18 @@ class _Form extends GeneratorAbstract
         $this->generator->addUse( \IPS\Helpers\Form\FormAbstract::class );
         $this->generator->addUse( \IPS\Member::class );
         $this->generator->addUse( \IPS\Helpers\Form::class );
-        $this->generator->addUse( 'function defined' );
-        $this->generator->addUse( 'function header' );
-        $this->generator->addUse( 'function in_array' );
-        $this->generator->addUse( 'function is_object' );
-        $this->generator->addUse( 'function class_exists' );
-        $this->generator->addUse( 'function in_array' );
-        $this->generator->addUse( 'function property_exists' );
+        $this->generator->addImportFunction( 'defined' );
+        $this->generator->addImportFunction( 'header' );
+        $this->generator->addImportFunction( 'in_array' );
+        $this->generator->addImportFunction( 'is_object' );
+        $this->generator->addImportFunction( 'class_exists' );
+        $this->generator->addImportFunction( 'in_array' );
+        $this->generator->addImportFunction( 'property_exists' );
     }
 
     protected function instance()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'var', 'description' => 'Form' ],
@@ -75,10 +79,16 @@ class _Form extends GeneratorAbstract
         ];
 
         $this->addProperty( $config );
+
+        $doc = [
+            '@var Form',
+        ];
+        $this->generator->addProperty( 'node' );
     }
 
     protected function classMap()
     {
+
         $classMap = [
             'address'      => 'Address',
             'addy'         => 'Address',
@@ -153,6 +163,7 @@ class _Form extends GeneratorAbstract
 
     protected function form()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'for use in run once the object is instantiated' ],
@@ -173,6 +184,7 @@ class _Form extends GeneratorAbstract
 
     protected function elements()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'form helpers store' ],
@@ -193,6 +205,7 @@ class _Form extends GeneratorAbstract
 
     protected function object()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'the form record object' ],
@@ -213,6 +226,7 @@ class _Form extends GeneratorAbstract
 
     protected function prefix()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'the language prefix' ],
@@ -233,6 +247,7 @@ class _Form extends GeneratorAbstract
 
     protected function suffix()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'add header template' ],
@@ -253,6 +268,7 @@ class _Form extends GeneratorAbstract
 
     protected function header()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'header store' ],
@@ -273,6 +289,7 @@ class _Form extends GeneratorAbstract
 
     protected function tab()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'brief', 'description' => 'tab store' ],
@@ -293,6 +310,7 @@ class _Form extends GeneratorAbstract
 
     protected function bitOptions()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'var', 'description' => 'array' ],
@@ -312,6 +330,7 @@ class _Form extends GeneratorAbstract
 
     protected function props()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'var', 'description' => 'array' ],
@@ -331,6 +350,7 @@ class _Form extends GeneratorAbstract
 
     protected function lang()
     {
+
         $doc = [
             'tags' => [
                 [ 'name' => 'var', 'description' => '\IPS\Lang' ],
@@ -350,6 +370,7 @@ class _Form extends GeneratorAbstract
 
     protected function constructor()
     {
+
         $methodDocBlock = new DocBlockGenerator( '_Forms constructor', \null, [
             new ParamTag( 'elements', 'array', 'array of form elements' ),
             new ParamTag( 'prefix', 'string|null', 'language prefix for the form elements' ),
@@ -398,6 +419,7 @@ eof;
 
     protected function buildForm()
     {
+
         $methodDocBlock = new DocBlockGenerator( '', \null, [
             new ParamTag( 'elements', 'array', 'array of form elements' ),
             new ParamTag( 'prefix', 'string|null', 'language prefix for the form elements' ),
@@ -430,6 +452,7 @@ eof;
 
     protected function build()
     {
+
         $methodDocBlock = new DocBlockGenerator( '', \null, [
             new ReturnTag( [ 'dataType' => 'Form' ] ),
         ] );
@@ -735,6 +758,7 @@ eof;
 
     protected function extra()
     {
+
         $methodDocBlock = new DocBlockGenerator( '', \null, [
             new ParamTag( 'el', 'array' ),
         ] );
@@ -767,7 +791,6 @@ if (isset($el[ 'sidebar' ])) {
     unset($el[ 'sidebar' ]);
 }
 eof;
-
 
         $this->methods[] = MethodGenerator::fromArray( [
             'name'       => 'extra',

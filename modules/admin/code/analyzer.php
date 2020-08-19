@@ -25,7 +25,6 @@ use IPS\Request;
 use IPS\Theme;
 use IPS\toolbox\Code\Langs;
 use IPS\toolbox\Code\Settings;
-use IPS\toolbox\Forms;
 use function array_merge;
 use function count;
 use function defined;
@@ -47,12 +46,14 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _analyzer extends Controller
 {
+
     /**
      * @inheritdoc
      * @throws \RuntimeException
      */
     public function execute()
     {
+
         Output::i()->cssFiles = array_merge( Output::i()->cssFiles, Theme::i()->css( 'dtcode.css', 'toolbox', 'admin' ) );
 
         Output::i()->jsFiles = array_merge( Output::i()->jsFiles, Output::i()->js( 'admin_toggles.js', 'toolbox', 'admin' ) );
@@ -67,6 +68,7 @@ class _analyzer extends Controller
      */
     protected function manage()
     {
+
         $form = new Form();
 
         foreach ( Application::applications() as $key => $val ) {
@@ -88,7 +90,7 @@ class _analyzer extends Controller
             Output::i()->redirect( $this->url->setQueryString( [
                 'do'          => 'queue',
                 'application' => $values[ 'dtcode_app' ],
-            ] ) );
+            ] )->csrf() );
         }
 
         Output::i()->output = $form;
@@ -100,13 +102,15 @@ class _analyzer extends Controller
      */
     protected function queue()
     {
+
         Output::i()->output = new MultipleRedirect(
 
             $this->url->setQueryString( [
                 'do'          => 'queue',
                 'application' => Request::i()->application,
-            ] ), function ( $data )
+            ] )->csrf(), function ( $data )
         {
+
             $total = 4;
             $percent = round( 100 / $total );
             $step = 'langs_check';
@@ -158,12 +162,12 @@ class _analyzer extends Controller
             }
 
             $language = Member::loggedIn()->language()->addToStack( 'dtcode_queue_complete', \false, [
-                        'sprintf' => [
-                            $step,
-                            $complete,
-                            $total,
-                        ],
-                    ] );
+                'sprintf' => [
+                    $step,
+                    $complete,
+                    $total,
+                ],
+            ] );
 
             return [
                 [ 'step' => $step, 'app' => $app ],
@@ -172,9 +176,10 @@ class _analyzer extends Controller
             ];
         }, function ()
         {
+
             $url = Url::internal( 'app=toolbox&module=code&controller=analyzer&do=results' );
             $url->setQueryString( [ 'application' => Request::i()->application ] );
-            Output::i()->redirect( $url, 'dtcode_analyzer_complete' );
+            Output::i()->redirect( $url->csrf(), 'dtcode_analyzer_complete' );
         } );
     }
 
@@ -185,6 +190,7 @@ class _analyzer extends Controller
      */
     protected function results()
     {
+
         $app = \null;
         if ( isset( Request::i()->application ) ) {
             $app = Application::load( Request::i()->application );

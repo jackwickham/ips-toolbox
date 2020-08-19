@@ -1,6 +1,6 @@
 <ips:template parameters="$time, $memory, $files, $templates, $database, $cache, $logs, $extra, $info, $environment, $debug, $executions"/>
 <div id="dtProfilerBarContainer" class="dtProfilerBar">
-    <ul class="ipsList_reset dtProfilerBar_list ipsClearfix" data-ipsdtprofiler data-ipsdtprofilerdebug data-url="{url='app=toolbox&module=bt&controller=bt' base='front'}">
+    <ul class="ipsList_reset dtProfilerBar_list ipsClearfix" data-ipsdtprofiler{{if settings.dtprofiler_enable_debug && settings.dtprofiler_enable_debug_ajax }} data-ipsdtprofilerdebug data-url="{url='app=toolbox&module=bt&controller=bt' base='front'}"{{endif}}>
         {{if $time }}
         <li id="elProfileTimeLog" title="total time" class="isParent dtProfileFirst dtProfilerTime" data-ipstooltip>
             <i class="fa fa-server"></i> {$time['total']}ms <i class="fa fa-angle-up dtprofilearrow"></i>
@@ -73,13 +73,14 @@
             <a id="elProfileSystem" href="#elProfileSystem_menu" title="System" class=" " data-ipstooltip data-ipsmenu>
                 System <i class="fa fa-angle-up"></i>
             </a>
-            <ul id="elProfileSystem_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
+            <ul id="elProfileSystem_menu" class="ipsMenu ipsMenu_auto ipsMenu_wide ipsList_reset ipsHide">
                 {{foreach $info['server'] as $key => $val }}
                 <li class="ipsMenu_item">
                     {$val|raw}
                 </li>
                 {{endforeach}}
             </ul>
+            {$info['adminer']|raw}
             <a id="elProfileAppsPlugins" href="#elProfileAppsPlugins_menu" title="Apps & Plugins" class=" " data-ipstooltip data-ipsmenu>
                 3rd Party Apps & Plugins<i class="fa fa-angle-up"></i>
             </a>
@@ -96,11 +97,28 @@
                     </a>
                 </li>
                 {{endforeach}}
+
                 <li class="ipsMenu_item">
                     <a href="{$info['apps']['disable']}">Disable All</a>
                 </li>
             </ul>
             <a href="{$info['cache']}">Clear Caches</a>
+
+            <a href="#toolbox_snippet_menu" id="toolbox_snippet" data-ipsMenu>
+                snippets
+            </a>
+            <ul id="toolbox_snippet_menu" class="ipsMenu ipsList_reset ipsHide">
+                <li class="ipsMenu_item">
+                    <a href="{url="app=toolbox&module=bt&controller=bt&do=lorem"}" data-ipsDialog data-ipsDialog-forceReload="true" data-ipsDialog-remoteSubmit="true" data-ipsdialog-title="Lorem Ipsum Generator">
+                        Lorem Ipsum
+                    </a>
+                </li>
+                <li class="ipsMenu_item">
+                    <a href="{url="app=toolbox&module=bt&controller=bt&do=bitwiseValues"}" data-ipsDialog data-ipsdialog-title="BitWise Values">
+                        BitWise Values
+                    </a>
+                </li>
+            </ul>
         </div>
         {{if settings.dtprofiler_git_data || settings.dtprofiler_show_changes}}
         <div id="el_dtProfileGit" class="dttProfilerInfoGit ipsClearfix" data-ipsdtprofilergit data-ipsdtprofilergit-url="{$info['git_url']}">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <language>
- <app key="toolbox" version="10001">
+ <app key="toolbox" version="40000">
   <word key="__app_toolbox" js="0">Dev Toolbox</word>
   <word key="menutab__devtools" js="0">Dev Toolbox</word>
   <word key="menutab__devtools_icon" js="0">wrench</word>
@@ -198,6 +198,17 @@
   <word key="dtdevplus_ext_table_desc" js="0">Select the table that contains the information for the filestorage file/img</word>
   <word key="dtdevplus_ext_title_FileStorage_header" js="0">Create FileStorage Extension</word>
   <word key="dtdevplus_ext_title_ContentRouter_header" js="0">Create ContentRouter Extension</word>
+  <word key="dtdevplus_ext_title_Headerdoc_header" js="0">Create Headerdoc Extensions</word>
+  <word key="dtdevplus_ext_enabled" js="0">Enabled</word>
+  <word key="dtdevplus_ext_enabled_desc" js="0">Enable headerdoc building on files</word>
+  <word key="dtdevplus_ext_indexEnabled" js="0">Index Enabled</word>
+  <word key="dtdevplus_ext_indexEnabled_desc" js="0">this will create a index.html in all the subfolders of your app if enabled.</word>
+  <word key="dtdevplus_ext_dirSkip" js="0">Dir Skip</word>
+  <word key="dtdevplus_ext_dirSkip_desc" js="0">Directories to skip during building of your applications tar.</word>
+  <word key="dtdevplus_ext_fileSkip" js="0">Files Skip</word>
+  <word key="dtdevplus_ext_fileSkip_desc" js="0">Files to skip during the buidling of your applications tar.</word>
+  <word key="dtdevplus_ext_exclude" js="0">Exclude</word>
+  <word key="dtdevplus_ext_exclude_desc" js="0">Files and Folders to exclude from running headerdoc on. (this is different than the two above, this only applies to files/folders for adding a 'headerdoc' on.</word>
   <word key="dtdevplus_ext_module" js="0">Module</word>
   <word key="dtdevplus_ext_classRouter" js="0">Router Classes</word>
   <word key="dtdevplus_ext_classRouter_desc" js="0">Only provide the class name, no need to provide the full FQN.</word>
@@ -259,7 +270,7 @@
   <word key="dtdevplus_dev" js="0">Create Asset</word>
   <word key="dtdevplus_dev_templateName" js="0">Templates</word>
   <word key="dtdevplus_dev_templateName_desc" js="0">Place a name of the templates you are wanting to create.</word>
-  <word key="dtdevplus_menu_title_jstemplate" js="0">JS Tempaltes</word>
+  <word key="dtdevplus_menu_title_jstemplate" js="0">JS Template</word>
   <word key="dtdevplus_menu_title_jsmixin" js="0">JS Mixin</word>
   <word key="dtdevplus_dev__group" js="0">Group</word>
   <word key="dtdevplus_dev_mixin" js="0">Controller</word>
@@ -306,6 +317,21 @@
   <word key="dtproxy_do_proxies_desc" js="0"><![CDATA[if you have the <a target="_blank" href="https://plugins.jetbrains.com/plugin/8133-php-toolbox">PHP-Toolbox</a> plugin installed, this will generated appropriate files to be able to use for various methods.]]></word>
   <word key="dtproxy_progress_extra" js="0">Step Complete: %s, processing %s of %s</word>
   <word key="dtproxy_tab" js="0">Proxy Class Generator</word>
-  <word key="ext__hookHelpers" js="0">renames _HOOK_CLASS_ to _HOOK_CLASS_app_hook_hookclassname</word>
+  <word key="ext__SpecialHooks" js="0">Will proxy class hooks for easier work in an IDE.</word>
+  <word key="ext__constants" js="0">Allows you to add constants for your app to the change constants section in settings. as well as adding new constants to the &quot;important&quot; tab.</word>
+  <word key="dtdeveplus_table_name" js="0">Table</word>
+  <word key="module__toolbox_bt" js="0">Toolbox</word>
+  <word key="dtprofiler_enable_debug" js="0">Debug</word>
+  <word key="dtprofiler_enable_debug_desc" js="0">Enable the toolbox's debug class.</word>
+  <word key="dtdevplus_menu_title_api" js="0">API</word>
+  <word key="dtdevplus_class_apiType" js="0">Type</word>
+  <word key="toolbox_lorem_amount" js="0">Amount</word>
+  <word key="toolbox_lorem_type" js="0">Type</word>
+  <word key="toolbox_gitcommit_message" js="0">Message</word>
+  <word key="dtprofiler_enable_debug_ajax" js="0">Enable Ajax Debugger</word>
+  <word key="dtprofiler_enable_debug_ajax_desc" js="0">This will enable the long polling ajax script for debug.</word>
+  <word key="toolbox_dev_center_missin_multion" js="0">you are missing protected static $multions=[]; property in your class %s</word>
+  <word key="dtdevplus_dev_options" js="0">Options</word>
+  <word key="dtdevplus_dev_options_desc" js="0">Options for the widget.</word>
  </app>
 </language>

@@ -8,20 +8,21 @@
  * @version    -storm_version-
  */
 
-
 namespace IPS\toolbox\Proxy\Generator;
 
 use Exception;
+use Generator\Builders\FileGenerator;
 use IPS\Application;
 use IPS\Data\Store;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use Zend\Code\Generator\FileGenerator;
 use function date;
 use function defined;
 use function header;
 use function is_dir;
 use function str_replace;
+
+\IPS\toolbox\Application::loadAutoLoader();
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -48,9 +49,9 @@ class _Extensions extends GeneratorAbstract
      */
     public function create()
     {
+
         $name = [];
         $lookup = [];
-        $oldSave = $this->save;
         foreach ( Application::roots() AS $key ) {
             $path = \IPS\ROOT_PATH . '/applications/' . $key->directory . '/data/defaults/extensions/';
             if ( is_dir( $path ) ) {
@@ -79,20 +80,12 @@ class _Extensions extends GeneratorAbstract
                             '',
                         ];
 
-                        $ns = 'IPS\\' . $key->directory . '\\extensions\\' . $key->directory . '\\' . $baseName;
                         $content = str_replace( $find, $replace, $file->getContents() );
-
                         $file = new FileGenerator;
-                        $file->setBody( $content );
-                        $this->save = $oldSave;
-                        $file->setFilename( $this->save . '/extensions/' . $baseName . '.php' )->write();
-
-                        $this->save .= '/extensions';
-                        $this->writeClass( $baseName, '_' . $baseName, \null, $ns );
-                        $lookup[ $baseName ] = [
-                            'lookup_string' => $baseName,
-                            'type'          => $ns . '\\' . $baseName,
-                        ];
+                        $file->addBody( $content );
+                        $file->addFileName( $baseName );
+                        $file->addPath( $this->save . '/extensions' );
+                        $file->save();
 
                     }
                 } catch ( Exception $e ) {
@@ -100,7 +93,6 @@ class _Extensions extends GeneratorAbstract
             }
         }
 
-        $this->save = $oldSave;
         $jsonMeta = [];
         if ( isset( Store::i()->dt_json ) ) {
             $jsonMeta = Store::i()->dt_json;

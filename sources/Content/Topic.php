@@ -37,6 +37,7 @@ class _Topic extends Generator
 {
 
     public $start;
+
     public $end;
 
     /**
@@ -46,6 +47,7 @@ class _Topic extends Generator
      */
     public static function get(): Topic
     {
+
         try {
             $dbFirst = Db::i()->select( '*', 'forums_topics', [], 'id ASC' )->first();
             $dbLast = Db::i()->select( '*', 'forums_topics', [], 'id DESC' )->first();
@@ -57,6 +59,7 @@ class _Topic extends Generator
 
         if ( !is_array( $db ) && !count( $db ) ) {
             ( new static )->build();
+
             return static::get();
         }
 
@@ -70,6 +73,7 @@ class _Topic extends Generator
      */
     public function build()
     {
+
         $forum = Forum::get();
         $member = Member::get();
         $rand = array_rand( Data::$adjective, 1 );
@@ -82,25 +86,9 @@ class _Topic extends Generator
         try {
             $sql = Db::i()->select( '*', 'forums_posts', [], 'post_date DESC' )->first();
             $time = $sql[ 'post_date' ] + 60;
-            /**
-             * @var DateTime $joined
-             */
-            $joined = $member->joined;
-            if ( $time > $joined->getTimestamp() ) {
-                $time = $joined->getTimestamp();
-            }
 
-            if ( $start > $time ) {
-                if ( $end > $time ) {
-                    $end = \null;
-                }
-                $time = $this->getTime( $time, $end );
-            }
-            else {
-                $time = $this->getTime( $start, $end );
-            }
         } catch ( UnderflowException $e ) {
-            $time = $this->getTime();
+            $time = $start;
             /**
              * @var DateTime $joined
              */
@@ -109,7 +97,6 @@ class _Topic extends Generator
                 $time = $joined->getTimestamp();
             }
         }
-
 
         $topic = Topic::createItem( $member, $member->ip_address, DateTime::ts( $time ), $forum );
         $topic->title = $name;

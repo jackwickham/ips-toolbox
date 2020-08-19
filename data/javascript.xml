@@ -1,186 +1,206 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <javascript app="toolbox">
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.debug.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050"><![CDATA[;(function ($, _, undefined) {
-    "use strict";
-    ips.createModule('ips.dtprofiler.debug', function () {
-        var respond = function (elem, options, e) {
-            var el = $(elem);
-            if (!el.data('_debugObj')) {
-                var d = _debugObj(el);
-                d.init(el.data('url'), el);
-                el.data('_debugObj', d);
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.debug.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050"><![CDATA[;( function( $, _, undefined ) {
+    'use strict';
+    ips.createModule( 'ips.dtprofiler.debug', function() {
+        var respond = function( elem, options, e ) {
+            var el = $( elem );
+            if ( !el.data( '_debugObj' ) ) {
+                var d = _debugObj( el );
+                d.init( el.data( 'url' ), el );
+                el.data( '_debugObj', d );
             }
-            $('body').bind('beforeunload', function () {
-                var obj = el.data('_debugObj');
+            $( 'body' ).bind( 'beforeunload', function() {
+                var obj = el.data( '_debugObj' );
                 obj.abort();
-            });
+            } );
         };
-        ips.ui.registerWidget('dtprofilerdebug', ips.dtprofiler.debug);
+        ips.ui.registerWidget( 'dtprofilerdebug', ips.dtprofiler.debug );
         return {
-            respond: respond
+            respond: respond,
         };
-    });
-    var _debugObj = function () {
+    } );
+    var _debugObj = function() {
         var ajax = null;
         var current = null;
         var aurl;
+        var burl;
         var el;
-        var init = function (url, elem) {
-            aurl = url + '&do=debug';
+        var init = function( url, elem ) {
+            burl = url;
+            aurl = burl + '&do=debug';
             el = elem;
             ajax = ips.getAjax();
             _debug();
+            elem.find( 'li.dtProfilerClear' ).on( 'click', function( e ) {
+                let el = $( this );
+                let parent = el.parent( 'ul' );
+                let parentId = parent.attr( 'id' );
+                let pid = parentId.substr( 0, parentId.length - 5 );
+                _clear();
+                $( '#' + pid ).find( '.dtprofilerCount' ).html( 0 ).attr( 'data-count', 0 );
+
+                parent.find( 'li' ).not( '.dtProfilerClear' ).each( function() {
+                    $( this ).remove();
+                } );
+
+                parent.removeClass( 'isOpen' ).
+                    slideUp().
+                    parent().
+                    find( 'i.dtprofilearrow' ).
+                    removeClass( 'fa-rotate-180' );
+            } );
         };
-        var abort = function () {
+        var _clear = function() {
+            ajax( {
+                type: 'GET',
+                url: burl + '&do=clearAjax',
+                bypassRedirect: true,
+            } );
+        };
+        var abort = function() {
             current.abort();
         };
-        var _debug = function () {
-            current = ajax({
-                type: "POST",
-                data: 'last=' + $('#elProfiledebug', el).attr('data-last'),
+        var _debug = function() {
+            current = ajax( {
+                type: 'POST',
+                data: 'last=' + $( '#elProfiledebug', el ).attr( 'data-last' ),
                 url: aurl,
-                dataType: "json",
+                dataType: 'json',
                 bypassRedirect: true,
-                success: function (data) {
-                    var countEl = el.find('#elProfiledebug').find('.dtprofilerCount');
+                success: function( data ) {
+                    var countEl = el.find( '#elProfiledebug' ).find( '.dtprofilerCount' );
 
-                    if (!data.hasOwnProperty('error')) {
-                        $('#elProfiledebug_list', el).append(data.items);
-                        var count = Number(countEl.attr('data-count'));
-                        count = Number(data.count) + count;
-                        countEl.html(count).attr('data-count', count);
-                        countEl.parent().addClass('dtprofilerFlash');
-                        $('#elProfiledebug', el).attr('data-last', data.last);
-                        if ($('#elProfiledebug', el).hasClass('ipsHide')) {
-                            $('#elProfiledebug', el).removeClass('ipsHide');
+                    if ( !data.hasOwnProperty( 'error' ) ) {
+                        $( '#elProfiledebug_list', el ).append( data.items );
+                        var count = Number( countEl.attr( 'data-count' ) );
+                        count = Number( data.count ) + count;
+                        countEl.html( count ).attr( 'data-count', count );
+                        countEl.parent().addClass( 'dtprofilerFlash' );
+                        $( '#elProfiledebug', el ).attr( 'data-last', data.last );
+                        if ( $( '#elProfiledebug', el ).hasClass( 'ipsHide' ) ) {
+                            $( '#elProfiledebug', el ).removeClass( 'ipsHide' );
                         }
-                        countEl.parent().addClass('dtprofilerFlash');
+                        countEl.parent().addClass( 'dtprofilerFlash' );
                     }
                 },
-                complete: function (data) {
+                complete: function( data ) {
                     _debug();
                 },
-                error: function (data) {
-                }
-            });
+                error: function( data ) {
+                },
+            } );
         };
 
         return {
             init: init,
-            abort: abort
-        }
-    }
-}(jQuery, _));
+            abort: abort,
+        };
+    };
+}( jQuery, _ ) );
 ]]></file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofiler.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050"><![CDATA[;(function ($, _, undefined) {
-    "use strict";
-    ips.createModule('ips.dtprofiler.dtprofiler', function () {
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofiler.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050"><![CDATA[;( function( $, _, undefined ) {
+    'use strict';
+    ips.createModule( 'ips.dtprofiler.dtprofiler', function() {
         // Functions that become public methods
         let dialogId = null,
-            respond = function (elements) {
+            respond = function( elements ) {
 
-                let elem = $(elements);
-                if( !elem.data('_respond') ){
-                let h = elem.parent().outerHeight();
-                $('.dtProfilerPlaceHolder').css('height', h);
-                $(window).on('resize', function () {
+                let elem = $( elements );
+                if ( !elem.data( '_respond' ) ) {
                     let h = elem.parent().outerHeight();
-                    $('.dtProfilerPlaceHolder').css('height', h);
-                });
+                    $( '.dtProfilerPlaceHolder' ).css( 'height', h );
+                    $( window ).on( 'resize', function() {
+                        let h = elem.parent().outerHeight();
+                        $( '.dtProfilerPlaceHolder' ).css( 'height', h );
+                    } );
 
-                // $(document).on('hideDialog', function () {
-                //     dialogId = null;
-                // });
-                //
-                // $(document).on('openDialog', function (e, data) {
-                //     if (dialogId !== null) {
-                //         $(document).trigger('closeDialog', {dialogID: dialogId});
-                //     }
-                //     dialogId = data.elemID + '_dialog';
-                //
-                // });
+                    // $(document).on('hideDialog', function () {
+                    //     dialogId = null;
+                    // });
+                    //
+                    // $(document).on('openDialog', function (e, data) {
+                    //     if (dialogId !== null) {
+                    //         $(document).trigger('closeDialog', {dialogID: dialogId});
+                    //     }
+                    //     dialogId = data.elemID + '_dialog';
+                    //
+                    // });
 
-                $(document).on('click', function (e) {
-                    let el = $(e.target);
-                    let parent = el.parents('div#dtProfilerBarContainer');
-                    if (parent.length === 0) {
-                        elem.find('ul.isOpen').removeClass('isOpen').slideUp().parent().find('i.dtprofilearrow').removeClass('fa-rotate-180');
-                    }
-                });
-
-                elem.find('li.dtProfilerClear').on('click', function(e){
-                    let el = $(this);
-                    let parent = el.parent('ul');
-                    let parentId = parent.attr('id');
-                    let pid = parentId.substr(0, parentId.length - 5);
-
-                    $('#'+pid).find('.dtprofilerCount').html(0).attr('data-count', 0);
-
-                    parent.find('li').not('.dtProfilerClear').each(function(){
-                        $(this).remove();
-                    });
-
-                    parent.removeClass('isOpen').slideUp().parent().find('i.dtprofilearrow').removeClass('fa-rotate-180');
-                });
-
-                elem.find('> li.isParent').on('click', function () {
-                    closeDialog();
-                    let el = $(this);
-                    if (el.is('i')) {
-                        el = el.parent('li');
-                    }
-
-                    el.removeClass('dtprofilerFlash');
-                    let bottom = el.parents('div').outerHeight(),
-                        id = el.attr('id') + '_list',
-                        child = $('#' + id), left = el.position().left;
-
-                    if (!child.hasClass('isOpen')) {
-                        if (child.hasClass('dtProfilerMaxWidth')) {
-                            left = 0;
+                    $( document ).on( 'click', function( e ) {
+                        let el = $( e.target );
+                        let parent = el.parents( 'div#dtProfilerBarContainer' );
+                        if ( parent.length === 0 ) {
+                            elem.find( 'ul.isOpen' ).
+                                removeClass( 'isOpen' ).
+                                slideUp().
+                                parent().
+                                find( 'i.dtprofilearrow' ).
+                                removeClass( 'fa-rotate-180' );
                         }
-                        else {
-                            child.show();
-                            let cWidth = child.outerWidth();
-                            let cPos = left + cWidth;
-                            child.hide();
-                            let windowWidth = $(window).width();
-                            if (cPos > windowWidth) {
-                                left = left - (cPos - windowWidth);
+                    } );
+
+                    elem.find( '> li.isParent' ).on( 'click', function() {
+                        closeDialog();
+                        let el = $( this );
+                        if ( el.is( 'i' ) ) {
+                            el = el.parent( 'li' );
+                        }
+
+                        el.removeClass( 'dtprofilerFlash' );
+                        let bottom = el.parents( 'div' ).outerHeight(),
+                            id = el.attr( 'id' ) + '_list',
+                            child = $( '#' + id ), left = el.position().left;
+
+                        if ( !child.hasClass( 'isOpen' ) ) {
+                            if ( child.hasClass( 'dtProfilerMaxWidth' ) ) {
+                                left = 0;
+                            } else {
+                                child.show();
+                                let cWidth = child.outerWidth();
+                                let cPos = left + cWidth;
+                                child.hide();
+                                let windowWidth = $( window ).width();
+                                if ( cPos > windowWidth ) {
+                                    left = left - ( cPos - windowWidth );
+                                }
                             }
+                            elem.find( 'ul.isOpen' ).
+                                removeClass( 'isOpen' ).
+                                slideUp().
+                                parent().
+                                find( 'i.dtprofilearrow' ).
+                                removeClass( 'fa-rotate-180' );
+                            child.css( 'left', left ).css( 'bottom', bottom );
+                            child.addClass( 'isOpen' ).slideDown();
+                            el.find( 'i.dtprofilearrow' ).addClass( 'fa-rotate-180' );
+                        } else {
+                            child.removeClass( 'isOpen' );
+                            child.slideUp();
+                            el.find( 'i.dtprofilearrow' ).removeClass( 'fa-rotate-180' );
                         }
-                        elem.find('ul.isOpen').removeClass('isOpen').slideUp().parent().find('i.dtprofilearrow').removeClass('fa-rotate-180');
-                        child.css('left', left).css('bottom', bottom);
-                        child.addClass('isOpen').slideDown();
-                        el.find('i.dtprofilearrow').addClass('fa-rotate-180');
-                    }
-                    else {
-                        child.removeClass('isOpen');
-                        child.slideUp();
-                        el.find('i.dtprofilearrow').removeClass('fa-rotate-180');
-                    }
-                });
-                elem.data('_respond', 1);
+                    } );
+                    elem.data( '_respond', 1 );
                 }
             },
-            closeDialog = function () {
-                if (dialogId !== null) {
-                    $(document).trigger('closeDialog', {dialogID: dialogId});
+            closeDialog = function() {
+                if ( dialogId !== null ) {
+                    $( document ).trigger( 'closeDialog', { dialogID: dialogId } );
                 }
             };
 
         // Register this module as a widget to enable the data API and
         // jQuery plugin functionality
-        ips.ui.registerWidget('dtprofiler', ips.dtprofiler.dtprofiler);
+        ips.ui.registerWidget( 'dtprofiler', ips.dtprofiler.dtprofiler );
 
         // Expose public methods
         return {
-            respond: respond
+            respond: respond,
         };
-    });
-}(jQuery, _));
+    } );
+}( jQuery, _ ) );
 ]]></file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofilergit.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050">;( function($, _, undefined){&#13;
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofilergit.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050">;( function($, _, undefined){&#13;
     &quot;use strict&quot;;&#13;
     ips.createModule('ips.dtprofiler.dtprofilergit', function(){&#13;
         // Functions that become public methods&#13;
@@ -214,7 +234,7 @@
     });&#13;
 }(jQuery, _));&#13;
 </file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.search.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050"><![CDATA[;( function($, _, undefined){
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.search.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050"><![CDATA[;( function($, _, undefined){
     "use strict";
     ips.createModule('ips.dtprofiler.search', function(){
         // Functions that become public methods
@@ -269,7 +289,144 @@
     });
 }(jQuery, _));
 ]]></file>
- <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/query" javascript_name="ips.query.query.js" javascript_type="controller" javascript_version="10001" javascript_position="1000100"><![CDATA[;( function($, _, undefined){
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.ui.dtprofiler.clipboard.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050">;( function( $, _, undefined ) {&#13;
+    'use strict';&#13;
+    ips.createModule( 'ips.ui.dtprofiler.clipboard', function() {&#13;
+        // Functions that become public methods&#13;
+        var respond = function( elem, options, e ) {&#13;
+            e.preventDefault();&#13;
+&#13;
+            let target = $( e.currentTarget ),&#13;
+                url = target.attr( 'href' );&#13;
+&#13;
+            if ( url === undefined ) {&#13;
+                copy( $( '#pnoteMessage' ).text(), true );&#13;
+            } else {&#13;
+                copy( url, false );&#13;
+            }&#13;
+&#13;
+        };&#13;
+        var init = function() {&#13;
+            $( document ).on( 'submitDialog', function( e, data ) {&#13;
+                let response = data.response;&#13;
+                if ( response.type === 'toolboxClipBoard' ) {&#13;
+                    copy( response.text, false );&#13;
+                }&#13;
+            } );&#13;
+        };&#13;
+        var copy = function( text, content ) {&#13;
+&#13;
+            try {&#13;
+                let message = 'Lorem Ipsum text copied to clipboard!';&#13;
+                var textArea = document.createElement( 'textarea' );&#13;
+                textArea.style.position = 'fixed';&#13;
+                textArea.style.top = 0;&#13;
+                textArea.style.left = 0;&#13;
+                textArea.style.width = '2em';&#13;
+                textArea.style.height = '2em';&#13;
+                textArea.style.padding = 0;&#13;
+                // Clean up any borders.&#13;
+                textArea.style.border = 'none';&#13;
+                textArea.style.outline = 'none';&#13;
+                textArea.style.boxShadow = 'none';&#13;
+                // Avoid flash of white box if rendered for any reason.&#13;
+                textArea.style.background = 'transparent';&#13;
+                textArea.value = text;&#13;
+                document.body.appendChild( textArea );&#13;
+&#13;
+                textArea.select();&#13;
+                var successful = document.execCommand( 'copy' );&#13;
+                document.body.removeChild( textArea );&#13;
+                console.log( successful );&#13;
+                if ( successful ) {&#13;
+                    ips.ui.flashMsg.show( message );&#13;
+                }&#13;
+            } catch ( err ) {&#13;
+                window.location.replace( text );&#13;
+            }&#13;
+        };&#13;
+        // Register this module as a widget to enable the data API and&#13;
+        // jQuery plugin functionality&#13;
+        ips.ui.registerWidget( 'toolboxclipboard', ips.ui.dtprofiler.clipboard, [],&#13;
+            { lazyLoad: true, lazyEvent: 'click' } );&#13;
+&#13;
+        // Expose public methods&#13;
+        return {&#13;
+            init: init,&#13;
+            respond: respond,&#13;
+        };&#13;
+    } );&#13;
+}( jQuery, _ ) );&#13;
+</file>
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.ui.toolbox.lorem.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050"><![CDATA[;( function( $, _, undefined ) {
+    'use strict';
+    ips.createModule( 'ips.ui.toolbox.lorem', function() {
+        // Functions that become public methods
+        var respond = function( elem, options, e ) {
+            $( '.ipsButton', elem ).on( 'click', function( e ) {
+
+                e.preventDefault();
+                let ajax = ips.getAjax();
+                ajax( {
+                        type: 'POST',
+                        data: 'type=' + $( '[name="toolbox_lorem_type"]' ).val() + '&amount=' +
+                            $( '[name="toolbox_lorem_amount"]' ).val(),
+                        url: ips.getSetting( 'baseURL' ) + '?app=toolbox&module=bt&controller=bt&do=loremValues',
+                        dataType: 'json',
+                        bypassRedirect: true,
+                        success: function( data ) {
+                            copy( data.text );
+
+                        },
+                    },
+                );
+            } );
+
+        };
+        var copy = function( text, content ) {
+
+            try {
+                let message = 'Lorem Ipsum text copied to clipboard!';
+                var textArea = document.createElement( 'textarea' );
+                textArea.style.position = 'fixed';
+                textArea.style.top = 0;
+                textArea.style.left = 0;
+                textArea.style.width = '2em';
+                textArea.style.height = '2em';
+                textArea.style.padding = 0;
+                // Clean up any borders.
+                textArea.style.border = 'none';
+                textArea.style.outline = 'none';
+                textArea.style.boxShadow = 'none';
+                // Avoid flash of white box if rendered for any reason.
+                textArea.style.background = 'transparent';
+                textArea.value = text;
+                document.body.appendChild( textArea );
+
+                textArea.select();
+                var successful = document.execCommand( 'copy' );
+                document.body.removeChild( textArea );
+                console.log( successful );
+                if ( successful ) {
+                    ips.ui.flashMsg.show( message );
+                }
+            } catch ( err ) {
+                window.location.replace( text );
+            }
+        };
+
+        // Register this module as a widget to enable the data API and
+        // jQuery plugin functionality
+        ips.ui.registerWidget( 'toolboxlorem', ips.ui.toolbox.lorem );
+
+        // Expose public methods
+        return {
+            respond: respond,
+        };
+    } );
+}( jQuery, _ ) );
+]]></file>
+ <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/query" javascript_name="ips.query.query.js" javascript_type="controller" javascript_version="40000" javascript_position="1000100"><![CDATA[;( function($, _, undefined){
     "use strict";
     ips.controller.register('ips.admin.dtdevplus.query', {
         initialize: function () {
@@ -291,7 +448,7 @@
         }
     });
 }(jQuery, _));]]></file>
- <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/toggles" javascript_name="ips.dwlabs.toggles.js" javascript_type="controller" javascript_version="10001" javascript_position="1000050">;(function ($, _, undefined) {&#13;
+ <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/toggles" javascript_name="ips.dwlabs.toggles.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050">;(function ($, _, undefined) {&#13;
     &quot;use strict&quot;;&#13;
     ips.createModule('ips.dtcode.toggles', function () {&#13;
         var respond = function (elem, options, e) {&#13;

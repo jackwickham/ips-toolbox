@@ -284,3 +284,73 @@
 #elProfilelogs_list > li {
     border-bottom: #fff 1px solid;
 }
+
+
+.toolboxPhpInfo {font-family: sans-serif !important; font-size: 16px;}
+.toolboxPhpInfo a,
+.toolboxPhpInfo a:link {color: #000; text-decoration: none;}
+.toolboxPhpInfo a:hover {text-decoration: underline;}
+.toolboxPhpInfo pre {
+    margin: 0;
+    font-family: monospace;
+}
+.toolboxPhpInfo table {
+    border-collapse: collapse;
+    border: 0;
+    width: 934px;
+    box-shadow: 1px 2px 3px #ccc;
+}
+.toolboxPhpInfo .center {
+    text-align: center;
+}
+.toolboxPhpInfo .center table {
+    margin: 1em auto;
+    text-align: left;
+}
+.toolboxPhpInfo .center th {
+    text-align: center !important;
+}
+.toolboxPhpInfo td,
+.toolboxPhpInfo th {
+    border: 1px solid #666;
+    font-size: 75%;
+    vertical-align: baseline;
+    padding: 4px 5px;
+}
+.toolboxPhpInfo h1 {
+    font-size: 150%;
+}
+.toolboxPhpInfo h2 {
+    font-size: 125%;
+}
+.toolboxPhpInfo .p {
+    text-align: left;
+}
+.toolboxPhpInfo .e {
+    background-color: #87C1FA;
+    width: 300px;
+    font-weight: bold;
+}
+.toolboxPhpInfo .h {
+    color: #fff;
+    background-color: #3399FF;
+    font-weight: bold;
+}
+.toolboxPhpInfo .v {
+    max-width: 300px;
+    overflow-x: auto;
+    word-wrap: break-word;
+}
+.toolboxPhpInfo .v i {
+    color: #999;
+}
+.toolboxPhpInfo img {
+    float: right;
+    border: 0;
+}
+.toolboxPhpInfo hr {
+    width: 934px;
+    background-color: #ccc;
+    border: 0;
+    height: 1px;
+}

@@ -21,7 +21,7 @@ use IPS\Member;
 use IPS\Output;
 use IPS\Request;
 use IPS\toolbox\DevFolder\Plugins;
-use IPS\toolbox\Forms;
+use IPS\toolbox\Form;
 use IPS\Xml\XMLReader;
 use UnderflowException;
 use function copy;
@@ -42,12 +42,14 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _plugins extends Controller
 {
+
     /**
      * @inheritdoc
      * @throws \RuntimeException
      */
     public function execute()
     {
+
         if ( \IPS\NO_WRITES === \true ) {
             Output::i()->error( 'Dev Folder generator can not be used for as NO_WRITES are enabled in constants.php.', '100foo' );
         }
@@ -63,23 +65,16 @@ class _plugins extends Controller
      */
     protected function manage()
     {
-        $el = [
-            [
-                'name'     => 'dtdevfolder_plugin_upload',
-                'class'    => 'Upload',
-                'required' => \true,
-                'options'  => [
-                    'allowedFileTypes' => [ 'xml' ],
-                    'temporary'        => \true,
-                ],
-            ],
-        ];
 
-        $form = Forms::execute( [ 'elements' => $el ] );
+        $form = Form::create()->formPrefix( 'dtdevfolder_plugin_' );
+        $form->add( 'upload', 'upload' )->options( [
+            'allowedFileTypes' => [ 'xml' ],
+            'temporary'        => true,
+        ] )->required();
 
-        if ( $vals = $form->values() ) {
+        if ( $values = $form->values() ) {
             $xml = new XMLReader;
-            $xml->open( $vals[ 'dtdevfolder_plugin_upload' ] );
+            $xml->open( $values[ 'upload' ] );
 
             if ( !@$xml->read() ) {
                 Output::i()->error( 'xml_upload_invalid', '2C145/D', 403, '' );
@@ -93,14 +88,14 @@ class _plugins extends Controller
                 ] )->first();
 
                 $tempFileStir = tempnam( \IPS\TEMP_DIRECTORY, 'IPSStorm' );
-                move_uploaded_file( $vals[ 'dtdevfolder_plugin_upload' ], $tempFileStir );
+                move_uploaded_file( $values[ 'upload' ], $tempFileStir );
                 Output::i()->redirect( $this->url->setQueryString( [
                     'do'    => 'doDev',
                     'storm' => $tempFileStir,
-                ] ) );
+                ] )->csrf() );
             } catch ( UnderflowException $e ) {
                 $tempFile = tempnam( \IPS\TEMP_DIRECTORY, 'IPS' );
-                move_uploaded_file( $vals[ 'dtdevfolder_plugin_upload' ], $tempFile );
+                move_uploaded_file( $values[ 'upload' ], $tempFile );
                 $secondTemp = tempnam( \IPS\TEMP_DIRECTORY, 'Storm' );
                 copy( $tempFile, $secondTemp );
                 $url = Url::internal( 'app=core&module=applications&controller=plugins&do=doInstall' )->setQueryString( [
@@ -113,7 +108,7 @@ class _plugins extends Controller
                     $url = $url->setQueryString( 'id', Request::i()->id );
                 }
 
-                Output::i()->redirect( $url );
+                Output::i()->redirect( $url->csrf() );
             }
         }
 
@@ -126,6 +121,7 @@ class _plugins extends Controller
      */
     protected function doDev()
     {
+
         Plugins::i()->finish( Request::i()->storm );
     }
 }

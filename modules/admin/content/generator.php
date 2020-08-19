@@ -27,10 +27,11 @@ use IPS\Request;
 use IPS\Settings;
 use IPS\toolbox\Content\Club;
 use IPS\toolbox\Content\Forum;
+use IPS\toolbox\Content\Generator;
 use IPS\toolbox\Content\Member as Dtmember;
 use IPS\toolbox\Content\Post;
 use IPS\toolbox\Content\Topic;
-use IPS\toolbox\Forms;
+use IPS\toolbox\Form;
 use function defined;
 use function header;
 use function time;
@@ -45,12 +46,14 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _generator extends Controller
 {
+
     /**
      * @inheritdoc
      * @throws Exception
      */
     protected function manage()
     {
+
         $groups = [];
 
         /* @var \IPS\Member\Group $group */
@@ -66,107 +69,66 @@ class _generator extends Controller
             'link'  => $url,
 
         ];
+        $form = Form::create()->formPrefix( 'dtcontent_' );
+        $form->add( 'type', 'select' )->options( [
+            'options' => [
+                'none'   => 'Select Type',
+                'member' => 'Member',
+                'forum'  => 'Forum',
+                'topic'  => 'Topic',
+                'post'   => 'Post',
+                'club'   => 'Club',
+            ],
+        ] )->toggles( [
+            'member' => [
+                'passwords',
+                'group',
+                'club',
+                'rangeStart',
+                'rangeEnd',
+            ],
+            'topic'  => [
+                'rangeStart',
+                'rangeEnd',
+            ],
+        ] )->validation( static function ( $data )
+        {
 
-        $e = [
-            'prefix' => 'dtcontent_',
-            [
-                'class'      => 'select',
-                'name'       => 'type',
-                'options'    => [
-                    'options' => [
-                        'none'   => 'Select Type',
-                        'member' => 'Member',
-                        'forum'  => 'Forum',
-                        'topic'  => 'Topic',
-                        'post'   => 'Post',
-                        'club'   => 'Club',
-                    ],
-                    'toggles' => [
-                        'member' => [
-                            'passwords',
-                            'group',
-                            'club',
-                            'rangeStart',
-                            'rangeEnd',
-                        ],
-                        'topic'  => [
-                            'rangeStart',
-                            'rangeEnd',
-                        ],
-                    ],
-                ],
-                'validation' => function ( $data )
-                {
-                    if ( $data === 'none' ) {
-                        throw new InvalidArgumentException( 'dtcontent_gen_none' );
-                    }
-                },
-            ],
-            [
-                'class'   => '#',
-                'name'    => 'limit',
-                'default' => 50,
-                'options' => [
-                    'min' => 1,
-                ],
-            ],
-            [
-                'class'   => 'date',
-                'name'    => 'rangeStart',
-                'default' => Settings::i()->getFromConfGlobal( 'board_start' ),
-            ],
-            [
-                'class'   => 'date',
-                'name'    => 'rangeEnd',
-                'default' => time(),
-            ],
-            [
-                'class' => 'yn',
-                'name'  => 'passwords',
-            ],
-            [
-                'class' => 'yn',
-                'name'  => 'club',
-                'ops'   => [
-                    'disabled' => !Settings::i()->clubs ? \true : \false,
-                ],
-            ],
-            [
-                'class'   => 'select',
-                'name'    => 'group',
-                'default' => Settings::i()->getFromConfGlobal( 'member_group' ),
-                'options' => [
-                    'options' => $groups,
-                ],
-            ],
-        ];
-
-        $form = Forms::execute( [ 'elements' => $e ] );
+            if ( $data === 'none' ) {
+                throw new InvalidArgumentException( 'dtcontent_gen_none' );
+            }
+        } );
+        $form->add( 'limit', 'number' )->empty( 50 )->options( [ 'min' => 1 ] );
+        $form->add( 'rangeStart', 'date' )->empty( Settings::i()->getFromConfGlobal( 'board_start' ) );
+        $form->add( 'rangeEnd', 'date' )->empty( time() );
+        $form->add( 'passwords', 'yn' );
+        $form->add( 'club', 'yn' )->options( [ 'disabled' => !Settings::i()->clubs ] );
+        $form->add( 'group', 'select' )->empty( Settings::i()->getFromConfGlobal( 'member_group' ) )->options( [ 'options' => $groups ] );
 
         if ( $values = $form->values() ) {
             $url = $this->url;
             $query = [
-                'type'  => $values[ 'dtcontent_type' ],
-                'limit' => $values[ 'dtcontent_limit' ],
+                'type'  => $values[ 'type' ],
+                'limit' => $values[ 'limit' ],
             ];
 
-            if ( $values[ 'dtcontent_type' ] === 'members' ) {
-                $query[ 'password' ] = $values[ 'dtcontent_passwords' ];
-                $query[ 'group' ] = $values[ 'dtcontent_group' ];
-                $query[ 'club' ] = $values[ 'dtcontent_club' ];
+            if ( $values[ 'type' ] === 'members' ) {
+                $query[ 'password' ] = $values[ 'passwords' ];
+                $query[ 'group' ] = $values[ 'group' ];
+                $query[ 'club' ] = $values[ 'club' ];
             }
 
-            if ( $values[ 'dtcontent_type' ] === 'topic' ) {
+            if ( $values[ 'type' ] === 'topic' ) {
                 /* @var DateTime $start */
-                $start = $values[ 'dtcontent_rangeStart' ];
+                $start = $values[ 'rangeStart' ];
                 /* @var DateTime $end */
-                $end = $values[ 'dtcontent_rangeEnd' ];
+                $end = $values[ 'rangeEnd' ];
                 $query[ 'start' ] = $start->getTimestamp();
                 $query[ 'end' ] = $end->getTimestamp();
             }
 
             $query[ 'do' ] = 'queue';
-            Output::i()->redirect( $url->setQueryString( $query ) );
+            Output::i()->redirect( $url->setQueryString( $query )->csrf() );
         }
 
         Output::i()->title = 'Generate Dummy Data';
@@ -178,11 +140,13 @@ class _generator extends Controller
      */
     protected function delete()
     {
+
         Output::i()->title = 'Delete Content';
 
-        $url = $this->url->setQueryString( [ 'do' => 'delete', 'oldDo' => Request::i()->oldDo ] );
-        Output::i()->output = new MultipleRedirect( $url, function ( $data )
+        $url = $this->url->setQueryString( [ 'do' => 'delete', 'oldDo' => Request::i()->oldDo ] )->csrf();
+        Output::i()->output = new MultipleRedirect( $url, static function ( $data )
         {
+
             $offset = 0;
             if ( isset( $data[ 'offset' ] ) ) {
                 $offset = $data[ 'offset' ];
@@ -199,7 +163,7 @@ class _generator extends Controller
                 $total = $data[ 'total' ];
             }
 
-            $limit = 10;
+            $limit = 100;
 
             $select = Db::i()->select( '*', 'toolbox_generator', [], 'generator_id ASC', $limit, \null, \null, Db::SELECT_SQL_CALC_FOUND_ROWS );
 
@@ -211,7 +175,7 @@ class _generator extends Controller
 
             $contents = new ActiveRecordIterator( $sql, Generator::class );
 
-            /* @var \IPS\dtcontent\Generator $content */
+            /* @var \IPS\toolbox\Content\Generator $content */
             foreach ( $contents as $content ) {
                 $content->process();
                 $offset++;
@@ -233,9 +197,10 @@ class _generator extends Controller
             ];
         }, function ()
         {
+
             /* And redirect back to the overview screen */
             $url = Url::internal( 'app=toolbox&module=content&controller=generator' );
-            Output::i()->redirect( $url, 'dtcontent_generation_delete_done' );
+            Output::i()->redirect( $url->csrf(), 'dtcontent_generation_delete_done' );
         } );
     }
 
@@ -244,6 +209,7 @@ class _generator extends Controller
      */
     protected function queue()
     {
+
         Output::i()->title = 'Generator';
         $type = Request::i()->type ?: 'forums';
         $limit = Request::i()->limit ?: 10;
@@ -260,8 +226,9 @@ class _generator extends Controller
             'club'     => $club,
         ] );
 
-        Output::i()->output = new MultipleRedirect( $url, function ( $data )
+        Output::i()->output = new MultipleRedirect( $url->csrf(), function ( $data )
         {
+
             $offset = 0;
             $type = Request::i()->type ?: 'forums';
             $limit = Request::i()->limit ?: 10;
@@ -371,10 +338,11 @@ class _generator extends Controller
             ];
         }, function ()
         {
+
             $url = Url::internal( 'app=toolbox&module=content&controller=generator' );
             $lang = Member::loggedIn()->language()->addToStack( 'dtcontent_completed', \false, [ 'sprintf' => [ mb_ucfirst( Request::i()->type ) ] ] );
             Member::loggedIn()->language()->parseOutputForDisplay( $lang );
-            Output::i()->redirect( $url, $lang );
+            Output::i()->redirect( $url->csrf(), $lang );
         } );
     }
 }

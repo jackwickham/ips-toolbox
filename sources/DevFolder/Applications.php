@@ -221,6 +221,7 @@ class _Applications
                 $file = $template[ 'name' ] . '.phtml';
                 $header = '<ips:template parameters="' . $template[ 'variables' ] . '" />' . \PHP_EOL;
                 $content = $header . $template[ 'content' ];
+                $content = \IPS\toolbox\Application::templateSlasher( $content );
                 $this->_writeFile( $file, $content, $path );
             }
             else if ( $xml->name === 'css' ) {
@@ -259,6 +260,7 @@ class _Applications
         }
         return $this;
     }
+
 
     /**
      * @return static

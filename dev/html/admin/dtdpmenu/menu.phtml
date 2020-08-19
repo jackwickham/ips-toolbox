@@ -1,8 +1,9 @@
 <ips:template parameters="array $menus, $dev, $app, $controller='sources'"/>
+
 <ul id="adminMenu_button_menu" class="ipsMenu ipsMenu_normal ipsHide">
     {{foreach $menus as $menu }}
     <li class="ipsMenu_item">
-        <a href="{url='app=toolbox&module=devcenter&controller=sources&appKey={$app}&do={$menu}'}" {{if !\in_array( $menu, ['memory', 'debug', 'form']) }}data-ipsdialog data-ipsdialog-forceReload="true" data-ipsdialog-remoteSubmit="true" data-ipsdialog-title="{lang='dtdevplus_menu_title_{$menu}'}"{{endif}}>
+        <a href="{url='app=toolbox&module=devcenter&controller=sources&appKey={$app}&do={$menu}' csrf='true'}" {{if !\in_array( $menu, ['memory', 'debug', 'form']) }}data-ipsdialog data-ipsdialog-forceReload="true" data-ipsdialog-title="{lang='dtdevplus_menu_title_{$menu}'}" data-ipsdialog-destructOnClose="true"{{endif}}>
         {lang="dtdevplus_menu_title_{$menu}"}
         </a>
     </li>
@@ -12,7 +13,7 @@
 <ul id="adminMenuDev_button_menu" class="ipsMenu ipsMenu_normal ipsHide">
     {{foreach $dev as $menu }}
     <li class="ipsMenu_item">
-        <a href="{url='app=toolbox&module=devcenter&controller=dev&appKey={$app}&do={$menu}'}" data-ipsdialog data-ipsdialog-forceReload="true" data-ipsdialog-remoteSubmit="true" data-ipsdialog-title="{lang='dtdevplus_menu_title_{$menu}'}">
+        <a href="{url='app=toolbox&module=devcenter&controller=dev&appKey={$app}&do={$menu}' csrf='true'}" data-ipsdialog data-ipsdialog-forceReload="true" data-ipsdialog-title="{lang='dtdevplus_menu_title_{$menu}'}" data-ipsdialog-destructOnClose="true">
             {lang="dtdevplus_menu_title_{$menu}"}
         </a>
     </li>

@@ -16,8 +16,8 @@ use function defined;
 use function header;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header((isset($_SERVER[ 'SERVER_PROTOCOL' ]) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -32,9 +32,8 @@ class _dtcontent
      *
      * @param array $classDoc
      */
-    public function store( &$classDoc )
+    public function store(&$classDoc)
     {
-
     }
 
     /**
@@ -42,9 +41,8 @@ class _dtcontent
      *
      * @param array $classDoc
      */
-    public function request( &$classDoc )
+    public function request(&$classDoc)
     {
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'oldDo', 'type' => 'string' ];
-
+        $classDoc[] = ['pt' => 'p', 'prop' => 'oldDo', 'type' => 'string'];
     }
 }

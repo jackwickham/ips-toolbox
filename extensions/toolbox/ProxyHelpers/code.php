@@ -16,8 +16,8 @@ use function defined;
 use function header;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header((isset($_SERVER[ 'SERVER_PROTOCOL' ]) ? $_SERVER[ 'SERVER_PROTOCOL' ] : 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -32,10 +32,9 @@ class _code
      *
      * @param array $classDoc
      */
-    public function store( &$classDoc )
+    public function store(&$classDoc)
     {
-
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'dtcode_warnings', 'type' => 'array' ];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'dtcode_warnings', 'type' => 'array'];
     }
 
     /**
@@ -43,8 +42,7 @@ class _code
      *
      * @param array $classDoc
      */
-    public function request( &$classDoc )
+    public function request(&$classDoc)
     {
-
     }
 }

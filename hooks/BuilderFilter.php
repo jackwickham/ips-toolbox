@@ -1,40 +1,46 @@
-//<?php
+//<?php namespace toolbox_IPS_Application_BuilderFilter_a2742a9970230ee38a54a91c24e23362b;
 
 use IPS\Application;
 use IPS\Request;
 use IPS\Settings;
 
-/* To prevent PHP errors (extending class does not exist) revealing path */
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
+/**
+ * @mixin \RecursiveFilterIterator
+ * @mixin _HOOK_CLASS_
+ * @mixin \IPS\Applicaiton\BuildFilter
+ * @mixin \SplFileInfo
+ */
 
 class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
 {
 
     public function accept()
     {
-        if ( $this->isFile() ) {
+        if ($this->isFile()) {
             $skip = [];
-            $toSKip = \json_decode( Settings::i()->dtdevplus_skip_files, \true );
+            $toSKip = \json_decode(Settings::i()->dtdevplus_skip_files, \true);
 
-            if ( \is_array( $toSKip ) && \count( $toSKip ) ) {
+            if (\is_array($toSKip) && \count($toSKip)) {
                 $skip = $toSKip;
             }
 
             try {
                 $appKey = Request::i()->appKey;
-                $app = Application::load( $appKey );
+                $app = Application::load($appKey);
 
-                foreach ( $app->extensions( 'toolbox', 'Headerdoc', \true ) as $class ) {
-                    if ( \method_exists( $class, 'filesSkip' ) ) {
-                        $class->filesSkip( $skip );
+                foreach ($app->extensions('toolbox', 'Headerdoc', \true) as $class) {
+                    if (\method_exists($class, 'filesSkip')) {
+                        $class->filesSkip($skip);
                     }
                 }
-            } catch ( \Exception $e ) {
+            } catch (\Exception $e) {
             }
 
-            return !\in_array( $this->getFilename(), $skip, \true );
+            return !\in_array($this->getFilename(), $skip, \true);
         }
 
         return parent::accept();
@@ -45,32 +51,30 @@ class toolbox_hook_BuilderFilter extends _HOOK_CLASS_
         $skip = parent::getDirectoriesToIgnore();
         $appKey = Request::i()->appKey;
 
-        if ( \in_array( $appKey, \IPS\toolbox\Application::$toolBoxApps, \true ) ) {
-            foreach ( $skip as $key => $val ) {
-                if ( $val === 'dev' ) {
-                    unset( $skip[ $key ] );
+        if (\in_array($appKey, \IPS\toolbox\Application::$toolBoxApps, \true)) {
+            foreach ($skip as $key => $val) {
+                if ($val === 'dev') {
+                    unset($skip[ $key ]);
                 }
             }
         }
-        $toSKip = \json_decode( Settings::i()->dtdevplus_skip_dirs, \true );
+        $toSKip = \json_decode(Settings::i()->dtdevplus_skip_dirs, \true);
 
-        if ( \is_array( $toSKip ) && \count( $toSKip ) ) {
-            $skip = \array_merge( $skip, $toSKip );
+        if (\is_array($toSKip) && \count($toSKip)) {
+            $skip = \array_merge($skip, $toSKip);
         }
 
         try {
-            $app = Application::load( $appKey );
+            $app = Application::load($appKey);
 
             /* @var \IPS\toolbox\DevCenter\extensions\toolbox\DevCenter\Headerdoc\Headerdoc $class */
-            foreach ( $app->extensions( 'toolbox', 'Headerdoc', \true ) as $class ) {
-                if ( \method_exists( $class, 'dirSkip' ) ) {
-                    $class->dirSkip( $skip );
+            foreach ($app->extensions('toolbox', 'Headerdoc', \true) as $class) {
+                if (\method_exists($class, 'dirSkip')) {
+                    $class->dirSkip($skip);
                 }
             }
-        } catch ( \Exception $e ) {
-
+        } catch (\Exception $e) {
         }
-
 
         return $skip;
     }

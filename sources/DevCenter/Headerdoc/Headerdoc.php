@@ -21,6 +21,7 @@ use IPS\toolbox\Text;
 use ReflectionMethod;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+
 use function array_pop;
 use function defined;
 use function explode;
@@ -40,8 +41,8 @@ use function preg_replace_callback;
 use function str_replace;
 use function trim;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -72,17 +73,17 @@ class _Headerdoc extends Singleton
      *
      * @param Application $app
      */
-    public function addIndexHtml( Application $app )
+    public function addIndexHtml(Application $app)
     {
         $continue = \false;
 
-        foreach ( $app->extensions( 'toolbox', 'Headerdoc', \true ) as $class ) {
-            if ( method_exists( $class, 'indexEnabled' ) ) {
+        foreach ($app->extensions('toolbox', 'Headerdoc', \true) as $class) {
+            if (method_exists($class, 'indexEnabled')) {
                 $continue = $class->indexEnabled();
             }
         }
 
-        if ( !$continue ) {
+        if (!$continue) {
             return;
         }
 
@@ -95,25 +96,25 @@ class _Headerdoc extends Singleton
         try {
             $finder = new Finder;
             $dir = \IPS\ROOT_PATH . '/applications/' . $app->directory;
-            $filter = function ( SplFileInfo $file ) use ( $exclude )
-            {
-                if ( !in_array( $file->getExtension(), $exclude, \true ) ) {
+            $filter = function (SplFileInfo $file) use ($exclude) {
+                if (!in_array($file->getExtension(), $exclude, \true)) {
                     return \true;
                 }
+
                 return \false;
             };
 
-            $finder->in( $dir )->filter( $filter )->directories();
+            $finder->in($dir)->filter($filter)->directories();
 
-            foreach ( $finder as $iter ) {
-                if ( $iter->isDir() ) {
+            foreach ($finder as $iter) {
+                if ($iter->isDir()) {
                     $path = $iter->getPathname();
-                    if ( !file_exists( $path . '/index.html' ) ) {
-                        file_put_contents( $path . '/index.html', '' );
+                    if (!file_exists($path . '/index.html')) {
+                        file_put_contents($path . '/index.html', '');
                     }
                 }
             }
-        } catch ( Exception $e ) {
+        } catch (Exception $e) {
         }
     }
 
@@ -126,14 +127,13 @@ class _Headerdoc extends Singleton
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function process( Application $app )
+    public function process(Application $app)
     {
-
-        if ( !$this->can( $app ) ) {
+        if (!$this->can($app)) {
             return;
         }
 
-        $subpackage = Member::loggedIn()->language()->get( "__app_{$app->directory}" );
+        $subpackage = Member::loggedIn()->language()->get("__app_{$app->directory}");
 
         $directory = [
             'hooks',
@@ -151,19 +151,21 @@ class _Headerdoc extends Singleton
         $since = $app->version;
 
         /* @var \IPS\toolbox\DevCenter\extensions\toolbox\DevCenter\Headerdoc\Headerdoc $class */
-        foreach ( $app->extensions( 'toolbox', 'Headerdoc', \true ) as $class ) {
-            if ( method_exists( $class, 'exclude' ) ) {
-                $class->exclude( $exclude );
+        foreach ($app->extensions('toolbox', 'Headerdoc', \true) as $class) {
+            if( method_exists($class, 'filesSkip')){
+                $class->filesSkip($files);
             }
-
+            if( method_exists($class,'dirSkip')){
+                $class->dirSkip($directory);
+            }
             try {
-                $reflector = new ReflectionMethod( $class, 'since' );
-                $isProto = ( $reflector->getDeclaringClass()->getName() !== get_class( $class ) );
+                $reflector = new ReflectionMethod($class, 'since');
+                $isProto = ($reflector->getDeclaringClass()->getName() !== get_class($class));
 
-                if ( $isProto ) {
-                    $since = $class->since( $app );
+                if ($isProto) {
+                    $since = $class->since($app);
                 }
-            } catch ( Exception $e ) {
+            } catch (Exception $e) {
             }
         }
 
@@ -171,22 +173,22 @@ class _Headerdoc extends Singleton
         $dir = \IPS\ROOT_PATH . '/applications/' . $app->directory;
 
 
-        $finder->in( $dir )->name( '*.php' )->notName( 'Application.php' );
+        $finder->in($dir)->name('*.php')->notName('Application.php');
 
-        foreach ( $directory as $dirs ) {
-            $finder->notPath( $dirs );
+        foreach ($directory as $dirs) {
+            $finder->notPath($dirs);
         }
 
-        foreach ( $files as $file ) {
-            $finder->notName( $file );
+        foreach ($files as $file) {
+            $finder->notName($file);
         }
 
         $finder->files();
 
-        foreach ( $finder as $file ) {
+        foreach ($finder as $file) {
             $filePath = $file->getRealPath();
             $line = $file->getContents();
-            $this->build( $filePath, $line, $app, $subpackage, $since );
+            $this->build($filePath, $line, $app, $subpackage, $since);
         }
     }
 
@@ -197,14 +199,13 @@ class _Headerdoc extends Singleton
      *
      * @return bool
      */
-    public function can( Application $app ): bool
+    public function can(Application $app): bool
     {
         $continue = \false;
 
         /* @var \IPS\toolbox\DevCenter\extensions\toolbox\DevCenter\Headerdoc\Headerdoc $class */
-        foreach ( $app->extensions( 'toolbox', 'Headerdoc', \true ) as $class ) {
-
-            if ( method_exists( $class, 'enabled' ) ) {
+        foreach ($app->extensions('toolbox', 'Headerdoc', true) as $class) {
+            if (method_exists($class, 'enabled')) {
                 $continue = $class->enabled();
             }
         }
@@ -212,131 +213,133 @@ class _Headerdoc extends Singleton
         return $continue;
     }
 
-    public function build( $filePath, $line, $app, $subpackage, $since )
+    public function build($filePath, $line, $app, $subpackage, $since)
     {
         try {
             $regex = '#extends([^{]+)?#u';
 
-            preg_match( "#^.+?\s(?=namespace)#s", $line, $section );
+            preg_match("#^.+?\s(?=namespace)#s", $line, $section);
             $sinced = [];
 
-            if ( isset( $section[ 0 ] ) ) {
-                preg_match( '#@since([^\n]+)?#', $section[ 0 ], $sinced );
+            if (isset($section[ 0 ])) {
+                preg_match('#@since([^\n]+)?#', $section[ 0 ], $sinced);
             }
 
 
-            if ( !isset( $sinced[ 1 ] ) ) {
+            if (!isset($sinced[ 1 ])) {
+                preg_match("#^.+?\s(?=namespace)#s", $line, $section);
 
-                preg_match( "#^.+?\s(?=namespace)#s", $line, $section );
-
-                if ( isset( $section[ 0 ] ) ) {
-                    preg_match( '#@brief([^\n]+)?#', $section[ 0 ], $brief );
-                }
-                else {
+                if (isset($section[ 0 ])) {
+                    preg_match('#@brief([^\n]+)?#', $section[ 0 ], $brief);
+                } else {
                     $brief = [];
                 }
 
-                if ( !isset( $brief[ 1 ] ) ) {
-                    $path = pathinfo( $filePath );
+                if (!isset($brief[ 1 ])) {
+                    $path = pathinfo($filePath);
                     $type = $path[ 'dirname' ];
-                    $type = str_replace( '\\', '/', $type );
+                    $type = str_replace('\\', '/', $type);
                     $file = $path[ 'filename' ];
 
-                    if ( mb_strpos( $filePath, 'extensions' ) !== \false ) {
-                        $type = explode( '/', $type );
-                        $extension = mb_ucfirst( mb_strtolower( array_pop( $type ) ) );
-                        $extApp = mb_ucfirst( mb_strtolower( array_pop( $type ) ) );
-                        $brief = $extApp . ' ' . $extension . ' extension: ' . mb_ucfirst( $file );
-                    }
-                    else {
-                        $file = mb_ucfirst( $file );
+                    if (mb_strpos($filePath, 'extensions') !== \false) {
+                        $type = explode('/', $type);
+                        $extension = mb_ucfirst(mb_strtolower(array_pop($type)));
+                        $extApp = mb_ucfirst(mb_strtolower(array_pop($type)));
+                        $brief = $extApp . ' ' . $extension . ' extension: ' . mb_ucfirst($file);
+                    } else {
+                        $file = mb_ucfirst($file);
 
-                        preg_match( $regex, $line, $matches );
+                        preg_match($regex, $line, $matches);
 
-                        if ( isset( $matches[ 1 ] ) ) {
-                            $brief = ( mb_strpos( $matches[ 1 ], 'Model' ) !== \false ) ? $file . ' Node' : $file . ' Class';
-                        }
-                        else {
+                        if (isset($matches[ 1 ])) {
+                            $brief = (mb_strpos(
+                                    $matches[ 1 ],
+                                    'Model'
+                                ) !== \false) ? $file . ' Node' : $file . ' Class';
+                        } else {
                             $brief = $file;
-                            $brief .= isset( $matches[ 1 ] ) ? ' ' . mb_ucfirst( $matches[ 1 ] ) : ' Class';
+                            $brief .= isset($matches[ 1 ]) ? ' ' . mb_ucfirst($matches[ 1 ]) : ' Class';
                         }
                     }
 
-                    $brief = trim( $brief );
+                    $brief = trim($brief);
+                } else {
+                    $brief = str_replace(' ', '', trim($brief[ 1 ]));
                 }
-                else {
-                    $brief = str_replace( ' ', '', trim( $brief[ 1 ] ) );
-                }
 
-                $replacement = file_get_contents( \IPS\ROOT_PATH . '/applications/dtdevplus/data/defaults/headerDoc.txt' );
-                $replacement = str_replace( [ '{brief}', '{subpackage}', '{since}' ], [
-                    $brief,
-                    $subpackage,
-                    $since,
-                ], $replacement );
-                $line = preg_replace( "#^.+?\s(?=namespace)#s", "<?php\n\n$replacement\n\n", $line );
+                $replacement = file_get_contents(\IPS\ROOT_PATH . '/applications/toolbox/data/defaults/headerDoc.txt');
+                $replacement = str_replace(
+                    ['{brief}', '{subpackage}', '{since}'],
+                    [
+                        $brief,
+                        $subpackage,
+                        $since,
+                    ],
+                    $replacement
+                );
+                $line = preg_replace("#^.+?\s(?=namespace)#s", "<?php\n\n$replacement\n\n", $line);
 
-                file_put_contents( $filePath, $line );
-            }
-            else {
-
+                file_put_contents($filePath, $line);
+            } else {
                 $write = \false;
 
-                $line = preg_replace_callback( "#^.+?\s(?=namespace)#s", function ( $m ) use ( &$write, $since )
-                {
-                    $line = $m[ 0 ];
-                    preg_match( '#@since([^\n]+)?#', $line, $since );
+                $line = preg_replace_callback(
+                    "#^.+?\s(?=namespace)#s",
+                    function ($m) use (&$write, $since) {
+                        $line = $m[ 0 ];
+                        preg_match('#@since([^\n]+)?#', $line, $since);
 
-                    if ( isset( $since[ 1 ] ) && trim( $since[ 1 ] ) === '-storm_since_version-' ) {
-                        $write = \true;
-                        $since = <<<EOF
+                        if (isset($since[ 1 ]) && trim($since[ 1 ]) === '-storm_since_version-') {
+                            $write = \true;
+                            $since = <<<EOF
 @author      {$since[1]}
 EOF;
-                        $line = preg_replace( '#@author([^\n]+)?#', $since, $line );
-                    }
-                    //author
-                    preg_match( '#@author([^\n]+)?#', $line, $auth );
+                            $line = preg_replace('#@author([^\n]+)?#', $since, $line);
+                        }
+                        //author
+                        preg_match('#@author([^\n]+)?#', $line, $auth);
 
-                    if ( isset( $auth[ 1 ] ) && trim( $auth[ 1 ] ) !== '-storm_author-' ) {
-                        $write = \true;
-                        $author = <<<EOF
+                        if (isset($auth[ 1 ]) && trim($auth[ 1 ]) !== '-storm_author-') {
+                            $write = \true;
+                            $author = <<<EOF
 @author      -storm_author-
 EOF;
-                        $line = preg_replace( '#@author([^\n]+)?#', $author, $line );
-                    }
+                            $line = preg_replace('#@author([^\n]+)?#', $author, $line);
+                        }
 
-                    //version
-                    preg_match( '#@version([^\n]+)?#', $line, $ver );
+                        //version
+                        preg_match('#@version([^\n]+)?#', $line, $ver);
 
-                    if ( isset( $ver[ 1 ] ) && trim( $ver[ 1 ] ) !== '-storm_version-' ) {
-                        $write = \true;
-                        $ver = <<<EOF
+                        if (isset($ver[ 1 ]) && trim($ver[ 1 ]) !== '-storm_version-') {
+                            $write = \true;
+                            $ver = <<<EOF
 @version     -storm_version-
 EOF;
-                        $line = preg_replace( '#@version([^\n]+)?#', $ver, $line );
-                    }
+                            $line = preg_replace('#@version([^\n]+)?#', $ver, $line);
+                        }
 
-                    //copyright
-                    preg_match( '#@copyright([^\n]+)?#', $line, $cp );
+                        //copyright
+                        preg_match('#@copyright([^\n]+)?#', $line, $cp);
 
-                    if ( isset( $cp[ 1 ] ) && trim( $cp[ 1 ] ) !== '-storm_copyright-' ) {
-                        $write = \true;
-                        $cpy = <<<EOF
+                        if (isset($cp[ 1 ]) && trim($cp[ 1 ]) !== '-storm_copyright-') {
+                            $write = \true;
+                            $cpy = <<<EOF
 @copyright   -storm_copyright-
 EOF;
-                        $line = preg_replace( '#@copyright([^\n]+)?#', $cpy, $line );
-                    }
+                            $line = preg_replace('#@copyright([^\n]+)?#', $cpy, $line);
+                        }
 
-                    return $line;
-                }, $line );
+                        return $line;
+                    },
+                    $line
+                );
 
-                if ( $write ) {
-                    file_put_contents( $filePath, $line );
+                if ($write) {
+                    file_put_contents($filePath, $line);
                 }
             }
-
-        } catch ( Exception $e ) {
-            Debug::add( 'foo', $e );
+        } catch (Exception $e) {
+            Debug::add('foo', $e);
         }
     }
 }

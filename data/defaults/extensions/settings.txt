@@ -2,11 +2,14 @@
 
 namespace IPS\{app}\extensions\toolbox\Settings;
 
+use IPS\toolbox\Forms\Form;
+use function defined;
+use function header;
+
 /* To prevent PHP errors (extending class does not exist) revealing path */
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )
-{
-	header( ( isset( $_SERVER['SERVER_PROTOCOL'] ) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0' ) . ' 403 Forbidden' );
-	exit;
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+    exit;
 }
 
 /**
@@ -17,26 +20,21 @@ class _{class}
 
     /**
     * add in array of form helpers
-    * @param array $helpers
+    * @param Form $form
     */
-    public function elements(&$helpers){
+    public function elements(&$form): void
+    {
 
     }
 
-    /**
-    * return a tab name
-    * @return string
-    */
-    public function tab(){
-        return '{app}';
-    }
 
     /**
     * formValues, format the values before saving as settings
     * @param array $values
     * @return void
     */
-    public function formateValues(&$values){
+    public function formatValues(&$values): void
+    {
 
     }
 }

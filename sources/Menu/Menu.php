@@ -20,6 +20,7 @@ use IPS\Theme;
 
 class _Menu extends Singleton
 {
+
     /**
      * @inheritdoc
      */
@@ -31,6 +32,7 @@ class _Menu extends Singleton
      */
     public function build(): string
     {
+
         return Theme::i()->getTemplate( 'devBar', 'toolbox' )->devBar( $this->execute() );
     }
 
@@ -39,7 +41,14 @@ class _Menu extends Singleton
      */
     public function execute(): array
     {
+
         $store = [];
+        $store[ 'roots' ][ 'toolbox' ] = [
+            'id'   => 'toolbox',
+            'name' => 'Dev Toolbox',
+            'url'  => 'elDevToolstoolbox',
+        ];
+
         $store[ 'toolbox' ][] = [
             'id'   => 'settings',
             'name' => 'Settings',
@@ -50,7 +59,11 @@ class _Menu extends Singleton
             'name' => 'Change Constants',
             'url'  => (string)Url::internal( 'app=toolbox&module=settings&controller=cons' ),
         ];
-
+        $store[ 'toolbox' ][] = [
+            'id'   => 'proxy',
+            'name' => 'Proxy Class Generator',
+            'url'  => (string)Url::internal( 'app=toolbox&module=proxy&controller=proxy' ),
+        ];
         /**
          * @var Application $app
          */
@@ -67,16 +80,6 @@ class _Menu extends Singleton
             'url'  => (string)Url::internal( 'app=toolbox&module=content&controller=generator' ),
         ];
 
-        $store[ 'roots' ][ 'toolbox' ] = [
-            'id'   => 'toolbox',
-            'name' => 'Dev Toolbox',
-            'url'  => 'elDevToolstoolbox',
-        ];
-        $store[ 'toolbox' ][] = [
-            'id'   => 'proxy',
-            'name' => 'Proxy Class Generator',
-            'url'  => (string)Url::internal( 'app=toolbox&module=proxy&controller=proxy' ),
-        ];
         $store[ 'toolbox' ][] = [
             'id'   => 'proxy',
             'name' => 'Generate Application Dev Folder',
@@ -137,6 +140,7 @@ class _Menu extends Singleton
      */
     protected function menu( &$store )
     {
+
         $store[ 'roots' ][] = [
             'id'   => 'ips',
             'name' => 'IPS',
@@ -178,7 +182,6 @@ class _Menu extends Singleton
             'name' => 'Applications',
             'url'  => (string)Url::internal( 'app=core&module=applications&controller=applications' ),
         ];
-
 
         $store[ 'sys' ][] = [
             'id'   => 'plugins',

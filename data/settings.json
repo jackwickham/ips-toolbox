@@ -1,90 +1,98 @@
 [
-  {
-    "key": "toolbox_debug_templates",
-    "default": "0"
-  },
-  {
-    "key": "dtdevplus_skip_dirs",
-    "default": ""
-  },
-  {
-    "key": "dtdevplus_skip_files",
-    "default": ""
-  },
-  {
-    "key": "dtprofiler_can_use",
-    "default": ""
-  },
-  {
-    "key": "dtprofiler_enabled_css",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_enabled_enivro",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_enabled_execution",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_enabled_executions",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_enabled_files",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_enabled_js",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_enabled_jsvars",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_enabled_logs",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_enabled_memory",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_enabled_memory_summary",
-    "default": "0"
-  },
-  {
-    "key": "dtprofiler_enabled_templates",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_git_data",
-    "default": "1"
-  },
-  {
-    "key": "dtprofiler_logs_amount",
-    "default": "25"
-  },
-  {
-    "key": "dtprofiler_show_admin",
-    "default": "0"
-  },
-  {
-    "key": "dtprofiler_show_changes",
-    "default": "0"
-  },
-  {
-    "key": "dtproxy_do_constants",
-    "default": "1"
-  },
-  {
-    "key": "dtproxy_do_props",
-    "default": "1"
-  },
-  {
-    "key": "dtproxy_do_proxies",
-    "default": "0"
-  }
+    {
+        "key": "dtdevplus_skip_dirs",
+        "default": ""
+    },
+    {
+        "key": "dtdevplus_skip_files",
+        "default": ""
+    },
+    {
+        "key": "dtprofiler_can_use",
+        "default": ""
+    },
+    {
+        "key": "dtprofiler_enable_debug",
+        "default": ""
+    },
+    {
+        "key": "dtprofiler_enable_debug_ajax",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_css",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_enivro",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_execution",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_executions",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_files",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_js",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_jsvars",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_logs",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_memory",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_enabled_memory_summary",
+        "default": "0"
+    },
+    {
+        "key": "dtprofiler_enabled_templates",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_git_data",
+        "default": "1"
+    },
+    {
+        "key": "dtprofiler_logs_amount",
+        "default": "25"
+    },
+    {
+        "key": "dtprofiler_show_admin",
+        "default": "0"
+    },
+    {
+        "key": "dtprofiler_show_changes",
+        "default": "0"
+    },
+    {
+        "key": "dtproxy_do_constants",
+        "default": "1"
+    },
+    {
+        "key": "dtproxy_do_props",
+        "default": "1"
+    },
+    {
+        "key": "dtproxy_do_proxies",
+        "default": "0"
+    },
+    {
+        "key": "toolbox_debug_templates",
+        "default": "0"
+    }
 ]

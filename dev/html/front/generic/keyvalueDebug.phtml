@@ -1,0 +1,19 @@
+<ips:template parameters="$debug"/>
+{{if $debug->name }}
+<h4>{$debug->name}</h4>
+{{endif}}
+<div>
+    <a href="{$debug->url()}">{$debug->path}:{$debug->line}</a>
+</div>
+{{foreach $debug->messages as $key => $value }}
+<div class="ipsColumns">
+    <div class="ipsColumn ipsColumn_wide">{$key|raw}</div>
+    <div class="ipsColumn ipsColumn_fluid">
+        {{if \is_array($value) }}
+        {template="keyvalue" group="generic" location="front" app="toolbox" params="$value"}
+        {{else}}
+        {expression="(new \IPS\toolbox\Profiler\Dumper)->add($value)" raw="true"}
+        {{endif}}
+    </div>
+</div>
+{{endforeach}}

@@ -6,7 +6,7 @@ use IPS\Dispatcher;
 use IPS\Member;
 use IPS\Output;
 use IPS\Settings;
-use IPS\toolbox\Profiler\Profiler\Profiler;
+use IPS\toolbox\Profiler;
 
 if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
@@ -18,6 +18,7 @@ class toolbox_hook_coreFrontGlobalTheme extends _HOOK_CLASS_
     /* !Hook Data - DO NOT REMOVE */
     public static function hookData()
     {
+
         return parent::hookData();
     }
 
@@ -25,6 +26,7 @@ class toolbox_hook_coreFrontGlobalTheme extends _HOOK_CLASS_
 
     function queryLog( $querylog )
     {
+
         if ( Dispatcher::hasInstance() && Dispatcher::i()->controllerLocation === 'admin' && Settings::i()->dtprofiler_show_admin ) {
             return;
         }
@@ -44,6 +46,7 @@ class toolbox_hook_coreFrontGlobalTheme extends _HOOK_CLASS_
 
     function cacheLog()
     {
+
         if ( Dispatcher::hasInstance() && Dispatcher::i()->controllerLocation === 'admin' && Settings::i()->dtprofiler_show_admin ) {
             return;
         }

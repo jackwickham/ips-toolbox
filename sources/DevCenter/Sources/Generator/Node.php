@@ -18,24 +18,31 @@ use IPS\Helpers\Form;
 use IPS\Node\Model;
 use IPS\Node\Permissions;
 use IPS\Node\Ratings;
-use Zend\Code\Generator\DocBlock\Tag\ParamTag;
-use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\PropertyValueGenerator;
+
 use function defined;
+use function file_get_contents;
+use function file_put_contents;
 use function header;
 use function in_array;
 use function is_array;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+use const IPS\ROOT_PATH;
+
+use function file_exists;
+use function json_decode;
+use function json_encode;
+use const JSON_PRETTY_PRINT;
+use const T_PUBLIC;
+
+
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
 class _Node extends GeneratorAbstract
 {
+
     /**
      * @inheritdoc
      */
@@ -43,10 +50,6 @@ class _Node extends GeneratorAbstract
     {
         $this->brief = 'Node';
         $this->extends = Model::class;
-
-        if ( $this->useImports ) {
-            $this->generator->addUse( Model::class );
-        }
 
         $dbColumns = [
             'order',
@@ -62,427 +65,350 @@ class _Node extends GeneratorAbstract
         $this->seoTitleColumn();
         $this->nodeTitle();
         $this->nodeSortable();
-        $this->titleSearchPrefix();
-        $this->urlTemplate();
         $this->urlBase();
+        $this->urlTemplate();
         $this->_url();
 
-        if ( $this->content_item_class !== \null ) {
+        if ($this->content_item_class !== \null) {
             $this->nodeItemClass();
         }
 
-        if ( is_array( $this->implements ) ) {
+        if (is_array($this->implements)) {
             $this->permissions();
-            $this->ratings( $dbColumns );
+            $this->ratings($dbColumns);
         }
 
-        if ( is_array( $this->traits ) ) {
-            $this->clubs( $dbColumns );
+        if (is_array($this->traits)) {
+            $this->clubs($dbColumns);
         }
 
-        $methodDocBlock = new DocBlockGenerator( '[Node] Add/Edit Form', \null, [
-            new ParamTag( 'form', Form::class, 'The form' ),
-            new ReturnTag( [ 'dataType' => 'void' ] ),
-        ] );
+        $doc = [
+            '[Node] Add/Edit Form',
+            '@param \\' . Form::class . ' $form',
+            '@return void',
+        ];
 
-        $this->methods[] = MethodGenerator::fromArray( [
-            'name'       => 'form',
-            'parameters' => [
-                new ParameterGenerator( 'form', \null, \null, 0, \true ),
-            ],
-            'body'       => '',
-            'docblock'   => $methodDocBlock,
-            'static'     => \false,
-        ] );
+        $params = [
+            ['name' => 'form', 'reference' => true],
+        ];
+
+        $this->generator->addMethod('form', '', $params, ['document' => $doc]);
 
         //formatValues
-        $methodDocBlock = new DocBlockGenerator( '[Node] Format form values from add/edit form for save', \null, [
-            new ParamTag( 'values', 'array', 'Values from the form' ),
-            new ReturnTag( [ 'dataType' => 'array' ] ),
-        ] );
+        $doc = [
+            '[Node] Format form values from add/edit form for save',
+            '@param array $values',
+            '@return array',
+        ];
 
-        $this->methods[] = MethodGenerator::fromArray( [
-            'name'       => 'formatFormValues',
-            'parameters' => [
-                new ParameterGenerator( 'values' ),
-            ],
-            'body'       => 'return $values;',
-            'docblock'   => $methodDocBlock,
-            'static'     => \false,
-        ] );
+        $params = [
+            ['name' => 'values'],
+        ];
 
-        $this->db->addBulk( $dbColumns );
-        $this->_addToLangs( $this->app . '_' . $this->classname_lower . '_node', $this->classname, $this->application );
+        $this->generator->addMethod('formatFormValues', 'return $values;', $params, ['document' => $doc]);
+
+        $this->db->addBulk($dbColumns);
+        $this->_addToLangs($this->app . '_' . $this->classname_lower . '_node', $this->classname, $this->application);
     }
 
     protected function databaseColumnParent()
     {
-        try {
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => '[Node] Parent ID Database Column' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
+        $doc = [
+            '@brief [Node] Parent ID Database Column',
+            '@var string',
+        ];
 
-            $config = [
-                'name'   => 'databaseColumnParent',
-                'value'  => new PropertyValueGenerator( 'parent', PropertyValueGenerator::TYPE_STRING, PropertyValueGenerator::OUTPUT_SINGLE_LINE ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
-        } catch ( Exception $e ) {
-        }
+        $this->generator->addProperty(
+            'databaseColumnParent',
+            'parent',
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function databaseColumnParentRootValue()
     {
-        try {
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => '[Node] Parent ID Root Value' ],
-                    [
-                        'name'        => 'note',
-                        'description' => 'This normally doesn\'t need changing though some legacy areas use -1 to indicate a root node',
-                    ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
+        $doc = [
+            '@brief [Node] Parent ID Root Value',
+            '@note This normally doesn\'t need changing, though some legacy areas use -1 indicate a root node',
+            '@var int',
+        ];
 
-            $config = [
-                'name'   => 'databaseColumnParentRootValue',
-                'value'  => new PropertyValueGenerator( 0, PropertyValueGenerator::TYPE_INT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
-        } catch ( Exception $e ) {
-        }
+        $this->generator->addProperty(
+            'databaseColumnParentRootValue',
+            0,
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function databaseColumnOrder()
     {
-        try {
-            $doc = [
-                'tags' => [
+        $doc = [
+            '@brief [Node] Order Database Column',
+            '@var string',
+        ];
 
-                    [ 'name' => 'brief', 'description' => '[Node] Order Database Column' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
-
-            $config = [
-                'name'   => 'databaseColumnOrder',
-                'value'  => new PropertyValueGenerator( 'order', PropertyValueGenerator::TYPE_STRING, PropertyValueGenerator::OUTPUT_SINGLE_LINE ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
-        } catch ( Exception $e ) {
-        }
+        $this->generator->addProperty(
+            'databaseColumnOrder',
+            'order',
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function databaseColumnEnabledDisabled()
     {
-        try {
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => '[Node] Enabled/Disabled Column' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
+        $doc = [
+            '@brief [Node] Enabled/Disabled Column',
+            '@var string',
+        ];
 
-            $config = [
-                'name'   => 'databaseColumnEnabledDisabled',
-                'value'  => new PropertyValueGenerator( 'enabled', PropertyValueGenerator::TYPE_STRING, PropertyValueGenerator::OUTPUT_SINGLE_LINE ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
-        } catch ( Exception $e ) {
-        }
+        $this->generator->addProperty(
+            'databaseColumnEnabledDisabled',
+            'enabled',
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function nodeTitle()
     {
-        try {
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => '[Node] Node Title' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
+        $doc = [
+            '@brief [Node] Node Title',
+            '@var string',
+        ];
 
-            $config = [
-                'name'   => 'nodeTitle',
-                'value'  => new PropertyValueGenerator( $this->app . '_' . $this->classname_lower . '_node', PropertyValueGenerator::TYPE_STRING ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
-        } catch ( Exception $e ) {
-        }
+        $this->generator->addProperty(
+            'nodeTitle',
+            $this->app . '_' . $this->classname_lower . '_node',
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function nodeSortable()
     {
-        try {
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => '[Node] Sortable?' ],
-                    [ 'name' => 'var', 'description' => 'bool' ],
-                ],
-            ];
+        $doc = [
+            '@brief [Node] Sortable?',
+            '@var bool',
+        ];
 
-            $config = [
-                'name'   => 'nodeSortable',
-                'value'  => new PropertyValueGenerator( \true, PropertyValueGenerator::TYPE_BOOL ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
-        } catch ( Exception $e ) {
-        }
-    }
-
-    protected function titleSearchPrefix()
-    {
-        try {
-            $doc = [
-                'tags' => [
-                    [
-                        'name'        => 'brief',
-                        'description' => '[Node] Title search prefix.  If specified, searches for \'_title\' will be done against the language pack.',
-                    ],
-                    [ 'name' => 'var', 'description' => 'array' ],
-                ],
-            ];
-
-            $config = [
-                'name'   => 'titleSearchPrefix',
-                'value'  => new PropertyValueGenerator( \null, PropertyValueGenerator::TYPE_NULL ),
-                'vis'    => 'protected',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
-        } catch ( Exception $e ) {
-        }
+        $this->generator->addProperty(
+            'nodeSortable',
+            false,
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function nodeItemClass()
     {
-        try {
-            //nodeItemClass
-            $this->content_item_class = mb_ucfirst( $this->content_item_class );
+        //nodeItemClass
+        $this->content_item_class = mb_ucfirst($this->content_item_class);
+        $contentItemClass = '\\IPS\\' . $this->app . '\\' . $this->content_item_class . '::class';
+        $this->generator->addImport($contentItemClass);
+        $contentItemClass = $this->content_item_class . '::class';
 
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => 'Content Item Class' ],
-                    [ 'name' => 'var', 'description' => '\\IPS\\' . $this->app . '\\' . $this->content_item_class ],
-                ],
-            ];
+        $doc = [
+            '@brief Content Item Class',
+            '@var ' . $contentItemClass,
+        ];
 
-            $contentItemClass = '\\IPS\\' . $this->app . '\\' . $this->content_item_class . '::class';
+        $this->generator->addProperty(
+            'contentItemClass',
+            $contentItemClass,
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
 
-            if ( $this->useImports ) {
-                $this->generator->addUse( $this->content_item_class );
-                $contentItemClass = $this->content_item_class . '::class';
-            }
+        //moderator permissions
+        $doc = [
+            '@brief [Node] Moderator Permission',
+            '@var string',
+        ];
 
-            $config = [
-                'name'   => 'contentItemClass',
-                'value'  => new PropertyValueGenerator( $contentItemClass, PropertyValueGenerator::TYPE_CONSTANT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
-
-            //moderator permissions
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => '[Node] Moderator Permission' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
-
-            $config = [
-                'name'   => 'modPerm',
-                'value'  => new PropertyValueGenerator( $this->app . '_' . $this->classname_lower, PropertyValueGenerator::TYPE_STRING ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
-            ];
-
-            $this->addProperty( $config );
-        } catch ( Exception $e ) {
-        }
+        $this->generator->addProperty(
+            'modPerm',
+            $this->app . '_' . $this->classname_lower,
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function permissions()
     {
         try {
-            if ( in_array( Permissions::class, $this->implements, \true ) ) {
-
+            if (in_array(Permissions::class, $this->implements, \true)) {
                 //index
                 $doc = [
-                    'tags' => [
-                        [ 'name' => 'brief', 'description' => '[Node] App for permission index' ],
-                        [ 'name' => 'var', 'description' => 'string' ],
-                    ],
+                    '@brief [Node] App for permission index',
+                    '@var string',
                 ];
 
-                $config = [
-                    'name'   => 'permApp',
-                    'value'  => new PropertyValueGenerator( $this->app, PropertyValueGenerator::TYPE_STRING ),
-                    'vis'    => 'public',
-                    'doc'    => $doc,
-                    'static' => \true,
-                ];
-
-                $this->addProperty( $config );
+                $this->generator->addProperty(
+                    'permApp',
+                    $this->app,
+                    [
+                        'visibility' => T_PUBLIC,
+                        'static' => true,
+                        'document' => $doc,
+                    ]
+                );
 
                 //type
                 $doc = [
-                    'tags' => [
-                        [ 'name' => 'brief', 'description' => '[Node] Type for permission index' ],
-                        [ 'name' => 'var', 'description' => 'string' ],
-                    ],
+                    '@brief [Node] Type for permission index',
+                    '@var string',
                 ];
 
-                $config = [
-                    'name'   => 'permType',
-                    'value'  => new PropertyValueGenerator( $this->classname_lower, PropertyValueGenerator::TYPE_STRING ),
-                    'vis'    => 'public',
-                    'doc'    => $doc,
-                    'static' => \true,
-                ];
-
-                $this->addProperty( $config );
+                $this->generator->addProperty(
+                    'permApp',
+                    $this->classname_lower,
+                    [
+                        'visibility' => T_PUBLIC,
+                        'static' => true,
+                        'document' => $doc,
+                    ]
+                );
 
                 //perms map
-                $doc = [
-                    'tags' => [
-                        [ 'name' => 'brief', 'description' => 'The map of permission columns' ],
-                        [ 'name' => 'var', 'description' => 'array' ],
-                    ],
-                ];
-
                 $map = [
-                    'view'   => 'view',
-                    'read'   => 2,
-                    'add'    => 3,
+                    'view' => 'view',
+                    'read' => 2,
+                    'add' => 3,
                     'delete' => 4,
-                    'reply'  => 5,
+                    'reply' => 5,
                     'review' => 6,
                 ];
 
-                $config = [
-                    'name'   => 'permissionMap',
-                    'value'  => new PropertyValueGenerator( $map, PropertyValueGenerator::TYPE_ARRAY_LONG ),
-                    'vis'    => 'public',
-                    'doc'    => $doc,
-                    'static' => \true,
+                $doc = [
+                    '@brief The map of permission columns',
+                    '@var array',
                 ];
 
-                $this->addProperty( $config );
+                $this->generator->addProperty(
+                    'permissionMap',
+                    $map,
+                    [
+                        'visibility' => T_PUBLIC,
+                        'static' => true,
+                        'document' => $doc,
+                    ]
+                );
 
                 //lang prefix
                 $doc = [
-                    'tags' => [
-                        [
-                            'name'        => 'brief',
-                            'description' => '[Node] Prefix string that is automatically prepended to permission matrix language strings',
-                        ],
-                        [ 'name' => 'var', 'description' => 'string' ],
-                    ],
+                    '@brief [Node] Prefix string that is automatically prepended to permission matrix language strings',
+                    '@var string',
                 ];
 
-                $config = [
-                    'name'   => 'permissionLangPrefix',
-                    'value'  => new PropertyValueGenerator( $this->app . '_' . $this->classname_lower, PropertyValueGenerator::TYPE_STRING ),
-                    'vis'    => 'public',
-                    'doc'    => $doc,
-                    'static' => \true,
-                ];
-
-                $this->addProperty( $config );
+                $this->generator->addProperty(
+                    'permissionLangPrefix',
+                    $this->app . '_' . $this->classname_lower . '_',
+                    [
+                        'visibility' => T_PUBLIC,
+                        'static' => true,
+                        'document' => $doc,
+                    ]
+                );
             }
-        } catch ( Exception $e ) {
+        } catch (Exception $e) {
         }
     }
 
-    protected function ratings( &$dbColumns )
+    protected function ratings(&$dbColumns)
     {
-        try {
-            if ( in_array( Ratings::class, $this->implements, \true ) ) {
+        if (in_array(Ratings::class, $this->implements, \true)) {
+            $map = [
+                'rating_average' => 'rating_average',
+                'rating_total' => 'rating_total',
+                'rating_hits' => 'rating_hits',
+            ];
 
-                //index
-                $doc = [
-                    'tags' => [
-                        [
-                            'name'        => 'brief',
-                            'description' => '[Node] By mapping appropriate columns (rating_average and/or rating_total + rating_hits) allows to cache rating values',
-                        ],
-                        [ 'name' => 'var', 'description' => 'string' ],
-                    ],
-                ];
-
-                $map = [
-                    'rating_average' => 'rating_average',
-                    'rating_total'   => 'rating_total',
-                    'rating_hits'    => 'rating_hits',
-                ];
-
-                foreach ( $map as $m ) {
-                    $dbColumns[] = $m;
-                }
-
-                $config = [
-                    'name'   => 'ratingColumnMap',
-                    'value'  => new PropertyValueGenerator( $map, PropertyValueGenerator::TYPE_ARRAY_LONG ),
-                    'vis'    => 'public',
-                    'doc'    => $doc,
-                    'static' => \true,
-                ];
-
-                $this->addProperty( $config );
+            foreach ($map as $m) {
+                $dbColumns[] = $m;
             }
-        } catch ( Exception $e ) {
+
+            $doc = [
+                '@brief [Node] By mapping appropriate columns (rating_average and/or rating_total + rating_hits) allows to cache rating values',
+                '@var array',
+            ];
+
+            $this->generator->addProperty(
+                'ratingColumnMap',
+                $map,
+                [
+                    'visibility' => T_PUBLIC,
+                    'static' => true,
+                    'document' => $doc,
+                ]
+            );
         }
     }
 
-    protected function clubs( &$dbColumns )
+    protected function clubs(&$dbColumns)
     {
-        try {
-            if ( in_array( ClubContainer::class, $this->traits, \false ) ) {
-                $dbColumns[] = 'club_id';
-                $methodDocBlock = new DocBlockGenerator( 'Get the database column which stores the club ID', \null, [ new ReturnTag( [ 'dataType' => 'string' ] ) ] );
+        if (in_array(ClubContainer::class, $this->traits, \false)) {
+            $doc = [
+                'Get the database column which stores the club ID',
+                '@return string',
+            ];
 
-                $this->methods[] = MethodGenerator::fromArray( [
-                    'name'     => 'clubIdColumn',
-                    'body'     => "return 'club_id';",
-                    'docblock' => $methodDocBlock,
-                    'static'   => \true,
-                ] );
-            }
-        } catch ( Exception $e ) {
+            $this->generator->addMethod(
+                'clubIdColumn',
+                'return \'club_id\';',
+                [],
+                [
+                    'static' => true,
+                    'visibility' => T_PUBLIC,
+                    'document' => $doc,
+                ]
+            );
         }
+    }
+
+    protected function addFurl($value, $url)
+    {
+        $furlFile = ROOT_PATH . '/applications/' . $this->application->directory . '/data/furl.json';
+        if (file_exists($furlFile)) {
+            $furls = json_decode(file_get_contents($furlFile), true);
+        } else {
+            $furls = [
+                'topLevel' => $this->app,
+                'pages' => [],
+            ];
+        }
+
+        $furls['pages'][$value] = [
+            'friendly' => $this->classname_lower . '/{#project}-{?}',
+            'real' => $url,
+        ];
+
+        file_put_contents($furlFile, json_encode($furls, JSON_PRETTY_PRINT));
     }
 }

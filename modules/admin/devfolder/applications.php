@@ -22,7 +22,7 @@ use IPS\Member;
 use IPS\Output;
 use IPS\Request;
 use IPS\toolbox\DevFolder\Applications;
-use IPS\toolbox\Forms;
+use IPS\toolbox\Form;
 use function defined;
 use function file_exists;
 use function header;
@@ -36,13 +36,15 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 
 class _applications extends Controller
 {
+
     /**
      * @inheritdoc
      * @throws \RuntimeException
      */
     public function execute()
     {
-        if ( \IPS\NO_WRITES === \true ) {
+
+        if ( \IPS\NO_WRITES === true ) {
             Output::i()->error( 'Dev Folder generator can not be used for as NO_WRITES are enabled in constants.php.', '100foo' );
         }
         Dispatcher\Admin::i()->checkAcpPermission( 'apps_manage' );
@@ -54,16 +56,17 @@ class _applications extends Controller
 
     /**
      * @inheritdoc
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @throws \Exception
      * @throws \RuntimeException
      */
     protected function manage()
     {
+
         $groups[ 'select' ] = Member::loggedIn()->language()->addToStack( 'dtdevfolder_apps_select' );
 
         foreach ( Application::applications() as $key => $val ) {
-            if ( !in_array( $val->directory, Application::$ipsApps, \true ) ) {
+            if ( !in_array( $val->directory, Application::$ipsApps, true ) ) {
                 $groups[ $val->directory ] = Member::loggedIn()->language()->addToStack( "__app_{$val->directory}" );
             }
         }
@@ -80,16 +83,26 @@ class _applications extends Controller
         /**
          * @param $data
          */
-        $validation = function ( $data )
+        $form = Form::create()->formPrefix( 'dtdevfolder_app' );
+        $validate = static function ( $data )
         {
+
+            if ( $data === 'select' ) {
+                throw new InvalidArgumentException( 'form_bad_value' );
+            }
+        };
+        $form->add( 'app', 'select' )->options( [ 'options' => $groups ] )->appearRequired()->validation( $validate )->empty( 'select' );
+        $validation = static function ( $data )
+        {
+
             if ( $data === 'select' ) {
                 throw new InvalidArgumentException( 'form_bad_value' );
             }
             $app = Request::i()->dtdevfolder_app;
             $folders = \IPS\ROOT_PATH . "/applications/{$app}/dev";
             $f = $folders;
-            $folders2 = \false;
-            $folders3 = \false;
+            $folders2 = false;
+            $folders3 = false;
 
             if ( $data !== 'all' ) {
                 switch ( $data ) {
@@ -112,51 +125,22 @@ class _applications extends Controller
             }
 
             if ( file_exists( $folders ) || ( $folders2 && file_exists( $folders2 ) && $folders = $folders2 ) || ( $folders3 && file_exists( $folders3 ) && $folders = $folders3 ) ) {
-                $lang = Member::loggedIn()->language()->addToStack( 'dtdevfolder_folder_exist', \false, [ 'sprintf' => $folders ] );
+                $lang = Member::loggedIn()->language()->addToStack( 'dtdevfolder_folder_exist', false, [ 'sprintf' => $folders ] );
                 throw new InvalidArgumentException( $lang );
             }
         };
+        $form->add( 'type', 'select' )->options( [ 'options' => $langs ] )->validation( $validation )->appearRequired();
 
-        $el = [
-            [
-                'name'    => 'dtdevfolder_app',
-                'class'   => 'Select',
-                'ap'      => \true,
-                'default' => 'select',
-                'options' => [
-                    'options' => $groups,
-                ],
-                'v'       => function ( $data )
-                {
-                    if ( $data === 'select' ) {
-                        throw new InvalidArgumentException( 'form_bad_value' );
-                    }
-                },
-            ],
-            [
-                'name'    => 'dtdevfolder_type',
-                'class'   => 'Select',
-                'ap'      => \true,
-                'default' => 'all',
-                'options' => [
-                    'options' => $langs,
-                ],
-                'v'       => $validation,
-            ],
-        ];
-
-        $form = Forms::execute( [ 'elements' => $el ] );
-
-        if ( $vals = $form->values() ) {
-            $app = $vals[ 'dtdevfolder_app' ];
-            $type = $vals[ 'dtdevfolder_type' ];
+        if ( $values = $form->values() ) {
+            $app = $values[ 'app' ];
+            $type = $values[ 'type' ];
 
             if ( $type === 'all' ) {
-                Output::i()->redirect( $this->url->setQueryString( [ 'do' => 'queue', 'appKey' => $app ] ) );
+                Output::i()->redirect( $this->url->setQueryString( [ 'do' => 'queue', 'appKey' => $app ] )->csrf() );
             }
             else {
                 $return = ( new Applications( $app ) )->{$type}();
-                Output::i()->redirect( $this->url, $return );
+                Output::i()->redirect( $this->url->csrf(), $return );
             }
         }
 
@@ -166,23 +150,18 @@ class _applications extends Controller
 
     protected function queue()
     {
+
         Output::i()->title = Member::loggedIn()->language()->addToStack( 'dtdevfolder_queue_title' );
 
         $app = Request::i()->appKey;
 
-        Output::i()->output = new MultipleRedirect( Url::internal( 'app=toolbox&module=devfolder&controller=applications&do=queue&appKey=' . $app ), function ( $data )
+        Output::i()->output = new MultipleRedirect( Url::internal( 'app=toolbox&module=devfolder&controller=applications&do=queue&appKey=' . $app )->csrf(), static function ( $data )
         {
+
             $app = Request::i()->appKey;
-            $next = \null;
-            $end = \false;
-
-            if ( isset( $data[ 'next' ] ) ) {
-                $do = $data[ 'next' ];
-            }
-            else {
-                $do = 'language';
-            }
-
+            $next = null;
+            $end = false;
+            $do = $data[ 'next' ] ?? 'language';
             $done = 0;
 
             switch ( $do ) {
@@ -207,7 +186,7 @@ class _applications extends Controller
                     $next = 'default';
                     break;
                 default:
-                    $end = \true;
+                    $end = true;
                     break;
             }
 
@@ -215,25 +194,27 @@ class _applications extends Controller
                 if ( $app === 'core' ) {
                     ( new Applications( $app ) )->core();
                 }
-                return \null;
+
+                return null;
             }
 
-            $language = Member::loggedIn()->language()->addToStack( 'dtdevfolder_total_done', \false, [
-                    'sprintf' => [
-                        $done,
-                        100,
-                    ],
-                ] );
+            $language = Member::loggedIn()->language()->addToStack( 'dtdevfolder_total_done', false, [
+                'sprintf' => [
+                    $done,
+                    100,
+                ],
+            ] );
 
             return [ [ 'next' => $next ], $language, $done ];
-        }, function ()
+        }, static function ()
         {
+
             $app = Request::i()->appKey;
             $app = Member::loggedIn()->language()->addToStack( "__app_{$app}" );
-            $msg = Member::loggedIn()->language()->addToStack( 'dtdevfolder_completed', \false, [ 'sprintf' => [ $app ] ] );
+            $msg = Member::loggedIn()->language()->addToStack( 'dtdevfolder_completed', false, [ 'sprintf' => [ $app ] ] );
             $url = Url::internal( 'app=toolbox&module=devfolder&controller=applications' );
             /* And redirect back to the overview screen */
-            Output::i()->redirect( $url, $msg );
+            Output::i()->redirect( $url->csrf(), $msg );
         } );
     }
 }

@@ -1,0 +1,44 @@
+<?php
+
+namespace IPS\{app}\extensions\toolbox\constants;
+
+/* To prevent PHP errors (extending class does not exist) revealing path */
+if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )
+{
+	header( ( isset( $_SERVER['SERVER_PROTOCOL'] ) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0' ) . ' 403 Forbidden' );
+	exit;
+}
+
+/**
+ * {class}
+ */
+class _{class}
+{
+
+    /**
+     * add in array of constants
+     */
+    public function getConstants()
+    {
+
+    }
+
+    /**
+     * define an array of constant names to add to the important tab
+     *
+     * @return array
+     */
+    public function add2Important()
+    {
+        return [];
+    }
+
+    /**
+    * formValues, format the values before saving as settings
+    * @param array $values
+    * @return void
+    */
+    public function formateValues(&$values){
+
+    }
+}

@@ -26,112 +26,94 @@ use IPS\Content\Reportable;
 use IPS\Content\Views;
 use SplObserver;
 use SplSubject;
-use Zend\Code\Generator\DocBlock\Tag\ParamTag;
-use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\PropertyValueGenerator;
+
 use function defined;
+use function file_get_contents;
+use function file_put_contents;
 use function header;
 use function in_array;
 use function is_array;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+use const IPS\ROOT_PATH;
+
+use function file_exists;
+use function json_decode;
+use function json_encode;
+use function mb_strtolower;
+use const JSON_PRETTY_PRINT;
+
+
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
 class _Item extends GeneratorAbstract
 {
+
     /**
      * @inheritdoc
      */
     protected function bodyGenerator()
     {
         $this->brief = 'Content Item Class';
-        $this->extends = Item::class;
-
-        if ( $this->useImports ) {
-            $this->generator->addUse( Item::class );
-        }
+        $this->extends = 'Item';
+        $this->generator->addImport(Item::class);
 
         $dbColumns = [
             'author',
             'title',
             'start_date',
             'ip_address',
-            'container_id',
             'seoTitle',
         ];
 
         $columnMap = [
-            'author'     => 'author',
-            'title'      => 'title',
-            'date'       => 'start_date',
+            'author' => 'author',
+            'title' => 'title',
+            'date' => 'start_date',
             'ip_address' => 'ip_address',
-            'container'  => 'container_id',
         ];
 
         $this->application();
         $this->module();
         $this->title();
-        $this->itemNodeClass();
-        $this->urlTemplate();
+        $this->itemNodeClass($dbColumns, $columnMap);
         $this->urlBase();
+        $this->urlTemplate();
         $this->_url();
         $this->seoTitleColumn();
-        $this->commentClass( $dbColumns, $columnMap );
-        $this->reviewClass( $dbColumns, $columnMap );
-        $this->buildImplementsAndTraits( $dbColumns, $columnMap );
-        $this->columnMap( $columnMap );
-        $this->db->addBulk( $dbColumns );
+        $this->commentClass($dbColumns, $columnMap);
+        $this->reviewClass($dbColumns, $columnMap);
+        $this->buildImplementsAndTraits($dbColumns, $columnMap);
+        $this->columnMap($columnMap);
+        $this->db->addBulk($dbColumns);
     }
 
     /**
      * adds the application property
      */
-    protected function application()
+    protected function application(): void
     {
         $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Application' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+            '@brief Application',
+            '@var string',
         ];
 
-        $config = [
-            'name'   => 'application',
-            'value'  => new PropertyValueGenerator( $this->app, PropertyValueGenerator::TYPE_STRING ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty('application', $this->app, ['static' => true, 'document' => $doc]);
     }
 
     /**
      * adds the module property
      */
-    protected function module()
+    protected function module(): void
     {
         $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Module' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+            '@brief Module',
+            '@var string',
         ];
 
-        $config = [
-            'name'   => 'module',
-            'value'  => new PropertyValueGenerator( $this->app, PropertyValueGenerator::TYPE_STRING ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty('module', $this->app, ['static' => true, 'document' => $doc]);
     }
 
     /**
@@ -139,59 +121,49 @@ class _Item extends GeneratorAbstract
      *
      * @param string $extra
      */
-    protected function title( $extra = '_title' )
+    protected function title($extra = '_title'): void
     {
         $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Title' ],
-                [ 'name' => 'var', 'description' => 'string' ],
-            ],
+            '@brief Title',
+            '@var string',
         ];
 
-        $config = [
-            'name'   => 'title',
-            'value'  => new PropertyValueGenerator( $this->app . '_' . $this->classname_lower . $extra, PropertyValueGenerator::TYPE_STRING ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
-        ];
-
-        $this->addProperty( $config );
+        $this->generator->addProperty(
+            'application',
+            $this->app . '_' . $this->classname_lower . $extra,
+            [
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     /**
      * adds the containerNodeClass property
+     *
+     * @param $dbColumns
+     * @param $columnMap
      */
-    protected function itemNodeClass()
+    protected function itemNodeClass(&$dbColumns, &$columnMap): void
     {
-        if ( $this->item_node_class !== \null ) {
-            $this->item_node_class = mb_ucfirst( $this->item_node_class );
-
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => 'Node Class' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
-
+        if ($this->item_node_class !== \null) {
+            $this->item_node_class = mb_ucfirst($this->item_node_class);
             $itemNodeClass = 'IPS\\' . $this->app . '\\' . $this->item_node_class;
-
-            if ( $this->useImports ) {
-                $this->generator->addUse( $itemNodeClass );
-                $itemNodeClass = $this->item_node_class;
-            }
-
+            $this->generator->addImport($itemNodeClass);
+            $itemNodeClass = $this->item_node_class;
             $itemNodeClass .= '::class';
-
-            $config = [
-                'name'   => 'containerNodeClass',
-                'value'  => new PropertyValueGenerator( $itemNodeClass, PropertyValueGenerator::TYPE_CONSTANT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
+            $dbColumns[] = 'container_id';
+            $columnMap['container'] = 'container_id';
+            $doc = [
+                '@brief Node Class',
+                '@var string',
             ];
 
-            $this->addProperty( $config );
+            $extra = [
+                'static' => true,
+                'document' => $doc,
+            ];
+            $this->generator->addProperty('containerNodeClass', $itemNodeClass, $extra);
         }
     }
 
@@ -201,42 +173,33 @@ class _Item extends GeneratorAbstract
      * @param $dbColumns
      * @param $columnMap
      */
-    protected function commentClass( &$dbColumns, &$columnMap )
+    protected function commentClass(&$dbColumns, &$columnMap): void
     {
-        if ( $this->comment_class !== \null ) {
+        if ($this->comment_class !== \null) {
             $dbColumns[] = 'num_comments';
             $dbColumns[] = 'last_comment';
             $dbColumns[] = 'last_comment_by';
             $dbColumns[] = 'last_comment_name';
-            $columnMap[ 'num_comments' ] = 'num_comments';
-            $columnMap[ 'last_comment' ] = 'last_comment';
-            $columnMap[ 'last_comment_by' ] = 'last_comment_by';
-            $columnMap[ 'last_comment_name' ] = 'last_comment_name';
-            $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => 'Comment Class' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
-            ];
-
-            $this->comment_class = mb_ucfirst( $this->comment_class );
+            $columnMap['num_comments'] = 'num_comments';
+            $columnMap['last_comment'] = 'last_comment';
+            $columnMap['last_comment_by'] = 'last_comment_by';
+            $columnMap['last_comment_name'] = 'last_comment_name';
+            $this->comment_class = mb_ucfirst($this->comment_class);
             $commentClass = 'IPS\\' . $this->app . '\\' . $this->classname . '\\' . $this->comment_class;
-
-            if ( $this->useImports ) {
-                $this->generator->addUse( $commentClass );
-                $commentClass = $this->comment_class;
-            }
+            $this->generator->addImport($commentClass);
+            $commentClass = $this->comment_class;
             $commentClass .= '::class';
 
-            $config = [
-                'name'   => 'commentClass',
-                'value'  => new PropertyValueGenerator( $commentClass, PropertyValueGenerator::TYPE_CONSTANT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
+            $doc = [
+                '@brief Comment Class',
+                '@var string',
             ];
 
-            $this->addProperty( $config );
+            $extra = [
+                'static' => true,
+                'document' => $doc,
+            ];
+            $this->generator->addProperty('commentClass', $commentClass, $extra);
         }
     }
 
@@ -246,65 +209,55 @@ class _Item extends GeneratorAbstract
      * @param $dbColumns
      * @param $columnMap
      */
-    protected function reviewClass( &$dbColumns, &$columnMap )
+    protected function reviewClass(&$dbColumns, &$columnMap): void
     {
-        if ( $this->review_class !== \null ) {
+        if ($this->review_class !== \null) {
             $dbColumns[] = 'num_reviews';
             $dbColumns[] = 'last_review';
             $dbColumns[] = 'last_review_by';
             $dbColumns[] = 'unapproved_reviews';
             $dbColumns[] = 'last_review_name';
-            $columnMap[ 'num_reviews' ] = 'num_reviews';
-            $columnMap[ 'unapproved_reviews' ] = 'unapproved_reviews';
-            $columnMap[ 'last_review' ] = 'last_review';
-            $columnMap[ 'last_review_by' ] = 'last_review_by';
-            $columnMap[ 'last_review_name' ] = 'last_review_name';
+            $columnMap['num_reviews'] = 'num_reviews';
+            $columnMap['unapproved_reviews'] = 'unapproved_reviews';
+            $columnMap['last_review'] = 'last_review';
+            $columnMap['last_review_by'] = 'last_review_by';
+            $columnMap['last_review_name'] = 'last_review_name';
 
             //review class
             $doc = [
                 'tags' => [
-                    [ 'name' => 'brief', 'description' => 'Review Class' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
+                    ['name' => 'brief', 'description' => 'Review Class'],
+                    ['name' => 'var', 'description' => 'string'],
                 ],
             ];
 
-            $this->review_class = mb_ucfirst( $this->review_class );
+            $this->review_class = mb_ucfirst($this->review_class);
             $reviewClass = 'IPS\\' . $this->app . '\\' . $this->classname . '\\' . $this->review_class;
-
-            if ( $this->useImports ) {
-                $this->generator->addUse( $reviewClass );
-                $reviewClass = $this->review_class;
-            }
-
+            $this->generator->addImport($reviewClass);
+            $reviewClass = $this->review_class;
             $reviewClass .= '::class';
-
-            $config = [
-                'name'   => 'reviewClass',
-                'value'  => new PropertyValueGenerator( $reviewClass, PropertyValueGenerator::TYPE_CONSTANT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
+            $doc = [
+                '@brief Review Class',
+                '@var string',
             ];
 
-            $this->addProperty( $config );
+            $extra = [
+                'static' => true,
+                'document' => $doc,
+            ];
+            $this->generator->addProperty('reviewClass', $reviewClass, $extra);
 
             //reviews per page
             $doc = [
-                'tags' => [
-                    [ 'name' => 'brief', 'description' => '[Content\Item]  Number of reviews to show per page' ],
-                    [ 'name' => 'var', 'description' => 'string' ],
-                ],
+                '@brief [Content\Item]  Number of reviews to show per page',
+                '@var int',
             ];
 
-            $config = [
-                'name'   => 'reviewsPerPage',
-                'value'  => new PropertyValueGenerator( 25, PropertyValueGenerator::TYPE_INT ),
-                'vis'    => 'public',
-                'doc'    => $doc,
-                'static' => \true,
+            $extra = [
+                'static' => true,
+                'document' => $doc,
             ];
-
-            $this->addProperty( $config );
+            $this->generator->addProperty('reviewsPerPage', 25, $extra);
         }
     }
 
@@ -314,145 +267,129 @@ class _Item extends GeneratorAbstract
      * @param $dbColumns
      * @param $columnMap
      */
-    protected function buildImplementsAndTraits( &$dbColumns, &$columnMap )
+    protected function buildImplementsAndTraits(&$dbColumns, &$columnMap): void
     {
-        if ( is_array( $this->implements ) ) {
+        if (is_array($this->implements)) {
             //edit history
-            if ( in_array( EditHistory::class, $this->implements, \false ) ) {
+            if (in_array(EditHistory::class, $this->implements, \false)) {
                 $dbColumns[] = 'edit_time';
                 $dbColumns[] = 'edit_show';
                 $dbColumns[] = 'edit_member_name';
                 $dbColumns[] = 'edit_reason';
                 $dbColumns[] = 'edit_member_id';
-                $columnMap[ 'edit_time' ] = 'edit_time';
-                $columnMap[ 'edit_show' ] = 'edit_show';
-                $columnMap[ 'edit_member_name' ] = 'edit_member_name';
-                $columnMap[ 'edit_reason' ] = 'edit_reason';
-                $columnMap[ 'edit_member_id' ] = 'edit_member_id';
+                $columnMap['edit_time'] = 'edit_time';
+                $columnMap['edit_show'] = 'edit_show';
+                $columnMap['edit_member_name'] = 'edit_member_name';
+                $columnMap['edit_reason'] = 'edit_reason';
+                $columnMap['edit_member_id'] = 'edit_member_id';
             }
 
             //featurable
-            if ( in_array( Featurable::class, $this->implements, \false ) ) {
+            if (in_array(Featurable::class, $this->implements, \false)) {
                 $dbColumns[] = 'featured';
-                $columnMap[ 'featured' ] = 'featured';
+                $columnMap['featured'] = 'featured';
             }
 
             //Pinnable
-            if ( in_array( Pinnable::class, $this->implements, \false ) ) {
+            if (in_array(Pinnable::class, $this->implements, \false)) {
                 $dbColumns[] = 'pinned';
-                $columnMap[ 'pinned' ] = 'pinned';
+                $columnMap['pinned'] = 'pinned';
             }
 
             //Lockable
-            if ( in_array( Lockable::class, $this->implements, \false ) ) {
+            if (in_array(Lockable::class, $this->implements, \false)) {
                 $dbColumns[] = 'locked';
-                $columnMap[ 'locked' ] = 'locked';
+                $columnMap['locked'] = 'locked';
             }
 
             //Hideable
-            if ( in_array( Hideable::class, $this->implements, \false ) ) {
+            if (in_array(Hideable::class, $this->implements, \false)) {
                 $dbColumns[] = 'approved';
                 $dbColumns[] = 'approved_by';
                 $dbColumns[] = 'approved_date';
-                $columnMap[ 'approved' ] = 'approved';
-                $columnMap[ 'approved_by' ] = 'approved_by';
-                $columnMap[ 'approved_date' ] = 'approved_date';
+                $columnMap['approved'] = 'approved';
+                $columnMap['approved_by'] = 'approved_by';
+                $columnMap['approved_date'] = 'approved_date';
             }
 
             //Views
-            if ( in_array( Views::class, $this->implements, \false ) ) {
+            if (in_array(Views::class, $this->implements, \false)) {
                 $dbColumns[] = 'views';
-                $columnMap[ 'views' ] = 'views';
+                $columnMap['views'] = 'views';
             }
 
             //ReadMarkers
-            if ( in_array( ReadMarkers::class, $this->implements, \false ) ) {
+            if (in_array(ReadMarkers::class, $this->implements, \false)) {
                 $dbColumns[] = 'updated_date';
-                $columnMap[ 'updated' ] = 'updated_date';
+                $columnMap['updated'] = 'updated_date';
 
-                if ( $this->comment_class !== \null ) {
+                if ($this->comment_class !== \null) {
                     $dbColumns[] = 'last_comment';
-                    $columnMap[ 'last_comment' ] = 'last_comment';
+                    $columnMap['last_comment'] = 'last_comment';
                 }
             }
 
             //Polls
-            if ( in_array( Polls::class, $this->implements, \false ) ) {
+            if (in_array(Polls::class, $this->implements, \false)) {
                 $dbColumns[] = 'poll';
-                $columnMap[ 'poll' ] = 'poll';
+                $columnMap['poll'] = 'poll';
             }
 
             $find[] = '{polls}';
-            $replace[ 'polls' ] = \null;
+            $replace['polls'] = \null;
             //SplObserver - aka Polls well more polls or something like that
-            if ( in_array( Polls::class, $this->implements, \false ) && in_array( SplObserver::class, $this->implements, \false ) ) {
-                $methodDocBlock = new DocBlockGenerator( '	 * SplObserver notification that poll has been voted on
-', \null, [
-                        new ParamTag( 'poll', SplSubject::class, 'SplObserver notification that poll has been voted on' ),
-                        new ReturnTag( [ 'dataType' => 'void' ] ),
-                    ] );
-
+            if (in_array(Polls::class, $this->implements, \false) && in_array(
+                    SplObserver::class,
+                    $this->implements,
+                    \false
+                )) {
                 $poll = SplSubject::class;
+                $this->generator->addUse($poll);
+                $poll = 'SplSubject';
 
-                if ( $this->useImports ) {
-                    $this->generator->addUse( $poll );
-                    $poll = 'SplSubject';
-                }
-
-                $this->methods[] = MethodGenerator::fromArray( [
-                    'name'       => 'update',
-                    'parameters' => [
-                        new ParameterGenerator( 'poll', $poll ),
-                    ],
-                    'body'       => '',
-                    'docblock'   => $methodDocBlock,
-                    'static'     => \false,
-                ] );
+                $doc = [
+                    'SplObserver notification that poll has been voted on',
+                    '@param ' . $poll . ' $poll SplObserver notification that poll has been voted on',
+                    '@return void',
+                ];
+                $this->generator->addMethod('update', '', [['name' => 'poll', 'hint' => $poll]], $doc);
             }
 
             //Ratings
-            if ( in_array( Ratings::class, $this->implements, \false ) ) {
+            if (in_array(Ratings::class, $this->implements, \false)) {
                 $dbColumns[] = 'rating_average';
                 $dbColumns[] = 'rating_total';
                 $dbColumns[] = 'rating_hits';
-                $columnMap[ 'rating_average' ] = 'rating_average';
-                $columnMap[ 'rating_total' ] = 'rating_total';
-                $columnMap[ 'rating_hits' ] = 'rating_hits';
+                $columnMap['rating_average'] = 'rating_average';
+                $columnMap['rating_total'] = 'rating_total';
+                $columnMap['rating_hits'] = 'rating_hits';
             }
         }
 
-        if ( is_array( $this->traits ) ) {
-            if ( in_array( Reactable::class, $this->traits, \false ) ) {
-
-                $methodDocBlock = new DocBlockGenerator( 'Reaction Type', \null, [
-                    new ReturnTag( [ 'dataType' => 'string' ] ),
-                ] );
-
-                $this->methods[] = MethodGenerator::fromArray( [
-                    'name'     => 'reactionType',
-                    'body'     => 'return \'' . $this->app . '_' . $this->classname_lower . '\';',
-                    'docblock' => $methodDocBlock,
-                    'static'   => \true,
-                ] );
+        if (is_array($this->traits)) {
+            if (in_array(Reactable::class, $this->traits, \false)) {
+                $doc = [
+                    'Reaction Type',
+                    '@return string',
+                ];
+                $body = 'return \'' . $this->app . '_' . $this->classname_lower . '\';';
+                $params = [];
+                $extra = [
+                    'static' => true,
+                    'document' => $doc,
+                ];
+                $this->generator->addMethod('reactionType', $body, $params, $extra);
             }
 
-            if ( in_array( Reportable::class, $this->traits, \false ) ) {
-                $doc = [
-                    'tags' => [
-                        [ 'name' => 'brief', 'description' => 'Icon' ],
-                        [ 'name' => 'var', 'description' => 'string' ],
+            if (in_array(Reportable::class, $this->traits, \false)) {
+                $extra = [
+                    'static' => true,
+                    'document' => [
+                        '@brief Icon',
+                        '@var string',
                     ],
                 ];
-
-                $config = [
-                    'name'   => 'icon',
-                    'value'  => new PropertyValueGenerator( 'cubes', PropertyValueGenerator::TYPE_STRING ),
-                    'vis'    => 'public',
-                    'doc'    => $doc,
-                    'static' => \true,
-                ];
-
-                $this->addProperty( $config );
+                $this->generator->addProperty('icon', 'cubes', $extra);
             }
         }
     }
@@ -462,23 +399,35 @@ class _Item extends GeneratorAbstract
      *
      * @param array $columnMap
      */
-    protected function columnMap( array $columnMap )
+    protected function columnMap(array $columnMap): void
     {
-        $doc = [
-            'tags' => [
-                [ 'name' => 'brief', 'description' => 'Database Column Map' ],
-                [ 'name' => 'var', 'description' => 'array' ],
+        $extra = [
+            'static' => true,
+            'document' => [
+                '@brief Database Column Map',
+                '@var array',
             ],
         ];
+        $this->generator->addProperty('databaseColumnMap', $columnMap, $extra);
+    }
 
-        $config = [
-            'name'   => 'databaseColumnMap',
-            'value'  => new PropertyValueGenerator( $columnMap, PropertyValueGenerator::TYPE_ARRAY_LONG ),
-            'vis'    => 'public',
-            'doc'    => $doc,
-            'static' => \true,
+    protected function addFurl($value, $url)
+    {
+        $furlFile = ROOT_PATH . '/applications/' . $this->application->directory . '/data/furl.json';
+        if (file_exists($furlFile)) {
+            $furls = json_decode(file_get_contents($furlFile), true);
+        } else {
+            $furls = [
+                'topLevel' => $this->app,
+                'pages' => [],
+            ];
+        }
+
+        $furls['pages'][$value] = [
+            'friendly' => $this->classname_lower . '/' . mb_strtolower($this->item_node_class) . '/{#project}-{?}',
+            'real' => $url,
         ];
 
-        $this->addProperty( $config );
+        file_put_contents($furlFile, json_encode($furls, JSON_PRETTY_PRINT));
     }
 }

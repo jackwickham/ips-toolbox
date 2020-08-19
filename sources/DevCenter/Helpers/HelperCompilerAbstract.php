@@ -13,11 +13,12 @@ namespace IPS\toolbox\DevCenter\Helpers;
 
 use IPS\toolbox\DevCenter\Dev;
 use IPS\toolbox\Proxy\Helpers\HelpersAbstract;
+
 use function header;
 use function mb_strtolower;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!\defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -28,23 +29,22 @@ if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
  */
 class _HelperCompilerAbstract implements HelpersAbstract
 {
-    public function process( $class, &$classDoc, &$classExtends, &$body )
+    public function process($class, &$classDoc, &$classExtends, &$body)
     {
-        $el = Dev::i()->elements();
-        foreach ( $el as $val ) {
-            if ( isset( $val[ 'name' ] ) ) {
-                $type = 'string';
-                if ( isset( $val[ 'class' ] ) && 'stack' === mb_strtolower( $val[ 'class' ] ) ) {
-                    $type = 'array';
-                }
+//        $el = Dev::i()->elements();
+//        foreach ( $el as $val ) {
+//            if ( isset( $val[ 'name' ] ) ) {
+//                $type = 'string';
+//                if ( isset( $val[ 'class' ] ) && 'stack' === mb_strtolower( $val[ 'class' ] ) ) {
+//                    $type = 'array';
+//                }
+//
+//                $classDoc[] = [ 'pt' => 'p', 'prop' => $val[ 'name' ], 'type' => $type ];
+//            }
+//        }
 
-                $classDoc[] = [ 'pt' => 'p', 'prop' => $val[ 'name' ], 'type' => $type ];
-            }
-        }
-
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'location', 'type' => 'string' ];
-        $classDoc[] = [ 'pt' => 'p', 'prop' => 'group', 'type' => 'string' ];
-
+        $classDoc[] = ['pt' => 'p', 'prop' => 'location', 'type' => 'string'];
+        $classDoc[] = ['pt' => 'p', 'prop' => 'group', 'type' => 'string'];
     }
 }
 

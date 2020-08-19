@@ -12,6 +12,7 @@
 
 namespace IPS\toolbox\extensions\toolbox\Headerdoc;
 
+use IPS\toolbox\DevCenter\Headerdoc\HeaderdocAbstract;
 use function defined;
 use function header;
 
@@ -24,7 +25,7 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
 /**
  * header
  */
-class _header extends \IPS\toolbox\DevCenter\Headerdoc\HeaderdocAbstract
+class _header extends HeaderdocAbstract
 {
 
     /**
@@ -62,6 +63,5 @@ class _header extends \IPS\toolbox\DevCenter\Headerdoc\HeaderdocAbstract
      **/
     public function exclude( &$skip )
     {
-
     }
 }

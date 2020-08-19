@@ -8,10 +8,9 @@
  * @version    -storm_version-
  */
 
-
 namespace IPS\toolbox\Proxy\Generator;
-use function _;
 
+use function _;
 
 use IPS\Application;
 use IPS\core\extensions\core\ModeratorPermissions\ModeratorPermissions;
@@ -46,6 +45,7 @@ class _Moderators extends GeneratorAbstract
      */
     public function create()
     {
+
         $file = 'modsProvider.php';
         $jsonMeta = [];
 
@@ -134,7 +134,10 @@ class _Moderators extends GeneratorAbstract
 
             /* @var ModeratorPermissions $extension */
             foreach ( $extensions as $extension ) {
-                $perms[] = array_keys( $extension->getPermissions( $toggles ) );
+                try {
+                    $perms[] = array_keys( $extension->getPermissions( $toggles ) );
+                } catch ( \Exception $e ) {
+                }
             }
         }
 

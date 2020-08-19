@@ -5,5 +5,8 @@
 }
 
 #dtDevBar > li > a {
-    color: #fff;
+    text-decoration: none;
+    color: rgb(var(--theme-link));
+    font-size:13px;
+    font-weight:600;
 }

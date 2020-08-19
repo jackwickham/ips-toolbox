@@ -1,0 +1,10 @@
+<ips:template parameters="$debug"/>
+{{if $debug->name }}
+<h4>{$debug->name}</h4>
+{{endif}}
+<div class="ipsColumns">
+    <div class="ipsColumn ipsColumn_fluid">
+        <a href="{$debug->url()}">{$debug->path}:{$debug->line}</a>
+        {expression="(new \IPS\toolbox\Profiler\Dumper)->add($debug->log)" raw="true"}
+    </div>
+</div>

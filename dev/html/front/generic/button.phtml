@@ -1,6 +1,6 @@
 <ips:template parameters="$name, $key, $title, $lists, $count=null, $icon='random', $max=true, $hide=false, $last=null, $clear=false"/>
 <li id="elProfile{$key}" {{if $title}}title="{$title}" data-ipstooltip{{endif}} class="isParent dtProfileFirst dtProfiler{$key} {{if $hide}}ipsHide{{endif}}" {{if $last }}data-last="{$last}" {{endif}}>
-    <i class="fa fa-{$icon}"></i> {$name} {{if $count !== null}}{{if $name}}({{endif}}<span class="dtprofilerCount" data-\count="{$count}">{$count}</span>{{if $name}}){{endif}}
+    <i class="fa fa-{$icon}"></i> {$name} {{if $count !== null}}{{if $name}}({{endif}}<span class="dtprofilerCount" data-count="{$count}">{$count}</span>{{if $name}}){{endif}}
     <i class="fa fa-angle-up dtprofilearrow"></i>{{endif}}
 </li>
 {{if $clear || $count }}

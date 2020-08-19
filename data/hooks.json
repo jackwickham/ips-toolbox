@@ -1,9 +1,89 @@
 {
+    "cmsDesignerMode": {
+        "type": "C",
+        "class": "\\IPS\\cms\\extensions\\core\\DesignersMode\\Cms"
+    },
+    "cmsTheme": {
+        "type": "C",
+        "class": "\\IPS\\cms\\Theme"
+    },
+    "cmsThemeTemplate": {
+        "type": "C",
+        "class": "\\IPS\\cms\\Theme\\Template"
+    },
     "DataStore": {
         "type": "C",
         "class": "\\IPS\\Data\\Store"
     },
-    "adminGlobal": {
+    "AdvancedTheme": {
+        "type": "C",
+        "class": "\\IPS\\Theme\\Advanced\\Theme"
+    },
+    "Application": {
+        "type": "C",
+        "class": "\\IPS\\Application"
+    },
+    "DevTheme": {
+        "type": "C",
+        "class": "\\IPS\\Theme\\Dev\\Theme"
+    },
+    "DevTemplate": {
+        "type": "C",
+        "class": "\\IPS\\Theme\\Dev\\Template"
+    },
+    "HelpersTableCustom": {
+        "type": "C",
+        "class": "\\IPS\\Helpers\\Table\\Custom"
+    },
+    "Dispatcher": {
+        "type": "C",
+        "class": "\\IPS\\Dispatcher"
+    },
+    "MultiRedirect": {
+        "type": "C",
+        "class": "\\IPS\\Helpers\\MultipleRedirect"
+    },
+    "Request": {
+        "type": "C",
+        "class": "\\IPS\\Request"
+    },
+    "Singleton": {
+        "type": "C",
+        "class": "\\IPS\\Patterns\\Singleton"
+    },
+    "Db": {
+        "type": "C",
+        "class": "\\IPS\\Db"
+    },
+    "ActiveRecord": {
+        "type": "C",
+        "class": "\\IPS\\Patterns\\ActiveRecord"
+    },
+    "Settings": {
+        "type": "C",
+        "class": "\\IPS\\Settings"
+    },
+    "sitemapGenerator": {
+        "type": "C",
+        "class": "\\IPS\\core\\tasks\\sitemapgenerator"
+    },
+    "ipsLog": {
+        "type": "C",
+        "class": "\\IPS\\Log"
+    },
+    "coreGlobalGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_global_global"
+    },
+    "SandboxedTemplate": {
+        "type": "C",
+        "class": "\\IPS\\Theme\\SandboxedTemplate"
+    },
+    "coreFrontGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_front_global"
+    },
+    "adminGlobalTemplate": {
         "type": "S",
         "class": "\\IPS\\Theme\\class_core_admin_global"
     },
@@ -11,60 +91,28 @@
         "type": "C",
         "class": "\\IPS\\core\\modules\\admin\\applications\\applications"
     },
-    "Application": {
-        "type": "C",
-        "class": "\\IPS\\Application"
-    },
     "Output": {
         "type": "C",
         "class": "\\IPS\\Output"
-    },
-    "Db": {
-        "type": "C",
-        "class": "\\IPS\\Db"
-    },
-    "Theme": {
-        "type": "C",
-        "class": "\\IPS\\Theme"
-    },
-    "DevTemplate": {
-        "type": "C",
-        "class": "\\IPS\\Theme\\Dev\\Template"
-    },
-    "MultiRedirect": {
-        "type": "C",
-        "class": "\\IPS\\Helpers\\MultipleRedirect"
-    },
-    "developer": {
-        "type": "C",
-        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
-    },
-    "BuilderIterator": {
-        "type": "C",
-        "class": "\\IPS\\Application\\BuilderIterator"
     },
     "BuilderFilter": {
         "type": "C",
         "class": "\\IPS\\Application\\BuilderFilter"
     },
-    "coreGlobalGlobalTheme": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_global_global"
-    },
-    "coreFrontGlobalTheme": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_front_global"
-    },
-    "SandboxedTemplate": {
+    "Theme": {
         "type": "C",
-        "class": "\\IPS\\Theme\\SandboxedTemplate"
+        "class": "\\IPS\\Theme"
     },
-    "Request": {
+    "BuilderIterator": {
         "type": "C",
-        "class": "\\IPS\\Request"
+        "class": "\\IPS\\Application\\BuilderIterator"
     },
-    "Settings": {
+    "developer": {
         "type": "C",
-        "class": "\\IPS\\Settings"
+        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
+    },
+    "Hooks": {
+        "type": "C",
+        "class": "\\IPS\\Plugin\\Hook"
     }
 }

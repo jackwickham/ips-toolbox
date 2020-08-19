@@ -23,5 +23,5 @@ interface HelpersAbstract
      *
      * @return void
      */
-    public function process( $class, &$classDoc, &$classExtends, &$body );
+    public function process($class, &$classDoc, &$classExtends, &$body);
 }

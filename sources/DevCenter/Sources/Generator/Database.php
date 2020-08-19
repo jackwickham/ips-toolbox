@@ -12,16 +12,16 @@
 
 namespace IPS\toolbox\DevCenter\Sources\Generator;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
-use Exception;
 use IPS\Db;
 use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\ReservedWords;
 use IPS\toolbox\Shared\SchemaBuilder;
+
 use function array_shift;
 use function count;
 use function defined;
@@ -35,11 +35,12 @@ use function method_exists;
 /**
  * Class _Db
  *
- * @mixin \IPS\toolbox\DevCenter\Sources\Generator\Database
+ * @mixin Database
  * @todo next we need to make sure that the "getter" methods are optimized properly
  */
 class _Database
 {
+
     use SchemaBuilder;
 
     /**
@@ -47,7 +48,7 @@ class _Database
      *
      * @var bool
      */
-    protected $continue = \false;
+    protected $continue = false;
 
     /**
      * columns store
@@ -74,7 +75,7 @@ class _Database
      * @var array
      */
     protected $schema = [
-        'name'    => \null,
+        'name' => null,
         'columns' => [],
         'indexes' => [],
     ];
@@ -85,114 +86,147 @@ class _Database
      * @param $table
      * @param $prefix
      */
-    public function __construct( $table, $prefix )
+    public function __construct($table, $prefix)
     {
         $this->table = $table;
         $this->tablePrefix = $prefix;
-        $this->schema[ 'name' ] = $this->table;
-        if ( !Db::i()->checkForTable( $this->table ) ) {
-            $column = $this->buildDefinition( 'id', 'ID Number', 'BIGINT', 20, \false, \null, \false, \true );
-            $column[ 'index' ] = $this->buildIndex( 'PRIMARY', [ 'id' ], 'primary' );
-            $this->constructSchema( $column );
+        $this->schema['name'] = $this->table;
+        if (!Db::i()->checkForTable($this->table)) {
+            $column = $this->buildDefinition(
+                'id',
+                'ID Number',
+                'BIGINT',
+                20,
+                false,
+                null,
+                false,
+                true
+            );
+            $column['index'] = $this->buildIndex('PRIMARY', ['id'], 'primary');
+            $this->constructSchema($column);
         }
     }
 
     /**
-     * @param string      $name
+     * @param string $name
      * @param string|null $comment
-     * @param string      $type
-     * @param int         $length
-     * @param bool        $unsigned
-     * @param null        $default
-     * @param bool        $allow_null
-     * @param bool        $auto_increment
-     * @param null        $values
-     * @param bool        $decimals
-     * @param bool        $zerofill
-     * @param bool        $binary
+     * @param string $type
+     * @param int $length
+     * @param bool $unsigned
+     * @param null $default
+     * @param bool $allow_null
+     * @param bool $auto_increment
+     * @param null $values
+     * @param bool $decimals
+     * @param bool $zerofill
+     * @param bool $binary
      *
      * @return array
      */
-    protected function buildDefinition( string $name, string $comment = \null, string $type = 'VARCHAR', int $length = 20, $unsigned = \true, $default = \null, $allow_null = \true, $auto_increment = \false, $values = \null, $decimals = \false, $zerofill = \false, $binary = \false ): array
-    {
+    protected function buildDefinition(
+        string $name,
+        string $comment = null,
+        string $type = 'VARCHAR',
+        int $length = 20,
+        $unsigned = true,
+        $default = null,
+        $allow_null = true,
+        $auto_increment = false,
+        $values = null,
+        $decimals = false,
+        $zerofill = false,
+        $binary = false
+    ): array {
         $args = func_get_args();
-        return [ 'column' => $this->createDefinition( ... $args ) ];
+
+        return ['column' => $this->createDefinition(... $args)];
     }
 
     /**
-     * @param string      $name
+     * @param string $name
      * @param string|null $comment
-     * @param string      $type
-     * @param int         $length
-     * @param bool        $unsigned
-     * @param null        $default
-     * @param bool        $allow_null
-     * @param bool        $auto_increment
-     * @param null        $values
-     * @param bool        $decimals
-     * @param bool        $zerofill
-     * @param bool        $binary
+     * @param string $type
+     * @param int $length
+     * @param bool $unsigned
+     * @param null $default
+     * @param bool $allow_null
+     * @param bool $auto_increment
+     * @param null $values
+     * @param bool $decimals
+     * @param bool $zerofill
+     * @param bool $binary
      *
      * @return array
      */
-    public function createDefinition( string $name, string $comment = \null, string $type = 'VARCHAR', int $length = 20, $unsigned = \true, $default = \null, $allow_null = \true, $auto_increment = \false, $values = \null, $decimals = \false, $zerofill = \false, $binary = \false ): array
-    {
-        $column = [
-            'name'           => $this->tablePrefix . $name,
-            'type'           => $type,
-            'default'        => $default,
-            'comment'        => $comment,
-            'length'         => $type === 'TEXT' ? \null : $length,
-            'unsigned'       => $unsigned,
-            'decimals'       => $decimals,
-            'values'         => $values,
-            'allow_null'     => $allow_null,
-            'zerofill'       => $zerofill,
+    public function createDefinition(
+        string $name,
+        string $comment = null,
+        string $type = 'VARCHAR',
+        int $length = 20,
+        $unsigned = true,
+        $default = null,
+        $allow_null = true,
+        $auto_increment = false,
+        $values = null,
+        $decimals = false,
+        $zerofill = false,
+        $binary = false
+    ): array {
+        return [
+            'name' => $this->tablePrefix . $name,
+            'type' => $type,
+            'default' => $default,
+            'comment' => $comment,
+            'length' => $type === 'TEXT' ? null : $length,
+            'unsigned' => $unsigned,
+            'decimals' => $decimals,
+            'values' => $values,
+            'allow_null' => $allow_null,
+            'zerofill' => $zerofill,
             'auto_increment' => $auto_increment,
-            'binary'         => $binary,
+            'binary' => $binary,
         ];
-
-        return $column;
     }
 
     /**
      * @param        $name
-     * @param array  $columns
+     * @param array $columns
      * @param string $type
      *
      * @return array
      */
-    public function buildIndex( $name, array $columns, $type = 'key' ): array
+    public function buildIndex($name, array $columns, $type = 'key'): array
     {
         $index = [];
-        $index[ 'name' ] = $name;
+        $index['name'] = $name;
         $new = [];
-        foreach ( $columns as $column ) {
+        foreach ($columns as $column) {
             $new[] = $this->tablePrefix . $column;
         }
-        $index[ 'columns' ] = $new;
-        $index[ 'type' ] = $type;
+        $index['columns'] = $new;
+        $index['type'] = $type;
+
         return $index;
     }
 
     /**
      * @param array $schema
      */
-    protected function constructSchema( array $schema )
+    protected function constructSchema(array $schema): void
     {
-        if ( isset( $schema[ 'column' ] ) ) {
-            $this->schema[ 'columns' ][ $schema[ 'column' ][ 'name' ] ] = $schema[ 'column' ];
+        if (isset($schema['column'])) {
+            $this->schema['columns'][$schema['column']['name']] = $schema['column'];
         }
 
-        if ( isset( $schema[ 'index' ] ) ) {
-            $this->schema[ 'indexes' ][ $schema[ 'index' ][ 'name' ] ] = $schema[ 'index' ];
+        if (isset($schema['index'])) {
+            $this->schema['indexes'][$schema['index']['name']] = $schema['index'];
         }
     }
 
-    public function addBulk( array $types )
+    public function addBulk(array $types): void
     {
-        foreach ( $types as $type ) {
-            $this->add( $type );
+        foreach ($types as $type) {
+            $this->add($type);
         }
     }
 
@@ -201,26 +235,25 @@ class _Database
      *
      * @param string|array $definition
      */
-    public function add( $definition )
+    public function add($definition): void
     {
-        if ( is_array( $definition ) ) {
-            if ( isset( $definition[ 'column' ][ 'name' ] ) ) {
-                $name = $definition[ 'column' ][ 'name' ];
-                $definition[ 'column' ][ 'name' ] = $this->tablePrefix . $name;
-                if ( isset( $definition[ 'index' ][ 'columns' ] ) ) {
+        if (is_array($definition)) {
+            if (isset($definition['column']['name'])) {
+                $name = $definition['column']['name'];
+                $definition['column']['name'] = $this->tablePrefix . $name;
+                if (isset($definition['index']['columns'])) {
                     $new = [];
                     /* @var array $columns */
-                    $columns = $definition[ 'index' ][ 'columns' ];
-                    foreach ( $columns as $column ) {
+                    $columns = $definition['index']['columns'];
+                    foreach ($columns as $column) {
                         $new[] = $this->tablePrefix . $column;
                     }
-                    $definition[ 'index' ][ 'columns' ] = $new;
+                    $definition['index']['columns'] = $new;
                 }
-                $this->constructSchema( $definition );
+                $this->constructSchema($definition);
             }
-        }
-        else if ( $column = $this->definitions( $definition ) ) {
-            $this->constructSchema( $column );
+        } elseif ($column = $this->definitions($definition)) {
+            $this->constructSchema($column);
         }
     }
 
@@ -231,13 +264,14 @@ class _Database
      *
      * @return bool|array
      */
-    protected function definitions( $name )
+    protected function definitions($name)
     {
-        $name = $this->pascalCase( $name );
-        if ( method_exists( $this, $name ) ) {
+        $name = $this->pascalCase($name);
+        if (method_exists($this, $name)) {
             return $this->{$name}();
         }
-        return \false;
+
+        return false;
     }
 
     /**
@@ -248,21 +282,20 @@ class _Database
      *
      * @return mixed|null|string
      */
-    protected function pascalCase( $name )
+    protected function pascalCase($name)
     {
-        $words = explode( '_', $name );
-        if ( is_array( $words ) && count( $words ) === 1 ) {
-            if ( ReservedWords::check( $name ) ) {
-                $name = 'cj' . mb_ucfirst( mb_strtolower( $name ) );
+        $words = explode('_', $name);
+        if (is_array($words) && count($words) === 1) {
+            if (ReservedWords::check($name)) {
+                $name = 'cj' . mb_ucfirst(mb_strtolower($name));
+            }
+        } else {
+            $name = mb_strtolower(array_shift($words));
+            foreach ($words as $word) {
+                $name .= mb_ucfirst(mb_strtolower($word));
             }
         }
-        else {
-            $name = mb_strtolower( array_shift( $words ) );
-            foreach ( $words as $word ) {
-                $name .= mb_ucfirst( mb_strtolower( $word ) );
-            }
 
-        }
         return $name;
     }
 
@@ -271,13 +304,12 @@ class _Database
      */
     public function createTable()
     {
-        try {
-            Db::i()->createTable( $this->schema );
-            $this->continue = \true;
-        } catch ( Exception $e ) {
-            Debug::add( 'DevPlus Table', $e );
-            Debug::add( 'createTable() Schema', $this->schema );
-        }
+        //        try {
+        Db::i()->createTable($this->schema);
+        $this->continue = true;
+        //        } catch ( Exception $e ) {
+        //            Log::log( $e );
+        //        }
 
         return $this;
     }
@@ -287,20 +319,17 @@ class _Database
      *
      * @param string|array $definition
      */
-    public function createColumn( $definition )
+    public function createColumn($definition): void
     {
         try {
-            $column = $definition[ 'column' ];
-            $index = \null;
-            if ( isset( $definition[ 'index' ] ) ) {
-                $index = $definition[ 'index' ];
+            $column = $definition['column'];
+            $index = $definition['index'] ?? null;
+            Db::i()->addColumn($this->table, $column);
+            if ($index !== null) {
+                Db::i()->addIndex($this->table, $index);
             }
-            Db::i()->addColumn( $this->table, $column );
-            if ( $index !== \null ) {
-                Db::i()->addIndex( $this->table, $index );
-            }
-        } catch ( Db\Exception $e ) {
-            Debug::add( 'DevPlus Column', $e );
+        } catch (Db\Exception $e) {
+            Debug::log($e);
         }
     }
 
@@ -311,7 +340,7 @@ class _Database
      */
     protected function author(): array
     {
-        return $this->buildDefinition( 'author', 'Author ID', 'BIGINT', 20 );
+        return $this->buildDefinition('author', 'Author ID', 'BIGINT', 20);
     }
 
     /**
@@ -321,7 +350,7 @@ class _Database
      */
     protected function seoTitle(): array
     {
-        return $this->buildDefinition( 'seoTitle', 'SEO Column Title' );
+        return $this->buildDefinition('seoTitle', 'SEO Column Title', 'VARCHAR', 255);
     }
 
     /**
@@ -331,7 +360,7 @@ class _Database
      */
     protected function approvedBy(): array
     {
-        return $this->buildDefinition( 'approved_by', 'Who approved the record', 'BIGINT', 20 );
+        return $this->buildDefinition('approved_by', 'Who approved the record', 'BIGINT', 20);
     }
 
     /**
@@ -341,7 +370,7 @@ class _Database
      */
     protected function clubId(): array
     {
-        return $this->buildDefinition( 'club_id', 'Club ID', 'BIGINT', 20 );
+        return $this->buildDefinition('club_id', 'Club ID', 'BIGINT', 20);
     }
 
     /**
@@ -351,7 +380,7 @@ class _Database
      */
     protected function itemId(): array
     {
-        return $this->buildDefinition( 'item_id', 'Content Item ID', 'BIGINT', 20 );
+        return $this->buildDefinition('item_id', 'Content Item ID', 'BIGINT', 20);
     }
 
     /**
@@ -361,8 +390,9 @@ class _Database
      */
     protected function containerId(): array
     {
-        $def = $this->buildDefinition( 'container_id', 'Container ID', 'BIGINT', 20 );
-        $def[ 'index' ] = $this->buildIndex( 'Container Index', [ 'container' ] );
+        $def = $this->buildDefinition('container_id', 'Container ID', 'BIGINT', 20);
+        $def['index'] = $this->buildIndex('Container Index', ['container_id']);
+
         return $def;
     }
 
@@ -373,7 +403,7 @@ class _Database
      */
     protected function order(): array
     {
-        return $this->buildDefinition( 'order', 'Record\'s Position', 'BIGINT', 20 );
+        return $this->buildDefinition('order', 'Record\'s Position', 'BIGINT', 20);
     }
 
     /**
@@ -383,7 +413,7 @@ class _Database
      */
     protected function parent(): array
     {
-        return $this->buildDefinition( 'parent', 'The Parent Column', 'BIGINT', 20 );
+        return $this->buildDefinition('parent', 'The Parent Column', 'BIGINT', 20);
     }
 
     /**
@@ -393,7 +423,7 @@ class _Database
      */
     protected function title(): array
     {
-        return $this->buildDefinition( 'title', 'record Title' );
+        return $this->buildDefinition('title', 'record Title', 'VARCHAR', 255);
     }
 
     /**
@@ -403,8 +433,9 @@ class _Database
      */
     protected function startDate(): array
     {
-        $def = $this->buildDefinition( 'start_date', 'Creation Date', 'INT', 10 );
-        $def[ 'index' ] = $this->buildIndex( 'Start Date', [ 'start_date' ] );
+        $def = $this->buildDefinition('start_date', 'Creation Date', 'INT', 12);
+        $def['index'] = $this->buildIndex('Start Date', ['start_date']);
+
         return $def;
     }
 
@@ -415,7 +446,7 @@ class _Database
      */
     protected function approvedDate(): array
     {
-        return $this->buildDefinition( 'approved_date', 'Date Approved', 'INT', 10 );
+        return $this->buildDefinition('approved_date', 'Date Approved', 'INT', 12);
     }
 
     /**
@@ -425,7 +456,7 @@ class _Database
      */
     protected function views(): array
     {
-        return $this->buildDefinition( 'views', 'How many views the record has.', 'INT', 50 );
+        return $this->buildDefinition('views', 'How many views the record has.', 'INT', 50);
     }
 
     /**
@@ -435,7 +466,7 @@ class _Database
      */
     protected function updatedDate(): array
     {
-        return $this->buildDefinition( 'updated_date', 'the date the record was updated.', 'INT', 10 );
+        return $this->buildDefinition('updated_date', 'the date the record was updated.', 'INT', 12);
     }
 
     /**
@@ -445,7 +476,7 @@ class _Database
      */
     protected function lastComment(): array
     {
-        return $this->buildDefinition( 'last_review', 'last comment date', 'INT', 10 );
+        return $this->buildDefinition('last_comment', 'last comment date', 'INT', 12);
     }
 
     /**
@@ -455,7 +486,7 @@ class _Database
      */
     protected function lastReview(): array
     {
-        return $this->buildDefinition( 'last_comment', 'last review date', 'INT', 10 );
+        return $this->buildDefinition('last_review', 'last review date', 'INT', 12);
     }
 
     /**
@@ -465,7 +496,7 @@ class _Database
      */
     protected function numReviews(): array
     {
-        return $this->buildDefinition( 'num_reviews', 'Number of reviews', 'INT', 10, \true, 0 );
+        return $this->buildDefinition('num_reviews', 'Number of reviews', 'INT', 10, true, 0);
     }
 
     /**
@@ -475,7 +506,7 @@ class _Database
      */
     protected function numComments(): array
     {
-        return $this->buildDefinition( 'num_comments', 'Number of comments', 'INT', 10, \true, 0 );
+        return $this->buildDefinition('num_comments', 'Number of comments', 'INT', 10, true, 0);
     }
 
     /**
@@ -485,7 +516,7 @@ class _Database
      */
     protected function lastReviewBy(): array
     {
-        return $this->buildDefinition( 'last_review_by', 'member_id of last user to review', 'BIGINT', 20 );
+        return $this->buildDefinition('last_review_by', 'member_id of last user to review', 'BIGINT', 20);
     }
 
     /**
@@ -495,7 +526,7 @@ class _Database
      */
     protected function lastCommentBy(): array
     {
-        return $this->buildDefinition( 'last_comment_by', 'member_id of last user to comment', 'BIGINT', 20 );
+        return $this->buildDefinition('last_comment_by', 'member_id of last user to comment', 'BIGINT', 20);
     }
 
     /**
@@ -505,7 +536,7 @@ class _Database
      */
     protected function unapprovedReviews(): array
     {
-        return $this->buildDefinition( 'unapproved_reviews', 'Unapproved reviews.', 'INT', 10, \true, 0 );
+        return $this->buildDefinition('unapproved_reviews', 'Unapproved reviews.', 'INT', 10, true, 0);
     }
 
     /**
@@ -515,8 +546,9 @@ class _Database
      */
     protected function ipAddress(): array
     {
-        $def = $this->buildDefinition( 'ip_address', 'Members IP Address', 'VARCHAR', 46 );
-        $def[ 'index' ] = $this->buildIndex( 'IP Address', [ 'ip_address' ] );
+        $def = $this->buildDefinition('ip_address', 'Members IP Address', 'VARCHAR', 46);
+        $def['index'] = $this->buildIndex('IP Address', ['ip_address']);
+
         return $def;
     }
 
@@ -527,7 +559,7 @@ class _Database
      */
     protected function featured(): array
     {
-        return $this->buildDefinition( 'featured', 'is record featured?', 'TINYINT', 1, \true, 0 );
+        return $this->buildDefinition('featured', 'is record featured?', 'TINYINT', 1, true, 0);
     }
 
     /**
@@ -537,7 +569,7 @@ class _Database
      */
     protected function pinned(): array
     {
-        return $this->buildDefinition( 'pinned', 'is record pinned?', 'TINYINT', 1, \true, 0 );
+        return $this->buildDefinition('pinned', 'is record pinned?', 'TINYINT', 1, true, 0);
     }
 
     /**
@@ -547,7 +579,12 @@ class _Database
      */
     protected function locked(): array
     {
-        return $this->buildDefinition( 'locked', 'is record locked?', 'TINYINT', 1, \true, 0 );
+        return $this->buildDefinition('locked', 'is record locked?', 'TINYINT', 1, true, 0);
+    }
+
+    protected function enabled(): array
+    {
+        return $this->buildDefinition('enabled', 'is node enabled/disabled?', 'TINYINT', 1, true, 1);
     }
 
     /**
@@ -557,8 +594,9 @@ class _Database
      */
     protected function approved(): array
     {
-        $def = $this->buildDefinition( 'approved', 'is record approved?', 'TINYINT', 1, \true, 0 );
-        $def[ 'index' ] = $this->buildIndex( 'Approved Index', [ 'approved' ] );
+        $def = $this->buildDefinition('approved', 'is record approved?', 'TINYINT', 1, true, 0);
+        $def['index'] = $this->buildIndex('Approved Index', ['approved']);
+
         return $def;
     }
 
@@ -569,7 +607,7 @@ class _Database
      */
     protected function poll(): array
     {
-        return $this->buildDefinition( 'poll', 'poll state', 'VARCHAR', 8 );
+        return $this->buildDefinition('poll', 'poll state', 'VARCHAR', 8);
     }
 
     /**
@@ -579,8 +617,8 @@ class _Database
      */
     protected function ratingAverage(): array
     {
-        $def = $this->buildDefinition( 'rating_average', 'Rating average', 'SMALLINT', 6, \true, 0, \false, \false );
-        $def[ 'index' ] = $this->buildIndex( 'Rating Average', [ 'rating_average' ] );
+        $def = $this->buildDefinition('rating_average', 'Rating average', 'SMALLINT', 6, true, 0, false, false);
+        $def['index'] = $this->buildIndex('Rating Average', ['rating_average']);
 
         return $def;
     }
@@ -592,7 +630,7 @@ class _Database
      */
     protected function ratingTotal(): array
     {
-        return $this->buildDefinition( 'rating_total', 'Rating total', 'MEDIUMINT', 9, \true, 0, \false, \false );
+        return $this->buildDefinition('rating_total', 'Rating total', 'MEDIUMINT', 9, true, 0, false, false);
     }
 
     /**
@@ -602,7 +640,7 @@ class _Database
      */
     protected function ratingHits(): array
     {
-        return $this->buildDefinition( 'rating_total', 'Rating hits', 'MEDIUMINT', 9, \true, 0, \false, \false );
+        return $this->buildDefinition('rating_hits', 'Rating hits', 'MEDIUMINT', 9, true, 0, false, false);
     }
 
     /**
@@ -612,7 +650,7 @@ class _Database
      */
     protected function authorName(): array
     {
-        return $this->buildDefinition( 'author_name', 'Author\'s name' );
+        return $this->buildDefinition('author_name', 'Author\'s name', 'VARCHAR', 255);
     }
 
     /**
@@ -622,7 +660,7 @@ class _Database
      */
     protected function content(): array
     {
-        return $this->buildDefinition( 'last_comment_name', 'Content field' );
+        return $this->buildDefinition('content', 'Content field', 'TEXT');
     }
 
     /**
@@ -632,7 +670,7 @@ class _Database
      */
     protected function lastCommentName(): array
     {
-        return $this->buildDefinition( 'last_comment_name', 'last comment by name' );
+        return $this->buildDefinition('last_comment_name', 'last comment by name', 'VARCHAR', 255);
     }
 
     /**
@@ -642,7 +680,7 @@ class _Database
      */
     protected function lastReviewName(): array
     {
-        return $this->buildDefinition( 'last_review_name', 'last review by name' );
+        return $this->buildDefinition('last_review_name', 'last review by name', 'VARCHAR', 255);
     }
 
     /**
@@ -652,36 +690,36 @@ class _Database
      */
     protected function authorResponse(): array
     {
-        return $this->buildDefinition( 'author_response', 'Author\'s response.', 'MEDIUMTEXT' );
+        return $this->buildDefinition('author_response', 'Author\'s response.', 'MEDIUMTEXT');
     }
 
     protected function editTime(): array
     {
-        return $this->buildDefinition( 'edit_time', 'the date the record was edited.', 'INT', 10 );
+        return $this->buildDefinition('edit_time', 'the date the record was edited.', 'INT', 12);
     }
 
     protected function editShow(): array
     {
-        return $this->buildDefinition( 'edit_show', 'show if the record has been edited.', 'TINYINT', 10, \true, 0 );
+        return $this->buildDefinition('edit_show', 'show if the record has been edited.', 'TINYINT', 1, true, 0);
     }
 
     protected function editMemberName(): array
     {
-        return $this->buildDefinition( 'edit_member_name', 'Edited by name', 'VARCHAR', 255 );
+        return $this->buildDefinition('edit_member_name', 'Edited by name', 'VARCHAR', 255);
     }
 
     protected function editReason(): array
     {
-        return $this->buildDefinition( 'edit_reason', 'Reason for edit.', 'VARCHAR', 255 );
+        return $this->buildDefinition('edit_reason', 'Reason for edit.', 'VARCHAR', 255);
     }
 
     protected function editMemberId(): array
     {
-        return $this->buildDefinition( 'edit_member_id', 'Edited by member id.', 'BIGINT', 20 );
+        return $this->buildDefinition('edit_member_id', 'Edited by member id.', 'BIGINT', 20);
     }
 
     protected function bitwise(): array
     {
-        return $this->buildDefinition( 'bitwise', 'bitwise field.', 'BIGINT', 20 );
+        return $this->buildDefinition('bitwise', 'bitwise field.', 'BIGINT', 20);
     }
 }

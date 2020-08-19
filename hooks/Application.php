@@ -1,29 +1,36 @@
-//<?php
+//<?php namespace toolbox_IPS_Application_a9c79968882bc47948bd3964ea259cdf0;
 
-
+use IPS\Settings;
 use IPS\toolbox\DevCenter\Headerdoc;
 use IPS\toolbox\DevFolder\Applications;
+use Exception;
+use IPS\toolbox\Proxy\Generator\Proxy;
+use IPS\toolbox\Proxy\Proxyclass;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
+
 /**
  * Class toolbox_hook_Application
- *
  * @mixin \IPS\Application
  */
 class toolbox_hook_Application extends _HOOK_CLASS_
 {
+    public $skip = false;
+
+
     /**
      * @inheritdoc
      */
-    public function assignNewVersion( $long, $human )
+    public function assignNewVersion($long, $human)
     {
-        parent::assignNewVersion( $long, $human );
-        if ( static::appIsEnabled( 'toolbox' ) ) {
+        parent::assignNewVersion($long, $human);
+        if (static::appIsEnabled('toolbox')) {
             $this->version = $human;
-            Headerdoc::i()->process( $this );
+            Headerdoc::i()->process($this);
         }
     }
 
@@ -32,8 +39,8 @@ class toolbox_hook_Application extends _HOOK_CLASS_
      */
     public function build()
     {
-        if ( static::appIsEnabled( 'toolbox' ) ) {
-            Headerdoc::i()->addIndexHtml( $this );
+        if (static::appIsEnabled('toolbox')) {
+            Headerdoc::i()->addIndexHtml($this);
         }
         parent::build();
     }
@@ -43,17 +50,17 @@ class toolbox_hook_Application extends _HOOK_CLASS_
      */
     public function installOther()
     {
-        if ( \IPS\IN_DEV ) {
+        if (\IPS\IN_DEV) {
             $dir = \IPS\ROOT_PATH . '/applications/' . $this->directory . '/dev/';
-            if ( !\file_exists( $dir ) ) {
+            if (!\file_exists($dir)) {
                 try {
-                    $app = new Applications( $this );
+                    $app = new Applications($this);
                     $app->addToStack = \true;
                     $app->email();
                     $app->javascript();
                     $app->language();
                     $app->templates();
-                } catch ( Exception $e ) {
+                } catch (Exception $e) {
                 }
             }
         }
@@ -61,5 +68,19 @@ class toolbox_hook_Application extends _HOOK_CLASS_
         parent::installOther();
     }
 
+    public function buildHooks()
+    {
 
+        parent::buildHooks();
+        Proxyclass::i()->buildHooks();
+    }
+
+    public static function writeJson($file, $data)
+    {
+        parent::writeJson($file, $data);
+        if (mb_strpos($file,'settings.json') !== false) {
+            Settings::i()->clearCache();
+            Proxy::i()->generateSettings();
+        }
+    }
 }

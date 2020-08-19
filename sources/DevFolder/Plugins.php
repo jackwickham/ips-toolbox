@@ -124,6 +124,7 @@ EOF;
             if ( $xml->name === 'html' ) {
                 $filename = $xml->getAttribute( 'filename' );
                 $content = base64_decode( $xml->readString() );
+                $content = \IPS\toolbox\Application::templateSlasher( $content );
                 $this->_writeFile( $filename, $content, $html );
             }
 

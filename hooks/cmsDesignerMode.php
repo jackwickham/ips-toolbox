@@ -12,7 +12,7 @@ class toolbox_hook_cmsDesignerMode extends _HOOK_CLASS_
 {
     public function toBuild()
     {
-        if (defined('DT_THEME') && defined('DT_THEME_ID') && DT_THEME === true && DT_THEME_ID !== 0) {
+        if (defined('DT_THEME') && defined('DT_THEME_ID') && DT_THEME === true && DT_THEME_ID !== 0 && defined('DT_THEME_CMS_USE_DESIGNER_FILES') && DT_THEME_CMS_USE_DESIGNER_FILES === true) {
             $path = ROOT_PATH . '/themes/cms/';
             if (file_exists($path)) {
                 return false;

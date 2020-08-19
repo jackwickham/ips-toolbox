@@ -266,9 +266,7 @@ class _Proxy extends GeneratorAbstract
                         } catch (Exception $e) {
                             Debug::log($e, 'ProxyClass');
                             Debug::log($originalFilePath, 'ProxyClassFile');
-
-                        }
-                        catch (ParseError $e){
+                        } catch (ParseError $e) {
                             Debug::log($e, 'ParseError');
                             Debug::log($originalFilePath, 'ParseErrorFile');
                         }
@@ -583,6 +581,8 @@ eof;
                 if (is_bool($val)) {
                     $vals = (int)$vals;
                     $val = $vals === 1 ? 'true' : 'false';
+                } elseif (is_array($val)) {
+                    $val = var_export($val, true);
                 } elseif (!is_numeric($val)) {
                     $val = "'" . $val . "'";
                 }

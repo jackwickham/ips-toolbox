@@ -73,6 +73,15 @@ class _toolbox
                 'type' => 'int',
                 'tab' => 'DevTools',
 
+            ],
+            'DT_THEME_CMS_USE_DESIGNER_FILES' => [
+                'name' => 'DT_THEME_CMS_USE_DESIGNER_FILES',
+                'default' => 0,
+                'current' => defined('\DT_THEME_CMS_USE_DESIGNER_FILES') ? \DT_THEME_CMS_USE_DESIGNER_FILES : false,
+                'description' => 'use the designer mode templates.',
+                'type' => 'boolean',
+                'tab' => 'DevTools',
+
             ]
         ];
     }

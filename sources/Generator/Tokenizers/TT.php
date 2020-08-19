@@ -1,6 +1,34 @@
 <?php
 
+/**
+ * @brief       TT Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Tokenizers;
+
+use function count;
+use function file_get_contents;
+use function is_array;
+use function realpath;
+use function token_get_all;
+use const T_ABSTRACT;
+use const T_CLASS;
+use const T_DOC_COMMENT;
+use const T_EXTENDS;
+use const T_FUNCTION;
+use const T_IMPLEMENTS;
+use const T_PRIVATE;
+use const T_PROTECTED;
+use const T_PUBLIC;
+use const T_STATIC;
+use const T_STRING;
 
 class TT
 {

@@ -136,11 +136,11 @@ class _applications extends Controller
             $type = $values[ 'type' ];
 
             if ( $type === 'all' ) {
-                Output::i()->redirect( $this->url->setQueryString( [ 'do' => 'queue', 'appKey' => $app ] ) );
+                Output::i()->redirect( $this->url->setQueryString( [ 'do' => 'queue', 'appKey' => $app ] )->csrf() );
             }
             else {
                 $return = ( new Applications( $app ) )->{$type}();
-                Output::i()->redirect( $this->url, $return );
+                Output::i()->redirect( $this->url->csrf(), $return );
             }
         }
 
@@ -155,7 +155,7 @@ class _applications extends Controller
 
         $app = Request::i()->appKey;
 
-        Output::i()->output = new MultipleRedirect( Url::internal( 'app=toolbox&module=devfolder&controller=applications&do=queue&appKey=' . $app ), static function ( $data )
+        Output::i()->output = new MultipleRedirect( Url::internal( 'app=toolbox&module=devfolder&controller=applications&do=queue&appKey=' . $app )->csrf(), static function ( $data )
         {
 
             $app = Request::i()->appKey;
@@ -214,7 +214,7 @@ class _applications extends Controller
             $msg = Member::loggedIn()->language()->addToStack( 'dtdevfolder_completed', false, [ 'sprintf' => [ $app ] ] );
             $url = Url::internal( 'app=toolbox&module=devfolder&controller=applications' );
             /* And redirect back to the overview screen */
-            Output::i()->redirect( $url, $msg );
+            Output::i()->redirect( $url->csrf(), $msg );
         } );
     }
 }

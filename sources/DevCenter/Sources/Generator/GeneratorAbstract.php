@@ -13,11 +13,11 @@
 namespace IPS\toolbox\DevCenter\Sources\Generator;
 
 use Exception;
-use IPS\Application;
-use IPS\Log;
 use Generator\Builders\ClassGenerator;
 use Generator\Builders\InterfaceGenerator;
 use Generator\Builders\TraitGenerator;
+use IPS\Application;
+use IPS\Log;
 use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Shared\LanguageBuilder;
 use IPS\toolbox\Shared\Magic;
@@ -42,8 +42,13 @@ use function mb_ucfirst;
 use function str_replace;
 use function trim;
 
+use function array_merge;
+use const T_PROTECTED;
+use const T_PUBLIC;
+
+
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
-    header(($_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0') . ' 403 Forbidden');
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -60,9 +65,9 @@ if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
  * @property string $_classname
  * @property string $namespace
  * @property string $extends
- * @property array  $implements
- * @property array  $traits
- * @property bool   $abstract
+ * @property array $implements
+ * @property array $traits
+ * @property bool $abstract
  * @property string $scaffolding_type
  * @property string $brief
  * @property string $content_item_class
@@ -238,7 +243,7 @@ abstract class _GeneratorAbstract
             $body = $this->extends ? 'parent::__construct();' : '';
             $config = [
                 'visibility' => T_PUBLIC,
-                'document'   => [
+                'document' => [
                     $this->_classname . ' constructor',
                 ],
             ];
@@ -349,12 +354,12 @@ abstract class _GeneratorAbstract
         ];
 
         $this->generator->addProperty(
-            'multiton',
+            'multitons',
             [],
             [
                 'visibility' => T_PROTECTED,
-                'document'   => $document,
-                'static'     => true,
+                'document' => $document,
+                'static' => true,
             ]
         );
 
@@ -371,8 +376,8 @@ abstract class _GeneratorAbstract
                 $this->prefix,
                 [
                     'visibility' => T_PUBLIC,
-                    'document'   => $document,
-                    'static'     => true,
+                    'document' => $document,
+                    'static' => true,
                 ]
             );
         }
@@ -388,8 +393,8 @@ abstract class _GeneratorAbstract
             $this->database,
             [
                 'visibility' => T_PUBLIC,
-                'document'   => $document,
-                'static'     => true,
+                'document' => $document,
+                'static' => true,
             ]
         );
 
@@ -412,9 +417,9 @@ EOF;
             $value,
             [
                 'visibility' => T_PUBLIC,
-                'document'   => $document,
-                'static'     => true,
-                'type'       => 'array',
+                'document' => $document,
+                'static' => true,
+                'type' => 'array',
             ]
         );
     }
@@ -455,7 +460,7 @@ EOF;
         if (file_exists($relationFile . '/arRelations.json')) {
             $relations = json_decode(file_get_contents($relationFile . '/arRelations.json'), true);
         }
-        $relations[ $database ] = str_replace(\IPS\ROOT_PATH . '/', '', $dir) . '/' . $file;
+        $relations[$database] = str_replace(\IPS\ROOT_PATH . '/', '', $dir) . '/' . $file;
         $this->_writeFile('arRelations.json', json_encode($relations), $relationFile, false);
     }
 
@@ -474,8 +479,8 @@ EOF;
             'seoTitle',
             [
                 'visibility' => T_PUBLIC,
-                'document'   => $doc,
-                'static'     => true,
+                'document' => $doc,
+                'static' => true,
             ]
         );
     }
@@ -494,7 +499,7 @@ EOF;
             null,
             [
                 'visibility' => T_PROTECTED,
-                'document'   => $doc,
+                'document' => $doc,
             ]
         );
     }
@@ -518,8 +523,8 @@ EOF;
             $value,
             [
                 'visibility' => T_PUBLIC,
-                'document'   => $doc,
-                'static'     => true,
+                'document' => $doc,
+                'static' => true,
             ]
         );
     }
@@ -541,8 +546,8 @@ EOF;
             $base . '&id=',
             [
                 'visibility' => T_PUBLIC,
-                'static'     => true,
-                'document'   => $doc,
+                'static' => true,
+                'document' => $doc,
             ]
         );
     }

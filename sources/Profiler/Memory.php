@@ -24,6 +24,9 @@ use function memory_get_usage;
 use function round;
 use function time;
 
+use function end;
+
+
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;

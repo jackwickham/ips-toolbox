@@ -1,6 +1,20 @@
 <?php
 
+/**
+ * @brief       Toolbox Phptoolboxmeta extension: Generators
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace IPS\toolbox\extensions\toolbox\phpToolBoxMeta;
+
+use function defined;
+use function header;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {

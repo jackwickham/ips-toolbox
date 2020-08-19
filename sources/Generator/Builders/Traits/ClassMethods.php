@@ -1,6 +1,31 @@
 <?php
 
+/**
+ * @brief       ClassMethods Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Builders\Traits;
+
+use function array_key_exists;
+use function array_pop;
+use function explode;
+use function implode;
+use function is_array;
+use function is_string;
+use function mb_strpos;
+use function mb_strtolower;
+use function method_exists;
+use function trim;
+use const T_PRIVATE;
+use const T_PROTECTED;
+use const T_PUBLIC;
 
 trait ClassMethods
 {

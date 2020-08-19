@@ -20,10 +20,11 @@ class _{class}
      *
      * @param array $classDoc
      */
-    public function store( ClassGenerator $classGenerator )
+    public function store(&$classDoc)
     {
-        //any add/remove method from ClassGenerator can be used here, however will add to the Data\Store proxy class, use map() if you want to target a particular class.
-        //$classGenerator->addPropertyTag( 'propName', [ 'hint' => int|string|array|Class, 'comment' => 'comment', 'type' => read|write|both);
+        //add an element to the $classDoc array
+        //$classDoc[] = ['pt' => 'p', 'prop' => 'dtdevfolder_app', 'type' => 'string'];
+        // 'pt' (property type, p/w/r), 'prop' (property name), 'type' (what is the typecast of this property, can be string, int, etc or a object)
     }
 
     /**
@@ -31,10 +32,11 @@ class _{class}
      *
      * @param array $classDoc
      */
-    public function request( ClassGenerator $classGenerator )
+    public function request(&$classDoc)
     {
-        //any add/remove method from ClassGenerator can be used here, however will add to the Data\Store proxy class, use map() if you want to target a particular class.
-        //$classGenerator->addPropertyTag( 'propName', [ 'hint' => int|string|array|Class, 'comment' => 'comment', 'type' => read|write|both);
+         //add an element to the $classDoc array
+         //$classDoc[] = ['pt' => 'p', 'prop' => 'dtdevfolder_app', 'type' => 'string'];
+         // 'pt' (property type, p/w/r), 'prop' (property name), 'type' (what is the typecast of this property, can be string, int, etc or a object)
     }
 
     /**

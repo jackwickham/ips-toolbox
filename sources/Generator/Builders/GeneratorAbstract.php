@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @brief       GeneratorAbstract Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Builders;
 
 use InvalidArgumentException;
@@ -8,6 +19,17 @@ use RuntimeException;
 use function count;
 use function file_put_contents;
 use function is_array;
+
+use function hash;
+use function implode;
+use function is_dir;
+use function md5;
+use function mkdir;
+use function pathinfo;
+use function sprintf;
+use function str_replace;
+use function trim;
+
 
 /**
  * Class _GeneratorAbstract

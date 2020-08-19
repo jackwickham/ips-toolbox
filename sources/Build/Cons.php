@@ -99,7 +99,7 @@ class _Cons extends Singleton
 
         if ($values = $form->values()) {
             $this->save($values, $constants);
-            Output::i()->redirect(Request::i()->url(), 'Constants.php Updated!');
+            Output::i()->redirect(Request::i()->url()->csrf(), 'Constants.php Updated!');
         }
 
         return $form;

@@ -18,16 +18,25 @@ use IPS\Helpers\Form;
 use IPS\Node\Model;
 use IPS\Node\Permissions;
 use IPS\Node\Ratings;
+
 use function defined;
+use function file_get_contents;
+use function file_put_contents;
 use function header;
 use function in_array;
 use function is_array;
-use function file_put_contents;
-use function file_get_contents;
+
 use const IPS\ROOT_PATH;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+use function file_exists;
+use function json_decode;
+use function json_encode;
+use const JSON_PRETTY_PRINT;
+use const T_PUBLIC;
+
+
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -39,7 +48,6 @@ class _Node extends GeneratorAbstract
      */
     protected function bodyGenerator()
     {
-
         $this->brief = 'Node';
         $this->extends = Model::class;
 
@@ -61,17 +69,17 @@ class _Node extends GeneratorAbstract
         $this->urlTemplate();
         $this->_url();
 
-        if ( $this->content_item_class !== \null ) {
+        if ($this->content_item_class !== \null) {
             $this->nodeItemClass();
         }
 
-        if ( is_array( $this->implements ) ) {
+        if (is_array($this->implements)) {
             $this->permissions();
-            $this->ratings( $dbColumns );
+            $this->ratings($dbColumns);
         }
 
-        if ( is_array( $this->traits ) ) {
-            $this->clubs( $dbColumns );
+        if (is_array($this->traits)) {
+            $this->clubs($dbColumns);
         }
 
         $doc = [
@@ -81,10 +89,10 @@ class _Node extends GeneratorAbstract
         ];
 
         $params = [
-            [ 'name' => 'form', 'reference' => true ],
+            ['name' => 'form', 'reference' => true],
         ];
 
-        $this->generator->addMethod( 'form', '', $params, [ 'document' => $doc ] );
+        $this->generator->addMethod('form', '', $params, ['document' => $doc]);
 
         //formatValues
         $doc = [
@@ -94,113 +102,130 @@ class _Node extends GeneratorAbstract
         ];
 
         $params = [
-            [ 'name' => 'values' ],
+            ['name' => 'values'],
         ];
 
-        $this->generator->addMethod( 'formatFormValues', 'return $values;', $params, [ 'document' => $doc ] );
+        $this->generator->addMethod('formatFormValues', 'return $values;', $params, ['document' => $doc]);
 
-        $this->db->addBulk( $dbColumns );
-        $this->_addToLangs( $this->app . '_' . $this->classname_lower . '_node', $this->classname, $this->application );
+        $this->db->addBulk($dbColumns);
+        $this->_addToLangs($this->app . '_' . $this->classname_lower . '_node', $this->classname, $this->application);
     }
 
     protected function databaseColumnParent()
     {
-
         $doc = [
             '@brief [Node] Parent ID Database Column',
             '@var string',
         ];
 
-        $this->generator->addProperty( 'databaseColumnParent', 'parent', [
-            'visibility' => T_PUBLIC,
-            'static'     => true,
-            'document'   => $doc,
-        ] );
+        $this->generator->addProperty(
+            'databaseColumnParent',
+            'parent',
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function databaseColumnParentRootValue()
     {
-
         $doc = [
             '@brief [Node] Parent ID Root Value',
             '@note This normally doesn\'t need changing, though some legacy areas use -1 indicate a root node',
             '@var int',
         ];
 
-        $this->generator->addProperty( 'databaseColumnParentRootValue', 0, [
-            'visibility' => T_PUBLIC,
-            'static'     => true,
-            'document'   => $doc,
-        ] );
+        $this->generator->addProperty(
+            'databaseColumnParentRootValue',
+            0,
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function databaseColumnOrder()
     {
-
         $doc = [
             '@brief [Node] Order Database Column',
             '@var string',
         ];
 
-        $this->generator->addProperty( 'databaseColumnOrder', 'order', [
-            'visibility' => T_PUBLIC,
-            'static'     => true,
-            'document'   => $doc,
-        ] );
+        $this->generator->addProperty(
+            'databaseColumnOrder',
+            'order',
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function databaseColumnEnabledDisabled()
     {
-
         $doc = [
             '@brief [Node] Enabled/Disabled Column',
             '@var string',
         ];
 
-        $this->generator->addProperty( 'databaseColumnEnabledDisabled', 'enabled', [
-            'visibility' => T_PUBLIC,
-            'static'     => true,
-            'document'   => $doc,
-        ] );
+        $this->generator->addProperty(
+            'databaseColumnEnabledDisabled',
+            'enabled',
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function nodeTitle()
     {
-
         $doc = [
             '@brief [Node] Node Title',
             '@var string',
         ];
 
-        $this->generator->addProperty( 'nodeTitle', $this->app . '_' . $this->classname_lower . '_node', [
-            'visibility' => T_PUBLIC,
-            'static'     => true,
-            'document'   => $doc,
-        ] );
+        $this->generator->addProperty(
+            'nodeTitle',
+            $this->app . '_' . $this->classname_lower . '_node',
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function nodeSortable()
     {
-
         $doc = [
             '@brief [Node] Sortable?',
             '@var bool',
         ];
 
-        $this->generator->addProperty( 'nodeSortable', false, [
-            'visibility' => T_PUBLIC,
-            'static'     => true,
-            'document'   => $doc,
-        ] );
+        $this->generator->addProperty(
+            'nodeSortable',
+            false,
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function nodeItemClass()
     {
-
         //nodeItemClass
-        $this->content_item_class = mb_ucfirst( $this->content_item_class );
+        $this->content_item_class = mb_ucfirst($this->content_item_class);
         $contentItemClass = '\\IPS\\' . $this->app . '\\' . $this->content_item_class . '::class';
-        $this->generator->addUse( $contentItemClass );
+        $this->generator->addImport($contentItemClass);
         $contentItemClass = $this->content_item_class . '::class';
 
         $doc = [
@@ -208,11 +233,15 @@ class _Node extends GeneratorAbstract
             '@var ' . $contentItemClass,
         ];
 
-        $this->generator->addProperty( 'contentItemClass', $contentItemClass, [
-            'visibility' => T_PUBLIC,
-            'static'     => true,
-            'document'   => $doc,
-        ] );
+        $this->generator->addProperty(
+            'contentItemClass',
+            $contentItemClass,
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
 
         //moderator permissions
         $doc = [
@@ -220,30 +249,36 @@ class _Node extends GeneratorAbstract
             '@var string',
         ];
 
-        $this->generator->addProperty( 'modPerm', $this->app . '_' . $this->classname_lower, [
-            'visibility' => T_PUBLIC,
-            'static'     => true,
-            'document'   => $doc,
-        ] );
+        $this->generator->addProperty(
+            'modPerm',
+            $this->app . '_' . $this->classname_lower,
+            [
+                'visibility' => T_PUBLIC,
+                'static' => true,
+                'document' => $doc,
+            ]
+        );
     }
 
     protected function permissions()
     {
-
         try {
-            if ( in_array( Permissions::class, $this->implements, \true ) ) {
-
+            if (in_array(Permissions::class, $this->implements, \true)) {
                 //index
                 $doc = [
                     '@brief [Node] App for permission index',
                     '@var string',
                 ];
 
-                $this->generator->addProperty( 'permApp', $this->app, [
-                    'visibility' => T_PUBLIC,
-                    'static'     => true,
-                    'document'   => $doc,
-                ] );
+                $this->generator->addProperty(
+                    'permApp',
+                    $this->app,
+                    [
+                        'visibility' => T_PUBLIC,
+                        'static' => true,
+                        'document' => $doc,
+                    ]
+                );
 
                 //type
                 $doc = [
@@ -251,19 +286,23 @@ class _Node extends GeneratorAbstract
                     '@var string',
                 ];
 
-                $this->generator->addProperty( 'permApp', $this->classname_lower, [
-                    'visibility' => T_PUBLIC,
-                    'static'     => true,
-                    'document'   => $doc,
-                ] );
+                $this->generator->addProperty(
+                    'permApp',
+                    $this->classname_lower,
+                    [
+                        'visibility' => T_PUBLIC,
+                        'static' => true,
+                        'document' => $doc,
+                    ]
+                );
 
                 //perms map
                 $map = [
-                    'view'   => 'view',
-                    'read'   => 2,
-                    'add'    => 3,
+                    'view' => 'view',
+                    'read' => 2,
+                    'add' => 3,
                     'delete' => 4,
-                    'reply'  => 5,
+                    'reply' => 5,
                     'review' => 6,
                 ];
 
@@ -272,11 +311,15 @@ class _Node extends GeneratorAbstract
                     '@var array',
                 ];
 
-                $this->generator->addProperty( 'permissionMap', $map, [
-                    'visibility' => T_PUBLIC,
-                    'static'     => true,
-                    'document'   => $doc,
-                ] );
+                $this->generator->addProperty(
+                    'permissionMap',
+                    $map,
+                    [
+                        'visibility' => T_PUBLIC,
+                        'static' => true,
+                        'document' => $doc,
+                    ]
+                );
 
                 //lang prefix
                 $doc = [
@@ -284,27 +327,30 @@ class _Node extends GeneratorAbstract
                     '@var string',
                 ];
 
-                $this->generator->addProperty( 'permissionLangPrefix', $this->app . '_' . $this->classname_lower . '_', [
-                    'visibility' => T_PUBLIC,
-                    'static'     => true,
-                    'document'   => $doc,
-                ] );
+                $this->generator->addProperty(
+                    'permissionLangPrefix',
+                    $this->app . '_' . $this->classname_lower . '_',
+                    [
+                        'visibility' => T_PUBLIC,
+                        'static' => true,
+                        'document' => $doc,
+                    ]
+                );
             }
-        } catch ( Exception $e ) {
+        } catch (Exception $e) {
         }
     }
 
-    protected function ratings( &$dbColumns )
+    protected function ratings(&$dbColumns)
     {
-
-        if ( in_array( Ratings::class, $this->implements, \true ) ) {
+        if (in_array(Ratings::class, $this->implements, \true)) {
             $map = [
                 'rating_average' => 'rating_average',
-                'rating_total'   => 'rating_total',
-                'rating_hits'    => 'rating_hits',
+                'rating_total' => 'rating_total',
+                'rating_hits' => 'rating_hits',
             ];
 
-            foreach ( $map as $m ) {
+            foreach ($map as $m) {
                 $dbColumns[] = $m;
             }
 
@@ -313,52 +359,56 @@ class _Node extends GeneratorAbstract
                 '@var array',
             ];
 
-            $this->generator->addProperty( 'ratingColumnMap', $map, [
-                'visibility' => T_PUBLIC,
-                'static'     => true,
-                'document'   => $doc,
-            ] );
+            $this->generator->addProperty(
+                'ratingColumnMap',
+                $map,
+                [
+                    'visibility' => T_PUBLIC,
+                    'static' => true,
+                    'document' => $doc,
+                ]
+            );
         }
     }
 
-    protected function clubs( &$dbColumns )
+    protected function clubs(&$dbColumns)
     {
-
-        if ( in_array( ClubContainer::class, $this->traits, \false ) ) {
-
+        if (in_array(ClubContainer::class, $this->traits, \false)) {
             $doc = [
                 'Get the database column which stores the club ID',
                 '@return string',
             ];
 
-            $this->generator->addMethod( 'clubIdColumn', 'return \'club_id\';', [], [
-                'static'     => true,
-                'visibility' => T_PUBLIC,
-                'document'   => $doc,
-            ] );
+            $this->generator->addMethod(
+                'clubIdColumn',
+                'return \'club_id\';',
+                [],
+                [
+                    'static' => true,
+                    'visibility' => T_PUBLIC,
+                    'document' => $doc,
+                ]
+            );
         }
-
     }
 
-    protected function addFurl( $value, $url )
+    protected function addFurl($value, $url)
     {
-
         $furlFile = ROOT_PATH . '/applications/' . $this->application->directory . '/data/furl.json';
-        if ( file_exists( $furlFile ) ) {
-            $furls = json_decode( file_get_contents( $furlFile ), true );
-        }
-        else {
+        if (file_exists($furlFile)) {
+            $furls = json_decode(file_get_contents($furlFile), true);
+        } else {
             $furls = [
                 'topLevel' => $this->app,
-                'pages'    => [],
+                'pages' => [],
             ];
         }
 
-        $furls[ 'pages' ][ $value ] = [
+        $furls['pages'][$value] = [
             'friendly' => $this->classname_lower . '/{#project}-{?}',
-            'real'     => $url,
+            'real' => $url,
         ];
 
-        file_put_contents( $furlFile, json_encode( $furls, JSON_PRETTY_PRINT ) );
+        file_put_contents($furlFile, json_encode($furls, JSON_PRETTY_PRINT));
     }
 }

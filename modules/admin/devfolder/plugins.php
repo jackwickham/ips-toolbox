@@ -92,7 +92,7 @@ class _plugins extends Controller
                 Output::i()->redirect( $this->url->setQueryString( [
                     'do'    => 'doDev',
                     'storm' => $tempFileStir,
-                ] ) );
+                ] )->csrf() );
             } catch ( UnderflowException $e ) {
                 $tempFile = tempnam( \IPS\TEMP_DIRECTORY, 'IPS' );
                 move_uploaded_file( $values[ 'upload' ], $tempFile );
@@ -108,7 +108,7 @@ class _plugins extends Controller
                     $url = $url->setQueryString( 'id', Request::i()->id );
                 }
 
-                Output::i()->redirect( $url );
+                Output::i()->redirect( $url->csrf() );
             }
         }
 

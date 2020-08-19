@@ -14,7 +14,17 @@ namespace IPS\toolbox;
 use IPS\Application;
 use IPS\Output;
 use IPS\Theme;
+
 use const IPS\ROOT_PATH;
+
+use function array_merge;
+use function is_array;
+use function ob_end_clean;
+use function ob_get_clean;
+use function ob_start;
+use function preg_replace_callback;
+use function str_replace;
+
 
 /**
  * Dev Toolbox: Base Application Class
@@ -38,17 +48,15 @@ class _Application extends Application
 
     public static function loadAutoLoader(): void
     {
-
-        if ( static::$loaded === \false ) {
+        if (static::$loaded === \false) {
             static::$loaded = \true;
             require static::$baseDir . '/autoload.php';
-            \IPS\IPS::$PSR0Namespaces[ 'Generator' ] = ROOT_PATH . '/applications/toolbox/sources/Generator/';
+            \IPS\IPS::$PSR0Namespaces['Generator'] = ROOT_PATH . '/applications/toolbox/sources/Generator/';
         }
     }
 
-    public static function templateSlasher( $source )
+    public static function templateSlasher($source)
     {
-
         $replace = [
             'array_slice',
             'boolval',
@@ -89,53 +97,33 @@ class _Application extends Application
             'call_user_func_array',
         ];
 
-        foreach ( $replace as $value ) {
+        foreach ($replace as $value) {
             $rep = '\\' . $value;
-            $callback = function ( $m ) use ( $rep )
-            {
-
+            $callback = function ($m) use ($rep) {
                 return $rep;
             };
-            $source = preg_replace_callback( "#(?<!\\\\)\b" . $value . '\b#u', $callback, $source );
-            $source = str_replace( [ 'function \\', 'const \\', "::\\", "$\\", "->\\" ], [
-                'function ',
-                'const ',
-                '::',
-                '$',
-                '->',
-            ], $source );
-
+            $source = preg_replace_callback("#(?<!\\\\)\b" . $value . '\b#u', $callback, $source);
+            $source = str_replace(
+                ['function \\', 'const \\', "::\\", "$\\", "->\\"],
+                [
+                    'function ',
+                    'const ',
+                    '::',
+                    '$',
+                    '->',
+                ],
+                $source
+            );
         }
 
         return $source;
-    }
-    public static function addCss($css, $location = 'front', $app = 'toolbox'): void
-    {
-        if (!is_array($css)) {
-            $css = [$css];
-        }
-
-        $cssFiles[] = Output::i()->cssFiles;
-        foreach ($css as $file) {
-            $file .= '.css';
-            $cssFiles[] = Theme::i()->css($file, $app, $location);
-        }
-        Output::i()->cssFiles = array_merge(...$cssFiles);
     }
 
     public static function addJsVar(array $jsVars): void
     {
         foreach ($jsVars as $key => $jsVar) {
-            Output::i()->jsVars[ $key ] = $jsVar;
+            Output::i()->jsVars[$key] = $jsVar;
         }
-    }
-    /**
-     * @inheritdoc
-     */
-    protected function get__icon()
-    {
-
-        return 'wrench';
     }
 
     public static function addJs($js, $location = 'front', $app = 'toolbox'): void
@@ -151,33 +139,63 @@ class _Application extends Application
         Output::i()->jsFiles = array_merge(...$jsFiles);
     }
 
-    public static function getAdminer(){
+    public static function getAdminer()
+    {
         \IPS\toolbox\Application::addCss(['adminer']);
         $_GET["username"] = "michael";
 
         $content = '<div id="toolboxAdminer">';
         ob_start();
-        include(\IPS\ROOT_PATH.'/applications/toolbox/sources/Profiler/Adminer.php');
+        include(\IPS\ROOT_PATH . '/applications/toolbox/sources/Profiler/Adminer.php');
         $content .= ob_get_clean();
         ob_end_clean();
         $content .= "</div>";
         return $content;
     }
 
-    public static function specialHooks()
+    public static function addCss($css, $location = 'front', $app = 'toolbox'): void
     {
-        $apps	= array();
-
-        foreach( static::applications() as $application )
-        {
-
-                if( \count( $application->extensions( 'toolbox', 'SpecialHooks' ) ) )
-                {
-                    $apps[ $application->directory ] = $application;
-                }
-
+        if (!is_array($css)) {
+            $css = [$css];
         }
 
+        $cssFiles[] = Output::i()->cssFiles;
+        foreach ($css as $file) {
+            $file .= '.css';
+            $cssFiles[] = Theme::i()->css($file, $app, $location);
+        }
+        Output::i()->cssFiles = array_merge(...$cssFiles);
+    }
+
+    public static function specialHooks()
+    {
+        $apps = array();
+        foreach (static::applications() as $application) {
+            if (\count($application->extensions('toolbox', 'SpecialHooks'))) {
+                $apps[$application->directory] = $application;
+            }
+        }
         return $apps;
+    }
+
+    public static function getThemeId()
+    {
+        $location = \IPS\Dispatcher::hasInstance() ? \IPS\Dispatcher::i()->controllerLocation : null;
+        if (isset(\IPS\Request::i()->admin) && \IPS\Request::i()->admin === 1) {
+            $location = 'admin';
+        }
+        if ($location === 'admin' && \defined('DT_THEME_ID_ADMIN') && DT_THEME_ID_ADMIN !== 0) {
+            return DT_THEME_ID_ADMIN;
+        }
+
+        return DT_THEME_ID;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function get__icon()
+    {
+        return 'wrench';
     }
 }

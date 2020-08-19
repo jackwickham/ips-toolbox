@@ -19,6 +19,9 @@ use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\PropertyValueGenerator;
 
+use function header;
+
+
 class _Form extends GeneratorAbstract
 {
 

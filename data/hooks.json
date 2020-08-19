@@ -1,75 +1,115 @@
 {
-    "Settings": {
+    "cmsDesignerMode": {
         "type": "C",
-        "class": "\\IPS\\Settings"
+        "class": "\\IPS\\cms\\extensions\\core\\DesignersMode\\Cms"
     },
-    "ipsLog": {
+    "cmsTheme": {
         "type": "C",
-        "class": "\\IPS\\Log"
+        "class": "\\IPS\\cms\\Theme"
     },
-    "Request": {
+    "cmsThemeTemplate": {
         "type": "C",
-        "class": "\\IPS\\Request"
+        "class": "\\IPS\\cms\\Theme\\Template"
     },
-    "coreFrontGlobalTheme": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_front_global"
-    },
-    "SandboxedTemplate": {
+    "DataStore": {
         "type": "C",
-        "class": "\\IPS\\Theme\\SandboxedTemplate"
+        "class": "\\IPS\\Data\\Store"
     },
-    "coreGlobalGlobalTheme": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_global_global"
-    },
-    "BuilderIterator": {
+    "AdvancedTheme": {
         "type": "C",
-        "class": "\\IPS\\Application\\BuilderIterator"
-    },
-    "BuilderFilter": {
-        "type": "C",
-        "class": "\\IPS\\Application\\BuilderFilter"
-    },
-    "developer": {
-        "type": "C",
-        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
-    },
-    "MultiRedirect": {
-        "type": "C",
-        "class": "\\IPS\\Helpers\\MultipleRedirect"
-    },
-    "Theme": {
-        "type": "C",
-        "class": "\\IPS\\Theme"
-    },
-    "Db": {
-        "type": "C",
-        "class": "\\IPS\\Db"
+        "class": "\\IPS\\Theme\\Advanced\\Theme"
     },
     "Application": {
         "type": "C",
         "class": "\\IPS\\Application"
     },
-    "Output": {
+    "DevTheme": {
         "type": "C",
-        "class": "\\IPS\\Output"
+        "class": "\\IPS\\Theme\\Dev\\Theme"
+    },
+    "DevTemplate": {
+        "type": "C",
+        "class": "\\IPS\\Theme\\Dev\\Template"
+    },
+    "HelpersTableCustom": {
+        "type": "C",
+        "class": "\\IPS\\Helpers\\Table\\Custom"
     },
     "Dispatcher": {
         "type": "C",
         "class": "\\IPS\\Dispatcher"
     },
+    "MultiRedirect": {
+        "type": "C",
+        "class": "\\IPS\\Helpers\\MultipleRedirect"
+    },
+    "Request": {
+        "type": "C",
+        "class": "\\IPS\\Request"
+    },
+    "Singleton": {
+        "type": "C",
+        "class": "\\IPS\\Patterns\\Singleton"
+    },
+    "Db": {
+        "type": "C",
+        "class": "\\IPS\\Db"
+    },
+    "ActiveRecord": {
+        "type": "C",
+        "class": "\\IPS\\Patterns\\ActiveRecord"
+    },
+    "Settings": {
+        "type": "C",
+        "class": "\\IPS\\Settings"
+    },
+    "sitemapGenerator": {
+        "type": "C",
+        "class": "\\IPS\\core\\tasks\\sitemapgenerator"
+    },
+    "ipsLog": {
+        "type": "C",
+        "class": "\\IPS\\Log"
+    },
+    "coreGlobalGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_global_global"
+    },
+    "SandboxedTemplate": {
+        "type": "C",
+        "class": "\\IPS\\Theme\\SandboxedTemplate"
+    },
+    "coreFrontGlobalTheme": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_front_global"
+    },
+    "adminGlobalTemplate": {
+        "type": "S",
+        "class": "\\IPS\\Theme\\class_core_admin_global"
+    },
     "moduleApplications": {
         "type": "C",
         "class": "\\IPS\\core\\modules\\admin\\applications\\applications"
     },
-    "adminGlobal": {
-        "type": "S",
-        "class": "\\IPS\\Theme\\class_core_admin_global"
-    },
-    "DataStore": {
+    "Output": {
         "type": "C",
-        "class": "\\IPS\\Data\\Store"
+        "class": "\\IPS\\Output"
+    },
+    "BuilderFilter": {
+        "type": "C",
+        "class": "\\IPS\\Application\\BuilderFilter"
+    },
+    "Theme": {
+        "type": "C",
+        "class": "\\IPS\\Theme"
+    },
+    "BuilderIterator": {
+        "type": "C",
+        "class": "\\IPS\\Application\\BuilderIterator"
+    },
+    "developer": {
+        "type": "C",
+        "class": "\\IPS\\core\\modules\\admin\\applications\\developer"
     },
     "Hooks": {
         "type": "C",

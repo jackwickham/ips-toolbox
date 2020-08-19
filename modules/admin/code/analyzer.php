@@ -90,7 +90,7 @@ class _analyzer extends Controller
             Output::i()->redirect( $this->url->setQueryString( [
                 'do'          => 'queue',
                 'application' => $values[ 'dtcode_app' ],
-            ] ) );
+            ] )->csrf() );
         }
 
         Output::i()->output = $form;
@@ -108,7 +108,7 @@ class _analyzer extends Controller
             $this->url->setQueryString( [
                 'do'          => 'queue',
                 'application' => Request::i()->application,
-            ] ), function ( $data )
+            ] )->csrf(), function ( $data )
         {
 
             $total = 4;
@@ -179,7 +179,7 @@ class _analyzer extends Controller
 
             $url = Url::internal( 'app=toolbox&module=code&controller=analyzer&do=results' );
             $url->setQueryString( [ 'application' => Request::i()->application ] );
-            Output::i()->redirect( $url, 'dtcode_analyzer_complete' );
+            Output::i()->redirect( $url->csrf(), 'dtcode_analyzer_complete' );
         } );
     }
 

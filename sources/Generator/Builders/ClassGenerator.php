@@ -1,19 +1,54 @@
 <?php
 
+/**
+ * @brief       ClassGenerator Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Builders;
 
 use Generator\Builders\Traits\ClassMethods;
 use Generator\Builders\Traits\Constants;
-use Generator\Builders\Traits\Properties;
 use Generator\Builders\Traits\Imports;
+use Generator\Builders\Traits\Properties;
 use IPS\babble\Profiler\Debug;
 use ReflectionClass;
 use ReflectionNamedType;
 
-use function _p;
-use function is_array;
 use function count;
+use function is_array;
 use function is_numeric;
+
+use function array_pop;
+use function class_exists;
+use function explode;
+use function implode;
+use function in_array;
+use function is_string;
+use function ltrim;
+use function mb_strpos;
+use function mb_strtolower;
+use function md5;
+use function rand;
+use function random_int;
+use function str_replace;
+use function time;
+use function token_get_all;
+use function trim;
+use function var_export;
+use const T_ARRAY;
+use const T_CONSTANT_ENCAPSED_STRING;
+use const T_LNUMBER;
+use const T_OPEN_TAG;
+use const T_STRING;
+use const T_VARIABLE;
+
 
 /**
  * Class ClassGenerator
@@ -107,8 +142,7 @@ class ClassGenerator extends GeneratorAbstract
             }
 
             return $return;
-        }
-        else{
+        } else {
             $value = trim($value);
         }
 
@@ -162,15 +196,15 @@ EOF;
                 /** @var \ReflectionParameter $param */
                 foreach ($params as $param) {
                     $position = $param->getPosition();
-                    $newParams[ $position ][ 'name' ] = $param->getName();
+                    $newParams[$position]['name'] = $param->getName();
                     $hint = $param->getType();
                     if ($hint instanceof ReflectionNamedType) {
-                        $newParams[ $position ][ 'hint' ] = $hint->getName();
-                        $newParams[ $position ][ 'nullable' ] = (bool)$hint->allowsNull();
+                        $newParams[$position]['hint'] = $hint->getName();
+                        $newParams[$position]['nullable'] = (bool)$hint->allowsNull();
                     }
 
                     if ($param->isPassedByReference()) {
-                        $newParams[ $position ][ 'reference' ] = true;
+                        $newParams[$position]['reference'] = true;
                     }
                     $value = 'none';
                     if ($param->isDefaultValueAvailable() === true) {
@@ -188,7 +222,7 @@ EOF;
                     }
 
                     if ($value !== 'none') {
-                        $newParams[ $position ][ 'value' ] = $value;
+                        $newParams[$position]['value'] = $value;
                     }
                 }
             }
@@ -217,37 +251,37 @@ EOF;
         ];
         $i = 0;
         foreach ($tokens as $token) {
-            if (isset($tokens[ 0 ]) && $tokens[ 0 ] !== T_OPEN_TAG) {
-                $type = $token[ 0 ] ?? null;
-                $value = $token[ 1 ] ?? $token;
+            if (isset($tokens[0]) && $tokens[0] !== T_OPEN_TAG) {
+                $type = $token[0] ?? null;
+                $value = $token[1] ?? $token;
                 if ($value) {
                     if ($type === '[') {
                         $vv = '';
                         for ($ii = $i; $ii < $count; $ii++) {
-                            $vv .= $tokens[ $ii ][ 1 ] ?? $tokens[ $ii ];
+                            $vv .= $tokens[$ii][1] ?? $tokens[$ii];
                         }
 
-                        $p[ 'value' ] = trim($vv);
+                        $p['value'] = trim($vv);
                     } elseif ($value === '&') {
-                        $p[ 'reference' ] = true;
+                        $p['reference'] = true;
                     } elseif ($value === '?') {
-                        $p[ 'nullable' ] = true;
+                        $p['nullable'] = true;
                     } elseif (in_array($type, $in, true)) {
-                        if ($type === T_ARRAY || (!isset($p[ 'hint' ]) && !isset($p[ 'value' ]) && !isset($p[ 'name' ]))) {
+                        if ($type === T_ARRAY || (!isset($p['hint']) && !isset($p['value']) && !isset($p['name']))) {
                             $hint[] = $value;
                         } else {
                             if ($hint !== null) {
-                                $p[ 'hint' ] = implode('\\', $hint);
+                                $p['hint'] = implode('\\', $hint);
                                 $hint = null;
                             }
-                            $p[ 'value' ] = trim($value);
+                            $p['value'] = trim($value);
                         }
                     } elseif ($type === T_VARIABLE) {
                         if ($hint !== null) {
-                            $p[ 'hint' ] = implode('\\', $hint);
+                            $p['hint'] = implode('\\', $hint);
                             $hint = null;
                         }
-                        $p[ 'name' ] = ltrim(trim($value), '$');
+                        $p['name'] = ltrim(trim($value), '$');
                     }
                 }
             }
@@ -289,7 +323,7 @@ EOF;
             $class = $this->addImport($class);
         }
         $hash = $this->hash($class);
-        $this->classUses[ $hash ] = $class;
+        $this->classUses[$hash] = $class;
     }
 
     public function getClassUses()
@@ -331,21 +365,6 @@ EOF;
     public function isFinal()
     {
         return $this->final;
-    }
-
-    protected function writeBody()
-    {
-        $tab = $this->tab;
-
-        if (is_array($this->classUses) && count($this->classUses)) {
-            $this->output("\n\n{$tab}use ");
-            $this->output(implode(',', $this->classUses));
-            $this->output(";\n");
-        }
-        $this->writeConst();
-        $this->writeProperties();
-        $this->writeMethods();
-        $this->output("\n}");
     }
 
     /**
@@ -393,11 +412,30 @@ EOF;
             $interface = array_pop($og);
         }
         $hash = $this->hash($interface);
-        $this->interfaces[ $hash ] = $interface;
+        $this->interfaces[$hash] = $interface;
+    }
+
+    protected function writeBody()
+    {
+        $tab = $this->tab;
+        //psr-12 updates
+        if (empty($this->classUses) === false) {
+            foreach ($this->classUses as $use) {
+                {
+                    $this->output("\n\n{$tab}use ");
+                    $this->output($use);
+                    $this->output(";\n");
+                }
+            }
+        }
+        $this->writeConst();
+        $this->writeProperties();
+        $this->writeMethods();
+        $this->output("\n}");
     }
 
     protected function tab2space($line)
     {
-        return str_replace("\t", '    ', $line);;
+        return str_replace("\t", '    ', $line);
     }
 }

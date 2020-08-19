@@ -1,6 +1,38 @@
 <?php
 
+/**
+ * @brief       Tokenizer Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Tokenizers;
+
+use function file_get_contents;
+use function implode;
+use function is_array;
+use function ltrim;
+use function rtrim;
+use function token_get_all;
+use function trim;
+use const T_ABSTRACT;
+use const T_CLASS;
+use const T_CURLY_OPEN;
+use const T_DOC_COMMENT;
+use const T_EXTENDS;
+use const T_FUNCTION;
+use const T_IMPLEMENTS;
+use const T_NAMESPACE;
+use const T_PRIVATE;
+use const T_PROTECTED;
+use const T_PUBLIC;
+use const T_STATIC;
+use const T_VARIABLE;
 
 class Tokenizer
 {

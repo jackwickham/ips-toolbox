@@ -40,20 +40,24 @@ use IPS\Request;
 use IPS\Theme;
 use IPS\toolbox\DevCenter\Sources\Generator\GeneratorAbstract;
 use IPS\toolbox\DevCenter\Sources\SourcesFormAbstract;
+use IPS\toolbox\Form;
 use IPS\toolbox\ReservedWords;
 use SplObserver;
+use UnexpectedValueException;
+
 use function array_keys;
 use function class_exists;
 use function count;
+use function defined;
 use function header;
 use function in_array;
 use function interface_exists;
-use function mb_ucfirst;
 use function is_array;
+use function mb_ucfirst;
 use function trait_exists;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -66,7 +70,7 @@ class _Sources
 {
 
     /**
-     * @var \IPS\toolbox\Form
+     * @var Form
      */
     public $form;
 
@@ -98,70 +102,65 @@ class _Sources
      *
      * @param Application $application
      */
-    public function __construct( Application $application = null )
+    public function __construct(Application $application = null)
     {
-
         $this->application = $application;
         $base = [
-            'source'               => 'app=toolbox&module=devcenter&controller=sources&do=findClass',
-            'minimized'            => false,
-            'commaTrigger'         => false,
-            'unique'               => true,
-            'minAjaxLength'        => 3,
+            'source' => 'app=toolbox&module=devcenter&controller=sources&do=findClass',
+            'minimized' => false,
+            'commaTrigger' => false,
+            'unique' => true,
+            'minAjaxLength' => 3,
             'disallowedCharacters' => [],
-            'maxItems'             => 1,
+            'maxItems' => 1,
         ];
         $this->findClass = $base;
-
-        $base[ 'source' ] = 'app=toolbox&module=devcenter&controller=sources&do=findClassWithApp&appKey=' . $this->application->directory;
+        $base['source'] = 'app=toolbox&module=devcenter&controller=sources&do=findClassWithApp&appKey=' . $this->application->directory;
         $this->findClassWithApp = $base;
-
-        $base[ 'source' ] = 'app=toolbox&module=devcenter&controller=sources&do=findNameSpace&appKey=' . $this->application->directory;
+        $base['source'] = 'app=toolbox&module=devcenter&controller=sources&do=findNameSpace&appKey=' . $this->application->directory;
         $this->findNameSpace = $base;
-
-        $this->form = \IPS\toolbox\Form::create()->formPrefix( 'dtdevplus_class_' );
-
+        $this->form = Form::create()->formPrefix('dtdevplus_class_');
     }
 
     /**
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public static function menu()
     {
-
-        if ( Request::i()->controller === 'sources' || Request::i()->controller === 'devFolder' ) {
-            Output::i()->sidebar[ 'actions' ][ 'devcenter' ] = [
-                'icon'  => null,
+        if (Request::i()->controller === 'sources' || Request::i()->controller === 'devFolder') {
+            Output::i()->sidebar['actions']['devcenter'] = [
+                'icon' => null,
                 'title' => 'dtdevplus_devcenter',
-                'link'  => (string)Url::internal( 'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey ),
+                'link' => (string)Url::internal(
+                    'app=core&module=applications&controller=developer&appKey=' . Request::i()->appKey
+                )->csrf(),
             ];
         }
-        Output::i()->sidebar[ 'actions' ][ 'sources' ] = [
-            'icon'  => 'arrow-down',
+        Output::i()->sidebar['actions']['sources'] = [
+            'icon' => 'arrow-down',
             'title' => 'dtdevplus_sources',
-            'link'  => '#adminMenu_button',
-            'id'    => 'adminMenu_button',
-            'data'  => [
+            'link' => '#adminMenu_button',
+            'id' => 'adminMenu_button',
+            'data' => [
                 'ipsMenu' => 1,
             ],
         ];
 
-        Output::i()->sidebar[ 'actions' ][ 'dev' ] = [
-            'icon'  => 'code',
+        Output::i()->sidebar['actions']['dev'] = [
+            'icon' => 'code',
             'title' => 'dtdevplus_dev',
-            'link'  => '#adminMenuDev_button',
-            'id'    => 'adminMenuDev_button',
-            'data'  => [
+            'link' => '#adminMenuDev_button',
+            'id' => 'adminMenuDev_button',
+            'data' => [
                 'ipsMenu' => 1,
             ],
         ];
 
-        Output::i()->sidebar[ 'mobilenav' ] = static::subMenus();
+        Output::i()->sidebar['mobilenav'] = static::subMenus();
     }
 
     public static function subMenus()
     {
-
         $types = [
             'standard',
             'cinterface',
@@ -187,23 +186,21 @@ class _Sources
             'jsmixin',
         ];
 
-        return Theme::i()->getTemplate( 'dtdpmenu', 'toolbox', 'admin' )->menu( $types, $dev, Request::i()->appKey );
+        return Theme::i()->getTemplate('dtdpmenu', 'toolbox', 'admin')->menu($types, $dev, Request::i()->appKey);
     }
 
     /**
-     * @param array  $config
+     * @param array $config
      * @param string $type
      */
-    public function buildForm( array $config, string $type )
+    public function buildForm(array $config, string $type)
     {
-
         $this->type = $type;
 
-        foreach ( $config as $func ) {
+        foreach ($config as $func) {
             $method = 'el' . $func;
             $this->{$method}();
         }
-
     }
 
     /**
@@ -211,62 +208,71 @@ class _Sources
      */
     public function create()
     {
-
-        if ( $values = $this->form->values() ) {
-            $this->generate( $values );
+        if ($values = $this->form->values()) {
+            $this->generate($values);
         }
     }
 
-    public function generate( array $values = [] )
+    public function generate(array $values = [])
     {
-
         /* @var Application $app */
-        foreach ( Application::allExtensions( 'toolbox', 'SourcesFormAbstract' ) as $app ) {
+        foreach (Application::allExtensions('toolbox', 'SourcesFormAbstract') as $app) {
             /* @var SourcesFormAbstract $extension */
-            foreach ( $app->extensions( 'toolbox', 'SourcesFormAbstract' ) as $extension ) {
-                $extension->formProcess( $values );
+            foreach ($app->extensions('toolbox', 'SourcesFormAbstract') as $extension) {
+                $extension->formProcess($values);
             }
         }
         /* @var GeneratorAbstract $class */
         $class = 'IPS\\toolbox\DevCenter\\Sources\\Generator\\';
         $type = $this->type;
-        $values[ 'type' ] = mb_ucfirst( $type );
-        switch ( $type ) {
+        $values['type'] = mb_ucfirst($type);
+        switch ($type) {
             case 'Memory':
             case 'Debug':
                 $class .= 'Profiler';
-                $values[ 'dtdevplus_class_className' ] = mb_ucfirst( $type );
-                $values[ 'dtdevplus_class_namespace' ] = 'Profiler';
+                $values['dtdevplus_class_className'] = mb_ucfirst($type);
+                $values['dtdevplus_class_namespace'] = 'Profiler';
                 break;
             case 'Form':
                 $class .= 'Form';
-                $values[ 'dtdevplus_class_className' ] = 'Form';
-                $values[ 'dtdevplus_class_namespace' ] = '';
+                $values['dtdevplus_class_className'] = 'Form';
+                $values['dtdevplus_class_namespace'] = '';
                 break;
             default:
-                $class .= mb_ucfirst( $type );
+                $class .= mb_ucfirst($type);
                 break;
         }
-        $class = new $class( $values, $this->application );
+        $class = new $class($values, $this->application);
         $class->process();
 
-        if ( !$class->error ) {
-            $msg = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_created', false, [
-                'sprintf' => [
-                    $type,
-                    $class->classname,
-                ],
-            ] );
+        if ($class->error) {
+            $msg = Member::loggedIn()->language()->addToStack(
+                'dtdevplus_class_db_error',
+                false,
+                [
+                    'sprintf' => [
+                        'type',
+                        $class->classname,
+                        $class->database,
+                    ],
+                ]
+            );
+        } else {
+            $msg = Member::loggedIn()->language()->addToStack(
+                'dtdevplus_class_created',
+                false,
+                [
+                    'sprintf' => [
+                        $type,
+                        $class->classname,
+                    ],
+                ]
+            );
         }
-        else {
-            $msg = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_db_error', false, [
-                'sprintf' => [
-                    'type',
-                    $class->classname,
-                    $class->database,
-                ],
-            ] );
-        }
+        $url = Url::internal('app=core&module=applications&controller=developer')->setQueryString(
+            ['appKey' => $this->application->directory]
+        )->csrf();
+        Output::i()->redirect($url, $msg);
     }
 
     /**
@@ -277,19 +283,18 @@ class _Sources
      *
      * @throws InvalidArgumentException
      */
-    public function classCheck( $data )
+    public function classCheck($data)
     {
-
-        $ns = mb_ucfirst( Request::i()->dtdevplus_class_namespace );
-        $class = mb_ucfirst( $data );
+        $ns = mb_ucfirst(Request::i()->dtdevplus_class_namespace);
+        $class = mb_ucfirst($data);
         $class = $ns ? '\\IPS\\' . $this->application->directory . '\\' . $ns . '\\' . $class : '\\IPS\\' . $this->application->directory . '\\' . $class;
 
-        if ( $data !== 'Form' && class_exists( $class ) ) {
-            throw new InvalidArgumentException( 'dtdevplus_class_exists' );
+        if ($data !== 'Form' && class_exists($class)) {
+            throw new InvalidArgumentException('dtdevplus_class_exists');
         }
 
-        if ( ReservedWords::check( $data ) ) {
-            throw new InvalidArgumentException( 'dtdevplus_class_reserved' );
+        if (ReservedWords::check($data)) {
+            throw new InvalidArgumentException('dtdevplus_class_reserved');
         }
     }
 
@@ -301,24 +306,22 @@ class _Sources
      * @throws InvalidArgumentException
      *
      */
-    public function traitClassCheck( $data )
+    public function traitClassCheck($data)
     {
-
-        $ns = mb_ucfirst( Request::i()->dtdevplus_class_namespace );
-        $class = mb_ucfirst( $data );
-        if ( $ns ) {
+        $ns = mb_ucfirst(Request::i()->dtdevplus_class_namespace);
+        $class = mb_ucfirst($data);
+        if ($ns) {
             $class = '\\IPS\\' . $this->application->directory . '\\' . $ns . '\\' . $class;
-        }
-        else {
+        } else {
             $class = '\\IPS\\' . $this->application->directory . '\\' . $class;
         }
 
-        if ( trait_exists( $class ) ) {
-            throw new InvalidArgumentException( 'dtdevplus_class_trait_exists' );
+        if (trait_exists($class)) {
+            throw new InvalidArgumentException('dtdevplus_class_trait_exists');
         }
 
-        if ( ReservedWords::check( $data ) ) {
-            throw new InvalidArgumentException( 'dtdevplus_class_reserved' );
+        if (ReservedWords::check($data)) {
+            throw new InvalidArgumentException('dtdevplus_class_reserved');
         }
     }
 
@@ -330,24 +333,22 @@ class _Sources
      * @throws InvalidArgumentException
      *
      */
-    public function interfaceClassCheck( $data )
+    public function interfaceClassCheck($data)
     {
-
-        $ns = mb_ucfirst( Request::i()->dtdevplus_class_namespace );
-        $class = mb_ucfirst( $data );
-        if ( $ns ) {
+        $ns = mb_ucfirst(Request::i()->dtdevplus_class_namespace);
+        $class = mb_ucfirst($data);
+        if ($ns) {
             $class = "\\IPS\\" . $this->application->directory . "\\" . $ns . "\\" . $class;
-        }
-        else {
+        } else {
             $class = "\\IPS\\" . $this->application->directory . "\\" . $class;
         }
 
-        if ( interface_exists( $class ) ) {
-            throw new InvalidArgumentException( 'dtdevplus_class_interface_exists' );
+        if (interface_exists($class)) {
+            throw new InvalidArgumentException('dtdevplus_class_interface_exists');
         }
 
-        if ( ReservedWords::check( $data ) ) {
-            throw new InvalidArgumentException( 'dtdevplus_class_reserved' );
+        if (ReservedWords::check($data)) {
+            throw new InvalidArgumentException('dtdevplus_class_reserved');
         }
     }
 
@@ -359,11 +360,10 @@ class _Sources
      * @throws InvalidArgumentException
      *
      */
-    public function noBlankCheck( $data )
+    public function noBlankCheck($data)
     {
-
-        if ( !$data ) {
-            throw new InvalidArgumentException( 'dtdevplus_class_no_blank' );
+        if (!$data) {
+            throw new InvalidArgumentException('dtdevplus_class_no_blank');
         }
     }
 
@@ -375,11 +375,10 @@ class _Sources
      * @throws InvalidArgumentException
      *
      */
-    public function extendsCheck( $data )
+    public function extendsCheck($data)
     {
-
-        if ( $data && !class_exists( $data, true ) ) {
-            throw new InvalidArgumentException( 'dtdevplus_class_extended_class_no_exist' );
+        if ($data && !class_exists($data, true)) {
+            throw new InvalidArgumentException('dtdevplus_class_extended_class_no_exist');
         }
     }
 
@@ -391,16 +390,18 @@ class _Sources
      * @throws InvalidArgumentException
      *
      */
-    public function implementsCheck( $data )
+    public function implementsCheck($data)
     {
-
-        if ( is_array( $data ) && count( $data ) ) {
-            foreach ( $data as $implement ) {
-
-                if ( !interface_exists( $implement ) ) {
-                    $lang = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_implemented_no_interface', false, [ 'sprintf' => $implement ] );
-                    Member::loggedIn()->language()->parseOutputForDisplay( $lang );
-                    throw new InvalidArgumentException( $lang );
+        if (is_array($data) && count($data)) {
+            foreach ($data as $implement) {
+                if (!interface_exists($implement)) {
+                    $lang = Member::loggedIn()->language()->addToStack(
+                        'dtdevplus_class_implemented_no_interface',
+                        false,
+                        ['sprintf' => $implement]
+                    );
+                    Member::loggedIn()->language()->parseOutputForDisplay($lang);
+                    throw new InvalidArgumentException($lang);
                 }
             }
         }
@@ -414,15 +415,18 @@ class _Sources
      * @throws InvalidArgumentException
      *
      */
-    public function traitsCheck( $data )
+    public function traitsCheck($data)
     {
-
-        if ( is_array( $data ) && count( $data ) ) {
-            foreach ( $data as $trait ) {
-                if ( !trait_exists( $trait ) ) {
-                    $lang = Member::loggedIn()->language()->addToStack( 'dtdevplus_class_no_trait', false, [ 'sprintf' => [ $trait ] ] );
-                    Member::loggedIn()->language()->parseOutputForDisplay( $lang );
-                    throw new InvalidArgumentException( $lang );
+        if (is_array($data) && count($data)) {
+            foreach ($data as $trait) {
+                if (!trait_exists($trait)) {
+                    $lang = Member::loggedIn()->language()->addToStack(
+                        'dtdevplus_class_no_trait',
+                        false,
+                        ['sprintf' => [$trait]]
+                    );
+                    Member::loggedIn()->language()->parseOutputForDisplay($lang);
+                    throw new InvalidArgumentException($lang);
                 }
             }
         }
@@ -436,17 +440,16 @@ class _Sources
      * @throws InvalidArgumentException
      *
      */
-    public function itemNodeCheck( $data )
+    public function itemNodeCheck($data)
     {
-
-        if ( $data ) {
+        if ($data) {
             $class = "IPS\\{$this->application->directory}\\{$data}";
-            if ( !class_exists( $class ) ) {
-                throw new InvalidArgumentException( 'dtdevplus_class_node_item_missing' );
+            if (!class_exists($class)) {
+                throw new InvalidArgumentException('dtdevplus_class_node_item_missing');
             }
 
-            if ( ReservedWords::check( $data ) ) {
-                throw new InvalidArgumentException( 'dtdevplus_class_reserved' );
+            if (ReservedWords::check($data)) {
+                throw new InvalidArgumentException('dtdevplus_class_reserved');
             }
         }
     }
@@ -456,7 +459,6 @@ class _Sources
      */
     protected function elNamespace()
     {
-
         $tabs = [
             'node',
             'item',
@@ -464,15 +466,15 @@ class _Sources
             'review',
         ];
 
-        if ( in_array( $this->type, $tabs ) ) {
-            $this->form->tab( 'general' );
+        if (in_array($this->type, $tabs)) {
+            $this->form->tab('general');
         }
 
         $options = [
-            'placeholder'  => 'Namespace',
+            'placeholder' => 'Namespace',
             'autocomplete' => $this->findNameSpace,
         ];
-        $this->form->add( 'namespace' )->options( $options )->prefix( "IPS\\{$this->application->directory}\\" );
+        $this->form->add('namespace')->options($options)->prefix("IPS\\{$this->application->directory}\\");
     }
 
     /**
@@ -480,26 +482,25 @@ class _Sources
      */
     protected function elClassName()
     {
-
         $prefix = null;
-        if ( $this->type === 'interfacing' ) {
+        if ($this->type === 'interfacing') {
             $placeholder = 'Interface Name';
             $name = 'interfaceName';
-            $validate = [ $this, 'interfaceClassCheck' ];
-        }
-        else if ( $this->type === 'traits' ) {
-            $placeholder = 'Trait Name';
-            $name = 'traitName';
-            $validate = [ $this, 'traitClassCheck' ];
-        }
-        else {
-            $placeholder = 'Class Name';
-            $name = 'className';
-            $validate = [ $this, 'classCheck' ];
-            $prefix = '_';
+            $validate = [$this, 'interfaceClassCheck'];
+        } else {
+            if ($this->type === 'traits') {
+                $placeholder = 'Trait Name';
+                $name = 'traitName';
+                $validate = [$this, 'traitClassCheck'];
+            } else {
+                $placeholder = 'Class Name';
+                $name = 'className';
+                $validate = [$this, 'classCheck'];
+                $prefix = '_';
+            }
         }
 
-        $this->form->add( $name )->options( [ 'placeHolder' => $placeholder ] )->prefix( $prefix )->validation( $validate );
+        $this->form->add($name)->options(['placeHolder' => $placeholder])->prefix($prefix)->validation($validate);
     }
 
     /**
@@ -507,8 +508,7 @@ class _Sources
      */
     protected function elAbstract()
     {
-
-        $this->form->add( 'abstract', 'yn' );
+        $this->form->add('abstract', 'yn');
     }
 
     /**
@@ -516,13 +516,11 @@ class _Sources
      */
     protected function elExtends()
     {
-
         $options = [
             'autocomplete' => $this->findClass,
         ];
 
-        $this->form->add( 'extends', 'yn' )->options( $options )->validation( [ $this, 'extendsCheck' ] );
-
+        $this->form->add('extends', 'yn')->options($options)->validation([$this, 'extendsCheck']);
     }
 
     /**
@@ -532,7 +530,6 @@ class _Sources
      */
     protected function elImports()
     {
-
     }
 
     /**
@@ -540,8 +537,7 @@ class _Sources
      */
     protected function elDatabase()
     {
-
-        $this->form->add( 'database' )->prefix( $this->application->directory . '_' );
+        $this->form->add('database')->prefix($this->application->directory . '_');
     }
 
     /**
@@ -549,9 +545,7 @@ class _Sources
      */
     protected function elPrefix()
     {
-
-        $this->form->add( 'prefix' )->suffix( '_' );
-
+        $this->form->add('prefix')->suffix('_');
     }
 
     /**
@@ -559,17 +553,15 @@ class _Sources
      */
     protected function elScaffolding()
     {
+        $this->form->add('scaffolding_create', 'yn')->empty(true)->toggles(['scaffolding_type']);
 
-        $this->form->add( 'scaffolding_create', 'yn' )->empty( true )->toggles( [ 'scaffolding_type' ] );
+        $sc['db'] = 'Database';
 
-        $sc[ 'db' ] = 'Database';
-
-        if ( !in_array( $this->type, [ 'activerecord', 'review', 'comment' ] ) ) {
-            $sc[ 'modules' ] = 'Module';
+        if (!in_array($this->type, ['activerecord', 'review', 'comment'])) {
+            $sc['modules'] = 'Module';
         }
 
-        $this->form->add( 'scaffolding_type', 'checkboxset' )->value( array_keys( $sc ) )->options( [ 'options' => $sc ] );
-
+        $this->form->add('scaffolding_type', 'checkboxset')->value(array_keys($sc))->options(['options' => $sc]);
     }
 
     /**
@@ -577,11 +569,13 @@ class _Sources
      */
     protected function elSubNode()
     {
-
-        $this->form->add( 'subnode', 'yn' )->toggles( [ 'subnode_class' ] )->toggles( [ 'parentnode_class' ], true );
-        $this->form->add( 'parentnode_class' )->prefix( '\\IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
-        $this->form->add( 'subnode_class' )->prefix( '\\IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
-
+        $this->form->add('subnode', 'yn')->toggles(['subnode_class'])->toggles(['parentnode_class'], true);
+        $this->form->add('parentnode_class')->prefix('\\IPS\\' . $this->application->directory . '\\')->options(
+            ['autocomplete' => $this->findClassWithApp]
+        );
+        $this->form->add('subnode_class')->prefix('\\IPS\\' . $this->application->directory . '\\')->options(
+            ['autocomplete' => $this->findClassWithApp]
+        );
     }
 
     /**
@@ -589,9 +583,9 @@ class _Sources
      */
     protected function elItemClass()
     {
-
-        $this->form->add( 'item_class' )->prefix( 'IPS\\' . $this->application->directory )->options( [ 'autocomplete' => $this->findClassWithApp ] );
-
+        $this->form->add('item_class')->prefix('IPS\\' . $this->application->directory)->options(
+            ['autocomplete' => $this->findClassWithApp]
+        );
     }
 
     /**
@@ -599,14 +593,15 @@ class _Sources
      */
     protected function elNodeInterfaces()
     {
-
         $interfacesNode = [
             Permissions::class => Permissions::class,
-            Ratings::class     => Ratings::class,
+            Ratings::class => Ratings::class,
         ];
 
-        $this->form->tab( 'interfaces' );
-        $this->form->add( 'ips_implements', 'checkboxset' )->label( 'interface_implements_node' )->empty( array_keys( $interfacesNode ) )->options( [ 'options' => $interfacesNode ] );
+        $this->form->tab('interfaces');
+        $this->form->add('ips_implements', 'checkboxset')->label('interface_implements_node')->empty(
+            array_keys($interfacesNode)
+        )->options(['options' => $interfacesNode]);
         $this->elInterfaces();
     }
 
@@ -615,8 +610,7 @@ class _Sources
      */
     protected function elInterfaces()
     {
-
-        $this->form->add( 'implements', 'stack' )->validation( [ $this, 'implementsCheck' ] );
+        $this->form->add('implements', 'stack')->validation([$this, 'implementsCheck']);
     }
 
     /**
@@ -624,17 +618,17 @@ class _Sources
      */
     protected function elNodeTraits()
     {
-
         $traitsNode = [
             ClubContainer::class => ClubContainer::class,
-            Colorize::class      => Colorize::class,
+            Colorize::class => Colorize::class,
         ];
 
-        $this->form->tab( 'traits' );
-        $this->form->add( 'ips_traits', 'checkboxset' )->label( 'ips_traits_node' )->empty( array_keys( $traitsNode ) )->options( [ 'options' => $traitsNode ] );
+        $this->form->tab('traits');
+        $this->form->add('ips_traits', 'checkboxset')->label('ips_traits_node')->empty(
+            array_keys($traitsNode)
+        )->options(['options' => $traitsNode]);
 
         $this->elTraits();
-
     }
 
     /**
@@ -642,8 +636,7 @@ class _Sources
      */
     protected function elTraits()
     {
-
-        $this->form->add( 'traits', 'stack' )->validation( [ $this, 'traitsCheck' ] );
+        $this->form->add('traits', 'stack')->validation([$this, 'traitsCheck']);
     }
 
     /**
@@ -651,14 +644,15 @@ class _Sources
      */
     protected function elItemTraits()
     {
-
         $traitsItems = [
-            Reactable::class  => Reactable::class,
+            Reactable::class => Reactable::class,
             Reportable::class => Reportable::class,
         ];
 
-        $this->form->tab( 'traits' );
-        $this->form->add( 'ips_traits', 'checkboxset' )->label( 'ips_traits_item' )->empty( array_keys( $traitsItems ) )->options( [ 'options' => $traitsItems ] );
+        $this->form->tab('traits');
+        $this->form->add('ips_traits', 'checkboxset')->label('ips_traits_item')->empty(
+            array_keys($traitsItems)
+        )->options(['options' => $traitsItems]);
 
         $this->elTraits();
     }
@@ -668,30 +662,31 @@ class _Sources
      */
     protected function elItemInterfaces()
     {
-
         $interfacesItem = [
-            EditHistory::class              => EditHistory::class,
-            Embeddable::class               => Embeddable::class,
-            Featurable::class               => Featurable::class,
-            Followable::class               => Followable::class,
-            FuturePublishing::class         => FuturePublishing::class,
-            Hideable::class                 => Hideable::class,
-            Lockable::class                 => Lockable::class,
-            MetaData::class                 => MetaData::class,
+            EditHistory::class => EditHistory::class,
+            Embeddable::class => Embeddable::class,
+            Featurable::class => Featurable::class,
+            Followable::class => Followable::class,
+            FuturePublishing::class => FuturePublishing::class,
+            Hideable::class => Hideable::class,
+            Lockable::class => Lockable::class,
+            MetaData::class => MetaData::class,
             \IPS\Content\Permissions::class => \IPS\Content\Permissions::class,
-            Pinnable::class                 => Pinnable::class,
-            Polls::class                    => Polls::class,
-            SplObserver::class              => SplObserver::class,
-            \IPS\Content\Ratings::class     => \IPS\Content\Ratings::class,
-            ReadMarkers::class              => ReadMarkers::class,
-            Searchable::class               => Searchable::class,
-            Shareable::class                => Shareable::class,
-            Tags::class                     => Tags::class,
-            Views::class                    => Views::class,
+            Pinnable::class => Pinnable::class,
+            Polls::class => Polls::class,
+            SplObserver::class => SplObserver::class,
+            \IPS\Content\Ratings::class => \IPS\Content\Ratings::class,
+            ReadMarkers::class => ReadMarkers::class,
+            Searchable::class => Searchable::class,
+            Shareable::class => Shareable::class,
+            Tags::class => Tags::class,
+            Views::class => Views::class,
         ];
 
-        $this->form->tab( 'interfaces' );
-        $this->form->add( 'ips_implements', 'checkboxset' )->label( 'interface_implements_item' )->empty( array_keys( $interfacesItem ) )->options( [ 'options' => $interfacesItem ] );
+        $this->form->tab('interfaces');
+        $this->form->add('ips_implements', 'checkboxset')->label('interface_implements_item')->empty(
+            array_keys($interfacesItem)
+        )->options(['options' => $interfacesItem]);
 
         $this->elInterfaces();
     }
@@ -701,8 +696,9 @@ class _Sources
      */
     protected function elItemNodeClass()
     {
-
-        $this->form->add( 'item_node_class' )->prefix( 'IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
+        $this->form->add('item_node_class')->prefix('IPS\\' . $this->application->directory . '\\')->options(
+            ['autocomplete' => $this->findClassWithApp]
+        );
     }
 
     /**
@@ -710,9 +706,9 @@ class _Sources
      */
     protected function elItemCommentClass()
     {
-
-        $this->form->add( 'comment_class' )->prefix( 'IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
-
+        $this->form->add('comment_class')->prefix('IPS\\' . $this->application->directory . '\\')->options(
+            ['autocomplete' => $this->findClassWithApp]
+        );
     }
 
     /**
@@ -720,9 +716,9 @@ class _Sources
      */
     protected function elItemReviewClass()
     {
-
-        $this->form->add( 'review_class' )->prefix( 'IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
-
+        $this->form->add('review_class')->prefix('IPS\\' . $this->application->directory . '\\')->options(
+            ['autocomplete' => $this->findClassWithApp]
+        );
     }
 
     /**
@@ -730,16 +726,17 @@ class _Sources
      */
     protected function elCommentInterfaces()
     {
-
         $interfacesComment = [
-            Hideable::class    => Hideable::class,
-            Embeddable::class  => Embeddable::class,
-            Searchable::class  => Searchable::class,
-            Lockable::class    => Lockable::class,
+            Hideable::class => Hideable::class,
+            Embeddable::class => Embeddable::class,
+            Searchable::class => Searchable::class,
+            Lockable::class => Lockable::class,
             EditHistory::class => EditHistory::class,
         ];
-        $this->form->tab( 'interfaces' );
-        $this->form->add( 'interface_implements_comment', 'checkboxset' )->empty( array_keys( $interfacesComment ) )->options( [ 'options' => $interfacesComment ] );
+        $this->form->tab('interfaces');
+        $this->form->add('interface_implements_comment', 'checkboxset')->empty(array_keys($interfacesComment))->options(
+            ['options' => $interfacesComment]
+        );
 
         $this->elInterfaces();
     }
@@ -749,22 +746,23 @@ class _Sources
      */
     protected function elContentItemClass()
     {
-
-        $this->form->add( 'content_item_class' )->prefix( 'IPS\\' . $this->application->directory . '\\' )->options( [ 'autocomplete' => $this->findClassWithApp ] );
-
+        $this->form->add('content_item_class')->prefix('IPS\\' . $this->application->directory . '\\')->options(
+            ['autocomplete' => $this->findClassWithApp]
+        );
     }
 
     protected function elApiType()
     {
-
-        $this->form->add( 'apiType', 'select' )->options( [
-            'options' => [
-                's' => 'Standard',
-                'i' => 'Content/Item',
-                'c' => 'Comment',
-                'n' => 'Node',
-            ],
-        ] );
+        $this->form->add('apiType', 'select')->options(
+            [
+                'options' => [
+                    's' => 'Standard',
+                    'i' => 'Content/Item',
+                    'c' => 'Comment',
+                    'n' => 'Node',
+                ],
+            ]
+        );
     }
 }
 

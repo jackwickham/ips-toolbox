@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @brief       Shared Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Tokenizers;
 
 use InvalidArgumentException;
@@ -12,6 +23,38 @@ use function in_array;
 use function token_get_all;
 
 use const IPS\ROOT_PATH;
+
+use function array_pop;
+use function array_shift;
+use function explode;
+use function implode;
+use function ltrim;
+use function mb_strpos;
+use function str_replace;
+use function trim;
+use const T_ABSTRACT;
+use const T_CLASS;
+use const T_COMMENT;
+use const T_CONST;
+use const T_CONSTANT_ENCAPSED_STRING;
+use const T_DOC_COMMENT;
+use const T_EXTENDS;
+use const T_FINAL;
+use const T_FUNCTION;
+use const T_IMPLEMENTS;
+use const T_INCLUDE;
+use const T_INCLUDE_ONCE;
+use const T_NAMESPACE;
+use const T_PRIVATE;
+use const T_PROTECTED;
+use const T_PUBLIC;
+use const T_REQUIRE;
+use const T_REQUIRE_ONCE;
+use const T_STATIC;
+use const T_STRING;
+use const T_USE;
+use const T_VARIABLE;
+
 
 trait Shared
 {

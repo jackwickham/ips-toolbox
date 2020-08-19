@@ -13,11 +13,12 @@
 namespace IPS\toolbox\DevCenter\Sources\Generator;
 
 use IPS\Patterns\Singleton;
+
 use function defined;
 use function header;
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -31,19 +32,18 @@ class _Singleton extends GeneratorAbstract
      */
     protected function bodyGenerator()
     {
-
         $this->brief = 'Singleton';
         $this->extends = 'Singleton';
-        $this->generator->addUse( Singleton::class );
+        $this->generator->addImport(Singleton::class);
         $extra = [
             'document' => [
                 '@brief Singleton Instance',
                 '@note This needs to be declared in any child class',
                 '@var static',
             ],
-            'static'   => true,
+            'static' => true,
         ];
 
-        $this->generator->addProperty( 'instance', null, $extra );
+        $this->generator->addProperty('instance', null, $extra);
     }
 }

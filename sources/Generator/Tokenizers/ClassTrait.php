@@ -1,9 +1,28 @@
 <?php
 
+/**
+ * @brief       ClassTrait Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Tokenizers;
 
 use Generator\Builders\ClassGenerator;
 use IPS\babble\Profiler\Debug;
+
+use function implode;
+use function in_array;
+use function mb_substr;
+use function trim;
+use const T_PRIVATE;
+use const T_PROTECTED;
+
 
 trait ClassTrait
 {

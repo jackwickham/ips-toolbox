@@ -15,7 +15,6 @@ namespace IPS\toolbox\Proxy;
 use Exception;
 use InvalidArgumentException;
 use IPS\Data\Store;
-use IPS\Db;
 use IPS\Patterns\Singleton;
 use IPS\Settings;
 use IPS\toolbox\Application;
@@ -65,6 +64,16 @@ use function time;
 use const DIRECTORY_SEPARATOR;
 use const JSON_PRETTY_PRINT;
 use const PHP_EOL;
+
+use function str_replace;
+use function token_get_all;
+use const T_ABSTRACT;
+use const T_CLASS;
+use const T_FINAL;
+use const T_NS_SEPARATOR;
+use const T_STRING;
+use const T_WHITESPACE;
+
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
@@ -304,7 +313,7 @@ class _Proxyclass extends Singleton
                 $this->templates[$file] = ['method' => $methodName, 'params' => $parameters];
             }
         } elseif ($finder->getExtension() === 'php') {
-            Proxy::i()->create($content);
+            Proxy::i()->create($content, $file);
         }
     }
 
@@ -371,7 +380,7 @@ class _Proxyclass extends Singleton
     {
         if (isset(Store::i()->dt_json)) {
             $content = json_encode(Store::i()->dt_json, JSON_PRETTY_PRINT);
-            $this->_writeFile('.ide-toolbox.metadata.json', $content, \IPS\ROOT_PATH . '/' . $this->save);
+            $this->_writeFile('.ide-toolbox.metadata.json', $content,  $this->save);
             unset(Store::i()->dt_json);
         }
     }
@@ -460,7 +469,7 @@ class _Proxyclass extends Singleton
     {
         $ds = DIRECTORY_SEPARATOR;
         $root = \IPS\ROOT_PATH;
-        $save = $root . $ds . $this->save . $ds;
+        $save =  $this->save . $ds;
         $finder = new Finder();
         try {
             if ($dir === null) {
@@ -588,6 +597,7 @@ class _Proxyclass extends Singleton
             'oauth',
             'app',
             'web',
+            'GraphQL'
         ];
     }
 
@@ -612,6 +622,7 @@ class _Proxyclass extends Singleton
             '404error.php',
             'error.php',
             'test.php',
+            'HtmlPurifierHttpsImages.php'
 
         ];
     }

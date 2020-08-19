@@ -1,9 +1,26 @@
 <?php
 
+/**
+ * @brief       InterfaceGenerator Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Builders;
 
 use Generator\Builders\Traits\Constants;
 use Generator\Builders\Traits\Properties;
+
+use function implode;
+use function is_array;
+use function is_string;
+use function trim;
+
 
 /**
  * Class _ClassGenerator

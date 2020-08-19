@@ -6,6 +6,9 @@ require_once $path. 'init.php';
 $member = \IPS\Member::loggedIn();
 if( $member->isAdmin() ) {
     $_GET["username"] = \IPS\Settings::i()->getFromConfGlobal('sql_user');
+
+use function str_replace;
+
     $_GET["password"] = \IPS\Settings::i()->getFromConfGlobal('sql_pass');
     $_GET["db"] = \IPS\Settings::i()->getFromConfGlobal('sql_database');
     $_GET["server"] = \IPS\Settings::i()->getFromConfGlobal('sql_host');

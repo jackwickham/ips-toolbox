@@ -10,7 +10,7 @@ if (!\defined('\IPS\SUITE_UNIQUE_KEY')) {
     exit;
 }
 
-class toolbox_hook_adminGlobal extends _HOOK_CLASS_
+class toolbox_hook_adminGlobalTemplate extends _HOOK_CLASS_
 {
 
     /* !Hook Data - DO NOT REMOVE */

@@ -15,12 +15,15 @@ use Exception;
 use IPS\Data\Store;
 use IPS\IPS;
 use IPS\Patterns\Bitwise;
+use IPS\Settings;
 use IPS\toolbox\Application;
 use IPS\toolbox\Generator\DTClassGenerator;
 use IPS\toolbox\Generator\DTFileGenerator;
+use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Proxy\Proxyclass;
 use IPS\toolbox\ReservedWords;
 use IPS\toolbox\Shared\Write;
+use ParseError;
 use ReflectionClass;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\GenericTag;
@@ -57,6 +60,9 @@ use function preg_match_all;
 use function property_exists;
 use function str_replace;
 use function trim;
+
+use function var_export;
+
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
@@ -117,7 +123,7 @@ class _Proxy extends GeneratorAbstract
     /**
      * @param $content
      */
-    public function create(string $content)
+    public function create(string $content, string $originalFilePath = null)
     {
         try {
             $proxied = Store::i()->dt_cascade_proxy ?? [];
@@ -261,6 +267,11 @@ class _Proxy extends GeneratorAbstract
                                 }
                             }
                         } catch (Exception $e) {
+                            Debug::log($e, 'ProxyClass');
+                            Debug::log($originalFilePath, 'ProxyClassFile');
+                        } catch (ParseError $e) {
+                            Debug::log($e, 'ParseError');
+                            Debug::log($originalFilePath, 'ParseErrorFile');
                         }
 
                         $this->runHelperClasses($dbClass, $classDefinition, $ipsClass, $body);
@@ -512,13 +523,13 @@ class _Proxy extends GeneratorAbstract
              */
             $load = Store::i()->settings;
             foreach ($load as $key => $val) {
-                if (is_array($val)) {
+                if (is_array(Settings::i()->{$key})) {
                     $type = 'array';
-                } elseif (is_int($val)) {
+                } elseif (is_int(Settings::i()->{$key})) {
                     $type = 'int';
-                } elseif (is_float($val)) {
+                } elseif (is_float(Settings::i()->{$key})) {
                     $type = 'float';
-                } elseif (is_bool($val)) {
+                } elseif (is_bool(Settings::i()->{$key})) {
                     $type = 'bool';
                 } else {
                     $type = 'string';
@@ -537,6 +548,21 @@ class _Proxy extends GeneratorAbstract
             $file->setClass($class);
             $file->setFilename($this->save . '/IPS_Settings.php');
             $file->write();
+
+            if (method_exists(\IPS\Theme::i(), 'get_css_vars')) {
+                $css = \IPS\Theme::i()->get_css_vars();
+                $body = <<<eof
+:root {
+{$css}
+}
+eof;
+
+
+                $file2 = new DTFileGenerator();
+                $file2->setBody($body);
+                $file2->setFilename($this->save . '/IPSVars.css');
+                $file2->write();
+            }
         } catch (Exception $e) {
         }
     }
@@ -558,6 +584,8 @@ class _Proxy extends GeneratorAbstract
                 if (is_bool($val)) {
                     $vals = (int)$vals;
                     $val = $vals === 1 ? 'true' : 'false';
+                } elseif (is_array($val)) {
+                    $val = var_export($val, true);
                 } elseif (!is_numeric($val)) {
                     $val = "'" . $val . "'";
                 }

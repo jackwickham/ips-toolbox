@@ -11,11 +11,15 @@
 
 namespace IPS\{app}\extensions\core\CreateMenu;
 
+use IPS\Http\Url;
+use function defined;
+use function header;
+
 /* To prevent PHP errors (extending class does not exist) revealing path */
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )
 {
-	header( ( isset( $_SERVER['SERVER_PROTOCOL'] ) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0' ) . ' 403 Forbidden' );
-	exit;
+    header( ($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden' );
+    exit;
 }
 
 /**
@@ -30,10 +34,10 @@ class _{class}
 	 */
 	public function getItems()
 	{
-		return array(
-			'{key}' => array(
-				'link'  => \IPS\Http\Url::internal( '{link}', 'front', {seo}, {seoTitle} )
-			)
-		);
+		return [
+			'{key}' => [
+				'link'  => Url::internal( '{link}', 'front', {seo}, {seoTitle} )
+			]
+		];
 	}
 }

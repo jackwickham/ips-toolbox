@@ -1,10 +1,15 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: michael
- * Date: 3/22/19
- * Time: 3:20 AM
+ * @brief       NewForm Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
  */
+
 
 namespace IPS\toolbox\DevCenter\Sources\Generator;
 

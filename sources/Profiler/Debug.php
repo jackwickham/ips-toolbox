@@ -14,10 +14,14 @@ namespace IPS\toolbox\Profiler;
 
 use Exception;
 use IPS\Db;
+use IPS\Log;
 use IPS\Patterns\ActiveRecord;
 use IPS\Settings;
 use IPS\Theme;
 use IPS\toolbox\Editor;
+use SplFileInfo;
+use UnexpectedValueException;
+
 use function count;
 use function defined;
 use function get_class;
@@ -29,6 +33,12 @@ use function json_encode;
 use function method_exists;
 use function nl2br;
 use function time;
+
+use function debug_backtrace;
+use function log;
+use function mb_substr;
+use function str_replace;
+
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -84,8 +94,12 @@ class _Debug extends ActiveRecord
      */
     public static function add( $key, $message, $alias = false )
     {
-
-        if ( !\IPS\QUERY_LOG && defined( '\DTPROFILER' ) && !\DTPROFILER ) {
+        if( !Settings::i()->dtprofiler_enable_debug ){
+            Log::debug($message, $key );
+            return;
+        }
+        if (  !\IPS\QUERY_LOG ) {
+            Log::debug($message, $key );
             return;
         }
 
@@ -113,7 +127,7 @@ class _Debug extends ActiveRecord
             $next = $next ?? $prev;
             $key = $next[ 'function' ];
             if ( !$key ) {
-                $file = new \SplFileInfo( $next[ 'file' ] );
+                $file = new SplFileInfo( $next[ 'file' ] );
                 $key = $file->getFilename();
             }
         }
@@ -159,7 +173,7 @@ class _Debug extends ActiveRecord
 
     /**
      * @return null
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public static function build()
     {
@@ -192,7 +206,7 @@ class _Debug extends ActiveRecord
     /**
      * the body of the message
      *
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public function body(): string
     {

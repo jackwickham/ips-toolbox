@@ -177,7 +177,7 @@ class _build extends Controller
                 @unlink( $path . $file );
             }
 
-            $url = Url::internal( 'app=core' );
+            $url = Url::internal( 'app=core' )->csrf();
             Output::i()->redirect( $url, 'toolbox_apps_built' );
         }
 

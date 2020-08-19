@@ -23,6 +23,9 @@ use function is_array;
 use function mb_strtolower;
 use function property_exists;
 
+use function header;
+
+
 
 
 /**
@@ -272,6 +275,25 @@ class _Element
         }
 
         return null;
+    }
+
+    public function changeType(string $type, $custom = '')
+    {
+        if (!isset(static::$nonHelpers[ $type ])) {
+            if (!($this->name instanceof FormAbstract) && isset(static::$helpers[ $type ])) {
+                $this->class = '\\IPS\\Helpers\\Form\\' . static::$helpers[ $type ] ?? 'Text';
+                $this->type = 'helper';
+            } elseif ($this->name instanceof FormAbstract) {
+                $this->class = $this->name;
+                $this->type = 'helper';
+            }
+        } elseif ($type === 'custom') {
+            $this->class = $custom;
+            $this->type = 'helper';
+            $this->custom = true;
+        }
+
+        return $this;
     }
 
     /**

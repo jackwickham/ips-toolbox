@@ -1,0 +1,29 @@
+steps to use designer mode html/css files while in_dev mode.
+
+1. disable IN_DEV if you have it enabled.
+2. go to DevToolbox->Change Constants (in the menu bar for devtoolbox)
+3. Enable DT_THEME
+4. add theme ID in DT_THEME_ID (you can get the theme id from acp->customizations->theme, it will the the ID parameter when you edit a theme in the URL).
+4a. this is optional, you can use a different theme for the ACP if you want, enter the ID number for the theme you wish to use for the ACP, leave or change to 0 if you want to use the same theme from DT_THEME_ID.
+5. save the constants (this will auto-generate a constants.php file, so if you have any specialized or custom code in this file, you might want to back up before proceeding).
+6. go to acp->customizations->theme.
+7. click on "designer mode".
+8. enable designer mode
+9. once designer mode has been enabled and the designer mode files have been created, now click on designer mode again and disable (disable sync and DO NOT let it remove the files from disk).
+10. once designer mode has been disabled, go back to DevToolbox->Change Constants.
+11. enable IN_DEV on the "important" tab. 
+12. save
+13. enjoy
+
+import changes:
+1. disable in_dev mode
+2. re-enable designer mode
+3. disable designer mode, but sync this time
+
+issues/problems. 
+
+once the designer mode files have been created, they wont be recreated if the folder paths exist for it, this is so we can re-enable designer mode and import the changes again (other wise IPS just re-exports the designer mode templates to disk, overwriting your changes). if you need to refresh the designer mode files, just delete them and re-enable designer mode again.
+
+this makes some rather "deep" changes to how the theme engine works in IPS, so if you don't need it, don't enable it. it mainly changes the file path locations and process the designer mode CSS. 
+
+there might be some unknown problems yet uncovered by what i'm doing here, i don't intend actually develop themes with this, but more to test my apps and plugins with thems and to debug potential problems with them. 

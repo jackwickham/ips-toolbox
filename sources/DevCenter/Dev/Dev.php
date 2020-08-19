@@ -39,6 +39,10 @@ use function is_file;
 use function mb_ucfirst;
 use function preg_match;
 
+use function ksort;
+use const SORT_REGULAR;
+
+
 \IPS\toolbox\Application::loadAutoLoader();
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {

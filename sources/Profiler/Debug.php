@@ -34,6 +34,12 @@ use function method_exists;
 use function nl2br;
 use function time;
 
+use function debug_backtrace;
+use function log;
+use function mb_substr;
+use function str_replace;
+
+
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
     exit;

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @brief       Bt Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace IPS\toolbox\modules\front\bt;
 
 use Exception;
@@ -40,6 +51,14 @@ use function sleep;
 use function str_replace;
 use function time;
 use const IPS\ROOT_PATH;
+
+use function log;
+use function ob_end_clean;
+use function ob_get_clean;
+use function ob_start;
+use function preg_replace;
+use function random_int;
+
 
 Application::loadAutoLoader();
 

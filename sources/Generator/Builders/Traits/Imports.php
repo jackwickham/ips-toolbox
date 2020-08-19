@@ -1,6 +1,24 @@
 <?php
 
+/**
+ * @brief       Imports Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Builders\Traits;
+
+use function array_pop;
+use function class_exists;
+use function explode;
+use function mb_strtolower;
+use function mb_substr;
+use function str_replace;
 
 trait Imports
 {

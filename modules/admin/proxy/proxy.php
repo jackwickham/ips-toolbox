@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @brief       Proxy Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace IPS\toolbox\modules\admin\proxy;
 
 use IPS\Dispatcher\Controller;

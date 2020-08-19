@@ -61,6 +61,9 @@ use function property_exists;
 use function str_replace;
 use function trim;
 
+use function var_export;
+
+
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;

@@ -27,6 +27,12 @@ use Phar;
 use PharData;
 use RuntimeException;
 
+use function chmod;
+use function is_dir;
+use function mkdir;
+use function sprintf;
+
+
 \IPS\toolbox\Application::loadAutoLoader();
 
 class _Build extends Singleton

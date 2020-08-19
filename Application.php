@@ -17,6 +17,15 @@ use IPS\Theme;
 
 use const IPS\ROOT_PATH;
 
+use function array_merge;
+use function is_array;
+use function ob_end_clean;
+use function ob_get_clean;
+use function ob_start;
+use function preg_replace_callback;
+use function str_replace;
+
+
 /**
  * Dev Toolbox: Base Application Class
  */

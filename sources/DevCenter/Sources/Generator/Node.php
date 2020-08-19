@@ -28,6 +28,13 @@ use function is_array;
 
 use const IPS\ROOT_PATH;
 
+use function file_exists;
+use function json_decode;
+use function json_encode;
+use const JSON_PRETTY_PRINT;
+use const T_PUBLIC;
+
+
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;

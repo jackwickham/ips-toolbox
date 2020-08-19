@@ -15,6 +15,15 @@ use function defined;
 use function header;
 use function mb_strtoupper;
 
+use function array_shift;
+use function explode;
+use function implode;
+use function ltrim;
+use function preg_grep;
+use function preg_quote;
+use function str_replace;
+
+
 /* To prevent PHP errors (extending class does not exist) revealing path */
 
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {

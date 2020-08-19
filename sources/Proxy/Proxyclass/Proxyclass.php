@@ -65,6 +65,16 @@ use const DIRECTORY_SEPARATOR;
 use const JSON_PRETTY_PRINT;
 use const PHP_EOL;
 
+use function str_replace;
+use function token_get_all;
+use const T_ABSTRACT;
+use const T_CLASS;
+use const T_FINAL;
+use const T_NS_SEPARATOR;
+use const T_STRING;
+use const T_WHITESPACE;
+
+
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;

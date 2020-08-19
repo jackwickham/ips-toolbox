@@ -30,6 +30,15 @@ use function header;
 use function is_array;
 use function str_replace;
 
+use function array_pop;
+use function array_values;
+use function explode;
+use function file_exists;
+use function mb_strlen;
+use function mb_substr;
+use function uniqid;
+
+
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;

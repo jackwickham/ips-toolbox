@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @brief       Slasher Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace IPS\toolbox;
 
 use IPS\Patterns\Singleton;
@@ -30,6 +41,12 @@ use const T_OBJECT_OPERATOR;
 use const T_STRING;
 use const T_STRING_VARNAME;
 use const T_VARIABLE;
+
+use function file_get_contents;
+use function ksort;
+use function preg_match;
+use const PHP_EOL;
+
 
 Application::loadAutoLoader();
 

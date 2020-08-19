@@ -42,6 +42,11 @@ use function mb_ucfirst;
 use function str_replace;
 use function trim;
 
+use function array_merge;
+use const T_PROTECTED;
+use const T_PUBLIC;
+
+
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;

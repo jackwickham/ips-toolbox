@@ -40,6 +40,9 @@ use function mb_substr;
 use function property_exists;
 use function sha1;
 
+use function header;
+
+
 
 /**
  * Class Form

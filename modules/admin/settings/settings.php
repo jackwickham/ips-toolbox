@@ -30,6 +30,10 @@ use function property_exists;
 
 use const IPS\NO_WRITES;
 
+use function is_file;
+use function preg_replace_callback;
+
+
 \IPS\toolbox\Application::loadAutoLoader();
 
 /* To prevent PHP errors (extending class does not exist) revealing path */

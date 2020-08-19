@@ -15,6 +15,9 @@ namespace IPS\toolbox\DevCenter\Extensions;
 use function defined;
 use function header;
 
+use function str_replace;
+
+
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;

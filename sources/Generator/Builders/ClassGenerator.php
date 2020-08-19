@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @brief       ClassGenerator Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
+ */
+
+
 namespace Generator\Builders;
 
 use Generator\Builders\Traits\ClassMethods;
@@ -13,6 +24,31 @@ use ReflectionNamedType;
 use function count;
 use function is_array;
 use function is_numeric;
+
+use function array_pop;
+use function class_exists;
+use function explode;
+use function implode;
+use function in_array;
+use function is_string;
+use function ltrim;
+use function mb_strpos;
+use function mb_strtolower;
+use function md5;
+use function rand;
+use function random_int;
+use function str_replace;
+use function time;
+use function token_get_all;
+use function trim;
+use function var_export;
+use const T_ARRAY;
+use const T_CONSTANT_ENCAPSED_STRING;
+use const T_LNUMBER;
+use const T_OPEN_TAG;
+use const T_STRING;
+use const T_VARIABLE;
+
 
 /**
  * Class ClassGenerator

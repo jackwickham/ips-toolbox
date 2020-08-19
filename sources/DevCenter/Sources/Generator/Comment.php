@@ -19,6 +19,9 @@ use function defined;
 use function header;
 use function mb_strtolower;
 
+use const T_PUBLIC;
+
+
 if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
     header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <javascript app="toolbox">
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.debug.js" javascript_type="controller" javascript_version="30000" javascript_position="1000050"><![CDATA[;( function( $, _, undefined ) {
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.debug.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050"><![CDATA[;( function( $, _, undefined ) {
     'use strict';
     ips.createModule( 'ips.dtprofiler.debug', function() {
         var respond = function( elem, options, e ) {
@@ -24,45 +24,72 @@
         var ajax = null;
         var current = null;
         var aurl;
+        var burl;
         var el;
         var init = function( url, elem ) {
-            aurl = url + '&do=debug';
+            burl = url;
+            aurl = burl + '&do=debug';
             el = elem;
             ajax = ips.getAjax();
-            // _debug();
+            _debug();
+            elem.find( 'li.dtProfilerClear' ).on( 'click', function( e ) {
+                let el = $( this );
+                let parent = el.parent( 'ul' );
+                let parentId = parent.attr( 'id' );
+                let pid = parentId.substr( 0, parentId.length - 5 );
+                _clear();
+                $( '#' + pid ).find( '.dtprofilerCount' ).html( 0 ).attr( 'data-count', 0 );
+
+                parent.find( 'li' ).not( '.dtProfilerClear' ).each( function() {
+                    $( this ).remove();
+                } );
+
+                parent.removeClass( 'isOpen' ).
+                    slideUp().
+                    parent().
+                    find( 'i.dtprofilearrow' ).
+                    removeClass( 'fa-rotate-180' );
+            } );
+        };
+        var _clear = function() {
+            ajax( {
+                type: 'GET',
+                url: burl + '&do=clearAjax',
+                bypassRedirect: true,
+            } );
         };
         var abort = function() {
             current.abort();
         };
         var _debug = function() {
-            // current = ajax( {
-            //     type: 'POST',
-            //     data: 'last=' + $( '#elProfiledebug', el ).attr( 'data-last' ),
-            //     url: aurl,
-            //     dataType: 'json',
-            //     bypassRedirect: true,
-            //     success: function( data ) {
-            //         var countEl = el.find( '#elProfiledebug' ).find( '.dtprofilerCount' );
-            //
-            //         if ( !data.hasOwnProperty( 'error' ) ) {
-            //             $( '#elProfiledebug_list', el ).append( data.items );
-            //             var count = Number( countEl.attr( 'data-count' ) );
-            //             count = Number( data.count ) + count;
-            //             countEl.html( count ).attr( 'data-count', count );
-            //             countEl.parent().addClass( 'dtprofilerFlash' );
-            //             $( '#elProfiledebug', el ).attr( 'data-last', data.last );
-            //             if ( $( '#elProfiledebug', el ).hasClass( 'ipsHide' ) ) {
-            //                 $( '#elProfiledebug', el ).removeClass( 'ipsHide' );
-            //             }
-            //             countEl.parent().addClass( 'dtprofilerFlash' );
-            //         }
-            //     },
-            //     complete: function( data ) {
-            //         _debug();
-            //     },
-            //     error: function( data ) {
-            //     },
-            // } );
+            current = ajax( {
+                type: 'POST',
+                data: 'last=' + $( '#elProfiledebug', el ).attr( 'data-last' ),
+                url: aurl,
+                dataType: 'json',
+                bypassRedirect: true,
+                success: function( data ) {
+                    var countEl = el.find( '#elProfiledebug' ).find( '.dtprofilerCount' );
+
+                    if ( !data.hasOwnProperty( 'error' ) ) {
+                        $( '#elProfiledebug_list', el ).append( data.items );
+                        var count = Number( countEl.attr( 'data-count' ) );
+                        count = Number( data.count ) + count;
+                        countEl.html( count ).attr( 'data-count', count );
+                        countEl.parent().addClass( 'dtprofilerFlash' );
+                        $( '#elProfiledebug', el ).attr( 'data-last', data.last );
+                        if ( $( '#elProfiledebug', el ).hasClass( 'ipsHide' ) ) {
+                            $( '#elProfiledebug', el ).removeClass( 'ipsHide' );
+                        }
+                        countEl.parent().addClass( 'dtprofilerFlash' );
+                    }
+                },
+                complete: function( data ) {
+                    _debug();
+                },
+                error: function( data ) {
+                },
+            } );
         };
 
         return {
@@ -72,149 +99,142 @@
     };
 }( jQuery, _ ) );
 ]]></file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofiler.js" javascript_type="controller" javascript_version="30000" javascript_position="1000050"><![CDATA[;(function ($, _, undefined) {
-    "use strict";
-    ips.createModule('ips.dtprofiler.dtprofiler', function () {
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofiler.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050"><![CDATA[;( function( $, _, undefined ) {
+    'use strict';
+    ips.createModule( 'ips.dtprofiler.dtprofiler', function() {
         // Functions that become public methods
         let dialogId = null,
-            respond = function (elements) {
+            respond = function( elements ) {
 
-                let elem = $(elements);
-                if( !elem.data('_respond') ){
-                let h = elem.parent().outerHeight();
-                $('.dtProfilerPlaceHolder').css('height', h);
-                $(window).on('resize', function () {
+                let elem = $( elements );
+                if ( !elem.data( '_respond' ) ) {
                     let h = elem.parent().outerHeight();
-                    $('.dtProfilerPlaceHolder').css('height', h);
-                });
+                    $( '.dtProfilerPlaceHolder' ).css( 'height', h );
+                    $( window ).on( 'resize', function() {
+                        let h = elem.parent().outerHeight();
+                        $( '.dtProfilerPlaceHolder' ).css( 'height', h );
+                    } );
 
-                // $(document).on('hideDialog', function () {
-                //     dialogId = null;
-                // });
-                //
-                // $(document).on('openDialog', function (e, data) {
-                //     if (dialogId !== null) {
-                //         $(document).trigger('closeDialog', {dialogID: dialogId});
-                //     }
-                //     dialogId = data.elemID + '_dialog';
-                //
-                // });
+                    // $(document).on('hideDialog', function () {
+                    //     dialogId = null;
+                    // });
+                    //
+                    // $(document).on('openDialog', function (e, data) {
+                    //     if (dialogId !== null) {
+                    //         $(document).trigger('closeDialog', {dialogID: dialogId});
+                    //     }
+                    //     dialogId = data.elemID + '_dialog';
+                    //
+                    // });
 
-                $(document).on('click', function (e) {
-                    let el = $(e.target);
-                    let parent = el.parents('div#dtProfilerBarContainer');
-                    if (parent.length === 0) {
-                        elem.find('ul.isOpen').removeClass('isOpen').slideUp().parent().find('i.dtprofilearrow').removeClass('fa-rotate-180');
-                    }
-                });
-
-                elem.find('li.dtProfilerClear').on('click', function(e){
-                    let el = $(this);
-                    let parent = el.parent('ul');
-                    let parentId = parent.attr('id');
-                    let pid = parentId.substr(0, parentId.length - 5);
-
-                    $('#'+pid).find('.dtprofilerCount').html(0).attr('data-count', 0);
-
-                    parent.find('li').not('.dtProfilerClear').each(function(){
-                        $(this).remove();
-                    });
-
-                    parent.removeClass('isOpen').slideUp().parent().find('i.dtprofilearrow').removeClass('fa-rotate-180');
-                });
-
-                elem.find('> li.isParent').on('click', function () {
-                    closeDialog();
-                    let el = $(this);
-                    if (el.is('i')) {
-                        el = el.parent('li');
-                    }
-
-                    el.removeClass('dtprofilerFlash');
-                    let bottom = el.parents('div').outerHeight(),
-                        id = el.attr('id') + '_list',
-                        child = $('#' + id), left = el.position().left;
-
-                    if (!child.hasClass('isOpen')) {
-                        if (child.hasClass('dtProfilerMaxWidth')) {
-                            left = 0;
+                    $( document ).on( 'click', function( e ) {
+                        let el = $( e.target );
+                        let parent = el.parents( 'div#dtProfilerBarContainer' );
+                        if ( parent.length === 0 ) {
+                            elem.find( 'ul.isOpen' ).
+                                removeClass( 'isOpen' ).
+                                slideUp().
+                                parent().
+                                find( 'i.dtprofilearrow' ).
+                                removeClass( 'fa-rotate-180' );
                         }
-                        else {
-                            child.show();
-                            let cWidth = child.outerWidth();
-                            let cPos = left + cWidth;
-                            child.hide();
-                            let windowWidth = $(window).width();
-                            if (cPos > windowWidth) {
-                                left = left - (cPos - windowWidth);
+                    } );
+
+                    elem.find( '> li.isParent' ).on( 'click', function() {
+                        closeDialog();
+                        let el = $( this );
+                        if ( el.is( 'i' ) ) {
+                            el = el.parent( 'li' );
+                        }
+
+                        el.removeClass( 'dtprofilerFlash' );
+                        let bottom = el.parents( 'div' ).outerHeight(),
+                            id = el.attr( 'id' ) + '_list',
+                            child = $( '#' + id ), left = el.position().left;
+
+                        if ( !child.hasClass( 'isOpen' ) ) {
+                            if ( child.hasClass( 'dtProfilerMaxWidth' ) ) {
+                                left = 0;
+                            } else {
+                                child.show();
+                                let cWidth = child.outerWidth();
+                                let cPos = left + cWidth;
+                                child.hide();
+                                let windowWidth = $( window ).width();
+                                if ( cPos > windowWidth ) {
+                                    left = left - ( cPos - windowWidth );
+                                }
                             }
+                            elem.find( 'ul.isOpen' ).
+                                removeClass( 'isOpen' ).
+                                slideUp().
+                                parent().
+                                find( 'i.dtprofilearrow' ).
+                                removeClass( 'fa-rotate-180' );
+                            child.css( 'left', left ).css( 'bottom', bottom );
+                            child.addClass( 'isOpen' ).slideDown();
+                            el.find( 'i.dtprofilearrow' ).addClass( 'fa-rotate-180' );
+                        } else {
+                            child.removeClass( 'isOpen' );
+                            child.slideUp();
+                            el.find( 'i.dtprofilearrow' ).removeClass( 'fa-rotate-180' );
                         }
-                        elem.find('ul.isOpen').removeClass('isOpen').slideUp().parent().find('i.dtprofilearrow').removeClass('fa-rotate-180');
-                        child.css('left', left).css('bottom', bottom);
-                        child.addClass('isOpen').slideDown();
-                        el.find('i.dtprofilearrow').addClass('fa-rotate-180');
-                    }
-                    else {
-                        child.removeClass('isOpen');
-                        child.slideUp();
-                        el.find('i.dtprofilearrow').removeClass('fa-rotate-180');
-                    }
-                });
-                elem.data('_respond', 1);
+                    } );
+                    elem.data( '_respond', 1 );
                 }
             },
-            closeDialog = function () {
-                if (dialogId !== null) {
-                    $(document).trigger('closeDialog', {dialogID: dialogId});
+            closeDialog = function() {
+                if ( dialogId !== null ) {
+                    $( document ).trigger( 'closeDialog', { dialogID: dialogId } );
                 }
             };
 
         // Register this module as a widget to enable the data API and
         // jQuery plugin functionality
-        ips.ui.registerWidget('dtprofiler', ips.dtprofiler.dtprofiler);
+        ips.ui.registerWidget( 'dtprofiler', ips.dtprofiler.dtprofiler );
 
         // Expose public methods
         return {
-            respond: respond
+            respond: respond,
         };
-    });
-}(jQuery, _));
+    } );
+}( jQuery, _ ) );
 ]]></file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofilergit.js" javascript_type="controller" javascript_version="30000" javascript_position="1000050">;( function($, _, undefined){
-    &quot;use strict&quot;;
-    ips.createModule('ips.dtprofiler.dtprofilergit', function(){
-        // Functions that become public methods
-        var respond = function (elem, options, e) {
-            var ajax = ips.getAjax();
-            var url = options.url;
-            elem = $(elem);
-            ajax({
-                type: &quot;GET&quot;,
-                url: url,
-                dataType: &quot;json&quot;,
-                bypassRedirect: true,
-                success: function (data) {
-                    if (data.hasOwnProperty('html')) {
-                        elem.html( data.html );
-                    }
-                },
-                complete: function (data) {
-                }
-            });
-        };
-
-        // Register this module as a widget to enable the data API and
-        // jQuery plugin functionality
-        ips.ui.registerWidget( 'dtprofilergit', ips.dtprofiler.dtprofilergit, ['url'] );
-
-        // Expose public methods
-        return {
-            respond: respond
-        };
-    });
-}(jQuery, _));
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.dtprofilergit.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050">;( function($, _, undefined){&#13;
+    &quot;use strict&quot;;&#13;
+    ips.createModule('ips.dtprofiler.dtprofilergit', function(){&#13;
+        // Functions that become public methods&#13;
+        var respond = function (elem, options, e) {&#13;
+            var ajax = ips.getAjax();&#13;
+            var url = options.url;&#13;
+            elem = $(elem);&#13;
+            ajax({&#13;
+                type: &quot;GET&quot;,&#13;
+                url: url,&#13;
+                dataType: &quot;json&quot;,&#13;
+                bypassRedirect: true,&#13;
+                success: function (data) {&#13;
+                    if (data.hasOwnProperty('html')) {&#13;
+                        elem.html( data.html );&#13;
+                    }&#13;
+                },&#13;
+                complete: function (data) {&#13;
+                }&#13;
+            });&#13;
+        };&#13;
+&#13;
+        // Register this module as a widget to enable the data API and&#13;
+        // jQuery plugin functionality&#13;
+        ips.ui.registerWidget( 'dtprofilergit', ips.dtprofiler.dtprofilergit, ['url'] );&#13;
+&#13;
+        // Expose public methods&#13;
+        return {&#13;
+            respond: respond&#13;
+        };&#13;
+    });&#13;
+}(jQuery, _));&#13;
 </file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.search.js" javascript_type="controller" javascript_version="30000" javascript_position="1000050"><![CDATA[;( function($, _, undefined){
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.dtprofiler.search.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050"><![CDATA[;( function($, _, undefined){
     "use strict";
     ips.createModule('ips.dtprofiler.search', function(){
         // Functions that become public methods
@@ -269,7 +289,7 @@
     });
 }(jQuery, _));
 ]]></file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.ui.dtprofiler.clipboard.js" javascript_type="controller" javascript_version="30000" javascript_position="1000050">;( function( $, _, undefined ) {&#13;
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.ui.dtprofiler.clipboard.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050">;( function( $, _, undefined ) {&#13;
     'use strict';&#13;
     ips.createModule( 'ips.ui.dtprofiler.clipboard', function() {&#13;
         // Functions that become public methods&#13;
@@ -338,7 +358,7 @@
     } );&#13;
 }( jQuery, _ ) );&#13;
 </file>
- <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.ui.toolbox.lorem.js" javascript_type="controller" javascript_version="30000" javascript_position="1000050"><![CDATA[;( function( $, _, undefined ) {
+ <file javascript_app="toolbox" javascript_location="front" javascript_path="controllers/profiler" javascript_name="ips.ui.toolbox.lorem.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050"><![CDATA[;( function( $, _, undefined ) {
     'use strict';
     ips.createModule( 'ips.ui.toolbox.lorem', function() {
         // Functions that become public methods
@@ -406,7 +426,7 @@
     } );
 }( jQuery, _ ) );
 ]]></file>
- <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/query" javascript_name="ips.query.query.js" javascript_type="controller" javascript_version="30000" javascript_position="1000050"><![CDATA[;( function($, _, undefined){
+ <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/query" javascript_name="ips.query.query.js" javascript_type="controller" javascript_version="40000" javascript_position="1000100"><![CDATA[;( function($, _, undefined){
     "use strict";
     ips.controller.register('ips.admin.dtdevplus.query', {
         initialize: function () {
@@ -428,32 +448,32 @@
         }
     });
 }(jQuery, _));]]></file>
- <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/toggles" javascript_name="ips.dwlabs.toggles.js" javascript_type="controller" javascript_version="30000" javascript_position="1000100">;(function ($, _, undefined) {
-    &quot;use strict&quot;;
-    ips.createModule('ips.dtcode.toggles', function () {
-        var respond = function (elem, options, e) {
-            $(elem).click(
-                function (e) {
-                    e.preventDefault();
-                    var el = $('#tab_' + options.id);
-                    if (el.data('isOpen') == 1) {
-                        $(this).find('i:first').removeClass('fa-rotate-180');
-                        el.slideUp().removeData('isOpen');
-                    }
-                    else {
-                        $(this).find('i:first').addClass('fa-rotate-180');
-                        el.slideDown().data('isOpen', 1);
-                    }
-
-                });
-        };
-        ips
-            .ui
-            .registerWidget('dtcodetoggle', ips.dtcode.toggles, ['id']);
-        return {
-            respond: respond
-        };
-    });
-}(jQuery, _));
+ <file javascript_app="toolbox" javascript_location="admin" javascript_path="controllers/toggles" javascript_name="ips.dwlabs.toggles.js" javascript_type="controller" javascript_version="40000" javascript_position="1000050">;(function ($, _, undefined) {&#13;
+    &quot;use strict&quot;;&#13;
+    ips.createModule('ips.dtcode.toggles', function () {&#13;
+        var respond = function (elem, options, e) {&#13;
+            $(elem).click(&#13;
+                function (e) {&#13;
+                    e.preventDefault();&#13;
+                    var el = $('#tab_' + options.id);&#13;
+                    if (el.data('isOpen') == 1) {&#13;
+                        $(this).find('i:first').removeClass('fa-rotate-180');&#13;
+                        el.slideUp().removeData('isOpen');&#13;
+                    }&#13;
+                    else {&#13;
+                        $(this).find('i:first').addClass('fa-rotate-180');&#13;
+                        el.slideDown().data('isOpen', 1);&#13;
+                    }&#13;
+&#13;
+                });&#13;
+        };&#13;
+        ips&#13;
+            .ui&#13;
+            .registerWidget('dtcodetoggle', ips.dtcode.toggles, ['id']);&#13;
+        return {&#13;
+            respond: respond&#13;
+        };&#13;
+    });&#13;
+}(jQuery, _));&#13;
 </file>
 </javascript>

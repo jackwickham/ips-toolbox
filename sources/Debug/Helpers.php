@@ -4,6 +4,24 @@ require_once $upOne . '/Editor/Editor.php';
 
 use IPS\toolbox\Editor;
 
+use function count;
+use function debug_backtrace;
+use function dirname;
+use function func_get_args;
+use function implode;
+use function is_array;
+use function is_bool;
+use function is_numeric;
+use function is_object;
+use function ob_end_clean;
+use function ob_get_contents;
+use function ob_start;
+use function print_r;
+use function str_replace;
+use function var_dump;
+use function var_export;
+
+
 class Helpers
 {
     protected $args = [];

@@ -1,18 +1,15 @@
 <?php
 
 /**
- * Lorem Ipsum Generator
- *
- * PHP version 5.3+
- *
- * Licensed under The MIT License.
- * Redistribution of these files must retain the above copyright notice.
- *
- * @author    Josh Sherman <hello@joshtronic.com>
- * @copyright Copyright 2014, 2015, 2016, 2017, 2018, 2019 Josh Sherman
- * @license   http://www.opensource.org/licenses/mit-license.html
- * @link      https://github.com/joshtronic/php-loremipsum
+ * @brief       Lorem Class
+ * @author      -storm_author-
+ * @copyright   -storm_copyright-
+ * @package     IPS Social Suite
+ * @subpackage  Dev Toolbox
+ * @since       4.0.0
+ * @version     -storm_version-
  */
+
 
 namespace IPS\toolbox\Shared;
 
@@ -33,6 +30,9 @@ use function shuffle;
 use function sprintf;
 use function sqrt;
 use function str_replace;
+
+use const M_PI;
+
 
 /**
  * Class _Lorem

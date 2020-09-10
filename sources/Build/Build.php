@@ -84,7 +84,7 @@ class _Build extends Singleton
             $application->version = $short;
             $application->save();
             unset( Store::i()->applications );
-            $path = \IPS\ROOT_PATH . '/' . $application->directory . '/' . $short . '/';
+            $path = \IPS\ROOT_PATH . '/' . $application->directory . '_tar/' . $short . '/';
 
             try {
                 Slasher::i()->start( $application, $values[ 'toolbox_skip_files' ] ?? [], $values[ 'toolbox_skip_dir' ] ?? [] );

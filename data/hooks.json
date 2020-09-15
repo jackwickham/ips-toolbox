@@ -115,6 +115,10 @@
         "type": "C",
         "class": "\\IPS\\Plugin\\Hook"
     },
+    "Content": {
+        "type": "C",
+        "class": "\\IPS\\Content"
+    },
     "SessionAdmin": {
         "type": "C",
         "class": "\\IPS\\Session\\Admin"

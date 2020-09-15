@@ -1,0 +1,18 @@
+{
+    "files": {
+        "added": [],
+        "edited": [
+            "toolbox\/front\/controllers\/profiler\/ips.dtprofiler.debug.js",
+            "toolbox\/front\/controllers\/profiler\/ips.dtprofiler.dtprofiler.js",
+            "toolbox\/front\/controllers\/profiler\/ips.dtprofiler.search.js",
+            "toolbox\/front\/controllers\/profiler\/ips.ui.toolbox.lorem.js",
+            "toolbox\/admin\/controllers\/query\/ips.query.query.js"
+        ],
+        "removed": []
+    },
+    "orders": {
+        "added": [],
+        "edited": [],
+        "removed": []
+    }
+}

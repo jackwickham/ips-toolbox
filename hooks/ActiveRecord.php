@@ -23,7 +23,7 @@ class toolbox_hook_ActiveRecord extends _HOOK_CLASS_
             $r = new \ReflectionClass($this);
             if ( $r->getProperty('multitons')->getDeclaringClass()->getName() === 'IPS\Patterns\_ActiveRecord') {
 
-                throw new \RuntimeException('You are missing protected static $multions=[]; property in your class '.static::class );
+                throw new \RuntimeException('You are missing protected static $multitons=[]; property in your class '.static::class );
             }
         }
         parent::__construct(...\func_get_args());

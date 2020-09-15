@@ -1,0 +1,30 @@
+{
+    "added": [
+        "dtdevplus_skip_dirs",
+        "dtdevplus_skip_files",
+        "dtprofiler_can_use",
+        "dtprofiler_enable_debug",
+        "dtprofiler_enable_debug_ajax",
+        "dtprofiler_enabled_css",
+        "dtprofiler_enabled_enivro",
+        "dtprofiler_enabled_execution",
+        "dtprofiler_enabled_executions",
+        "dtprofiler_enabled_files",
+        "dtprofiler_enabled_js",
+        "dtprofiler_enabled_jsvars",
+        "dtprofiler_enabled_logs",
+        "dtprofiler_enabled_memory",
+        "dtprofiler_enabled_memory_summary",
+        "dtprofiler_enabled_templates",
+        "dtprofiler_git_data",
+        "dtprofiler_logs_amount",
+        "dtprofiler_show_admin",
+        "dtprofiler_show_changes",
+        "dtproxy_do_constants",
+        "dtproxy_do_props",
+        "dtproxy_do_proxies",
+        "toolbox_debug_templates"
+    ],
+    "edited": [],
+    "removed": []
+}

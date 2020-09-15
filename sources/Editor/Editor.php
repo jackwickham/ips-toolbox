@@ -30,6 +30,7 @@ class _Editor
         'macvim'   => 'mvim://open/?url=file://#file&line=#line',
         'phpstorm' => 'phpstorm://open?file=#file&line=#line',
         'idea'     => 'idea://open?file=#file&line=#line',
+        'vscode' => 'vscode://file/#file:#line'
     ];
 
     /**
@@ -50,15 +51,16 @@ class _Editor
      */
     public function replace( string $path, $line = 0 )
     {
+
         if ( isset( static::$editors[ \IPS\DEV_WHOOPS_EDITOR ] ) ) {
             $editor = static::$editors[ \IPS\DEV_WHOOPS_EDITOR ];
             $path = rawurlencode( $path );
-            if ( $line === \null ) {
+            if ( $line === null) {
                 $line = 0;
             }
             return str_replace( [ '#file', '#line' ], [ $path, $line ], $editor );
         }
 
-        return \null;
+        return null;
     }
 }

@@ -1,0 +1,43 @@
+{
+    "html": {
+        "added": [],
+        "edited": [
+            "front\/bar\/bar",
+            "front\/bar\/git",
+            "front\/bt\/phpinfo",
+            "front\/caching\/caching",
+            "front\/database\/database",
+            "admin\/devBar\/devBar",
+            "admin\/devBar\/li",
+            "admin\/dtdpmenu\/menu",
+            "front\/dtpsearch\/button",
+            "front\/dtpsearch\/keyvalue",
+            "admin\/error\/error",
+            "front\/generic\/anchor",
+            "front\/generic\/button",
+            "front\/generic\/genericVal",
+            "front\/generic\/keyvalue",
+            "front\/generic\/keyvalueDebug",
+            "front\/generic\/li",
+            "front\/generic\/plain",
+            "front\/generic\/string",
+            "front\/generic\/stringDebug",
+            "admin\/results\/files",
+            "admin\/results\/lists"
+        ],
+        "removed": []
+    },
+    "css": {
+        "added": [],
+        "edited": [
+            "admin\/devbar.css",
+            "front\/profiler.css"
+        ],
+        "removed": []
+    },
+    "resources": {
+        "added": [],
+        "edited": [],
+        "removed": []
+    }
+}

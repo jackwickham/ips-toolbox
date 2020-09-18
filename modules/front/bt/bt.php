@@ -32,9 +32,9 @@ use IPS\toolbox\Form;
 use IPS\toolbox\Profiler;
 use IPS\toolbox\Profiler\Debug;
 use IPS\toolbox\Shared\Lorem;
-use phpQuery;
 use Symfony\Component\Filesystem\Filesystem;
 use UnexpectedValueException;
+
 use function base64_decode;
 use function count;
 use function defined;
@@ -46,24 +46,23 @@ use function is_dir;
 use function md5;
 use function microtime;
 use function nl2br;
-use function phpinfo;
-use function sleep;
-use function str_replace;
-use function time;
-use const IPS\ROOT_PATH;
-
-use function log;
 use function ob_end_clean;
 use function ob_get_clean;
 use function ob_start;
+use function phpinfo;
 use function preg_replace;
 use function random_int;
+use function sleep;
+use function str_replace;
+use function time;
+
+use const IPS\ROOT_PATH;
 
 
 Application::loadAutoLoader();
 
-if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -78,18 +77,15 @@ class _bt extends Controller
      */
     protected function manage(): void
     {
-
         $store = Store::i()->dtprofiler_bt;
         $hash = Request::i()->bt;
         $output = 'Nothing Found';
-        if ( isset( $store[ $hash ] ) ) {
-            $bt = str_replace( "\\\\", "\\", $store[ $hash ][ 'bt' ] );
-            $output = '<code>' . $store[ $hash ][ 'query' ] . '</code><br><pre class="prettyprint lang-php">' . $bt . '</pre>';
-
+        if (isset($store[$hash])) {
+            $bt = str_replace("\\\\", "\\", $store[$hash]['bt']);
+            $output = '<code>' . $store[$hash]['query'] . '</code><br><pre class="prettyprint lang-php">' . $bt . '</pre>';
         }
 
         Output::i()->output = "<div class='ipsPad'>{$output}</div>";
-
     }
 
     /**
@@ -97,19 +93,16 @@ class _bt extends Controller
      */
     protected function cache(): void
     {
-
         $store = Store::i()->dtprofiler_bt_cache;
         $hash = Request::i()->bt;
         $output = 'Nothing Found';
-        if ( isset( $store[ $hash ] ) ) {
-            $bt = str_replace( "\\\\", "\\", $store[ $hash ][ 'bt' ] );
-            $content = nl2br( htmlentities( $store[ $hash ][ 'content' ] ) );
+        if (isset($store[$hash])) {
+            $bt = str_replace("\\\\", "\\", $store[$hash]['bt']);
+            $content = nl2br(htmlentities($store[$hash]['content']));
             $output = '<code>' . $content . '</code><br><pre class="prettyprint lang-php">' . $bt . '</pre>';
-
         }
 
         Output::i()->output = "<div class='ipsPad'>{$output}</div>";
-
     }
 
     /**
@@ -117,28 +110,25 @@ class _bt extends Controller
      */
     protected function log(): void
     {
-
         $id = Request::i()->id;
         $output = 'Nothing Found';
         try {
-            $log = Log::load( $id );
-            $data = DateTime::ts( $log->time );
+            $log = Log::load($id);
+            $data = DateTime::ts($log->time);
             $name = 'Date: ' . $data;
-            if ( $log->category !== null ) {
+            if ($log->category !== null) {
                 $name .= '<br> Type: ' . $log->category;
             }
 
-            if ( $log->url !== null ) {
+            if ($log->url !== null) {
                 $name .= '<br> URL: ' . $log->url;
             }
-            $msg = nl2br( htmlentities( $log->message ) );
+            $msg = nl2br(htmlentities($log->message));
             $output = $name . '<br>' . $msg . '<br><pre class="prettyprint lang-php">' . $log->backtrace . '</pre>';
-
-        } catch ( Exception $e ) {
+        } catch (Exception $e) {
         }
 
         Output::i()->output = "<div class='ipsPad'>{$output}</div>";
-
     }
 
     /**
@@ -147,14 +137,13 @@ class _bt extends Controller
      */
     protected function debug(): void
     {
-
-        $max = ( ini_get( 'max_execution_time' ) / 2 ) - 5;
+        $max = (ini_get('max_execution_time') / 2) - 5;
         $time = time();
         $since = Request::i()->last ?: 0;
-        while ( true ) {
+        while (true) {
             $ct = time() - $time;
-            if ( $ct >= $max ) {
-                Output::i()->json( [ 'error' => 1 ] );
+            if ($ct >= $max) {
+                Output::i()->json(['error' => 1]);
             }
 
             $config = [
@@ -162,38 +151,36 @@ class _bt extends Controller
                     'debug_id > ? AND debug_viewed = ?',
                     $since,
                     0,
-                ],
-                'flags' => Db::SELECT_SQL_CALC_FOUND_ROWS,
+                ]
             ];
-            $debug = Debug::all( $config );
-            if ( count( $debug ) !== 0 ) {
-
+            $debug = Debug::all($config, true);
+            if ($debug !== 0) {
+                $debug = Debug::all($config);
                 $last = 0;
                 $list = [];
                 /* @var Debug $obj */
-                foreach ( $debug as $obj ) {
+                foreach ($debug as $obj) {
                     $list[] = $obj->body();
                     $last = $obj->id;
                 }
 
                 $return = [];
-                if ( empty( $list ) !== true ) {
-                    $count = count( $list );
-                    $return[ 'count' ] = $count;
+                if (empty($list) !== true) {
+                    $count = count($list);
+                    $return['count'] = $count;
                     $lists = '';
-                    foreach ( $list as $l ) {
-                        $lists .= Theme::i()->getTemplate( 'generic', 'toolbox', 'front' )->li( $l );
+                    foreach ($list as $l) {
+                        $lists .= Theme::i()->getTemplate('generic', 'toolbox', 'front')->li($l);
                     }
-                    $return[ 'last' ] = $last;
-                    $return[ 'items' ] = $lists;
+                    $return['last'] = $last;
+                    $return['items'] = $lists;
                 }
 
-                if ( is_array( $return ) && count( $return ) ) {
-                    Output::i()->json( $return );
+                if (is_array($return) && count($return)) {
+                    Output::i()->json($return);
                 }
-            }
-            else {
-                sleep( 1 );
+            } else {
+                sleep(1);
                 continue;
             }
         }
@@ -201,32 +188,30 @@ class _bt extends Controller
 
     protected function phpinfo(): void
     {
-
         ob_start();
         phpinfo();
         $content = ob_get_clean();
         ob_end_clean();
-        $content = preg_replace('#<head>(?:.|\n|\r)+?</head>#miu','', $content);
+        $content = preg_replace('#<head>(?:.|\n|\r)+?</head>#miu', '', $content);
         Output::i()->title = 'phpinfo()';
         Output::i()->output = Theme::i()->getTemplate('bt', 'toolbox', 'front')->phpinfo($content);
     }
 
     protected function clearCaches(): void
     {
-
-        $redirect = base64_decode( Request::i()->data );
+        $redirect = base64_decode(Request::i()->data);
         /* Clear JS Maps first */
         Output::clearJsFiles();
 
         /**
-         * @var int    $id
+         * @var int $id
          * @var  Theme $set
          */
-        foreach ( Theme::themes() as $id => $set ) {
+        foreach (Theme::themes() as $id => $set) {
             /* Invalidate template disk cache */
             try {
-                $set->cache_key = md5( microtime() . random_int( 0, 1000 ) );
-            } catch ( Exception $e ) {
+                $set->cache_key = md5(microtime() . random_int(0, 1000));
+            } catch (Exception $e) {
             }
 
             /* Update mappings */
@@ -240,137 +225,131 @@ class _bt extends Controller
 
         $path = ROOT_PATH . '/hook_temp';
 
-        if ( is_dir( $path ) ) {
+        if (is_dir($path)) {
             Application::loadAutoLoader();
             $fs = new Filesystem();
-            $fs->remove( [ $path ] );
+            $fs->remove([$path]);
         }
 
-        Output::i()->redirect( $redirect );
+        Output::i()->redirect($redirect);
     }
 
     protected function thirdParty(): void
     {
-
         $enable = Request::i()->enable;
-        $redirect = base64_decode( Request::i()->data );
+        $redirect = base64_decode(Request::i()->data);
         $apps = Profiler::i()->apps();
         $plugins = Profiler::i()->plugins();
 
         /* Loop Apps */
-        foreach ( $apps as $app ) {
-            Db::i()->update( 'core_applications', [ 'app_enabled' => $enable ], [ 'app_id=?', $app->id ] );
+        foreach ($apps as $app) {
+            Db::i()->update('core_applications', ['app_enabled' => $enable], ['app_id=?', $app->id]);
         }
 
         /* Look Plugins */
-        foreach ( $plugins as $plugin ) {
-            Db::i()->update( 'core_plugins', [ 'plugin_enabled' => $enable ], [ 'plugin_id=?', $plugin->id ] );
+        foreach ($plugins as $plugin) {
+            Db::i()->update('core_plugins', ['plugin_enabled' => $enable], ['plugin_id=?', $plugin->id]);
         }
 
-        if ( !empty( $apps ) ) {
+        if (!empty($apps)) {
             Application::postToggleEnable();
         }
 
-        if ( !empty( $plugins ) ) {
-            Plugin::postToggleEnable( true );
+        if (!empty($plugins)) {
+            Plugin::postToggleEnable(true);
         }
 
         /* Clear cache */
         Cache::i()->clearAll();
-        Output::i()->redirect( $redirect );
+        Output::i()->redirect($redirect);
     }
 
     protected function enableDisableApp(): void
     {
-
         $enabled = !Request::i()->enabled;
-        $redirect = base64_decode( Request::i()->data );
+        $redirect = base64_decode(Request::i()->data);
         $id = Request::i()->id;
-        Db::i()->update( 'core_applications', [ 'app_enabled' => $enabled ], [ 'app_id=?', $id ] );
+        Db::i()->update('core_applications', ['app_enabled' => $enabled], ['app_id=?', $id]);
         Application::postToggleEnable();
         Cache::i()->clearAll();
-        Output::i()->redirect( $redirect );
+        Output::i()->redirect($redirect);
     }
 
     protected function enableDisablePlugin(): void
     {
-
         $enabled = !Request::i()->enabled;
-        $redirect = base64_decode( Request::i()->data );
+        $redirect = base64_decode(Request::i()->data);
         $id = Request::i()->id;
-        Db::i()->update( 'core_plugins', [ 'plugin_enabled' => $enabled ], [ 'plugin_id=?', $id ] );
+        Db::i()->update('core_plugins', ['plugin_enabled' => $enabled], ['plugin_id=?', $id]);
         Application::postToggleEnable();
         Cache::i()->clearAll();
-        Output::i()->redirect( $redirect );
+        Output::i()->redirect($redirect);
     }
 
     protected function gitInfo(): void
     {
-
         $info = [];
-        Profiler::i()->getLastCommitId( $info );
-        Profiler::i()->hasChanges( $info );
+        Profiler::i()->getLastCommitId($info);
+        Profiler::i()->hasChanges($info);
         $html = '';
-        if ( !empty( $info ) ) {
-            $html = Theme::i()->getTemplate( 'bar', 'toolbox', 'front' )->git( $info );
+        if (!empty($info)) {
+            $html = Theme::i()->getTemplate('bar', 'toolbox', 'front')->git($info);
         }
 
-        Output::i()->json( [ 'html' => $html ] );
+        Output::i()->json(['html' => $html]);
     }
 
     protected function gitCheckout()
     {
-
     }
 
     protected function lorem(): void
     {
+        if (Session::i()->userAgent->browser === 'Chrome') {
+            $form = Form::create()->formPrefix('toolbox_lorem_');
 
-        if ( Session::i()->userAgent->browser === 'Chrome' ) {
-            $form = Form::create()->formPrefix( 'toolbox_lorem_' );
+            $form->add('amount', 'number')->value(5)->options(['min' => 1]);
+            $form->add('type', 'select')->options(
+                [
+                    'options' => [
+                        0 => 'Select type',
+                        1 => 'Words',
+                        2 => 'Sentences',
+                        3 => 'Paragraphs',
+                    ],
+                ]
+            )->required();
 
-            $form->add( 'amount', 'number' )->value( 5 )->options( [ 'min' => 1 ] );
-            $form->add( 'type', 'select' )->options( [
-                'options' => [
-                    0 => 'Select type',
-                    1 => 'Words',
-                    2 => 'Sentences',
-                    3 => 'Paragraphs',
-                ],
-            ] )->required();
-
-            if ( $values = $form->values() ) {
+            if ($values = $form->values()) {
                 $return = '';
-                $amount = $values[ 'amount' ];
-                switch ( $values[ 'type' ] ) {
+                $amount = $values['amount'];
+                switch ($values['type']) {
                     case 1:
-                        $return = Lorem::i()->words( $amount );
+                        $return = Lorem::i()->words($amount);
                         break;
                     case 2:
-                        $return = Lorem::i()->sentences( $amount );
+                        $return = Lorem::i()->sentences($amount);
                         break;
                     case 3:
-                        $return = Lorem::i()->paragraphs( $amount );
+                        $return = Lorem::i()->paragraphs($amount);
                         break;
                 }
 
-                Output::i()->json( [ 'text' => $return, 'type' => 'toolboxClipBoard' ] );
+                Output::i()->json(['text' => $return, 'type' => 'toolboxClipBoard']);
             }
             Output::i()->output = $form->dialogForm();
-        }
-        else {
-            Output::i()->output = '<div class="ipsPad">' . nl2br( Lorem::i()->paragraphs( 8 ) ) . '</div>';
+        } else {
+            Output::i()->output = '<div class="ipsPad">' . nl2br(Lorem::i()->paragraphs(8)) . '</div>';
         }
     }
 
     protected function bitwiseValues()
     {
-
         $start = 1;
-        $values = [ 1 ];
+        $values = [1];
         $html = '<div class="ipsPad ipsClearfix">';
         $html .= '<div class="ipsPad ipsPos_left">1 => 1</div>';
-        for ( $i = 2; $i <= 45; $i++ ) {
+        for ($i = 2; $i <= 45; $i++) {
             $start *= 2;
             $html .= '<div class="ipsPad ipsPos_left">' . $i . ' => ' . $start . '</div>';
         }
@@ -380,13 +359,14 @@ class _bt extends Controller
 
     protected function clearAjax()
     {
-
-        Db::i()->update( 'toolbox_debug', [ 'debug_viewed' => 1 ] );
+        Db::i()->update('toolbox_debug', ['debug_viewed' => 1]);
     }
 
-    protected function adminer(){
-        $url =  Url::baseUrl().'/applications/toolbox/sources/Profiler/Adminer/db.php';
-        Output::i()->output = '<iframe id="toolboxAdminer"  width="100%" height="600px" marginheight="0" frameborder="0" src="'.$url.'"></iframe>';
+    protected function adminer()
+    {
+        $url = Url::baseUrl() . '/applications/toolbox/sources/Profiler/Adminer/db.php';
+        Output::i(
+        )->output = '<iframe id="toolboxAdminer"  width="100%" height="600px" marginheight="0" frameborder="0" src="' . $url . '"></iframe>';
     }
 
     //    protected function checkout(){

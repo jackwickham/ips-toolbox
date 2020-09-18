@@ -69,7 +69,7 @@ class _Url extends GeneratorAbstract
             'name'   => 'url',
             'source' => [
                 'contributor' => 'return_array',
-                'parameter'   => 'dtProxy\\HttpProvider::url',
+                'parameter'   => 'dtProxy\\HttpProvider::get',
             ],
         ];
 
@@ -102,13 +102,30 @@ class _Url extends GeneratorAbstract
             'name'   => 'furl',
             'source' => [
                 'contributor' => 'return_array',
-                'parameter'   => 'dtProxy\\FurlProvider::furl',
+                'parameter'   => 'dtProxy\\FurlProvider::get',
+            ],
+        ];
+
+        $jsonMeta['registrar'][] = [
+            'signature' => [
+                "IPS\\Output::error:1"
+            ],
+            'provider' => 'error',
+            'language' => 'php',
+        ];
+
+        $jsonMeta['providers'][] = [
+            'name' => 'error',
+            'source' => [
+                'contributor' => 'return_array',
+                'parameter'   => 'dtProxy\\ErrorCodesProvider::get',
             ],
         ];
 
         Store::i()->dt_json = $jsonMeta;
 
-
+        $this->writeClass('Error', 'ErrorCodesProvider', array_filter(Store::i()->dt_error_codes));
+unset(Store::i()->dt_error_codes);
         try {
             $toWrite = [];
             $sql = Db::i()->select( '*', 'core_modules', \null, 'sys_module_position' )->join( 'core_permission_index', [
@@ -176,6 +193,7 @@ class _Url extends GeneratorAbstract
         }
 
         $this->writeClass( 'Furl', 'FurlProvider', $definitions );
+
     }
 }
 

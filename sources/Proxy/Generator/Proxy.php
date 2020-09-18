@@ -138,7 +138,8 @@ class _Proxy extends GeneratorAbstract
                 }
 
                 $c =  trim(str_replace(['"',"'"],'',trim($m[2])));
-                if( $c && mb_strpos($c,'$') === false && mb_strpos($c, '<') === false && $c != 'FALSE' && $c != 'false' ) {
+                $first = mb_substr($c, 0, 1);
+                if( $c && (int) $first && mb_strpos($c,'$') === false && mb_strpos($c, '<') === false && $c != 'FALSE' && $c != 'false') {
                     $codes[] = $c;
                 }
                 return null;

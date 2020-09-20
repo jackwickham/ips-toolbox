@@ -36,7 +36,7 @@ class _DTFileGenerator extends FileGenerator
      * @return FileGenerator
      * @throws \Zend\Code\Generator\Exception\RuntimeException
      */
-    public function write(): FileGenerator
+    public function write($isPhp = true): FileGenerator
     {
 
         if ( $this->filename !== '' ) {

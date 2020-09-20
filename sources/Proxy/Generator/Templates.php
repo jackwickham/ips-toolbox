@@ -65,27 +65,27 @@ class _Templates extends GeneratorAbstract
     {
         $jsonMeta = Store::i()->dt_json ?? [];
 
-//        $jsonMeta[ 'registrar' ][] = [
-//            'signature' => [
-//                "IPS\\Theme::getTemplate:0",
-//            ],
-//            'provider'  => 'templateGroup',
-//            'language'  => 'php',
-//        ];
+        $jsonMeta[ 'registrar' ][] = [
+            'signature' => [
+                "IPS\\Theme::getTemplate:0",
+            ],
+            'provider'  => 'templateGroup',
+            'language'  => 'php',
+        ];
         //this pisses me off, this use to work!
         $jsonMeta[ 'registrar' ][] = [
             'signature' => [
                 'IPS\\Theme::getTemplate:0',
             ],
-//            'signatures' => [
-//                [
-//                    'class'  => Theme::class,
-//                    'method' => 'getTemplate',
-//                    'index' => 0,
-//                    'type'   => 'type',
-//                ],
-//
-//            ],
+            'signatures' => [
+                [
+                    'class'  => Theme::class,
+                    'method' => 'getTemplate',
+                    'index' => 0,
+                    'type'   => 'type',
+                ],
+
+            ],
             'provider'   => 'templateClass',
             'language'   => 'php',
         ];
@@ -121,55 +121,57 @@ class _Templates extends GeneratorAbstract
                 array_pop( $tpl );
                 $temp = array_pop( $tpl );
                 $ori = $temp;
-//                $newParams = [];
-//                if ( $temp === 'global' ) {
-//                    $temp = 'nglobal';
-//                }
+                $newParams = [];
+                if ( $temp === 'global' ) {
+                    $temp = 'nglobal';
+                }
 
                 $tempStore[ $ori ] = [
                     'lookup_string' => $ori,
+                    'type'          => 'IPS\\Theme\\Templates\\' . $temp,
+
 //                    "type" => \DateTime::class,
                     'icon' => "com.jetbrains.php.PhpIcons.CLASS",
                 ];
 
-//                if ( !empty( $template[ 'params' ] ) ) {
-//
-//                    $rand = trim( $template[ 'method' ] ) . random_int( 1, 20000 ) . random_int( 1, 30000 ) . md5( time() + rand( 1, 10000 ) );
-//                    $fun = 'function ' . $rand . '( ' . $template[ 'params' ] . ' ) {}';
-//                    @eval( $fun );
-//                    if (function_exists( $rand)) {
-//                        try {
-//                            $reflection = new ReflectionFunction($rand);
-//                            $params = $reflection->getParameters();
-//
-//                            /** @var ReflectionParameter $param */
-//                            foreach ( $params as $param ) {
-//                                $data  = [
-//                                    'name' => $param->getName()
-//                                ];
-//
-//
-//                                if ( $param->getType() ) {
-//                                    $data['hint'] = $param->getType();
-//                                }
-//
-//                                try {
-//                                    $data['value'] = $param->getDefaultValue();
-//                                } catch ( ReflectionException $e ) {
-//                                }
-//                                $newParams[$param->getPosition()] = $data;
-//
-//                            }
-//                        } catch (\Exception $e) {
-//                        }
-//                    }
-//                }
-//
-//                $mn = mb_strtolower( trim( $template[ 'method' ] ) );
-//                    $tempClass[ $temp ][ $template[ 'method' ] ] = [
-//                        'name' => $template[ 'method' ],
-//                        'params' => $newParams
-//                    ];
+                if ( !empty( $template[ 'params' ] ) ) {
+
+                    $rand = trim( $template[ 'method' ] ) . random_int( 1, 20000 ) . random_int( 1, 30000 ) . md5( time() + rand( 1, 10000 ) );
+                    $fun = 'function ' . $rand . '( ' . $template[ 'params' ] . ' ) {}';
+                    @eval( $fun );
+                    if (function_exists( $rand)) {
+                        try {
+                            $reflection = new ReflectionFunction($rand);
+                            $params = $reflection->getParameters();
+
+                            /** @var ReflectionParameter $param */
+                            foreach ( $params as $param ) {
+                                $data  = [
+                                    'name' => $param->getName()
+                                ];
+
+
+                                if ( $param->getType() ) {
+                                    $data['hint'] = $param->getType();
+                                }
+
+                                try {
+                                    $data['value'] = $param->getDefaultValue();
+                                } catch ( ReflectionException $e ) {
+                                }
+                                $newParams[$param->getPosition()] = $data;
+
+                            }
+                        } catch (\Exception $e) {
+                        }
+                    }
+                }
+
+                $mn = mb_strtolower( trim( $template[ 'method' ] ) );
+                    $tempClass[ $temp ][ $template[ 'method' ] ] = [
+                        'name' => $template[ 'method' ],
+                        'params' => $newParams
+                    ];
             }
         }
 
@@ -180,7 +182,7 @@ class _Templates extends GeneratorAbstract
             'items' => $tempStore,
         ];
         Store::i()->dt_json = $jsonMeta;
-        //$this->makeTempClasses( $tempClass );
+        $this->makeTempClasses( $tempClass );
     }
 
     /**

@@ -31,6 +31,7 @@ use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 
+use function _p;
 use function array_filter;
 use function array_merge;
 use function array_shift;
@@ -42,6 +43,7 @@ use function explode;
 use function file_exists;
 use function file_get_contents;
 use function header;
+use function hexdec;
 use function implode;
 use function in_array;
 use function is_array;
@@ -57,10 +59,10 @@ use function mb_substr;
 use function method_exists;
 use function preg_match;
 use function preg_match_all;
+use function preg_replace_callback;
 use function property_exists;
 use function str_replace;
 use function trim;
-
 use function var_export;
 
 
@@ -127,7 +129,22 @@ class _Proxy extends GeneratorAbstract
     {
         try {
             $proxied = Store::i()->dt_cascade_proxy ?? [];
+            $cc = $content;
+            $codes = Store::i()->dt_error_codes ?? [];
 
+            preg_replace_callback('#Output::i\(\)->error\((.*?),(.*?)[,|)](.*?)$#msu', static function($m)use(&$codes){
+                if( !isset( $m[2] ) ){
+                    return;
+                }
+
+                $c =  trim(str_replace(['"',"'"],'',trim($m[2])));
+                $first = mb_substr($c, 0, 1);
+                if( $c && (int) $first && mb_strpos($c,'$') === false && mb_strpos($c, '<') === false && $c != 'FALSE' && $c != 'false') {
+                    $codes[] = $c;
+                }
+                return null;
+            }, $cc);
+            Store::i()->dt_error_codes = $codes;
             $data = Proxyclass::i()->tokenize($content);
             if (isset($data['class'], $data['namespace'])) {
                 preg_match('#\$bitOptions#', $content, $bitOptions);
@@ -309,7 +326,7 @@ class _Proxy extends GeneratorAbstract
             }
         } catch (Exception $e) {
             // throw $e;
-            //            Debug::add( 'Proxy Create', $e );
+            Debug::add('Proxy Create', $e);
         }
     }
 
@@ -550,18 +567,37 @@ class _Proxy extends GeneratorAbstract
             $file->write();
 
             if (method_exists(\IPS\Theme::i(), 'get_css_vars')) {
-                $css = \IPS\Theme::i()->get_css_vars();
+                $output = array();
+
+                foreach (\IPS\Theme::i()->settings as $key => $value) {
+                    if (preg_match('/^#[0-9a-fA-F]{6}$/', $value)) {
+                        $value = str_replace('#', '', $value);
+                        $rgb = array();
+
+                        if (\strlen($value) === 3) {
+                            $rgb[] = hexdec(\substr($value, 0, 1) . \substr($value, 0, 1));
+                            $rgb[] = hexdec(\substr($value, 1, 1) . \substr($value, 1, 1));
+                            $rgb[] = hexdec(\substr($value, 2, 1) . \substr($value, 2, 1));
+                        } else {
+                            $rgb[] = hexdec(\substr($value, 0, 2));
+                            $rgb[] = hexdec(\substr($value, 2, 2));
+                            $rgb[] = hexdec(\substr($value, 4, 2));
+                        }
+
+                        $output[] = "\t--theme-" . $key . ": rgb(" . implode(', ', $rgb) . ");";
+                    }
+                }
+                $css = implode("\n", $output);
                 $body = <<<eof
 :root {
 {$css}
 }
 eof;
-
-
-                $file2 = new DTFileGenerator();
-                $file2->setBody($body);
-                $file2->setFilename($this->save . '/IPSVars.css');
-                $file2->write();
+                \file_put_contents($this->save . '/IPSVars.css', $body);
+//                $file2 = new DTFileGenerator();
+//                $file2->setBody($body);
+//                $file2->setFilename($this->save . '/IPSVars.css');
+//                $file2->write();
             }
         } catch (Exception $e) {
         }

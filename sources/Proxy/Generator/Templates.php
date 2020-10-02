@@ -190,22 +190,22 @@ class _Templates extends GeneratorAbstract
      */
     public function makeTempClasses( array $classes )
     {
-        foreach ( $classes as $key => $templates ) {
-            try {
-
-                $newClass = new ClassGenerator;
-                $newClass->addNameSpace( 'IPS\Theme\Templates' );
-                $newClass->addClassName( $key );
-                $newClass->addFileName($key );
-                $newClass->addPath($this->save . '/templates/');
-                foreach( $templates as $template ){
-                    $newClass->addMethod($template['name'], '', $template['params']);
-                }
-                $newClass->save();
-            } catch ( Exception $e ) {
-                Debug::log( $e );
-            }
-        }
+//        foreach ( $classes as $key => $templates ) {
+//            try {
+//
+//                $newClass = new ClassGenerator;
+//                $newClass->addNameSpace( 'IPS\Theme\Templates' );
+//                $newClass->addClassName( $key );
+//                $newClass->addFileName($key );
+//                $newClass->addPath($this->save . '/templates/');
+//                foreach( $templates as $template ){
+//                    $newClass->addMethod($template['name'], '', $template['params']);
+//                }
+//                $newClass->save();
+//            } catch ( Exception $e ) {
+//                Debug::log( $e );
+//            }
+//        }
     }
 }
 

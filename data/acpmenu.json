@@ -19,12 +19,6 @@
       "controller": "applications",
       "do": "",
       "restriction": "apps_manage"
-    },
-    "plugins": {
-      "tab": "devtools",
-      "controller": "plugins",
-      "do": "",
-      "restriction": "plugins_manage"
     }
   },
   "code": {

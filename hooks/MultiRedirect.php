@@ -24,7 +24,7 @@ class toolbox_hook_MultiRedirect extends _HOOK_CLASS_
                         'do'    => "doDev",
                     ]
                 );
-                Output::i()->redirect($url);
+                Output::i()->redirect($url->csrf());
             };
         }
 

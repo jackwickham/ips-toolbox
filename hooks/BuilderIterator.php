@@ -45,7 +45,7 @@ class toolbox_hook_BuilderIterator extends _HOOK_CLASS_
                         if (isset($data['type']) && $data['type'] === 'C') {
                             $newContent = '';
                             $i = 0;
-                            foreach (explode(PHP_EOL, $contents) as $line) {
+                            foreach (preg_split('/\r\n|\r|\n/', $contents) as $line) {
                                 if ($i === 0) {
                                     $newContent .= '//<?php' . PHP_EOL;
                                     $i++;

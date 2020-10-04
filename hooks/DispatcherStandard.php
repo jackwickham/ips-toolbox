@@ -1,4 +1,4 @@
-//<?php
+//<?php namespace toolbox_IPS_Dispatcher_Standard_a1bef7127b39a0d4c44cf3fc1d4bd5fdd;
 
 /* To prevent PHP errors (extending class does not exist) revealing path */
 if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) )

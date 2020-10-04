@@ -127,8 +127,8 @@
         "type": "C",
         "class": "\\IPS\\Dispatcher\\Standard"
     },
-    "coreTasksClearsessions": {
+    "Session": {
         "type": "C",
-        "class": "\\IPS\\core\\tasks\\clearsessions"
+        "class": "\\IPS\\Session"
     }
 }

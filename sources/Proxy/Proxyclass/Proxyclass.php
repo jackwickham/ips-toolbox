@@ -58,7 +58,9 @@ use function json_decode;
 use function json_encode;
 use function md5;
 use function mkdir;
+use function mt_rand;
 use function preg_match;
+use function preg_replace_callback;
 use function time;
 
 use const DIRECTORY_SEPARATOR;
@@ -281,7 +283,7 @@ class _Proxyclass extends Singleton
         if ($step === null) {
 //            (new GitHooks(\IPS\Application::applications()))->writeSpecialHooks();
             Proxy::i()->generateSettings();
-
+            $this->buildCss();
             unset(Store::i()->dtproxy_proxy_files, Store::i()->dtproxy_templates);
 
             return null;
@@ -527,12 +529,10 @@ class _Proxyclass extends Singleton
             if ($returnIterator) {
                 return $finder;
             }
-            $files = iterator_to_array($finder);
             $files = array_keys(iterator_to_array($finder));
             asort($files);
             Store::i()->dtproxy_proxy_files = $files;
             $this->console('Folder processing done.');
-
             return $finder->count();
         } catch (Exception $e) {
             return 0;
@@ -597,7 +597,7 @@ class _Proxyclass extends Singleton
             'oauth',
             'app',
             'web',
-            'GraphQL'
+            'GraphQL',
         ];
     }
 
@@ -791,5 +791,44 @@ class _Proxyclass extends Singleton
         }
 
         return null;
+    }
+
+    public function buildCss(){
+        $ds = DIRECTORY_SEPARATOR;
+        $save =  $this->save . $ds . 'css' . $ds;
+        if (is_dir($save)) {
+            $this->emptyDirectory($save);
+        }
+        if (!mkdir($save) && !is_dir($save)) {
+            chmod($save, 0777);
+        }
+        $finder = new Finder();
+
+        $finder->in(\IPS\ROOT_PATH );
+        $filter = function (SplFileInfo $file) {
+            if (!in_array($file->getExtension(), ['css'])) {
+                return false;
+            }
+
+            return true;
+        };
+
+        /** @var \Symfony\Component\Finder\SplFileInfo $css */
+        foreach( $finder->filter($filter)->files() as $css ){
+            $functionName = 'css_' . mt_rand();
+            $contents = str_replace( '\\', '\\\\', $css->getContents() );
+            /* If we have something like `{expression="\IPS\SOME_CONSTANT"}` we cannot double escape it, however we do need to escape font icons and similar. */
+            $contents = preg_replace_callback( "/{expression=\"(.+?)\"}/ms", function( $matches ) {
+                return '{expression="' . str_replace( '\\\\', '\\', $matches[1] ) . '"}';
+            }, $contents );
+            \IPS\Theme::makeProcessFunction( $contents, $functionName );
+            $functionName = "IPS\Theme\\{$functionName}";
+            if (!is_dir($save.$css->getRelativePath(). $ds)) {
+                mkdir($save.$css->getRelativePath(). $ds,0777, true);
+                chmod($save.$css->getRelativePath() . $ds, 0777);
+            }
+            //_p( $css->getRelativePath(), $css->getBasename(),$functionName());
+            \file_put_contents( $save.$css->getRelativePath().$ds.$css->getBasename(), $functionName());
+        }
     }
 }

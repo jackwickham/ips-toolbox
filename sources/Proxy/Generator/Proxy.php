@@ -20,6 +20,7 @@ use IPS\toolbox\Application;
 use IPS\toolbox\Generator\DTClassGenerator;
 use IPS\toolbox\Generator\DTFileGenerator;
 use IPS\toolbox\Profiler\Debug;
+use IPS\toolbox\Proxy\Helpers\Theme;
 use IPS\toolbox\Proxy\Proxyclass;
 use IPS\toolbox\ReservedWords;
 use IPS\toolbox\Shared\Write;
@@ -127,7 +128,7 @@ class _Proxy extends GeneratorAbstract
      */
     public function create(string $content, string $originalFilePath = null)
     {
-        try {
+        try { 
             $proxied = Store::i()->dt_cascade_proxy ?? [];
             $cc = $content;
             $codes = Store::i()->dt_error_codes ?? [];
@@ -566,40 +567,41 @@ class _Proxy extends GeneratorAbstract
             $file->setFilename($this->save . '/IPS_Settings.php');
             $file->write();
 
-            if (method_exists(\IPS\Theme::i(), 'get_css_vars')) {
-                $output = array();
-
-                foreach (\IPS\Theme::i()->settings as $key => $value) {
-                    if (preg_match('/^#[0-9a-fA-F]{6}$/', $value)) {
-                        $value = str_replace('#', '', $value);
-                        $rgb = array();
-
-                        if (\strlen($value) === 3) {
-                            $rgb[] = hexdec(\substr($value, 0, 1) . \substr($value, 0, 1));
-                            $rgb[] = hexdec(\substr($value, 1, 1) . \substr($value, 1, 1));
-                            $rgb[] = hexdec(\substr($value, 2, 1) . \substr($value, 2, 1));
-                        } else {
-                            $rgb[] = hexdec(\substr($value, 0, 2));
-                            $rgb[] = hexdec(\substr($value, 2, 2));
-                            $rgb[] = hexdec(\substr($value, 4, 2));
-                        }
-
-                        $output[] = "\t--theme-" . $key . ": rgb(" . implode(', ', $rgb) . ");";
-                    }
-                }
-                $css = implode("\n", $output);
-                $body = <<<eof
-:root {
-{$css}
-}
-eof;
-                \file_put_contents($this->save . '/IPSVars.css', $body);
+//            if (method_exists(\IPS\Theme::i(), 'get_css_vars')) {
+//                $output = array();
+//
+//                foreach (\IPS\Theme::i()->settings as $key => $value) {
+//                    if (preg_match('/^#[0-9a-fA-F]{6}$/', $value)) {
+//                        $value = str_replace('#', '', $value);
+//                        $rgb = array();
+//
+//                        if (\strlen($value) === 3) {
+//                            $rgb[] = hexdec(\substr($value, 0, 1) . \substr($value, 0, 1));
+//                            $rgb[] = hexdec(\substr($value, 1, 1) . \substr($value, 1, 1));
+//                            $rgb[] = hexdec(\substr($value, 2, 1) . \substr($value, 2, 1));
+//                        } else {
+//                            $rgb[] = hexdec(\substr($value, 0, 2));
+//                            $rgb[] = hexdec(\substr($value, 2, 2));
+//                            $rgb[] = hexdec(\substr($value, 4, 2));
+//                        }
+//
+//                        $output[] = "\t--theme-" . $key . ": rgb(" . implode(', ', $rgb) . ");";
+//                    }
+//                }
+//                $css = implode("\n", $output);
+//                $body = <<<eof
+//:root {
+//{$css}
+//}
+//eof;
+//                \file_put_contents($this->save . '/IPSVars.css', $body);
 //                $file2 = new DTFileGenerator();
 //                $file2->setBody($body);
 //                $file2->setFilename($this->save . '/IPSVars.css');
 //                $file2->write();
-            }
-        } catch (Exception $e) {
+//            }
+
+         } catch (Exception $e) {
         }
     }
 

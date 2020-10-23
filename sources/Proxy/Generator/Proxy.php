@@ -128,7 +128,7 @@ class _Proxy extends GeneratorAbstract
      */
     public function create(string $content, string $originalFilePath = null)
     {
-        try { 
+        try {
             $proxied = Store::i()->dt_cascade_proxy ?? [];
             $cc = $content;
             $codes = Store::i()->dt_error_codes ?? [];

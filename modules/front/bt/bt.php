@@ -45,16 +45,20 @@ use function is_array;
 use function is_dir;
 use function md5;
 use function microtime;
+use function mt_rand;
 use function nl2br;
 use function ob_end_clean;
 use function ob_get_clean;
 use function ob_start;
+use function opcache_invalidate;
 use function phpinfo;
 use function preg_replace;
 use function random_int;
 use function sleep;
 use function str_replace;
 use function time;
+
+use function unlink;
 
 use const IPS\ROOT_PATH;
 
@@ -200,29 +204,11 @@ class _bt extends Controller
     protected function clearCaches(): void
     {
         $redirect = base64_decode(Request::i()->data);
-        /* Clear JS Maps first */
-        Output::clearJsFiles();
+        $this->_clearCache();
+        Output::i()->redirect($redirect);
+    }
 
-        /**
-         * @var int $id
-         * @var  Theme $set
-         */
-        foreach (Theme::themes() as $id => $set) {
-            /* Invalidate template disk cache */
-            try {
-                $set->cache_key = md5(microtime() . random_int(0, 1000));
-            } catch (Exception $e) {
-            }
-
-            /* Update mappings */
-            $set->css_map = [];
-            $set->save();
-        }
-
-        Store::i()->clearAll();
-        Cache::i()->clearAll();
-        Member::clearCreateMenu();
-
+    protected function _clearCache(){
         $path = ROOT_PATH . '/hook_temp';
 
         if (is_dir($path)) {
@@ -230,13 +216,33 @@ class _bt extends Controller
             $fs = new Filesystem();
             $fs->remove([$path]);
         }
+        /* Don't clear CSS/JS when we click "check again" or the page will be broken - it's unnecessary anyways */
+        if( !isset( \IPS\Request::i()->checkAgain ) )
+        {
+            /* Clear JS Maps first */
+            \IPS\Output::clearJsFiles();
 
-        Output::i()->redirect($redirect);
+            /* Reset theme maps to make sure bad data hasn't been cached by visits mid-setup */
+            \IPS\Theme::deleteCompiledCss();
+            \IPS\Theme::deleteCompiledResources();
+
+            foreach( \IPS\Theme::themes() as $id => $set )
+            {
+                /* Invalidate template disk cache */
+                $set->cache_key = md5( microtime() . mt_rand( 0, 1000 ) );
+                $set->save();
+            }
+        }
+
+        \IPS\Data\Store::i()->clearAll();
+        \IPS\Data\Cache::i()->clearAll();
+        \IPS\Output\Cache::i()->clearAll();
+
+        \IPS\Member::clearCreateMenu();
     }
-
     protected function thirdParty(): void
     {
-        $enable = Request::i()->enable;
+        $enable = (int)Request::i()->enabled;
         $redirect = base64_decode(Request::i()->data);
         $apps = Profiler::i()->apps();
         $plugins = Profiler::i()->plugins();
@@ -261,17 +267,30 @@ class _bt extends Controller
 
         /* Clear cache */
         Cache::i()->clearAll();
+Plugin\Hook::writeDataFile();
         Output::i()->redirect($redirect);
     }
 
     protected function enableDisableApp(): void
     {
-        $enabled = !Request::i()->enabled;
+        $enabled = (int)Request::i()->enabled;
+        if( $enabled === 1){
+            $enabled = 0;
+        }
+        else{
+            $enabled = 1;
+        }
         $redirect = base64_decode(Request::i()->data);
-        $id = Request::i()->id;
-        Db::i()->update('core_applications', ['app_enabled' => $enabled], ['app_id=?', $id]);
+        $id = (int) Request::i()->id;
+        $data = Db::i()->select('*', 'core_applications', ['app_id=?', $id])->first();
+        /** @var Application $app */
+        $app = \IPS\Application::constructFromData( $data );
+        $app->enabled = $enabled;
+        $app->save();
+//        Db::i()->update('core_applications', ['app_enabled' => $enabled], ['app_id=?', $id]);
         Application::postToggleEnable();
-        Cache::i()->clearAll();
+        $this->_clearCache();
+
         Output::i()->redirect($redirect);
     }
 
@@ -362,12 +381,12 @@ class _bt extends Controller
         Db::i()->update('toolbox_debug', ['debug_viewed' => 1]);
     }
 
-    protected function adminer()
-    {
-        $url = Url::baseUrl() . '/applications/toolbox/sources/Profiler/Adminer/db.php';
-        Output::i(
-        )->output = '<iframe id="toolboxAdminer"  width="100%" height="600px" marginheight="0" frameborder="0" src="' . $url . '"></iframe>';
-    }
+//    protected function adminer()
+//    {
+//        $url = Url::baseUrl() . '/applications/toolbox/sources/Profiler/Adminer/db.php';
+//        Output::i(
+//        )->output = '<iframe id="toolboxAdminer"  width="100%" height="600px" marginheight="0" frameborder="0" src="' . $url . '"></iframe>';
+//    }
 
     //    protected function checkout(){
     //        $app = Request::i()->dir;

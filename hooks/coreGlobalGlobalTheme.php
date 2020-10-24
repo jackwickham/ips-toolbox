@@ -8,7 +8,7 @@ use IPS\Request;
 use IPS\Settings;
 use IPS\Theme;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
+if ( !defined('\IPS\SUITE_UNIQUE_KEY' ) ) {
     exit;
 }
 
@@ -24,17 +24,19 @@ class toolbox_hook_coreGlobalGlobalTheme extends _HOOK_CLASS_
 
     function includeCSS()
     {
+        $css = Output::i()->cssFiles;
+
+        $caching = Theme::i()->css('styles/caching_log.css', 'core', 'front' );
+        $cachingCss = array_pop($caching);
+        if( \IPS\CACHING_LOG && $key = array_search( $cachingCss, $css ) ){
+                unset( Output::i()->cssFiles[$key]);
+        }
         if ( \IPS\QUERY_LOG && !Request::i()->isAjax() ) {
-            Output::i()->cssFiles = \array_merge( Output::i()->cssFiles, Theme::i()->css( 'profiler.css', 'toolbox', 'front' ) );
-
-            foreach ( Output::i()->cssFiles as $key => $val ) {
-                if ( \mb_strpos( $val, 'query_log.css' ) !== \false ) {
-                    unset( Output::i()->cssFiles[ $key ] );
-                }
-
-                if ( \mb_strpos( $val, 'caching_log.css' ) !== \false ) {
-                    unset( Output::i()->cssFiles[ $key ] );
-                }
+            Output::i()->cssFiles = array_merge(Output::i()->cssFiles, Theme::i()->css('profiler.css', 'toolbox', 'front' ) );
+            $query = Theme::i()->css('styles/query_log.css', 'core', 'front' );
+            $queryCss = array_pop( $query );
+            if( $key = array_search( $queryCss, $css ) ){
+                unset(Output::i()->cssFiles[$key]);
             }
 
             if ( Settings::i()->dtprofiler_enabled_css ) {
@@ -47,7 +49,7 @@ class toolbox_hook_coreGlobalGlobalTheme extends _HOOK_CLASS_
     function includeJS()
     {
         if ( \IPS\QUERY_LOG && !Request::i()->isAjax() ) {
-            Output::i()->jsFiles = \array_merge( Output::i()->jsFiles, Output::i()->js( 'front_profiler.js', 'toolbox', 'front' ) );
+            Output::i()->jsFiles = array_merge(Output::i()->jsFiles, Output::i()->js('front_profiler.js', 'toolbox', 'front' ) );
 
             if ( Settings::i()->dtprofiler_enabled_js ) {
                 Store::i()->dtprofiler_js = Output::i()->jsFiles;

@@ -34,7 +34,6 @@ class toolbox_hook_coreFrontGlobalTheme extends _HOOK_CLASS_
         $can = \json_decode( Settings::i()->dtprofiler_can_use, \true );
         if ( \property_exists( Output::i(), 'dtContentType' ) && Output::i()->dtContentType === 'text/html' && ( ( !\IPS\IN_DEV && \in_array( $member, $can, \true ) ) || \IPS\IN_DEV ) ) {
             try {
-
                 return Profiler::i()->run();;
             } catch ( \Exception $e ) {
                 throw $e;

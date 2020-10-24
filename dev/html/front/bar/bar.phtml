@@ -80,28 +80,7 @@
                 </li>
                 {{endforeach}}
             </ul>
-            {$info['adminer']|raw}
-            <a id="elProfileAppsPlugins" href="#elProfileAppsPlugins_menu" title="Apps & Plugins" class=" " data-ipstooltip data-ipsmenu>
-                3rd Party Apps & Plugins<i class="fa fa-angle-up"></i>
-            </a>
-            <ul id="elProfileAppsPlugins_menu" class="ipsMenu ipsMenu_auto ipsList_reset ipsHide">
-                {{foreach $info['apps']['app'] as $key => $val }}
-                <li class="ipsMenu_item">
-                    <a href="{$val['url']}" title="{$val['title']}" data-ipstooltip>
-                        {$key|raw}
-                        {{if $val['status'] }}
-                        <i class="fa fa-check-square-o dtprofilerEnabled fa-pull-right"></i>
-                        {{else}}
-                        <i class="fa fa-square-o dtprofilerDisabled fa-pull-right"></i>
-                        {{endif}}
-                    </a>
-                </li>
-                {{endforeach}}
 
-                <li class="ipsMenu_item">
-                    <a href="{$info['apps']['disable']}">Disable All</a>
-                </li>
-            </ul>
             <a href="{$info['cache']}">Clear Caches</a>
 
             <a href="#toolbox_snippet_menu" id="toolbox_snippet" data-ipsMenu>

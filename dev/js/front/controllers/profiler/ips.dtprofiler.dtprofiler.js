@@ -47,7 +47,7 @@
                         }
 
                         el.removeClass( 'dtprofilerFlash' );
-                        let bottom = el.parents( 'div' ).outerHeight(),
+                        let bottom = $( '#dtProfilerBarContainer' ).outerHeight(),
                             id = el.attr( 'id' ) + '_list',
                             child = $( '#' + id ), left = el.position().left;
 

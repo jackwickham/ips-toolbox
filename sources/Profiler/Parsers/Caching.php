@@ -40,7 +40,7 @@ class _Caching extends Singleton
     /**
      * @var array
      */
-    protected $cache = [];
+    public $cache = [];
 
     /**
      * _Caching constructor.

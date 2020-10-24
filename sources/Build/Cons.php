@@ -169,8 +169,14 @@ class _Cons extends Singleton
                     $check2 = (int)$val[ 'default' ];
                     break;
                 default:
-                    $check2 = (string)$val[ 'default' ];
-                    $check = (string)$data;
+                    if( \is_array($val['default'])) {
+                        $check2 = $val['default'];
+                        $check = $data;
+                    }
+                    else {
+                        $check2 = (string)$val['default'];
+                        $check = (string)$data;
+                    }
                     break;
             }
             if ((defined('\\IPS\\' . $key) && $check !== $check2) || in_array($key, static::$devTools, \true)) {

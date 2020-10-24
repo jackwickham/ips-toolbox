@@ -136,7 +136,8 @@ class _Templates extends Singleton
             if ( $template[ 'app' ] !== 'toolbox' ) {
                 $path = \IPS\ROOT_PATH . '/applications/' . $template[ 'app' ] . '/dev/html/' . $template[ 'location' ] . '/' . $template[ 'group' ] . '/' . $template[ 'name' ] . '.phtml';
                 $url = ( new Editor )->replace( $path );
-                $name = $template[ 'app' ] . ' -> ' . $template[ 'group' ] . ' -> ' . $template[ 'name' ];
+                //$name = $template[ 'app' ] . ' -> ' . $template[ 'group' ] . ' -> ' . $template[ 'name' ];
+                $name = $path;
                 $list[ $path ] = [ 'url' => $url, 'name' => $name ];
             }
         }
@@ -177,8 +178,6 @@ class _Templates extends Singleton
                 $url = ( new Editor )->replace( \IPS\ROOT_PATH . '/' . $path );
                 $list[ $path ] = [ 'url' => $url, 'name' => $path ];
             }
-
-
         }
 
         ksort( $list );

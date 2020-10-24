@@ -13,6 +13,8 @@
 namespace IPS\toolbox\Profiler;
 
 use IPS\Theme;
+
+use function _p;
 use function count;
 use function defined;
 use function floor;
@@ -50,7 +52,7 @@ class _Time
     public function __construct()
     {
 
-        $this->start = \microtime( \true );
+        $this->start = \microtime(true);
     }
 
     /**
@@ -75,25 +77,37 @@ class _Time
      */
     public static function build()
     {
-
         if ( empty( static::$store ) ) {
-            return \null;
+            return null;
         }
-
         $list = [];
-
+        $store = static::$store;
+        krsort($store);
         /* @var Memory $obj */
-        foreach ( static::$store as $obj ) {
-            $list[ $obj[ 'name' ] ] = [
-                'url'   => $obj[ 'key' ],
-                'name'  => $obj[ 'name' ],
-                'extra' => ' : ' . round( $obj[ 'log' ], 6 ) * 1000 . 'ms',
-            ];
+        foreach ( $store as $times ) {
+            foreach( $times as $obj ) {
+                $list[$obj['name']] = [
+                    'url' => $obj['key'],
+                    'name' => $obj['name'],
+                    'extra' => ' : ' . round($obj['log'], 6) * 1000 . 'ms',
+                ];
+            }
         }
-
-        $count = count( $list ) ?: \null;
-
-        return Theme::i()->getTemplate( 'dtpsearch', 'toolbox', 'front' )->button( 'Executions', 'executions', 'Execution Times.', $list, json_encode( $list ), $count, 'clock-o', \true, \false );
+        $count = count( $list ) ?: null;
+        return Theme::i()->getTemplate(
+            'dtpsearch',
+            'toolbox',
+            'front' )->button(
+                'Executions',
+                'executions',
+                'Execution Times.',
+                $list,
+                json_encode( $list ),
+                $count,
+                'clock-o',
+                true,
+                false
+        );
     }
 
     public function endFormated()
@@ -110,19 +124,16 @@ class _Time
         return round( $end, 6 ) * 1000;
     }
 
-    public function end( $key = \null, $name = \null )
+    public function end( $key = null, $name = null )
     {
-
-        $end = \microtime( \true ) - $this->start;
-
-        if ( $key !== \null ) {
-            static::$store[] = [
+        $end = \microtime(true) - $this->start;
+        if ( $key !== null) {
+            static::$store[(string)$end][] = [
                 'name' => $name,
                 'key'  => $key,
-                'log'  => $end,
+                'log'  => $end
             ];
         }
-
         return $end;
     }
 }

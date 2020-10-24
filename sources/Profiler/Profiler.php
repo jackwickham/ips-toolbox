@@ -180,51 +180,51 @@ class _Profiler extends Singleton
 
         $info[ 'cache' ] = (string)$url;
         //        $info[ 'apps' ][ 'enable' ] = Url::internal('app=toolbox&module=bt&controller=bt', 'front')->setQueryString(['do' => 'thirdParty', 'data' => $data, 'enable' => 1]);
-        $info[ 'apps' ][ 'disable' ] = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
-            'do'     => 'thirdParty',
-            'data'   => $data,
-            'enable' => 0,
-        ] );
-
-        $info[ 'apps' ][ 'app' ] = [];
-        /* @var Application $app */
-        foreach ( $this->apps( true ) as $app ) {
-            $name = $app->_title;
-            $title = $name;
-            $title .= $app->enabled ? ' (Enabled)' : ' (Disabled)';
-            Member::loggedIn()->language()->parseOutputForDisplay( $name );
-            Member::loggedIn()->language()->parseOutputForDisplay( $title );
-
-            $info[ 'apps' ][ 'app' ][ $name ] = [
-                'url'    => Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
-                    'do'      => 'enableDisableApp',
-                    'data'    => $data,
-                    'enabled' => $app->enabled ? 1 : 0,
-                    'id'      => $app->id,
-                ] ),
-                'title'  => $title,
-                'status' => $app->enabled,
-            ];
-        }
-
-        /* @var Plugin $plugin */
-        foreach ( $this->plugins() as $plugin ) {
-            $name = $plugin->_title;
-            $title = $name;
-            $title .= $plugin->enabled ? ' (Enabled)' : ' (Disabled)';
-            Member::loggedIn()->language()->parseOutputForDisplay( $name );
-            Member::loggedIn()->language()->parseOutputForDisplay( $title );
-            $info[ 'apps' ][ 'app' ][ $name ] = [
-                'url'    => Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
-                    'do'      => 'enableDisableApp',
-                    'data'    => $data,
-                    'enabled' => $plugin->enabled ? 1 : 0,
-                    'id'      => $plugin->id,
-                ] ),
-                'title'  => $title,
-                'status' => $plugin->enabled,
-            ];
-        }
+//        $info[ 'apps' ][ 'disable' ] = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
+//            'do'     => 'thirdParty',
+//            'data'   => $data,
+//            'enable' => 0,
+//        ] );
+//
+//        $info[ 'apps' ][ 'app' ] = [];
+//        /* @var Application $app */
+//        foreach ( $this->apps( true ) as $app ) {
+//            $name = $app->_title;
+//            $title = $name;
+//            $title .= $app->enabled ? ' (Enabled)' : ' (Disabled)';
+//            Member::loggedIn()->language()->parseOutputForDisplay( $name );
+//            Member::loggedIn()->language()->parseOutputForDisplay( $title );
+//
+//            $info[ 'apps' ][ 'app' ][ $name ] = [
+//                'url'    => Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
+//                    'do'      => 'enableDisableApp',
+//                    'data'    => $data,
+//                    'enabled' => $app->enabled ? 1 : 0,
+//                    'id'      => $app->id,
+//                ] ),
+//                'title'  => $title,
+//                'status' => $app->enabled,
+//            ];
+//        }
+//
+//        /* @var Plugin $plugin */
+//        foreach ( $this->plugins() as $plugin ) {
+//            $name = $plugin->_title;
+//            $title = $name;
+//            $title .= $plugin->enabled ? ' (Enabled)' : ' (Disabled)';
+//            Member::loggedIn()->language()->parseOutputForDisplay( $name );
+//            Member::loggedIn()->language()->parseOutputForDisplay( $title );
+//            $info[ 'apps' ][ 'app' ][ $name ] = [
+//                'url'    => Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [
+//                    'do'      => 'enableDisableApp',
+//                    'data'    => $data,
+//                    'enabled' => $plugin->enabled ? 1 : 0,
+//                    'id'      => $plugin->id,
+//                ] ),
+//                'title'  => $title,
+//                'status' => $plugin->enabled,
+//            ];
+//        }
 
         $app = Request::i()->app;
         $info[ 'git_url' ] = Url::internal( 'app=toolbox&module=bt&controller=bt', 'front' )->setQueryString( [

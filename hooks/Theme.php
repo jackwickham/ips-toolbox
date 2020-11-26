@@ -35,7 +35,7 @@ class toolbox_hook_Theme extends _HOOK_CLASS_
         return $return;
     }
 
-    public static function runProcessFunction($content, $functionName):void
+    public static function runProcessFunction($content, $functionName)
     {
         $path = \IPS\ROOT_PATH . '/toolbox_templates/';
 

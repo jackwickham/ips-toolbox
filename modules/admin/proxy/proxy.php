@@ -72,7 +72,6 @@ class _proxy extends Controller
                 $data['current'] = 0;
                 $data['progress'] = 0;
                 $data['firstRun'] = 1;
-                $data['complete'] = 0;
                 Proxyclass::i()->buildHooks();
             }
 
@@ -112,23 +111,21 @@ class _proxy extends Controller
                         $progress,
                     ];
                 } else {
-                    $complete = $run['complete'] ?? 1;
-                    $total = $run['tot'] ?? 8;
-                    $progress = ($complete / $total) * 100;
+                    $progress = ($run['complete'] / $run['tot']) * 100;
                     $language = Member::loggedIn()->language()->addToStack(
                         'dtproxy_progress_extra',
                         \false,
                         [
                             'sprintf' => [
-                                $run['lastStep']??0,
-                                $complete,
-                                $total,
+                                $run['lastStep'],
+                                $run['complete'],
+                                $run['tot'],
                             ],
                         ]
                     );
 
                     return [
-                        ['complete' => $complete, 'step' => $run['step']??1],
+                        ['complete' => $run['complete'], 'step' => $run['step']],
                         $language,
                         $progress,
                     ];

@@ -232,13 +232,13 @@ class _Proxyclass extends Singleton
                 Store::i()->dtproxy_templates = $this->templates;
             }
 
-            if (isset( $data['current']) && $data['current']) {
+            if ($data['current']) {
                 $offset = $data['current'] + $i;
             } else {
                 $offset = $i;
             }
 
-            return ['total' => $totalFiles, 'current' => $offset, 'progress' => $data['progress']??0];
+            return ['total' => $totalFiles, 'current' => $offset, 'progress' => $data['progress']];
         }
 
         /**
@@ -598,7 +598,6 @@ class _Proxyclass extends Singleton
             'app',
             'web',
             'GraphQL',
-            'Output/System'
         ];
     }
 

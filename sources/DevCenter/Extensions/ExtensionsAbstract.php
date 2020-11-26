@@ -195,6 +195,8 @@ abstract class _ExtensionsAbstract
 
         $this->content = $this->_replace($find, $replace, $content);
         $this->_writeFile($file, $this->content, $dir);
+        \IPS\Application::writeJson( \IPS\ROOT_PATH . '/applications/' . $this->application->directory . '/data/extensions.json', $this->application->buildExtensionsJson() );
+  
     }
 
     /**

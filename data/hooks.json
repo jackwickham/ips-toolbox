@@ -114,9 +114,5 @@
     "Hooks": {
         "type": "C",
         "class": "\\IPS\\Plugin\\Hook"
-    },
-    "Content": {
-        "type": "C",
-        "class": "\\IPS\\Content"
     }
 }

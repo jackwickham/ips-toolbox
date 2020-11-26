@@ -80,9 +80,9 @@ class _Cons extends Singleton
                 $value[ 'current' ] = 'md5(random_int(0, 10000) . time())';
             }
 
-            if ($key === 'SUITE_UNIQUE_KEY') {
-                $value[ 'current' ] = 'mb_substr(md5(array_key_first(array_pop(json_decode(__DIR__ . \'/applications/core/data/versions.json\'), true))), 10, 10)';
-            }
+//            if ($key === 'SUITE_UNIQUE_KEY') {
+//                $value[ 'current' ] = 'mb_substr(md5(array_key_first(array_pop(json_decode(__DIR__ . \'/applications/core/data/versions.json\'), true))), 10, 10)';
+//            }
             $form->add($key)->label($key)->empty($value[ 'current' ])->description($value[ 'description' ] ?? '')->tab(
                 $tab
             );

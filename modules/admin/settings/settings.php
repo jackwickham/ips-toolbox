@@ -75,7 +75,7 @@ class _settings extends Controller
                 Output::i()->sidebar[ 'actions' ][ 'init' ] = [
                     'icon'  => 'plus',
                     'title' => 'Patch init.php',
-                    'link'  => Request::i()->url()->setQueryString(['do' => 'patchInit']),
+                    'link'  => Request::i()->url()->setQueryString(['do' => 'patchInit'])->csrf(),
 
                 ];
             }
@@ -100,7 +100,7 @@ class _settings extends Controller
                 Output::i()->sidebar[ 'actions' ][ 'helpers' ] = [
                     'icon'  => 'plus',
                     'title' => 'Patch Helpers',
-                    'link'  => Request::i()->url()->setQueryString(['do' => 'patchHelpers']),
+                    'link'  => Request::i()->url()->setQueryString(['do' => 'patchHelpers'])->csrf(),
 
                 ];
             }

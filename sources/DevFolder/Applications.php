@@ -12,11 +12,15 @@
 
 namespace IPS\toolbox\DevFolder;
 
+use Exception;
+use InvalidArgumentException;
 use IPS\Application;
+use IPS\IPS;
 use IPS\Member;
 use IPS\toolbox\Generator\DTFileGenerator;
 use IPS\toolbox\Shared\Write;
 use IPS\Xml\XMLReader;
+use OutOfRangeException;
 use RuntimeException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -26,6 +30,8 @@ use function closedir;
 use function copy;
 use function count;
 use function defined;
+use function file_get_contents;
+use function file_put_contents;
 use function header;
 use function in_array;
 use function is_array;
@@ -36,7 +42,11 @@ use function opendir;
 use function readdir;
 use function set_time_limit;
 use function sprintf;
+use function unlink;
 use function var_export;
+
+use const IPS\IPS_FOLDER_PERMISSION;
+use const PHP_EOL;
 
 if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
     header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
@@ -50,7 +60,7 @@ class _Applications
     /**
      * @var bool
      */
-    public $addToStack = \false;
+    public $addToStack = false;
 
     /**
      * @var Application|null
@@ -72,16 +82,17 @@ class _Applications
      */
     protected $fs;
 
+    protected CONST INDEX = 'index.html';
     /**
      * _Apps constructor.
      *
      * @param $app
      *
-     * @throws \Symfony\Component\Filesystem\Exception\IOException
+     * @throws IOException
      * @throws RuntimeException
-     * @throws \InvalidArgumentException
-     * @throws \OutOfRangeException
-     * @throws \Exception
+     * @throws InvalidArgumentException
+     * @throws OutOfRangeException
+     * @throws Exception
      */
     final public function __construct( $app )
     {
@@ -93,16 +104,18 @@ class _Applications
         else {
             $this->app = $app;
         }
-
-        $this->dir = \IPS\ROOT_PATH . '/applications/' . $this->app->directory;
+        if( $this->app->marketplace_id !== null ){
+            throw new Exception('Something has gone wrong try again!');
+        }
+        $this->dir = $this->app->getApplicationPath();
         $this->dev = $this->dir . '/dev/';
 
-        if ( in_array( $app, Application::$ipsApps, \true ) ) {
+        if ( in_array($app, IPS::$ipsApps, true) ) {
             $fs->remove( $this->dev );
         }
 
         if ( !$fs->exists( $this->dev ) ) {
-            $fs->mkdir( $this->dev, \IPS\IPS_FOLDER_PERMISSION );
+            $fs->mkdir( $this->dev, IPS_FOLDER_PERMISSION );
         }
 
         $this->fs = $fs;
@@ -115,14 +128,14 @@ class _Applications
     {
         $order = [];
         $path = $this->dev . 'js/';
-        $this->_writeFile( 'index.html', '', $path );
+        $this->_writeFile( static::INDEX, '', $path );
 
         $xml = new XMLReader;
         $xml->open( $this->dir . '/data/javascript.xml' );
         $xml->read();
         try {
             if ( !$this->fs->exists( $path ) ) {
-                $this->fs->mkdir( $path, \IPS\IPS_FOLDER_PERMISSION );
+                $this->fs->mkdir( $path, IPS_FOLDER_PERMISSION );
             }
         } catch ( IOException $e ) {
         }
@@ -131,12 +144,12 @@ class _Applications
             if ( $xml->nodeType !== XMLReader::ELEMENT ) {
                 continue;
             }
-            $file = \null;
+            $file = null;
             if ( $xml->name === 'file' ) {
                 $loc = $path . $xml->getAttribute( 'javascript_location' );
                 $loc .= '/' . $xml->getAttribute( 'javascript_path' );
                 $order[ $path ][ $xml->getAttribute( 'javascript_position' ) ] = $xml->getAttribute( 'javascript_name' );
-                if ( $file === \null ) {
+                if ( $file === null) {
                     $file = $xml->getAttribute( 'javascript_name' );
                 }
 
@@ -153,7 +166,7 @@ class _Applications
                 if ( is_array( $val ) && count( $val ) ) {
                     ksort( $val );
                     foreach ( $val as $k => $v ) {
-                        $content .= $v . \PHP_EOL;
+                        $content .= $v . PHP_EOL;
                     }
                 }
 
@@ -166,16 +179,16 @@ class _Applications
 
     /**
      * @return static
-     * @throws \Exception
+     * @throws Exception
      */
     public function templates()
     {
         $cssDir = $this->dev . 'css';
         $html = $this->dev . 'html';
         $resources = $this->dev . 'resources';
-        $this->_writeFile( 'index.html', '', $cssDir );
-        $this->_writeFile( 'index.html', '', $html );
-        $this->_writeFile( 'index.html', '', $resources );
+        $this->_writeFile( static::INDEX, '', $cssDir );
+        $this->_writeFile( static::INDEX, '', $html );
+        $this->_writeFile( static::INDEX, '', $resources );
 
         $xml = new XMLReader;
         $xml->open( $this->dir . '/data/theme.xml' );
@@ -183,21 +196,21 @@ class _Applications
 
         try {
             if ( !$this->fs->exists( $cssDir ) ) {
-                $this->fs->mkdir( $cssDir, \IPS\IPS_FOLDER_PERMISSION );
+                $this->fs->mkdir( $cssDir, IPS_FOLDER_PERMISSION );
             }
         } catch ( IOException $e ) {
         }
 
         try {
             if ( !$this->fs->exists( $html ) ) {
-                $this->fs->mkdir( $html, \IPS\IPS_FOLDER_PERMISSION );
+                $this->fs->mkdir( $html, IPS_FOLDER_PERMISSION );
             }
         } catch ( IOException $e ) {
         }
 
         try {
             if ( !$this->fs->exists( $resources ) ) {
-                $this->fs->mkdir( $resources, \IPS\IPS_FOLDER_PERMISSION );
+                $this->fs->mkdir( $resources, IPS_FOLDER_PERMISSION );
             }
         } catch ( IOException $e ) {
         }
@@ -219,7 +232,7 @@ class _Applications
                 $location = $html . '/' . $template[ 'location' ] . '/';
                 $path = $location . $template[ 'group' ] . '/';
                 $file = $template[ 'name' ] . '.phtml';
-                $header = '<ips:template parameters="' . $template[ 'variables' ] . '" />' . \PHP_EOL;
+                $header = '<ips:template parameters="' . $template[ 'variables' ] . '" />' . PHP_EOL;
                 $content = $header . $template[ 'content' ];
                 $content = \IPS\toolbox\Application::templateSlasher( $content );
                 $this->_writeFile( $file, $content, $path );
@@ -268,7 +281,7 @@ class _Applications
     public function email()
     {
         $email = $this->dev . 'email/';
-        $this->_writeFile( 'index.html', '', $email );
+        $this->_writeFile( static::INDEX, '', $email );
 
         $xml = new XMLReader;
         $xml->open( $this->dir . '/data/emails.xml' );
@@ -276,7 +289,7 @@ class _Applications
 
         try {
             if ( !$this->fs->exists( $email ) ) {
-                $this->fs->mkdir( $email, \IPS\IPS_FOLDER_PERMISSION );
+                $this->fs->mkdir( $email, IPS_FOLDER_PERMISSION );
             }
         } catch ( IOException $e ) {
         }
@@ -309,7 +322,7 @@ class _Applications
                 }
             }
 
-            $header = '<ips:template parameters="' . $insert[ 'template_data' ] . '" />' . \PHP_EOL;
+            $header = '<ips:template parameters="' . $insert[ 'template_data' ] . '" />' . PHP_EOL;
 
             if ( isset( $insert[ 'template_content_plaintext' ] ) ) {
                 $plainText = $header . $insert[ 'template_content_plaintext' ];
@@ -360,70 +373,70 @@ class _Applications
 
         $langFile = new DTFileGenerator;
         $langFile->setFilename( $this->dev . '/lang.php' );
-        $langFile->setBody( '$lang=' . var_export( $lang, \true ) . ";" );
+        $langFile->setBody( '$lang=' . var_export($lang, true) . ";" );
         $langFile->write();
 
         $langFile->setFilename( $this->dev . '/jslang.php' );
-        $langFile->setBody( '$lang=' . var_export( $langJs, \true ) . ";" );
+        $langFile->setBody( '$lang=' . var_export($langJs, true) . ";" );
         $langFile->write();
 
         return $this;
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      * @throws IOException
      * @throws RuntimeException
      */
     public function core()
     {
-        $packageDir = \IPS\ROOT_PATH . '/dev/';
-        $cke = \IPS\ROOT_PATH . '/applications/core/dev/ckeditor/';
+        $packageDir = Application::getRootPath() . '/dev/';
+        $cke = Application::getRootPath() . '/applications/core/dev/ckeditor/';
 
-        if ( !is_dir( $cke ) && !mkdir( $cke, 0777, \true ) && !is_dir( $cke ) ) {
+        if ( !is_dir( $cke ) && !mkdir($cke, 0777, true) && !is_dir($cke ) ) {
             throw new RuntimeException( sprintf( 'Directory "%s" was not created', $cke ) );
         }
-        $this->recurseCopy( \IPS\ROOT_PATH . '/applications/core/interface/ckeditor/ckeditor/', $cke );
+        $this->recurseCopy( Application::getRootPath() . '/applications/core/interface/ckeditor/ckeditor/', $cke );
 
-        $cm = \IPS\ROOT_PATH . '/applications/core/dev/codemirror/';
+        $cm = Application::getRootPath() . '/applications/core/dev/codemirror/';
 
-        if ( !is_dir( $cm ) && !mkdir( $cm, 0777, \true ) && !is_dir( $cm ) ) {
+        if ( !is_dir( $cm ) && !mkdir($cm, 0777, true) && !is_dir($cm ) ) {
             throw new RuntimeException( sprintf( 'Directory "%s" was not created', $cm ) );
         }
 
-        $this->recurseCopy( \IPS\ROOT_PATH . '/applications/core/interface/codemirror/', $cm );
+        $this->recurseCopy( Application::getRootPath() . '/applications/core/interface/codemirror/', $cm );
         if ( is_dir( $packageDir . 'Whoops/' ) ) {
             $fs = new Filesystem();
             $fs->remove( $packageDir . 'Whoops/' );
         }
 
-        if ( !is_dir( $packageDir ) && !mkdir( $packageDir, 0777, \true ) && !is_dir( $packageDir ) ) {
+        if ( !is_dir( $packageDir ) && !mkdir($packageDir, 0777, true) && !is_dir($packageDir ) ) {
             throw new RuntimeException( sprintf( 'Directory "%s" was not created', $packageDir ) );
         }
 
         $download = 'https://github.com/filp/whoops/archive/master.zip';
-        $file = \file_get_contents( $download );
-        $newFile = \IPS\ROOT_PATH . '/dev/master.zip';
-        \file_put_contents( $newFile, $file );
+        $file = file_get_contents( $download );
+        $newFile = Application::getRootPath() . '/dev/master.zip';
+        file_put_contents( $newFile, $file );
         $zip = new ZipArchive;
         $res = $zip->open( $newFile );
-        if ( $res === \true ) {
+        if ( $res === true) {
             $zip->extractTo( $packageDir );
             $this->recurseCopy( $packageDir . '/whoops-master/src/Whoops/', $packageDir . '/Whoops/' );
-            copy( \IPS\ROOT_PATH . '/applications/dtdevfolder/sources/Apps/function_overrides.php', $packageDir . '/function_overrides.php' );
+            copy( Application::getRootPath() . '/applications/dtdevfolder/sources/Apps/function_overrides.php', $packageDir . '/function_overrides.php' );
             $fs->remove( $packageDir . '/whoops-master/' );
 
         }
         $zip->close();
 
-        @\unlink( $newFile );
+        @unlink($newFile );
     }
 
     /**
      * @param $src
      * @param $dst
      *
-     * @throws \Exception
+     * @throws Exception
      * @throws RuntimeException
      */
     protected function recurseCopy( $src, $dst )
@@ -432,7 +445,7 @@ class _Applications
         if ( !mkdir( $dst ) && !is_dir( $dst ) ) {
             throw new RuntimeException( sprintf( 'Directory "%s" was not created', $dst ) );
         }
-        while ( \false !== ( $file = readdir( $dir ) ) ) {
+        while ( false !== ( $file = readdir($dir ) ) ) {
             if ( ( $file != '.' ) && ( $file != '..' ) ) {
                 if ( is_dir( $src . '/' . $file ) ) {
                     $this->recurseCopy( $src . '/' . $file, $dst . '/' . $file );

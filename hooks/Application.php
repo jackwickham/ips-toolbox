@@ -50,7 +50,7 @@ class toolbox_hook_Application extends _HOOK_CLASS_
      */
     public function installOther()
     {
-        if (\IPS\IN_DEV) {
+        if (\IPS\IN_DEV && $this->marketplace_id === null) {
             $dir = \IPS\ROOT_PATH . '/applications/' . $this->directory . '/dev/';
             if (!\file_exists($dir)) {
                 try {

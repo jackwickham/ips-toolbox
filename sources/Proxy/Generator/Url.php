@@ -13,9 +13,12 @@ namespace IPS\toolbox\Proxy\Generator;
 
 use Exception;
 use IPS\Application;
+use IPS\chrono\Project\Role;
 use IPS\Data\Store;
 use IPS\Db;
 use Symfony\Component\Finder\Finder;
+
+use function array_filter;
 use function array_unshift;
 use function file_exists;
 use function file_get_contents;
@@ -108,7 +111,8 @@ class _Url extends GeneratorAbstract
 
         $jsonMeta['registrar'][] = [
             'signature' => [
-                "IPS\\Output::error:1"
+                "IPS\\Output::error:1",
+                "IPS\\chrono\\Application::error:1"
             ],
             'provider' => 'error',
             'language' => 'php',

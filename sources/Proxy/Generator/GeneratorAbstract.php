@@ -57,7 +57,7 @@ class _GeneratorAbstract extends Singleton
         $this->save = Proxyclass::i()->save;
     }
 
-    protected function writeClass($class, $implements, $body, $ns = 'dtProxy', $funcName = 'get')
+    public function writeClass($class, $implements, $body, $ns = 'dtProxy', $funcName = 'get')
     {
         try {
             $newClass = new ClassGenerator();

@@ -18,6 +18,7 @@ use IPS\Data\Store;
 use IPS\Patterns\Singleton;
 use IPS\Settings;
 use IPS\toolbox\Application;
+use IPS\toolbox\DevCenter\Sources\SourcesFormAbstract;
 use IPS\toolbox\Generator\DTFileGenerator;
 use IPS\toolbox\Proxy\Generator\Applications;
 use IPS\toolbox\Proxy\Generator\Db as GeneratorDb;
@@ -27,6 +28,8 @@ use IPS\toolbox\Proxy\Generator\Moderators;
 use IPS\toolbox\Proxy\Generator\Proxy;
 use IPS\toolbox\Proxy\Generator\Templates;
 use IPS\toolbox\Proxy\Generator\Url;
+use IPS\toolbox\Proxy\Generator\Writer;
+use IPS\toolbox\Shared\Providers;
 use IPS\toolbox\Shared\Read;
 use IPS\toolbox\Shared\Replace;
 use IPS\toolbox\Shared\Write;
@@ -57,6 +60,7 @@ use function iterator_to_array;
 use function json_decode;
 use function json_encode;
 use function md5;
+use function method_exists;
 use function mkdir;
 use function mt_rand;
 use function preg_match;
@@ -380,8 +384,22 @@ class _Proxyclass extends Singleton
      */
     public function makeJsonFile()
     {
-        if (isset(Store::i()->dt_json)) {
-            $content = json_encode(Store::i()->dt_json, JSON_PRETTY_PRINT);
+        $jsonMeta = [];
+
+        if ( isset( Store::i()->dt_json ) ) {
+            $jsonMeta = Store::i()->dt_json;
+        }
+        /* @var \IPS\Application $app */
+        foreach (Application::appsWithExtension('toolbox', 'Providers',false) as $app) {
+            /* @var Providers $extension */
+            foreach ($app->extensions('toolbox', 'Providers') as $extension) {
+                $extension->meta($jsonMeta);
+                $extension->writeProvider(Writer::i());
+            }
+        }
+
+        if (empty($jsonMeta) === false) {
+            $content = json_encode($jsonMeta, JSON_PRETTY_PRINT);
             $this->_writeFile('.ide-toolbox.metadata.json', $content,  $this->save);
             unset(Store::i()->dt_json);
         }

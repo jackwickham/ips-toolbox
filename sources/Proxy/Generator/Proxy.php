@@ -145,6 +145,21 @@ class _Proxy extends GeneratorAbstract
                 }
                 return null;
             }, $cc);
+            if( Application::appIsEnabled('chrono')){
+                preg_replace_callback('#Application::error\((.*?),(.*?)[,|)](.*?)$#msu', static function($m)use(&$codes){
+                    if( !isset( $m[2] ) ){
+                        return;
+                    }
+
+                    $c =  trim(str_replace(['"',"'"],'',trim($m[2])));
+                    $first = mb_substr($c, 0, 1);
+                    if( $c && (int) $first && mb_strpos($c,'$') === false && mb_strpos($c, '<') === false && $c != 'FALSE' && $c != 'false') {
+                        $codes[] = $c;
+                    }
+                    return null;
+                }, $cc);
+
+            }
             Store::i()->dt_error_codes = $codes;
             $data = Proxyclass::i()->tokenize($content);
             if (isset($data['class'], $data['namespace'])) {

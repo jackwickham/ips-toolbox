@@ -107,10 +107,13 @@ class _Applications
         if( $this->app->marketplace_id !== null ){
             throw new Exception('Something has gone wrong try again!');
         }
-        $this->dir = $this->app->getApplicationPath();
-        $this->dev = $this->dir . '/dev/';
 
-        if ( in_array($app, IPS::$ipsApps, true) ) {
+        $this->dir = method_exists($this->app, 'getApplicationPath')
+            ? $this->app->getApplicationPath()
+            : $_SERVER['DOCUMENT_ROOT'].'/applications/'.$this->app->directory;
+        $this->dev = $this->dir.'/dev/';
+
+        if ( isset(IPS::$ipsApps) && in_array($app, IPS::$ipsApps, true) ) {
             $fs->remove( $this->dev );
         }
 

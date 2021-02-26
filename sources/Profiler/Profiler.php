@@ -17,6 +17,7 @@ use InvalidArgumentException;
 use IPS\Db;
 use IPS\Dispatcher;
 use IPS\Http\Url;
+use IPS\IPS;
 use IPS\Member;
 use IPS\Patterns\Singleton;
 use IPS\Plugin;
@@ -232,6 +233,17 @@ class _Profiler extends Singleton
             'id' => $app,
         ] );
 
+        $sources = [];
+        foreach( $this->apps(false) as $app ){
+            $title = $app->_title;
+            \IPS\Member::loggedIn()->language()->parseOutputForDisplay( $title );
+
+            $sources[] = [
+                'url' => Url::internal('app=toolbox&module=generator&controller=sources')->setQueryString(['appKey'=>$app->directory]),
+                'name' => $title
+            ];
+        }
+       // $info['sources'] = $sources;
         return $info;
     }
 
@@ -313,7 +325,7 @@ class _Profiler extends Singleton
 
         foreach ( Application::applications() as $app ) {
 
-            if ( !in_array( $app->directory, Application::$ipsApps, true ) ) {
+            if ( !in_array( $app->directory, IPS::$ipsApps, true ) ) {
                 if ( in_array( $app->directory, $dtApps, true ) ) {
                     continue;
                 }

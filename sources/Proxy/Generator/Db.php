@@ -14,12 +14,13 @@ namespace IPS\toolbox\Proxy\Generator;
 use Exception;
 use IPS\Data\Store;
 use IPS\Db;
+
 use function array_values;
 use function header;
 use function str_replace;
 
-if ( !\defined( '\IPS\SUITE_UNIQUE_KEY' ) ) {
-    header( ( $_SERVER[ 'SERVER_PROTOCOL' ] ?? 'HTTP/1.0' ) . ' 403 Forbidden' );
+if (!\defined('\IPS\SUITE_UNIQUE_KEY')) {
+    header(($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.0') . ' 403 Forbidden');
     exit;
 }
 
@@ -43,11 +44,11 @@ class _Db extends GeneratorAbstract
     {
         $jsonMeta = [];
 
-        if ( isset( Store::i()->dt_json ) ) {
+        if (isset(Store::i()->dt_json)) {
             $jsonMeta = Store::i()->dt_json;
         }
 
-        $jsonMeta[ 'registrar' ][] = [
+        $jsonMeta['registrar'][] = [
             'signature' => [
                 'IPS\\Db::select:1',
                 'IPS\\Db::insert:0',
@@ -64,17 +65,18 @@ class _Db extends GeneratorAbstract
                 'IPS\\Db::addColumn:0',
                 'IPS\\Db::changeColumn:0',
                 'IPS\\Db::dropColumn:0',
+                'IPS\\Db\\Select::join:0',
                 'IPS\\Helpers\\Table\\Db::__construct:0',
             ],
-            'provider'  => 'database',
-            'language'  => 'php',
+            'provider' => 'database',
+            'language' => 'php',
         ];
 
-        $jsonMeta[ 'providers' ][] = [
-            'name'   => 'database',
+        $jsonMeta['providers'][] = [
+            'name' => 'database',
             'source' => [
                 'contributor' => 'return_array',
-                'parameter'   => 'dtProxy\\DatabaseProvider::get',
+                'parameter' => 'dtProxy\\DatabaseProvider::get',
             ],
         ];
 
@@ -89,19 +91,19 @@ class _Db extends GeneratorAbstract
     public function buildDbClass()
     {
         try {
-            $tables = Db::i()->query( 'SHOW TABLES' );
-        } catch ( Exception $e ) {
+            $tables = Db::i()->query('SHOW TABLES');
+        } catch (Exception $e) {
             $tables = [];
         }
 
         $toWrite = [];
 
-        foreach ( $tables as $table ) {
-            $foo = array_values( $table );
-            $toWrite[] = str_replace( Db::i()->prefix, '', $foo[ 0 ] );
+        foreach ($tables as $table) {
+            $foo = array_values($table);
+            $toWrite[] = str_replace(Db::i()->prefix, '', $foo[0]);
         }
 
-        $this->writeClass( 'Databases', 'DatabaseProvider', $toWrite );
+        $this->writeClass('Databases', 'DatabaseProvider', $toWrite);
     }
 }
 

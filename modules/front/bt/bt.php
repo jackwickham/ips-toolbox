@@ -14,32 +14,32 @@
 namespace IPS\toolbox\modules\front\bt;
 
 use Exception;
-use IPS\Data\Cache;
 use IPS\Data\Store;
 use IPS\DateTime;
 use IPS\Db;
 use IPS\Dispatcher\Controller;
+use IPS\Helpers\MultipleRedirect;
 use IPS\Http\Url;
 use IPS\Log;
 use IPS\Member;
 use IPS\Output;
 use IPS\Plugin;
 use IPS\Request;
-use IPS\Session;
-use IPS\Theme;
 use IPS\toolbox\Application;
-use IPS\toolbox\Form;
-use IPS\toolbox\Profiler;
 use IPS\toolbox\Profiler\Debug;
+use IPS\toolbox\Proxy\Generator\Proxy;
+use IPS\toolbox\Proxy\Proxyclass;
 use IPS\toolbox\Shared\Lorem;
 use Symfony\Component\Filesystem\Filesystem;
 use UnexpectedValueException;
+use IPS\Theme;
 
 use function base64_decode;
 use function count;
 use function defined;
 use function header;
 use function htmlentities;
+use function in_array;
 use function ini_get;
 use function is_array;
 use function is_dir;
@@ -50,15 +50,11 @@ use function nl2br;
 use function ob_end_clean;
 use function ob_get_clean;
 use function ob_start;
-use function opcache_invalidate;
 use function phpinfo;
 use function preg_replace;
-use function random_int;
 use function sleep;
 use function str_replace;
 use function time;
-
-use function unlink;
 
 use const IPS\ROOT_PATH;
 
@@ -208,7 +204,8 @@ class _bt extends Controller
         Output::i()->redirect($redirect);
     }
 
-    protected function _clearCache(){
+    protected function _clearCache()
+    {
         $path = ROOT_PATH . '/hook_temp';
 
         if (is_dir($path)) {
@@ -217,19 +214,17 @@ class _bt extends Controller
             $fs->remove([$path]);
         }
         /* Don't clear CSS/JS when we click "check again" or the page will be broken - it's unnecessary anyways */
-        if( !isset( \IPS\Request::i()->checkAgain ) )
-        {
+        if (!isset(Request::i()->checkAgain)) {
             /* Clear JS Maps first */
-            \IPS\Output::clearJsFiles();
+            Output::clearJsFiles();
 
             /* Reset theme maps to make sure bad data hasn't been cached by visits mid-setup */
             \IPS\Theme::deleteCompiledCss();
             \IPS\Theme::deleteCompiledResources();
 
-            foreach( \IPS\Theme::themes() as $id => $set )
-            {
+            foreach (\IPS\Theme::themes() as $id => $set) {
                 /* Invalidate template disk cache */
-                $set->cache_key = md5( microtime() . mt_rand( 0, 1000 ) );
+                $set->cache_key = md5(microtime() . mt_rand(0, 1000));
                 $set->save();
             }
         }
@@ -238,8 +233,9 @@ class _bt extends Controller
         \IPS\Data\Cache::i()->clearAll();
         \IPS\Output\Cache::i()->clearAll();
 
-        \IPS\Member::clearCreateMenu();
+        Member::clearCreateMenu();
     }
+
     protected function thirdParty(): void
     {
         $enable = (int)Request::i()->enabled;
@@ -267,24 +263,23 @@ class _bt extends Controller
 
         /* Clear cache */
         Cache::i()->clearAll();
-Plugin\Hook::writeDataFile();
+        Plugin\Hook::writeDataFile();
         Output::i()->redirect($redirect);
     }
 
     protected function enableDisableApp(): void
     {
         $enabled = (int)Request::i()->enabled;
-        if( $enabled === 1){
+        if ($enabled === 1) {
             $enabled = 0;
-        }
-        else{
+        } else {
             $enabled = 1;
         }
         $redirect = base64_decode(Request::i()->data);
-        $id = (int) Request::i()->id;
+        $id = (int)Request::i()->id;
         $data = Db::i()->select('*', 'core_applications', ['app_id=?', $id])->first();
         /** @var Application $app */
-        $app = \IPS\Application::constructFromData( $data );
+        $app = \IPS\Application::constructFromData($data);
         $app->enabled = $enabled;
         $app->save();
 //        Db::i()->update('core_applications', ['app_enabled' => $enabled], ['app_id=?', $id]);
@@ -381,6 +376,31 @@ Plugin\Hook::writeDataFile();
         Db::i()->update('toolbox_debug', ['debug_viewed' => 1]);
     }
 
+    protected function proxy()
+    {
+        if (\IPS\NO_WRITES === true) {
+            Output::i()->error(
+                'Proxy generator can not be used atm, NO_WRITES is enabled in the constants.php.',
+                '100foo'
+            );
+        }
+        Proxyclass::i()->dirIterator();
+        Proxyclass::i()->buildHooks();
+        $iterator = Store::i()->dtproxy_proxy_files;
+        foreach ($iterator as $key => $file) {
+            Proxyclass::i()->build($file);
+        }
+        unset(Store::i()->dtproxy_proxy_files);
+        Proxy::i()->buildConstants();
+        $step = 1;
+        do {
+            $step = Proxyclass::i()->makeToolboxMeta($step);
+        }while($step !== null);
+        Proxy::i()->generateSettings();
+        Proxyclass::i()->buildCss();
+        unset(Store::i()->dtproxy_proxy_files, Store::i()->dtproxy_templates);
+        Output::i()->output = '';
+    }
 //    protected function adminer()
 //    {
 //        $url = Url::baseUrl() . '/applications/toolbox/sources/Profiler/Adminer/db.php';

@@ -16,5 +16,13 @@ if ( !defined( '\IPS\SUITE_UNIQUE_KEY' ) )
  */
 class _{class} implements Providers
 {
+    public function meta(array &$jsonMeta)
+    {
+        // TODO: Implement meta() method.
+    }
 
+    public function writeProvider(Writer $generator)
+    {
+        // TODO: Implement writeProvider() method.
+    }
 }

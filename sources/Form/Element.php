@@ -359,7 +359,7 @@ class _Element
      *
      * @return self
      */
-    public function prefix(string $prefix): self
+    public function prefix(?string $prefix): self
     {
         $this->prefix = $prefix;
 
@@ -371,7 +371,7 @@ class _Element
      *
      * @return self
      */
-    public function suffix(string $suffix): self
+    public function suffix(?string $suffix): self
     {
         $this->suffix = $suffix;
 

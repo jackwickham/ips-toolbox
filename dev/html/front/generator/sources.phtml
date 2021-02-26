@@ -1,0 +1,72 @@
+<ips:template parameters="$appKey"/>
+
+<div class="ipsPadding ipsClearfix">
+    <h1>
+        Sources: {$appKey}
+    </h1>
+    <div class="ipsColumn ipsColumn_medium ipsTabs" id="elTabs_sources_tabs" data-ipstabbar data-ipstabbar-contentarea="#elTabs_sources_tabs_content" data-ipstabbar-defaultTab="#elTab_sources_tab_standard">
+        <a href="#elTabs_sources_tabs" data-action="expandTabs"><i class="fa fa-caret-down"></i></a>
+        <ul role="tablist">
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=standard"}' id="elTab_sources_tab_standard" class="ipsTabs_item" role="tab">
+                    Standard
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=cinterface"}' id="elTab_sources_tab_cinterface" class="ipsTabs_item" role="tab">
+                    Interface
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=ctraits"}' id="elTab_sources_tab_traits" class="ipsTabs_item" role="tab">
+                    Trait
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=singleton"}' id="elTab_sources_tab_singleton" class="ipsTabs_item" role="tab">
+                    Singleton
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=ar"}' id="elTab_sources_tab_ar" class="ipsTabs_item" role="tab">
+                    ActiveRecord
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=api"}' id="elTab_sources_tab_api" class="ipsTabs_item" role="tab">
+                    Api
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=node"}' id="elTab_sources_tab_node" class="ipsTabs_item" role="tab">
+                    Node
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=item"}' id="elTab_sources_tab_item" class="ipsTabs_item" role="tab">
+                    Item
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=comment"}' id="elTab_sources_tab_comment" class="ipsTabs_item" role="tab">
+                    Item's Comment
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=review"}' id="elTab_sources_tab_review" class="ipsTabs_item" role="tab">
+                    Item's Review
+                </a>
+            </li>
+            <li>
+                <a href='{url="app=toolbox&module=generator&controller=sources&appKey={$appKey}&do=debug"}' id="elTab_sources_tab_debug" class="ipsTabs_item" role="tab">
+                    Item's Review
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="ipsColumn ipsColumn_fluid" id="elTabs_sources_tabs_content">
+
+    </div>
+
+
+</div>

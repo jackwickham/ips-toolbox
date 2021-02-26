@@ -474,7 +474,7 @@ class _Sources
             'placeholder' => 'Namespace',
             'autocomplete' => $this->findNameSpace,
         ];
-        $this->form->add('namespace')->options($options)->prefix("IPS\\{$this->application->directory}\\");
+        $this->form->add('namespace')->options($options)->prefix("IPS\\{$this->application->directory}\\")->required()->validation(static function($data){});
     }
 
     /**
@@ -487,17 +487,15 @@ class _Sources
             $placeholder = 'Interface Name';
             $name = 'interfaceName';
             $validate = [$this, 'interfaceClassCheck'];
+        } elseif ($this->type === 'traits') {
+            $placeholder = 'Trait Name';
+            $name = 'traitName';
+            $validate = [$this, 'traitClassCheck'];
         } else {
-            if ($this->type === 'traits') {
-                $placeholder = 'Trait Name';
-                $name = 'traitName';
-                $validate = [$this, 'traitClassCheck'];
-            } else {
-                $placeholder = 'Class Name';
-                $name = 'className';
-                $validate = [$this, 'classCheck'];
-                $prefix = '_';
-            }
+            $placeholder = 'Class Name';
+            $name = 'className';
+            $validate = [$this, 'classCheck'];
+            $prefix = '_';
         }
 
         $this->form->add($name)->options(['placeHolder' => $placeholder])->prefix($prefix)->validation($validate);

@@ -128,7 +128,8 @@ class _Url extends GeneratorAbstract
 
         Store::i()->dt_json = $jsonMeta;
 
-        $this->writeClass('Error', 'ErrorCodesProvider', array_filter(Store::i()->dt_error_codes));
+        $errorCodes = Store::i()->dt_error_codes ?? [];
+        $this->writeClass('Error', 'ErrorCodesProvider', array_filter($errorCodes ));
 unset(Store::i()->dt_error_codes);
         try {
             $toWrite = [];

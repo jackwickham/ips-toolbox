@@ -25,5 +25,10 @@
         "constants": {
             "toolbox": "IPS\\toolbox\\extensions\\toolbox\\constants\\toolbox"
         }
+    },
+    "core": {
+        "Queue": {
+            "Proxy": "IPS\\toolbox\\extensions\\core\\Queue\\Proxy"
+        }
     }
 }

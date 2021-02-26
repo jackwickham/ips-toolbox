@@ -2,37 +2,50 @@
     "admin": {
         "build": {
             "default_controller": "",
-            "protected": 0
+            "protected": 0,
+            "default": 0
         },
         "settings": {
             "default_controller": "",
-            "protected": 0
+            "protected": 0,
+            "default": 0
         },
         "devfolder": {
             "default_controller": "",
-            "protected": 0
+            "protected": 0,
+            "default": 0
         },
         "code": {
             "default_controller": "",
-            "protected": 0
+            "protected": 0,
+            "default": 0
         },
         "content": {
             "default_controller": "",
-            "protected": 0
+            "protected": 0,
+            "default": 0
         },
         "devcenter": {
             "default_controller": "",
-            "protected": 0
+            "protected": 0,
+            "default": 0
         },
         "proxy": {
             "default_controller": "",
-            "protected": false
+            "protected": 0,
+            "default": 0
         }
     },
     "front": {
         "bt": {
             "default_controller": "",
-            "protected": 0
+            "protected": 0,
+            "default": 0
+        },
+        "generator": {
+            "default_controller": "",
+            "protected": false,
+            "default": null
         }
     }
 }

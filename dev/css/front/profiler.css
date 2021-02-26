@@ -353,3 +353,7 @@
 .dtProfilerSearch input {
     color:#000!important;
 }
+
+#elTabs_sources_tabs li {
+    min-width:200px;
+}

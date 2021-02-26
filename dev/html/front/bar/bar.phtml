@@ -98,6 +98,24 @@
                     </a>
                 </li>
             </ul>
+            <a href="#" data-ipstoolboxproxy>
+                Proxy Class
+            </a>
+
+            {{if isset( $info['sources']) }}
+            <a id="elProfileSources" href="#elProfileSources_menu" title="Sources" class=" " data-ipstooltip data-ipsmenu>
+                Sources <i class="fa fa-angle-up"></i>
+            </a>
+            <ul id="elProfileSources_menu" class="ipsMenu ipsMenu_auto ipsMenu_wide ipsList_reset ipsHide">
+                {{foreach $info['sources'] as $key => $val }}
+                <li class="ipsMenu_item">
+                     <a href="{$val['url']}" data-ipsDialog data-ipsDialog-destructOnClos="true">
+                         {$val['name']}
+                     </a>
+                </li>
+                {{endforeach}}
+            </ul>
+            {{endif}}
         </div>
         {{if settings.dtprofiler_git_data || settings.dtprofiler_show_changes}}
         <div id="el_dtProfileGit" class="dttProfilerInfoGit ipsClearfix" data-ipsdtprofilergit data-ipsdtprofilergit-url="{$info['git_url']}">

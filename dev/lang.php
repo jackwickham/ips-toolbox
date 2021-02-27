@@ -332,5 +332,7 @@ $lang = [
     'dtprofiler_enable_debug_ajax_desc' => 'This will enable the long polling ajax script for debug.',
     'toolbox_dev_center_missin_multion' => 'you are missing protected static $multions=[]; property in your class %s',
     'dtdevplus_dev_options' => 'Options',
-    'dtdevplus_dev_options_desc' => 'Options for the widget.'
+    'dtdevplus_dev_options_desc' => 'Options for the widget.',
+    'dtdevplus_class_extendsYN' => 'Extend',
+    'dtdevplus_class_extendsYN_desc' => 'Extend this class?',
 ];

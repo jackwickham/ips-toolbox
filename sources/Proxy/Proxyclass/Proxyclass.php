@@ -305,7 +305,10 @@ class _Proxyclass extends Singleton
     {
         $finder = new SplFileInfo($file);
         $content = $this->_getFileByFullPath($file);
-
+        $templates = [];
+        if(isset(Store::i()->dtproxy_templates)) {
+            $templates = Store::i()->dtproxy_templates;
+        }
         if ($finder->getExtension() === 'phtml') {
             $methodName = $finder->getBasename('.' . $finder->getExtension());
             preg_match('/^<ips:template parameters="(.+?)?"(.+?)?\/>(\r\n?|\n)/', $content, $params);
@@ -316,11 +319,12 @@ class _Proxyclass extends Singleton
                     $parameters = $params[1];
                 }
 
-                $this->templates[$file] = ['method' => $methodName, 'params' => $parameters];
+                $templates[$file] = ['method' => $methodName, 'params' => $parameters];
             }
         } elseif ($finder->getExtension() === 'php') {
             Proxy::i()->create($content, $file);
         }
+        Store::i()->dtproxy_templates = $templates;
     }
 
     /**
@@ -640,8 +644,15 @@ class _Proxyclass extends Singleton
             '404error.php',
             'error.php',
             'test.php',
-            'HtmlPurifierHttpsImages.php'
+            'HtmlPurifierHttpsImages.php',
+            'system/Output/System/Output.php'
 
+        ];
+    }
+
+    public function excludeClasses(){
+        return [
+          \IPS\Output\_System::class => 1
         ];
     }
 

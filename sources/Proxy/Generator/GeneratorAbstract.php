@@ -46,6 +46,8 @@ class _GeneratorAbstract extends Singleton
 
     protected $save;
 
+    protected $exclude = [];
+
     /**
      * @var Cache
      */
@@ -55,6 +57,7 @@ class _GeneratorAbstract extends Singleton
     {
         $this->cache = Cache::i();
         $this->save = Proxyclass::i()->save;
+        $this->exclude = Proxyclass::i()->excludeClasses();
     }
 
     public function writeClass($class, $implements, $body, $ns = 'dtProxy', $funcName = 'get')

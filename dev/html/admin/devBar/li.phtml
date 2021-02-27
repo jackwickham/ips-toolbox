@@ -2,10 +2,14 @@
 <li>
     <a href="{$menu['url']}_menu" id="{$menu['url']}" data-ipsMenu>{lang="$menu['name']"}</a>
     {{if isset( $menus[ $menu['id'] ] ) }}
-    <ul id="{$menu['url']}_menu" class="ipsMenu ipsHide  ipsClearfix">
+    <ul id="{$menu['url']}_menu" class="ipsMenu ipsHide ipsClearfix">
         {{foreach $menus[ $menu['id'] ] as $m }}
         <li class="ipsMenu_item">
+            {{if $m['id'] === 'proxy'}}
+            <a href="#" data-ipstoolboxproxy>{lang="$m['name']"}</a>
+            {{else}}
             <a href="{$m['url']}">{lang="$m['name']"}</a>
+            {{endif}}
         </li>
         {{endforeach}}
     </ul>

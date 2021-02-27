@@ -19,6 +19,7 @@ use IPS\Content\Featurable;
 use IPS\Content\Followable;
 use IPS\Content\FuturePublishing;
 use IPS\Content\Hideable;
+use IPS\Content\ItemTopic;
 use IPS\Content\Lockable;
 use IPS\Content\MetaData;
 use IPS\Content\Pinnable;
@@ -28,6 +29,8 @@ use IPS\Content\ReadMarkers;
 use IPS\Content\Reportable;
 use IPS\Content\Searchable;
 use IPS\Content\Shareable;
+use IPS\Content\Solvable;
+use IPS\Content\Statistics;
 use IPS\Content\Tags;
 use IPS\Content\Views;
 use IPS\Http\Url;
@@ -517,8 +520,8 @@ class _Sources
         $options = [
             'autocomplete' => $this->findClass,
         ];
-
-        $this->form->add('extends', 'yn')->options($options)->validation([$this, 'extendsCheck']);
+        $this->form->add('extendsYN','yn')->toggles(['extends']);
+        $this->form->add('extends')->options($options)->validation([$this, 'extendsCheck'])->prefix('IPS\\');
     }
 
     /**
@@ -597,9 +600,7 @@ class _Sources
         ];
 
         $this->form->tab('interfaces');
-        $this->form->add('ips_implements', 'checkboxset')->label('interface_implements_node')->empty(
-            array_keys($interfacesNode)
-        )->options(['options' => $interfacesNode]);
+        $this->form->add('ips_implements', 'checkboxset')->label('interface_implements_node')->options(['options' => $interfacesNode]);
         $this->elInterfaces();
     }
 
@@ -622,9 +623,7 @@ class _Sources
         ];
 
         $this->form->tab('traits');
-        $this->form->add('ips_traits', 'checkboxset')->label('ips_traits_node')->empty(
-            array_keys($traitsNode)
-        )->options(['options' => $traitsNode]);
+        $this->form->add('ips_traits', 'checkboxset')->label('ips_traits_node')->options(['options' => $traitsNode]);
 
         $this->elTraits();
     }
@@ -645,12 +644,13 @@ class _Sources
         $traitsItems = [
             Reactable::class => Reactable::class,
             Reportable::class => Reportable::class,
+            ItemTopic::class => ItemTopic::class,
+            Solvable::class => Solvable::class,
+            Statistics::class => Statistics::class
         ];
 
         $this->form->tab('traits');
-        $this->form->add('ips_traits', 'checkboxset')->label('ips_traits_item')->empty(
-            array_keys($traitsItems)
-        )->options(['options' => $traitsItems]);
+        $this->form->add('ips_traits', 'checkboxset')->label('ips_traits_item')->value([])->options(['options' => $traitsItems]);
 
         $this->elTraits();
     }
@@ -682,9 +682,7 @@ class _Sources
         ];
 
         $this->form->tab('interfaces');
-        $this->form->add('ips_implements', 'checkboxset')->label('interface_implements_item')->empty(
-            array_keys($interfacesItem)
-        )->options(['options' => $interfacesItem]);
+        $this->form->add('ips_implements', 'checkboxset')->label('interface_implements_item')->value([])->options(['options' => $interfacesItem]);
 
         $this->elInterfaces();
     }

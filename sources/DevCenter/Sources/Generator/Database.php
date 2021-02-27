@@ -643,6 +643,11 @@ class _Database
         return $this->buildDefinition('rating_hits', 'Rating hits', 'MEDIUMINT', 9, true, 0, false, false);
     }
 
+    protected function solvedCommentId(): array
+    {
+        return $this->buildDefinition('solved_comment_id', 'Solved Comment ID', 'BIGINT', null, true, null, true, false);
+    }
+
     /**
      * returns a author_name definition
      *
@@ -722,4 +727,5 @@ class _Database
     {
         return $this->buildDefinition('bitwise', 'bitwise field.', 'BIGINT', 20);
     }
+
 }

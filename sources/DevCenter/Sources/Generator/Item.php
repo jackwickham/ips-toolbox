@@ -23,6 +23,7 @@ use IPS\Content\Ratings;
 use IPS\Content\Reactable;
 use IPS\Content\ReadMarkers;
 use IPS\Content\Reportable;
+use IPS\Content\Solvable;
 use IPS\Content\Views;
 use SplObserver;
 use SplSubject;
@@ -390,6 +391,52 @@ class _Item extends GeneratorAbstract
                     ],
                 ];
                 $this->generator->addProperty('icon', 'cubes', $extra);
+            }
+
+            if( in_array( Solvable::class, $this->traits,false) ){
+                $dbColumns[] = 'solved_comment_id';
+                $columnMap['solved_comment_id'] = 'solved_comment_id';
+                /**
+                 * Container has solvable enabled
+                 *
+                 * @return	string
+                 */
+                $doc = [
+                    'Container has solvable enabled',
+                    '@return string',
+                ];
+                $body = '';
+                $params = [];
+                $extra = [
+                    'static' => false,
+                    'document' => $doc,
+                ];
+                $this->generator->addMethod('containerAllowsSolvable', $body, $params, $extra);
+
+
+                $doc = [
+                    'Container has solvable enabled',
+                    '@return string',
+                ];
+                $body = '';
+                $params = [];
+                $extra = [
+                    'static' => false,
+                    'document' => $doc,
+                ];
+                $this->generator->addMethod('containerAllowsMemberSolvable', $body, $params, $extra);
+
+                $doc = [
+                    'Any container has solvable enabled?',
+                    '@return boolean',
+                ];
+                $body = '';
+                $params = [];
+                $extra = [
+                    'static' => true,
+                    'document' => $doc,
+                ];
+                $this->generator->addMethod('anyContainerAllowsSolvable', $body, $params, $extra);
             }
         }
     }

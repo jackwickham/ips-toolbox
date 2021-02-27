@@ -65,13 +65,13 @@ class _Templates extends GeneratorAbstract
     {
         $jsonMeta = Store::i()->dt_json ?? [];
 
-        $jsonMeta[ 'registrar' ][] = [
-            'signature' => [
-                "IPS\\Theme::getTemplate:0",
-            ],
-            'provider'  => 'templateGroup',
-            'language'  => 'php',
-        ];
+//        $jsonMeta[ 'registrar' ][] = [
+//            'signature' => [
+//                "IPS\\Theme::getTemplate:0",
+//            ],
+//            'provider'  => 'templateGroup',
+//            'language'  => 'php',
+//        ];
         //this pisses me off, this use to work!
         $jsonMeta[ 'registrar' ][] = [
             'signature' => [
@@ -117,6 +117,9 @@ class _Templates extends GeneratorAbstract
         if ( count( $templates ) ) {
             foreach ( $templates as $key => $template ) {
                 $key = str_replace( \IPS\ROOT_PATH . '/applications/', '', $key );
+                if( $key === 'nexus/dev/html/global/forms/businessAddress.phtml' || $key === 'nexus/dev/html/global/forms/businessAddress'){
+                    continue;
+                }
                 $tpl = explode( DIRECTORY_SEPARATOR, $key );
                 array_pop( $tpl );
                 $temp = array_pop( $tpl );
@@ -157,12 +160,13 @@ class _Templates extends GeneratorAbstract
 
                                 try {
                                     $data['value'] = $param->getDefaultValue();
-                                } catch ( ReflectionException $e ) {
+                                } catch (Exception | ReflectionException $e ) {
                                 }
                                 $newParams[$param->getPosition()] = $data;
 
                             }
                         } catch (\Exception $e) {
+                            Debug::log($e);
                         }
                     }
                 }

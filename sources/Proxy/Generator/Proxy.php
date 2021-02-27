@@ -170,7 +170,9 @@ class _Proxy extends GeneratorAbstract
                 $app = array_shift($ns2);
                 $isApp = false;
                 $appPath = \IPS\ROOT_PATH . '/applications/' . $app;
-
+                if( isset( $this->exclude[$namespace . '\\' . $data['class']])){
+                    return;
+                }
                 if ($app && is_dir($appPath)) {
                     $isApp = true;
                 }
@@ -270,7 +272,14 @@ class _Proxy extends GeneratorAbstract
                             }
                         }
                     }
-                    if (Proxyclass::i()->doProps) {
+                    $skip = false;
+                    if( \function_exists('str_contains')){
+                        //we are in php8 and the xml reader is broken here! and it breaks the proxyclass generator
+                        if( $namespace . '\\' . $data['class'] === \IPS\Xml\_XMLReader::class){
+                            $skip = true;
+                        }
+                    }
+                    if (Proxyclass::i()->doProps && $skip === false) {
                         /* @var ActiveRecord $dbClass */
                         $dbClass = $namespace . '\\' . $class;
                         try {

@@ -49,8 +49,9 @@ class toolbox_hook_coreGlobalGlobalTheme extends _HOOK_CLASS_
     function includeJS()
     {
         if ( \IPS\QUERY_LOG && !Request::i()->isAjax() ) {
-            Output::i()->jsFiles = array_merge(Output::i()->jsFiles, Output::i()->js('front_profiler.js', 'toolbox', 'front' ) );
-
+            //Output::i()->jsFiles = array_merge(Output::i()->jsFiles, Output::i()->js('front_profiler.js', 'toolbox', 'front' ) );
+            \IPS\toolbox\Application::addJs(['front_profiler']);
+            \IPS\toolbox\Application::addJs(['global_proxy'], 'global');
             if ( Settings::i()->dtprofiler_enabled_js ) {
                 Store::i()->dtprofiler_js = Output::i()->jsFiles;
             }
